@@ -6,7 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { User } from './users/entities/user.entity';
+import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
 
 @Module({

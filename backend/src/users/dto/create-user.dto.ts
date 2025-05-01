@@ -1,14 +1,36 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength
+} from 'class-validator';
+// import { IsUnique } from './validators/is-unique.validator'; // You need to implement this custom validator
 
 export class CreateUserDto {
   @IsString()
-  // @IsUnique(...) check my previous video on how to make such
-  // custom validator as IsUnique doesn't exist in class-validator
+  @IsNotEmpty()
+  // @Validate(IsUnique, ['User', 'username']) // Custom unique validator, see note below
   username: string;
 
   @IsString()
-  // apply more rules for password as you see fit
+  @IsNotEmpty()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  // Add more password rules as needed (e.g., regex for complexity)
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  @IsNotEmpty()
+  // @Validate(IsUnique, ['User', 'email']) // Custom unique validator, see note below
+  email: string;
 
   @IsString()
   @IsOptional()

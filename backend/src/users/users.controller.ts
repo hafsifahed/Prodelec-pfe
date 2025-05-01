@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { FindUsersDto } from './dto/find-users.dto';
-import { User } from './entities/user.entity';
+import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
