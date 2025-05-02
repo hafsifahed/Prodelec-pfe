@@ -16,32 +16,74 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    // Seed roles
-    const adminRole = await this.roleRepository.findOne({ where: { name: 'admin' } });
-    if (!adminRole) {
-      await this.roleRepository.save(this.roleRepository.create({ name: 'admin', permissions: [] }));
-    }
-    const userRole = await this.roleRepository.findOne({ where: { name: 'user' } });
-    if (!userRole) {
-      await this.roleRepository.save(this.roleRepository.create({ name: 'user', permissions: [] }));
+    // Seed roles (admin, user, rh)
+    const rolesToSeed = ['admin', 'user', 'rh'];
+
+    for (const roleName of rolesToSeed) {
+      const existingRole = await this.roleRepository.findOne({
+        where: { name: roleName },
+      });
+
+      if (!existingRole) {
+        await this.roleRepository.save(
+          this.roleRepository.create({
+            name: roleName,
+            permissions: [],
+          }),
+        );
+      }
     }
 
     // Seed admin user
     const adminEmail = 'aaaaaa@gmail.com';
-    const existingAdmin = await this.userRepository.findOne({ where: { email: adminEmail } });
+    const existingAdmin = await this.userRepository.findOne({
+      where: { email: adminEmail },
+    });
+
     if (!existingAdmin) {
-      const role = await this.roleRepository.findOne({ where: { name: 'admin' } });
+      const adminRole = await this.roleRepository.findOne({
+        where: { name: 'admin' },
+      });
+
       const hashedPassword = await bcrypt.hash('aaaaaaaaa', await bcrypt.genSalt());
+
       const adminUser = this.userRepository.create({
         username: 'admin',
         email: adminEmail,
         firstName: 'Admin',
         lastName: 'User',
         password: hashedPassword,
-        role,
+        role: adminRole,
         accountStatus: AccountStatus.ACTIVE,
       });
+
       await this.userRepository.save(adminUser);
+    }
+
+    // Seed rh user
+    const rhEmail = 'rh@example.com';
+    const existingRh = await this.userRepository.findOne({
+      where: { email: rhEmail },
+    });
+
+    if (!existingRh) {
+      const rhRole = await this.roleRepository.findOne({
+        where: { name: 'rh' },
+      });
+
+      const hashedPassword = await bcrypt.hash('aaaaaaaaa', await bcrypt.genSalt());
+
+      const rhUser = this.userRepository.create({
+        username: 'rh',
+        email: rhEmail,
+        firstName: 'RH',
+        lastName: 'User',
+        password: hashedPassword,
+        role: rhRole,
+        accountStatus: AccountStatus.ACTIVE,
+      });
+
+      await this.userRepository.save(rhUser);
     }
   }
 }
