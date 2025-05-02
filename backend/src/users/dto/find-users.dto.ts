@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
+import { AccountStatus } from '../enums/account-status.enum';
 
 export class FindUsersDto {
   @IsOptional()
@@ -19,9 +20,14 @@ export class FindUsersDto {
 
   @IsOptional()
   @IsString()
-  accountStatus?: string;
-
-  @IsOptional()
-  @IsString()
   name?: string;
+
+  @IsEnum(AccountStatus)
+  @IsOptional()
+  accountStatus?: AccountStatus; 
+
+  @IsInt()
+  @IsPositive()
+  @IsOptional()
+  roleId: number;
 }

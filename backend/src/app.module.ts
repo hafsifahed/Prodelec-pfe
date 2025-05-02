@@ -6,6 +6,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { Role } from './roles/entities/role.entity';
+import { RolesModule } from './roles/roles.module';
+import { SeedModule } from './seed/seed.module';
 import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
 
@@ -21,11 +24,13 @@ import { UsersModule } from './users/users.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'your_database',
-      entities: [User],
+      entities: [User,Role],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
+    RolesModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [
