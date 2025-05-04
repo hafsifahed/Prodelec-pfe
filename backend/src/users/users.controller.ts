@@ -10,25 +10,30 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Permissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Action } from '../roles/enums/action.enum';
+import { Resource } from '../roles/enums/resource.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @Permissions({ resource: Resource.users, actions: [Action.create] })
   async create(@Body() createUserDto: CreateUserDto) {
-    // createUserDto should include roleId (number)
     return this.usersService.create(createUserDto);
   }
 
   @Get()
+  @Permissions({ resource: Resource.users, actions: [Action.read] })
   async findMany(@Query() query: FindUsersDto) {
     return this.usersService.findMany(query);
   }
@@ -49,6 +54,7 @@ export class UsersController {
 
   // Admin-only: Update a user's role
   @Patch(':id/role')
+  @Permissions({ resource: Resource.users, actions: [Action.update] })
   async updateRole(
     @Param('id') id: string,
     @Body('roleId') roleId: number,
