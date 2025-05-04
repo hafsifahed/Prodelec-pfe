@@ -46,7 +46,7 @@ export class UsersController {
     await this.usersService.changePassword(user.id, dto);
     return { message: 'Password changed successfully' };
   }
-  
+
   // Admin-only: Update a user's role
   @Patch(':id/role')
   async updateRole(
