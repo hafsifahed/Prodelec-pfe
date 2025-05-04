@@ -74,7 +74,6 @@ export class UsersService {
       'user.updatedAt',
       'role.id',
       'role.name',
-      // add other role fields if needed
     ]);
 
     return queryBuilder.getMany();
@@ -97,6 +96,8 @@ export class UsersService {
         'user.updatedAt',
         'role.id',
         'role.name',
+        'role.permissions'
+
       ]);
     } else {
       queryBuilder.addSelect('user.password');
