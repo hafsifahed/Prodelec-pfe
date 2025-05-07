@@ -9,6 +9,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { Role } from './roles/entities/role.entity';
 import { RolesModule } from './roles/roles.module';
 import { SeedModule } from './seed/seed.module';
+import { UserSession } from './user-session/entities/user-session.entity';
+import { UserSessionModule } from './user-session/user-session.module';
 import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
 
@@ -24,13 +26,14 @@ import { UsersModule } from './users/users.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'your_database',
-      entities: [User,Role],
+      entities: [User,Role,UserSession],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     RolesModule,
     SeedModule,
+    UserSessionModule,
   ],
   controllers: [AppController],
   providers: [

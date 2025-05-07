@@ -4,10 +4,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
+import { UserSession } from '../../user-session/entities/user-session.entity';
 import { AccountStatus } from '../enums/account-status.enum';
 
 @Entity('users')
@@ -40,6 +42,10 @@ export class User {
     default: AccountStatus.INACTIVE,
   })
   accountStatus: AccountStatus;
+
+  @OneToMany(() => UserSession, session => session.user)
+  sessions: UserSession[];
+
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
