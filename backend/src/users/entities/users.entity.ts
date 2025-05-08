@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Avis } from '../../avis/entities/avis.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { UserSession } from '../../user-session/entities/user-session.entity';
@@ -49,6 +50,9 @@ export class User {
 
   @ManyToOne(() => Partner, partner => partner.users, { nullable: true })
   partner: Partner;
+
+  @OneToMany(() => Avis, avis => avis.user)
+  avis: Avis[];
 
 
   @CreateDateColumn({ type: 'timestamp' })

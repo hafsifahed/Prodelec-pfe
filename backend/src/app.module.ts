@@ -6,6 +6,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { AvisModule } from './avis/avis.module';
+import { Avis } from './avis/entities/avis.entity';
 import { Partner } from './partners/entities/partner.entity';
 import { PartnersModule } from './partners/partners.module';
 import { Role } from './roles/entities/role.entity';
@@ -28,7 +30,7 @@ import { UsersModule } from './users/users.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'your_database',
-      entities: [User,Role,UserSession,Partner],
+      entities: [User,Role,UserSession,Partner,Avis],
       synchronize: true,
     }),
     UsersModule,
@@ -37,6 +39,7 @@ import { UsersModule } from './users/users.module';
     SeedModule,
     UserSessionModule,
     PartnersModule,
+    AvisModule,
   ],
   controllers: [AppController],
   providers: [
