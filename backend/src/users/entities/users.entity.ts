@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Partner } from '../../partners/entities/partner.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { UserSession } from '../../user-session/entities/user-session.entity';
 import { AccountStatus } from '../enums/account-status.enum';
@@ -45,6 +46,9 @@ export class User {
 
   @OneToMany(() => UserSession, session => session.user)
   sessions: UserSession[];
+
+  @ManyToOne(() => Partner, partner => partner.users, { nullable: true })
+  partner: Partner;
 
 
   @CreateDateColumn({ type: 'timestamp' })
