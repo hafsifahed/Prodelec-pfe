@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService  {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,

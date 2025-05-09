@@ -17,6 +17,8 @@ import { UserSession } from './user-session/entities/user-session.entity';
 import { UserSessionModule } from './user-session/user-session.module';
 import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -40,6 +42,7 @@ import { UsersModule } from './users/users.module';
     UserSessionModule,
     PartnersModule,
     AvisModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -48,6 +51,7 @@ import { UsersModule } from './users/users.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    NotificationsGateway,
   ],
 })
 export class AppModule {}

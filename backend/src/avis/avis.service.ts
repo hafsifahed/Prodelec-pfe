@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { User } from '../users/entities/users.entity';
 import { CreateAvisDto } from './dto/create-avis.dto';
 import { UpdateAvisDto } from './dto/update-avis.dto';
@@ -13,6 +14,8 @@ export class AvisService {
     private avisRepository: Repository<Avis>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly notificationsGateway: NotificationsGateway,
+
   ) {}
 
   async create(createAvisDto: CreateAvisDto): Promise<Avis> {
@@ -22,6 +25,10 @@ export class AvisService {
     const avis = this.avisRepository.create({
       ...createAvisDto,
       user
+    });
+    this.notificationsGateway.sendNotificationToAll({
+      type: 'NEW_AVIS',
+      data: avis
     });
     return this.avisRepository.save(avis);
   }
