@@ -1,0 +1,111 @@
+<div class="container-fluid">
+  <app-page-title title="Reclamation"></app-page-title>
+</div>
+<div class="row mb-3 align-items-end">
+    <div class="col-sm-12 col-md-2 mb-3">
+      <label for="yearFilter" class="form-label">Filtrer par année</label>
+      <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+        <option *ngFor="let year of getUniqueYears()" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+    <div class="col-sm-12 col-md-4 mb-3">
+      <label for="typeFilter" class="form-label">Type de Réclamation</label>
+      <select id="typeFilter" class="form-select" [(ngModel)]="selectedType" (change)="onTypeChange()">
+        <option value="All">Tous</option> 
+        <optgroup label="Produit">
+          <option value="Produit non fonctionnel">Produit non fonctionnel</option>
+          <option value="Problèmes de qualité">Problèmes de qualité</option>
+          <option value="Produits endommagés ou défectueux">Produits endommagés ou défectueux</option>
+          <option value="Aspect non conforme">Aspect non conforme</option>
+        </optgroup>
+        <optgroup label="Service">
+          <option value="Service client insatisfaisant">Service client insatisfaisant</option>
+          <option value="Manque de documents joints au produit">Manque de documents joints au produit</option>
+          <option value="Erreurs dans les commandes">Erreurs dans les commandes</option>
+          <option value="Installation ou réparation insatisfaisante">Installation ou réparation insatisfaisante</option>
+        </optgroup>
+        <optgroup label="Livraison">
+          <option value="Retards de livraison">Retards de livraison</option>
+          <option value="Produits non reçus">Produits non reçus</option>
+          <option value="Livraisons incorrectes">Livraisons incorrectes</option>
+          <option value="Emballage inadéquat">Emballage inadéquat</option>
+          <option value="Quantité manquante">Quantité manquante</option>
+        </optgroup>
+        <optgroup label="Facturation">
+          <option value="Erreurs de facturation">Erreurs de facturation</option>
+        </optgroup>
+      </select>
+    </div>
+  
+  </div>
+      
+  <div class="table-responsive mb-0">
+      <table class="table table-centered table-nowrap">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 20px;">
+              <div class="form-check font-size-16 align-middle">
+                <input class="form-check-input" type="checkbox" id="selectAll">
+                <label class="form-check-label" for="selectAll"></label>
+              </div>
+            </th>
+            
+            <th class="align-middle">Type Reclamation</th>
+            <th class="align-middle" (click)="sortDevisByDate()" style="cursor: pointer;">
+              Date de création
+              <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+            </th>
+            <th class="align-middle">Etat</th>
+            <th class="align-middle">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rec of filteredReclamations | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+            <td>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="checkbox{{rec.type_de_defaut}}">
+                <label class="form-check-label" for="checkbox{{rec.type_de_defaut}}"></label>
+              </div>
+            </td>
+            <td>
+              <a href="javascript:void(0);" class="text-body fw-bold">{{ rec.type_de_defaut }}</a>
+            </td>
+            <td>{{ rec.dateDeCreation | date }}</td>
+            <td>
+              <span class="badge badge-pill badge-soft-success font-size-11"
+                [ngClass]="{ 'badge-soft-warning': rec.status === 'En cours' }">
+                {{ rec.status }}
+              </span>
+            </td>
+            <td>
+           
+                <button class="btn moin-btn"  (click)="openDeleteModal(rec.id_Reclamation, deleteModal)">
+                    <i class="fas fa-trash-restore"></i>
+             </button>
+         
+            </td> 
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+      </div>
+    </div>
+    
+  
+  
+    <ng-template #deleteModal>
+      <div class="modal-header">
+        <h4 class="modal-title">Confirmation</h4>
+        <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+          
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Voulez-vous vraiment restaurer cette réclamation ? </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Restaurer</button>
+      </div>
+    </ng-template>

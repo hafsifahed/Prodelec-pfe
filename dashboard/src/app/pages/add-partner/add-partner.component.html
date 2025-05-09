@@ -1,0 +1,26 @@
+<div class="add-partner-container">
+    <h1>Ajouter un Partenaire</h1>
+    <form [formGroup]="addPartnerForm" (ngSubmit)="addPartner()">
+
+        <div class="form-group">
+            <label for="address">Adresse :</label>
+            <input id="address" formControlName="address" type="text">
+        </div>
+        <div class="form-group">
+            <label for="name">Nom :</label>
+            <input id="name" formControlName="name" type="text">
+        </div>
+        <div class="form-group">
+            <label for="tel">Téléphone :</label>
+            <input id="tel" formControlName="tel" type="text">
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="add-partner-button">Ajouter un Partenaire</button>
+            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+        </div>
+    </form>
+</div>
+
+<div class="error-message-container" *ngIf="errorMessage">
+    <p class="error-message">{{ errorMessage }}</p>
+</div>

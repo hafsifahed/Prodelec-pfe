@@ -1,0 +1,36 @@
+<div class="container">
+    <h1>Liste des notifications</h1>
+    <input type="text" class="form-control mb-3" placeholder="Recherche par e-mail d'utilisateur,titre" [(ngModel)]="searchNotification" (input)="searchNotificationBy()">
+
+
+    <div class="table-responsive mb-0">
+        <table class="table table-centered table-nowrap">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Message</th>
+                <th>Créer par</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let notification of notifications | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td>{{ notification.id }}</td>
+                <td>{{ notification.title }}</td>
+                <td>{{ notification.message }}</td>
+                <td>{{ notification.createdBy }}</td>
+
+                <td>
+                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-danger" (click)="deleteNotification(notification.id)">Delete</button>
+                    <button  *ngIf="!notification.read" type="button" class="btn btn-primary" (click)="markNotificationAsRead(notification.id)">Mark as Read</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="container" *ngIf="user">
+    <form [formGroup]="profileForm" (ngSubmit)="onSave()">
+        <div class="form-group">
+            <label for="email">Email :</label>
+            <input id="email" formControlName="email" type="text" disabled>
+        </div>
+        <div class="form-group">
+            <label for="firstName">Prénom :</label>
+            <input id="firstName" formControlName="firstName" type="text">
+        </div>
+        <div class="form-group">
+            <label for="lastName">Nom :</label>
+            <input id="lastName" formControlName="lastName" type="text">
+        </div>
+        <!-- <div class="form-group">
+            <label for="role">Rôle :</label>
+            <input id="role" formControlName="role" type="text" disabled>
+        </div>-->
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+        </div>
+    </form>
+</div>
+
+<div class="error-message-container" *ngIf="errorMessage">
+    <p class="error-message">{{ errorMessage }}</p>
+</div>

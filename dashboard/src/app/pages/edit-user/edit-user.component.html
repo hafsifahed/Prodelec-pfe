@@ -1,0 +1,29 @@
+<div class="container">
+    <h2>Modifier un Utilisateur</h2>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <form (ngSubmit)="updateUser()" #userForm="ngForm">
+        <div class="form-group">
+            <label for="firstName">Prénom</label>
+            <input type="text" id="firstName" name="firstName" [(ngModel)]="user.firstName" required>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Nom</label>
+            <input type="text" id="lastName" name="lastName" [(ngModel)]="user.lastName" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" [(ngModel)]="user.email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="role">Rôle</label>
+            <select id="role" name="role" [(ngModel)]="user.role" required>
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Mettre à jour l'utilisateur</button>
+            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+        </div>
+    </form>
+</div>

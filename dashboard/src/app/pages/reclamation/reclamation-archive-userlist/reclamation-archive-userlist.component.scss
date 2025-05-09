@@ -1,0 +1,97 @@
+
+.card {
+    width: 18rem;
+    height: 20rem; /* Adjust the height as needed */
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  .btn-custom {
+    width: 100%; /* Ajuster la largeur selon les besoins */
+    margin-bottom: 0.5rem; /* Espacement entre les boutons */
+  }
+  .attachment-info {
+    display: flex;
+    align-items: center;
+  }
+  
+  .attachment-icon img {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+  
+  .attachment-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .attachment-name {
+    font-weight: bold;
+  }
+  
+  .attachment-size {
+    font-size: 0.9em;
+    color: #70757a;
+  }
+  .attachment-download {
+    color: #007bff;
+    text-decoration: none; 
+    cursor: pointer; 
+    margin-top: 4px; 
+  }
+  
+  .attachment-download:hover {
+    text-decoration: underline; 
+  }
+  .detail-custom {
+    /* Espacement entre les boutons */
+      border: none;
+      border-radius: 50%;
+      font-size: 15px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+     
+      color: #007bff;
+    }
+    .refuse-btn {
+      display: inline-block;
+      padding: 10px ;
+      border: none;
+  
+      font-size: 15px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      
+      color: red;
+      background-color: transparent;
+    }
+    .accept-btn {
+      display: inline-block;
+      padding: 10px ;
+      border: none;
+  
+      font-size: 15px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+      
+      color: green;
+      background-color: transparent;
+    }
+  
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust as needed */
+  }

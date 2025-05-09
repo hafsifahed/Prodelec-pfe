@@ -1,0 +1,223 @@
+
+<div class="container-fluid">
+  <app-page-title title="Cahier des charges"></app-page-title>
+
+  <div class="row mb-4">
+    <div class="d-flex justify-content-between align-items-end w-100">
+      <div class="d-flex flex-column col-sm-12 col-md-2">
+        <label for="yearFilter" class="form-label">Filtrer par année</label>
+        <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option *ngFor="let year of getUniqueYears()" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+      <div class="d-flex flex-column col-sm-12 col-md-4">
+
+        <input type="text" id="searchFilter" class="form-control" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Rechercher par projet ou client">
+      </div>
+      <div class="d-flex justify-content-end col-sm-12 col-md-4">
+        <button class="btn btn-success" routerLink="cdcArchive">Voir l'archive</button>
+      </div>
+    </div>
+  </div>
+<div *ngIf="getNonArchivedCahiers().length == 0">
+  <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
+</div>
+<div *ngIf="getNonArchivedCahiers().length > 0">
+  <div class="table-responsive mb-0">
+
+    <table class="table table-centered table-nowrap">
+      <thead class="table-light">
+        <tr>
+          <th class="align-middle" >Projet</th>
+          <th class="align-middle">Client</th>
+          <th class="align-middle">Télécharger</th>
+          <th class="align-middle" title="Trier par date" (click)="sortDevisByDate()" style="cursor: pointer;">
+            Date de création
+            <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+          </th>
+          <th class="align-middle">Etat</th>
+          <th class="align-middle">Details</th>
+          <th class="align-middle">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cahier of getNonArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+          <td class="text-body fw-bold" [title]="cahier.titre">{{ cahier.titre }}</td>
+          <td>{{ cahier.user?.email }}</td>
+          <td>
+            <a *ngIf="cahier?.pieceJointe; else noAttachment"
+               class="attachment-download"
+               (click)="telechargerPieceJointe(cahier.pieceJointe,cahier.id)"
+               >
+              Télécharger
+            </a> 
+                    
+            <ng-template #noAttachment>
+              <a style="color: red;">Voir la description</a>
+            </ng-template>
+          </td>
+          
+          
+    
+          <td>{{ cahier.dateCreation | date}}</td>
+          <td>
+            <span class="badge badge-pill badge-soft-success font-size-11"
+              [ngClass]="{
+                'badge-soft-danger': cahier.etat === 'Refusé',
+                'badge-soft-warning': cahier.etat === 'en_attente'
+              }">
+              {{ cahier.etat }}
+            </span>
+          </td>
+          <td>
+            <button class="btn detail-custom" (click)="openDetailsModal(cahier.id)">
+              <i class="bx bxs-detail" style="font-size: medium;"></i>
+            </button>
+          </td>
+          <td>
+            <div *ngIf="cahier.etat !== 'Accepté' && cahier.etat !== 'Refusé'">
+              <button class="btn accept-btn" title="Accepter" (click)="openPieceJointeModal(cahier.id)">
+                <i class="mdi mdi-check-outline"></i>
+              </button>
+              <button class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id, commentModal)">
+                <i class="mdi mdi-close-outline"></i>
+              </button>
+            </div>
+            <div *ngIf="cahier.etat === 'Accepté' || cahier.etat === 'Refusé'">
+              <button class="btn detail-custom" (click)="openDeleteModal(cahier.id, deleteModal)">
+                <i class="mdi mdi-archive"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination-container">
+      <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!-- Modal for rejecting a Cahier des Charges -->
+<ng-template #commentModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Refuser le Cahier des Charges</h4>
+    <button type="button" class="btn btn-close" aria-label="Close" (click)="modalRef?.hide()">
+   
+    </button>
+  </div>
+  <div class="modal-body">
+    <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Veuillez entrer un commentaire pour le refus"></textarea>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmRefuserCahier()">Refuser</button>
+  </div>
+</ng-template>
+<!-- end commentModal -->
+   <!-- ng-template for details modal -->
+   <ng-template #detailsModal>
+
+        <div class="modal-header">
+          <h5 class="modal-title">Détails du Cahier des Charges</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+        </div>
+        <div class="modal-body modal-body-centered">
+          <div class="mb-3">
+            <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
+            <p *ngIf="cahier.description" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.description }}</p>
+            <p *ngIf="cahier.dateCreation"><strong>Date de création:</strong> {{ cahier.dateCreation }}</p>
+            <p><strong>Client:</strong> {{ cahier.user?.partner?.name }}</p>
+
+            <p *ngIf="cahier.user"><strong>email:</strong> {{ cahier.user?.email }}</p>
+            <div class="mb-3">
+              <strong>État:</strong>
+              <span class="badge badge-pill badge-soft-success font-size-13"
+              [ngClass]="{
+                'badge-soft-danger': cahier.etat === 'Refusé',
+                'badge-soft-warning ': cahier.etat === 'en_attente',
+                
+              }">
+                {{ cahier.etat }}
+              </span>
+            </div>
+          </div>
+          <hr>
+          <div *ngIf="cahier.pieceJointe">
+          
+            <div *ngIf="cahier?.pieceJointe">
+              <div class="mb-3">
+                <p><strong>Pièce Jointe:</strong></p>
+                <div class="d-flex align-items-center">
+                  <div class="attachment-icon me-3">
+                    <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
+                  </div>
+                  <div class="attachment-details">
+                    <div class="attachment-name">{{ cahier.pieceJointe }}</div>
+                    <a class="attachment-download" (click)="telechargerPieceJointe(cahier.pieceJointe,cahier.id)" >Télécharger</a>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <ngx-extended-pdf-viewer
+                  *ngIf="pdfUrl"
+                  [src]="pdfUrl"
+                  useBrowserLocale="true"
+                  height="400px"
+                  [showToolbar]="true"
+                  [showFindButton]="true"
+                  [textLayer]="true" 
+                  [showSidebarOnLoad]="false">
+                </ngx-extended-pdf-viewer>
+              </div>
+            </div>
+            <div *ngIf="cahier.commentaire">
+              <hr>
+              <p><strong>Commentaire:</strong> {{ cahier.commentaire }}</p>
+            </div>
+          </div>
+        </div>
+    
+  </ng-template>
+  
+  <!-- end detailsModal -->
+  <ng-template #pieceJointeModal>
+    
+    <div class="modal-header">
+      <h5 class="modal-title">Ajouter une devis</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
+      <div class="mb-3">
+        <label for="pieceJointe" class="form-label">Sélectionner une pièce jointe</label>
+        <input type="file" class="form-control" id="pieceJointe" name="pieceJointe" (change)="onFileSelected($event)" required />
+      </div>
+      <p style="color: red;">*Si vous avez plusieurs fichiers à envoyer, veuillez les compresser dans un fichier .rar ou .zip </p>
+
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="submitDevis()">Ajouter</button>
+      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    </div>
+  </ng-template>
+
+  <ng-template #deleteModal>
+    <div class="modal-header">
+      <h4 class="modal-title">Confirmation</h4>
+      <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+        
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Voulez-vous vraiment archiver ce cahier des charges ?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
+    </div>
+  </ng-template>
+  

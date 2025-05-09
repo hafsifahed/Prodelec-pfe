@@ -1,0 +1,197 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title mb-4">Ajouter une commande</h4>
+        <div id="basic-example">
+          <ng-stepper #cdkStepper [linear]="true" class="wizard">
+
+            <cdk-step [optional]="false">
+              <ng-template cdkStepLabel>
+                <span class="number">1.</span>
+                <span>1ére méthode</span>
+              </ng-template>
+              <section *ngIf="cdkStepper.selectedIndex === 0">
+                <form enctype="multipart/form-data">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <div class="form-group">
+                          <label for="basicpill-firstname-input">Numéro de commande</label>
+                          <input type="text" class="form-control" ngModel id="orderName" name="orderName"
+                            [(ngModel)]="orderName">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <div class="form-group">
+                          <label for="basicpill-lastname-input">Numéro de devis </label>
+                          <input type="text" class="form-control" ngModel id="quoteNumber" name="quoteNumber"
+                            [(ngModel)]="quoteNumber">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                        <label>Seléctionner la commande a partir de votre PC</label>
+                        <div *ngIf="fileStatus.status==='progress'">
+                          <div class="progress">
+                            <div [style.width.%]="fileStatus.percent" class="progress-bar progress-bar-animated bg-info"
+                              role="progressbar" aria-valuenow="!">
+                              {{ fileStatus.requestType }} {{ fileStatus.percent }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="form-group">
+                        <input name="file" type="file" (change)="onUploadFile($event)" [(ngModel)]="attachementName"
+                          class="form-control" id="file">
+                      </div>
+                    </div>
+                  </div>
+
+                </form>
+                <br>
+                <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                  <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary"
+                      (click)="save1()">Ajouter</button></li>
+                </ul>
+              </section>
+            </cdk-step>
+
+            <cdk-step [optional]="true">
+              <ng-template cdkStepLabel>
+                <span class="number">2.</span>
+                <span>2éme méthode</span>
+              </ng-template>
+              <section *ngIf="cdkStepper.selectedIndex === 1">
+                <form [formGroup]="addForm">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="basicpill-pancard-input">Numéro de commande</label>
+                        <input type="text" class="form-control" id="orderNumber" formControlName="orderNumber">
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="basicpill-vatno-input">Email de fournisseur</label>
+                        <input type="text" class="form-control" id="supplierEmail" formControlName="supplierEmail">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="invoice-table" id="table">
+                    <button type="button" class="plus-btn" (click)="addProduct()">+</button>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="basicpill-vatno-input">Nom de produit</label>
+                          <input type="text" class="form-control" id="productName" formControlName="productName">
+
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="quantity">Quantité</label>
+                          <input type="number" class="form-control" id="quantity" formControlName="quantity">
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <div class="form-group">
+                          <label for="unitPrice">Prix Unitaire</label>
+                          <input type="number" class="form-control" id="unitPrice" formControlName="unitPrice">
+                        </div>
+                      </div>
+
+                    </div>
+                    <br>
+                    <div class="product-section" *ngIf="showProductSection">
+                      <div formArrayName="products">
+                        <div class="row" *ngFor="let product of addForm.get('products')['controls']; let i = index">
+
+                          <div class="row">
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="productName">Nom du Produit</label>
+
+                                <input type="text" class="form-control" id="unitPrice"
+                                  [value]="product.get('productName').value" readonly>
+
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="quantity">Quantité</label>
+                                <input type="number" class="form-control" id="quantity"
+                                  [value]="product.get('quantity').value" readonly>
+                              </div>
+                            </div>
+
+                            <div class="col-md-3">
+                              <div class="form-group">
+                                <label for="unitPrice">Prix Unitaire</label>
+                                <input type="number" class="form-control" id="unitPrice"
+                                  [value]="product.get('unitPrice').value" readonly>
+                              </div>
+                            </div>
+                            <div class="col-md-3">
+                              <br>
+                              <br>
+                              <button type="button" class="moin-btn" (click)="removeProduct(i)">-</button>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                    <br>
+
+
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="basicpill-vatno-input">TVA</label>
+                        <input type="text" class="form-control" id="vat" formControlName="vat">
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="basicpill-pancard-input">Numéro de devis</label>
+                        <input type="text" class="form-control" id="devisNumber" formControlName="devisNumber">
+                      </div>
+                    </div>
+                  </div>
+                  <ul class="list-inline wizard d-flex justify-content-end mb-0">
+                    <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary"
+                        (click)="save2()">Ajouter</button></li>
+                  </ul>
+                </form>
+
+
+              </section>
+            </cdk-step>
+          </ng-stepper>
+        </div>
+
+      </div>
+      <!-- end card body -->
+    </div>
+    <!-- end card -->
+  </div>
+  <!-- end col -->
+</div>

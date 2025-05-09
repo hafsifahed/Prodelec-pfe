@@ -1,0 +1,190 @@
+<div class="container-fluid">
+  <app-page-title title="Reclamation"></app-page-title>
+</div>
+<div class="row mb-3 align-items-end">
+  <div class="col-sm-12 col-md-2 mb-3">
+    <label for="yearFilter" class="form-label">Filtrer par année</label>
+    <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+      <option *ngFor="let year of getUniqueYears()" [value]="year">{{ year }}</option>
+    </select>
+  </div>
+  <div class="col-sm-12 col-md-4 mb-3">
+    <label for="typeFilter" class="form-label">Type de Réclamation</label>
+    <select id="typeFilter" class="form-select" [(ngModel)]="selectedType" (change)="onTypeChange()">
+      <option value="All">Tous</option> 
+      <optgroup label="Produit">
+        <option value="Produit non fonctionnel">Produit non fonctionnel</option>
+        <option value="Problèmes de qualité">Problèmes de qualité</option>
+        <option value="Produits endommagés ou défectueux">Produits endommagés ou défectueux</option>
+        <option value="Aspect non conforme">Aspect non conforme</option>
+      </optgroup>
+      <optgroup label="Service">
+        <option value="Service client insatisfaisant">Service client insatisfaisant</option>
+        <option value="Manque de documents joints au produit">Manque de documents joints au produit</option>
+        <option value="Erreurs dans les commandes">Erreurs dans les commandes</option>
+        <option value="Installation ou réparation insatisfaisante">Installation ou réparation insatisfaisante</option>
+      </optgroup>
+      <optgroup label="Livraison">
+        <option value="Retards de livraison">Retards de livraison</option>
+        <option value="Produits non reçus">Produits non reçus</option>
+        <option value="Livraisons incorrectes">Livraisons incorrectes</option>
+        <option value="Emballage inadéquat">Emballage inadéquat</option>
+        <option value="Quantité manquante">Quantité manquante</option>
+      </optgroup>
+      <optgroup label="Facturation">
+        <option value="Erreurs de facturation">Erreurs de facturation</option>
+      </optgroup>
+    </select>
+  </div>
+  <div class="col-sm-12 col-md-3 mb-3">
+    <input type="text" id="searchFilter" class="form-control" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Rechercher par projet ou client">
+  </div>
+  <div class=" col-sm-12 col-md-3 mb-3 d-flex justify-content-end">
+    <button class="btn btn-success" routerLink="reclamationArchive">Voir l'archive</button>
+  </div>
+</div>
+<div class="table-responsive mb-0">
+  <table class="table table-centered table-nowrap">
+    <thead class="table-light">
+      <tr>
+        <th style="width: 20px;">
+          <div class="form-check font-size-16 align-middle">
+            <input class="form-check-input" type="checkbox" id="selectAll">
+            <label class="form-check-label" for="selectAll"></label>
+          </div>
+        </th>
+        <th class="align-middle">Type Reclamation</th>
+        <th class="align-middle" (click)="sortDevisByDate()" style="cursor: pointer;">
+          Date de création
+          <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+        </th>
+        <th class="align-middle">Utilisateur</th>
+        <th class="align-middle">Etat</th>
+        <th class="align-middle">Details</th>
+        <th class="align-middle">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let reclamation of filteredReclamations  | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+        <td>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="checkbox{{reclamation.id_Reclamation}}">
+            <label class="form-check-label" for="checkbox{{reclamation.id_Reclamation}}"></label>
+          </div>
+        </td>
+        <td>
+          <a href="javascript:void(0);" class="text-body fw-bold">{{ reclamation.type_de_defaut }}</a>
+        </td>
+        <td>{{ reclamation.dateDeCreation | date }}</td>
+        <td>{{ reclamation.user?.email }}</td>
+        <td>
+          <span class="badge badge-pill badge-soft-success font-size-11" 
+            [ngClass]="{ 'badge-soft-warning': reclamation.status === 'En cours' }">
+            {{ reclamation.status }}
+          </span>
+        </td>
+        <td>
+          <button class="btn detail-custom " title="Details"
+          (click)="openDetailsModal(reclamation.id_Reclamation)"><i class="bx bxs-detail" style="font-size: medium;"></i></button>
+
+        </td>
+        <td>
+          <div *ngIf="reclamation.status === 'En cours'">
+            <button type="button" class="btn detail-custom " title="Repondre"
+                    (click)="openCommentModal(reclamation.id_Reclamation, commentModal)"><i class='bx bx-reply' style="font-size: medium;"></i></button>
+                  </div>
+          <div *ngIf="reclamation.status === 'Traité'">
+            
+              <button class="btn detail-custom">
+        <i class="mdi mdi-archive" (click)="openDeleteModal(reclamation.id_Reclamation, deleteModal)"></i>
+            </button>
+                
+          </div>
+        </td>
+        
+      </tr>
+    </tbody>
+  </table>
+  <div class="pagination-container">
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  </div></div>
+
+<ng-template #commentModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Repondre au reclamation</h4>
+    <button type="button" class="btn btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <textarea [(ngModel)]="reponse" class="form-control" placeholder="Veuillez entrer votre reponse"></textarea>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="Traiter()">Repondre</button>
+  </div>
+</ng-template>
+
+<!-- Details Modal -->
+<ng-template #detailsModal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">Détails du reclamation </h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body modal-body-centered">
+    <div class="mb-3">
+      <p><strong>Titre:</strong> {{ reclamation?.type_de_defaut  }}</p>
+      <p *ngIf="reclamation.description"><strong>Description:</strong> {{ reclamation.description }}</p>
+      <p *ngIf="reclamation.dateDeCreation"><strong>Date de création:</strong> {{ reclamation.dateDeCreation }}</p>
+      <p *ngIf="reclamation.user"><strong>Client:</strong> {{ reclamation.user?.email }}</p>
+      <div class="mb-3">
+        <strong>État:</strong>
+        <span class="badge badge-pill badge-soft-success font-size-13"
+        [ngClass]="{
+          
+          'badge-soft-warning ': reclamation.status === 'En cours',
+        
+        }">
+          {{ reclamation.status }}
+        </span>
+      </div>
+    </div>
+    <hr>
+    <div *ngIf="reclamation.pieceJointe">
+    
+      <div class="mb-3">
+        <p><strong>Pièce Jointe:</strong></p>
+        <div class="d-flex align-items-center">
+          <div class="attachment-icon me-3">
+            <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
+          </div>
+          <div class="attachment-details">
+            <div class="attachment-name">{{ reclamation.pieceJointe }}</div>
+            <a class="attachment-download" (click)="telechargerPieceJointe(reclamation.pieceJointe,reclamation.id_Reclamation)">Télécharger</a>
+          </div>
+        </div>
+      </div>
+     
+    </div>
+    <div *ngIf="reclamation.reponse">
+      <hr>
+      <p><strong>Reponse:</strong> {{ reclamation?.reponse }}</p>
+    </div>
+  </div>
+
+</ng-template>
+
+<ng-template #deleteModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Confirmation</h4>
+    <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+      
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Voulez-vous vraiment archiver cette réclamation ?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
+  </div>
+</ng-template>

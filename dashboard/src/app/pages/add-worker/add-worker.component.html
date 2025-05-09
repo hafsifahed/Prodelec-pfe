@@ -1,0 +1,52 @@
+<div class="add-worker-container">
+    <h1>Ajouter un Employee</h1>
+    <form [formGroup]="addWorkerForm" (ngSubmit)="addWorker()">
+        <div class="form-group">
+            <label for="firstName">Prénom :</label>
+            <input id="firstName" formControlName="firstName" type="text">
+            <div *ngIf="addWorkerForm.get('firstName')?.invalid && formSubmitted">
+                <small class="text-danger" *ngIf="addWorkerForm.get('firstName')?.errors?.required">Prénom est requis.</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Nom :</label>
+            <input id="lastName" formControlName="lastName" type="text">
+            <div *ngIf="addWorkerForm.get('lastName')?.invalid && formSubmitted">
+                <small class="text-danger" *ngIf="addWorkerForm.get('lastName')?.errors?.required">Nom est requis.</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="role">Rôle :</label>
+            <select id="role" formControlName="role">
+                <option value="">Sélectionnez un rôle</option>
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+            <div *ngIf="addWorkerForm.get('role')?.invalid && formSubmitted">
+                <small class="text-danger" *ngIf="addWorkerForm.get('role')?.errors?.required">Rôle est requis.</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="email">Username (unique) :</label>
+            <input id="email" formControlName="email" type="email">
+            <div *ngIf="addWorkerForm.get('email')?.invalid && formSubmitted">
+                <small class="text-danger" *ngIf="addWorkerForm.get('email')?.errors?.required">Email est requis.</small>
+                <small class="text-danger" *ngIf="addWorkerForm.get('email')?.errors?.email">Email est invalide.</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password">Mot de Passe :</label>
+            <input id="password" formControlName="password" type="password">
+            <div *ngIf="addWorkerForm.get('password')?.invalid && formSubmitted">
+                <small class="text-danger" *ngIf="addWorkerForm.get('password')?.errors?.required">Mot de passe est requis.</small>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="add-worker-button" [disabled]="isSubmitting">Ajouter un Employee</button>
+            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+        </div>
+    </form>
+</div>
+
+<div class="error-message-container" *ngIf="errorMessage">
+    <p class="error-message">{{ errorMessage }}</p>
+</div>

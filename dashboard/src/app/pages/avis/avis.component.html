@@ -1,0 +1,224 @@
+<div class="avis-container">
+    <h2>Votre Avis</h2>
+
+    <form (ngSubmit)="submitAvis()">
+        <!-- Title 1 -->
+        <div class="form-group">
+            <h3>Concernant nos devis :</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(0, 3); let i = index">
+                <div class="form-group">
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="deviscomm">Comment:</label>
+                <input type="text" id="deviscomm" [(ngModel)]="avis.deviscomm" name="deviscomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Title 2 -->
+        <div class="form-group">
+            <h3>Comment le client juge t-il notre réactivité :</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(3, 6); let i = index">
+                <div class="form-group">
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="reactivitecomm">Comment:</label>
+                <input type="text" id="reactivitecomm" [(ngModel)]="avis.reactivitecomm" name="reactivitecomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Title 3 -->
+        <div class="form-group">
+            <h3>Développement:</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(6, 9); let i = index">
+                <div class="form-group">
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="develocomm">Comment:</label>
+                <input type="text" id="develocomm" [(ngModel)]="avis.develocomm" name="develocomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Title 4 -->
+        <div class="form-group">
+            <h3>Concernant nos prestations/produit :</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(9, 13); let i = index">
+                <div class="form-group">
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="presentationcomm">Comment:</label>
+                <input type="text" id="presentationcomm" [(ngModel)]="avis.presentationcomm" name="presentationcomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Title 5 -->
+        <div class="form-group">
+            <h3>Concernant le SAV :</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(13, 15); let i = index">
+                <div class="form-group">
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="savcomm">Comment:</label>
+                <input type="text" id="savcomm" [(ngModel)]="avis.savcomm" name="savcomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Title 6 -->
+        <div class="form-group">
+            <h3>Concernant les éléments non contractuels :</h3>
+            <ng-container *ngFor="let attribute of attributes.slice(15, 19); let i = index">
+                <div class="form-group" >
+                    <label>{{ attribute.label }}:</label>
+                    <div *ngFor="let option of options" class="form-check">
+                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
+                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
+                        <label class="form-check-label">
+                            {{ option.label }}
+                        </label>
+                    </div>
+                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
+                        Veuillez sélectionner une option.
+                    </div>
+                </div>
+            </ng-container>
+            <div class="form-group">
+                <label for="elementcomm">Comment:</label>
+                <input type="text" id="elementcomm" [(ngModel)]="avis.elementcomm" name="elementcomm" class="form-control">
+            </div>
+        </div>
+
+        <!-- Tableau pour les points forts et les points faibles -->
+        <div class="form-group">
+            <h3>Points Forts et Points Faibles</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Points Forts</th>
+                    <th>Points Faibles</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort1" name="pointFort1">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible1" name="pointFaible1">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort2" name="pointFort2">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible2" name="pointFaible2">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort3" name="pointFort3">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible3" name="pointFaible3">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort4" name="pointFort4">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible4" name="pointFaible4">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort5" name="pointFort5">
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible5" name="pointFaible5">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="d-flex justify-content-between">
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+        </div>
+
+    </form>
+
+    <div *ngIf="successMessage" class="alert alert-success mt-3">
+        {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+        {{ errorMessage }}
+    </div>
+
+    <!--<div *ngIf="avis.avg" class="mt-3">
+        <h3>Average Rating: {{ avis.avg }}%</h3>
+    </div>-->
+</div>

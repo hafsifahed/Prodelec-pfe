@@ -1,0 +1,76 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  .profile-title {
+    font-size: 2rem;
+    color: #333;
+    border-bottom: 2px solid #6a11cb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-info {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #666;
+
+    p {
+      margin: 0.5rem 0;
+
+      strong {
+        color: #333;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .edit-profile-link {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #6a11cb;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #2575fc;
+    }
+  }
+}
+
+.error-message-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  border-radius: 10px;
+  color: #721c24;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .error-message {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}

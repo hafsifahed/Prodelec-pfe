@@ -1,0 +1,49 @@
+$primary-color: red; // Couleur principale du bouton
+
+
+.card {
+    width: 18rem;
+    height: 20rem; /* Adjust the height as needed */
+    margin-bottom: 1rem;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  .en_attente {
+   color: #d9c400;
+  }
+  .moin-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    
+    color: red;
+    background-color: transparent;
+  }
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px; /* Adjust as needed */
+  }
+  .detail-custom {
+    /* Espacement entre les boutons */
+      border: none;
+      border-radius: 50%;
+      font-size: 15px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+     
+      color: #007bff;
+    }

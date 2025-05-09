@@ -1,0 +1,35 @@
+<div class="container">
+    <h1>Liste des Sessions des Travailleurs</h1>
+    <input type="text" class="form-control mb-3" placeholder="Rechercher par Email de l'utilisateur" [(ngModel)]="searchWorkermail" (input)="onWorkermailSearchInputChange()">
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div class="table-responsive mb-0">
+        <table class="table table-centered table-nowrap">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Début de Session</th>
+                <th>Fin de Session</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let workerSession of workerSessions | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td>{{ workerSession.id }}</td>
+                <td>{{ workerSession.workermail }}</td>
+                <td>{{ workerSession.sessionStart | date }}</td>
+                <td>{{ workerSession.sessionEnd | date }}</td>
+                <td>
+                    <button *ngIf="(user.role === 'ADMIN' || user.role === 'SUBADMIN')&&workerSession.sessionEnd==null" class="btn btn-danger" (click)="endSession(workerSession.id)">Terminer la Session</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+</div>

@@ -1,0 +1,168 @@
+<div class="container-fluid">
+    <app-page-title title="Projets"></app-page-title>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" autocomplete="off" id="searchTableList"
+                                        placeholder="Rechercher..." [(ngModel)]="searchTerm" (input)="applySearchFilter()">
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table data -->
+                    <div class="table-responsive mb-0">
+                        <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check"
+                            id="project-list">
+                            <thead class="table-light">
+                                <tr>
+                                  <th class="align-middle">Client</th>
+                                    <th class="align-middle">Date Réception BC</th>
+                                    <th class="align-middle">N° BC</th>
+                                    <th class="align-middle">Réf. Client</th>
+                                    <th class="align-middle">Quantité</th>    
+                                    <th class="align-middle">Conception</th>
+                                    <th class="align-middle">Méthode</th>
+                                    <th class="align-middle">Production</th>
+                                    <th class="align-middle">Contrôle final</th>
+                                    <th class="align-middle">Livraison</th>
+                                    <th class="align-middle">Progression totale</th>
+                                    <th class="align-middle">Date de livraison prévue</th>
+                                    <th class="align-middle">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }; let i = index;" id="p_{{project.idproject}}">
+                                <tr >
+                                  <td>{{project.order.user.username}}</td>
+                                    <td>{{project.order.createdAt | date:'yyyy-MM-dd'}}</td>
+                                    <td>{{project.order.orderName}}</td>
+                                    <td>{{project.refClient}}</td>
+                                    <td>{{project.qte}}</td>
+                                    <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+                                            'badge-soft-danger': !project.conceptionStatus,
+                                            'badge-soft-success': project.conceptionStatus
+                                          }">
+                                            {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
+                                          </span>
+                                        </div>
+                                        <div class="progress-container">
+                                          <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" [style.width]="project.conceptionprogress + '%'" [attr.aria-valuenow]="project.conceptionprogress" aria-valuemin="0" aria-valuemax="100">
+                                              {{ project.conceptionprogress.toFixed(2) }}%
+                                            </div>
+                                          </div>
+                                        </div>
+                                        
+                                      </td>
+                                      <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+                                            'badge-soft-danger': !project.methodeStatus,
+                                            'badge-soft-success': project.methodeStatus
+                                          }">
+                                            {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
+                                          </span>
+                                         
+                                        </div>
+                                        <div class="progress-container">
+                                          <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" [style.width]="project.methodeprogress + '%'" [attr.aria-valuenow]="project.methodeprogress" aria-valuemin="0" aria-valuemax="100">
+                                              {{ project.methodeprogress.toFixed(2) }}%
+                                            </div>
+                                          </div>
+                                        </div>
+                                          
+                                      </td>
+                                      <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+                                            'badge-soft-danger': !project.productionStatus,
+                                            'badge-soft-success': project.productionStatus
+                                          }">
+                                            {{ project.productionStatus ? 'Terminé' : 'En cours' }}
+                                          </span>
+                                          
+                                        </div>
+                                        <div class="progress-container">
+                                          <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" [style.width]="project.productionprogress + '%'" [attr.aria-valuenow]="project.productionprogress" aria-valuemin="0" aria-valuemax="100">
+                                              {{ project.productionprogress.toFixed(2) }}%
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                      </td>
+                                      <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+                                            'badge-soft-danger': !project.finalControlStatus,
+                                            'badge-soft-success': project.finalControlStatus
+                                          }">
+                                            {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
+                                          </span>
+                                        
+                                        </div>
+                                        <div class="progress-container">
+                                          <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" [style.width]="project.fcprogress + '%'" [attr.aria-valuenow]="project.fcprogress" aria-valuemin="0" aria-valuemax="100">
+                                              {{ project.fcprogress.toFixed(2) }}%
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                      </td>
+                                      <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+                                            'badge-soft-danger': !project.deliveryStatus,
+                                            'badge-soft-success': project.deliveryStatus
+                                          }">
+                                            {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
+                                          </span>
+                                         
+                                        </div>
+                                        <div class="progress-container">
+                                          <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" [style.width]="project.deliveryprogress + '%'" [attr.aria-valuenow]="project.deliveryprogress" aria-valuemin="0" aria-valuemax="100">
+                                              {{ project.deliveryprogress.toFixed(2) }}%
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td><div class="progress-container">
+                                        <div class="progress" style="height: 20px;">
+                                          <div class="progress-bar" role="progressbar" [style.width]="project.progress + '%'" [attr.aria-valuenow]="project.progress" aria-valuemin="0" aria-valuemax="100">
+                                            {{ project.progress.toFixed(2) }}%
+                                          </div>
+                                        </div>
+                                      </div></td>
+                                      <td>{{project.dlp | date:'yyyy-MM-dd'}}</td>
+                                      <td><a href="javascript:void(0);" class="text-primary" (click)="restaurer(project.idproject)">
+                                        <i class="mdi mdi-undo font-size-18"></i>
+                                      </a>
+                                      <a href="javascript:void(0);" class="text-danger"
+                                      (click)="delete(project.idproject)"><i
+                                          class="mdi mdi-delete font-size-18"></i></a>
+                                    </td>
+
+                                
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-container">
+      <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+</div>

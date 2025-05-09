@@ -1,0 +1,163 @@
+<header id="page-topbar">
+  <div class="navbar-header">
+    <div class="d-flex">
+      <!-- LOGO -->
+      <div class="navbar-brand-box">
+        <a routerLink="/" class="logo logo-dark">
+          <span class="logo-sm">
+            <img src="assets/images/logo-light.png" alt="" height="30px">
+          </span>
+          <span class="logo-lg">
+            <img src="assets/images/logo-prodelec-2024-light.png" alt="" height="50px">
+          </span>
+        </a>
+
+        <a routerLink="/" class="logo logo-light">
+          <span class="logo-sm">
+            <img src="assets/images/logo-dark.png" alt="" height="30px" >
+          </span>
+          <span class="logo-lg">
+            <img src="assets/images/logo-prodelec-2024-dark.png" alt="" height="50px">
+          </span>
+        </a>
+      </div>
+
+      <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn"
+              (click)="toggleMobileMenu($event)">
+        <i class="fa fa-fw fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="d-flex">
+      <!-- Search Bar (Mobile Only) -->
+      <div class="dropdown d-inline-block d-lg-none ms-2" dropdown>
+        <button type="button" class="btn header-item noti-icon" id="page-header-search-dropdown" data-toggle="dropdown"
+                aria-haspopup="true" dropdownToggle aria-expanded="false">
+          <i class="mdi mdi-magnify"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" *dropdownMenu
+             aria-labelledby="page-header-search-dropdown">
+          <form class="p-3">
+            <div class="m-0">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Language Selector
+      <div class="dropdown d-inline-block" dropdown>
+        <button type="button" class="btn header-item" id="page-header-user-dropdown" dropdownToggle>
+          <img *ngIf="flagvalue !== undefined" [src]="flagvalue" alt="Header Language" height="16">
+          <img *ngIf="flagvalue === undefined" [src]="valueset" alt="Header Language" height="16">
+        </button>
+        <div class="dropdown-menu dropdown-menu-end" *dropdownMenu>-->
+          <!-- Language Items
+          <a href="javascript:void(0);" class="dropdown-item notify-item" *ngFor="let item of listLang"
+             (click)="setLanguage(item.text, item.lang, item.flag)" [ngClass]="{'active': cookieValue === item.lang}">
+            <img [src]="item.flag" alt="user-image" class="me-1" height="12"> <span class="align-middle">{{item.text}}</span>
+          </a>
+        </div>
+      </div>-->
+
+      <!-- Fullscreen Toggle -->
+      <div class="dropdown d-none d-lg-inline-block ms-1">
+        <button type="button" class="btn header-item noti-icon" data-toggle="fullscreen" (click)="fullscreen()">
+          <i class="bx bx-fullscreen"></i>
+        </button>
+      </div>
+
+      <!-- Notifications Dropdown -->
+      <div class="dropdown d-inline-block" dropdown>
+        <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown"
+                dropdownToggle>
+          <i class="bx bx-bell bx-tada"></i>
+          <span class="badge bg-danger rounded-pill">{{ unreadCount }}</span>        </button>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+             aria-labelledby="page-header-notifications-dropdown" *dropdownMenu>
+          <div class="p-3">
+            <div class="row align-items-center">
+              <div class="col">
+                <h6 class="m-0">{{ 'HEADER.NOTIFICATIONS.TITLE' | translate }}</h6>
+              </div>
+              <div class="col-auto">
+               <!-- <a href="javascript: void(0);" class="small">{{ 'HEADER.NOTIFICATIONS.VIEW_ALL' | translate }}</a>-->
+              </div>
+            </div>
+          </div>
+          <ngx-simplebar style="position: relative; height: 230px;">
+            <a href="javascript: void(0);" class="text-reset notification-item" *ngFor="let notification of notifications">
+              <div class="d-flex" [ngStyle]="{ 'background-color': notification.read ? '#f8f9fa' : 'transparent' }">
+                <div class="avatar-xs me-3">
+        <span class="avatar-title rounded-circle font-size-16"
+              [ngStyle]="{
+                  'background-color': notification.title.toLowerCase().includes('projet') ? '#007bff' :
+                                     notification.title.toLowerCase().includes('cahier') ? '#f0cc1a' :
+                                     notification.title.toLowerCase().includes('réclamation') ? '#a11616' :
+                                     notification.title.toLowerCase().includes('commande') ? '' :
+                                     (notification.title.toLowerCase().includes('devis') || notification.title.toLowerCase().includes('avis')) ? '#28a745' :
+                                     'gray'
+              }">
+          <i *ngIf="notification.title.toLowerCase().includes('projet')" class="bx bx-cart" style="color:white;"></i>
+          <i *ngIf="notification.title.toLowerCase().includes('cahier')" class="bx bx-file" style="color: white;"></i>
+          <i *ngIf="notification.title.toLowerCase().includes('réclamation')" class="bx bx-file" style="color: white;"></i>
+          <i *ngIf="notification.title.toLowerCase().includes('avis')" class="bx bx-file" style="color: white;"></i>
+          <i *ngIf="notification.title.toLowerCase().includes('commande')" class="bx bx-file" style="color: white;"></i>
+          <i *ngIf="!(notification.title.toLowerCase().includes('projet') ||
+                     notification.title.toLowerCase().includes('cahier') ||
+                     notification.title.toLowerCase().includes('commande') ||
+                     notification.title.toLowerCase().includes('réclamation') ||
+                     notification.title.toLowerCase().includes('avis'))" class="bx bx-question-mark" style="color: white;"></i>
+        </span>
+                </div>
+                <div class="flex-grow-1" (click)="markAsRead(notification)">
+                  <h6 class="mb-1">{{ notification.title }}</h6>
+                  <div class="font-size-12 text-muted">
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> {{ getTimeAgo(notification.createdAt) }}</p>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </ngx-simplebar>
+          <div class="p-2 border-top d-grid">
+          <!--  <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
+              <i class="mdi mdi-arrow-right-circle me-1"></i> <span key="t-view-more">{{ 'HEADER.NOTIFICATIONS.LOAD_MORE' | translate }}</span>
+            </a>-->
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile Dropdown -->
+      <div class="dropdown d-inline-block" dropdown>
+        <button type="button" class="btn header-item" dropdownToggle id="page-header-user-dropdown">
+          <span class="d-none d-xl-inline-block ms-1">{{ userType === 'user' ? '' : 'Worker ' }}{{ user.firstName }} {{ user.lastName }}</span>
+          <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end" *dropdownMenu>
+          <!-- User Profile -->
+          <a class="dropdown-item" routerLink="/profile"><i class="bx bx-user font-size-16 align-middle me-1"></i>
+            {{ 'HEADER.LOGIN.PROFILE' | translate }}</a>
+
+         
+
+          <!-- User Logout -->
+          <a class="dropdown-item text-danger" href="javascript: void(0);" (click)="logout()"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i>
+            {{ 'HEADER.LOGIN.LOGOUT' | translate }}</a>
+        </div>
+      </div>
+
+      <!-- Right Sidebar Toggle -->
+      <div class="dropdown d-inline-block">
+        <button type="button" class="btn header-item noti-icon right-bar-toggle" (click)="toggleRightSidebar()">
+          <i class="bx bx-cog bx-spin"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

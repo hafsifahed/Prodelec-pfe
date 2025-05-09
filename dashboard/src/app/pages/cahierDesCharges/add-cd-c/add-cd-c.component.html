@@ -1,0 +1,39 @@
+<div class="container">
+  <form [formGroup]="addForm" (ngSubmit)="addF()" *ngIf="addForm">
+    <div class="form-group">
+      <label for="titre">Projet</label>
+      <input 
+        type="text" 
+        id="titre" 
+        class="form-control" 
+        formControlName="titre">
+      <div *ngIf="addForm.get('titre')?.invalid && (addForm.get('titre')?.dirty || addForm.get('titre')?.touched)" class="alert alert-danger">
+        Le titre est requis et doit comporter au moins 3 caractères.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea 
+        id="description" 
+        class="form-control" 
+        formControlName="description"></textarea>
+    </div>
+ 
+        <div class="form-group">
+      <label for="file">Pièce Jointe</label>
+      <input 
+        type="file" 
+        id="file" 
+        class="form-control" 
+        formControlName="pieceJointe"
+        (change)="onFileSelected($event)">
+    </div>
+    <p style="color: red;">*Si vous avez plusieurs fichiers à envoyer, veuillez les compresser dans un fichier .rar ou .zip </p>
+    <div *ngIf="!addForm.get('description').value && !addForm.get('pieceJointe').value && (addForm.get('description').touched || addForm.get('pieceJointe').touched)" class="alert alert-danger">
+      La description ou la pièce jointe est obligatoire.
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" [disabled]="addForm.invalid || (!addForm.get('description').value && !addForm.get('pieceJointe').value)">Ajouter</button>
+    </div>
+  </form>
+</div>

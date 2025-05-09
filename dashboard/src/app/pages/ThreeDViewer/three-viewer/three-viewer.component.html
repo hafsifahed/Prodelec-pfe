@@ -1,0 +1,18 @@
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">3D Model Viewer</h3>
+          </div>
+          <div class="card-body">
+            <div #container class="model-container"></div>
+          </div>
+          <div class="card-footer">
+            <input type="file" class="form-control" (change)="onFileSelected($event)" accept=".obj,.gltf,.glb,.SLDPRT">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

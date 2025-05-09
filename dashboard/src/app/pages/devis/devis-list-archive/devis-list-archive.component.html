@@ -1,0 +1,162 @@
+<div class="container-fluid">
+  <app-page-title title="Devis archive"></app-page-title>
+<div class="row mb-3 align-items-end">
+  <div class="col-sm-12 col-md-2 mb-3">
+    <label for="yearFilter" class="form-label">Filtrer par année</label>
+    <select id="yearFilter" class="form-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+      <option *ngFor="let year of getUniqueYears()" [value]="year">{{ year }}</option>
+    </select>
+  </div>
+  <div class="col-sm-12 col-md-6 mb-3">
+    <input type="text" id="searchFilter" class="form-control" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Rechercher par projet ou client">
+  </div>
+</div>
+
+<div *ngIf="getArchivedDevis().length == 0">
+    <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
+  </div>
+  <div *ngIf="getArchivedDevis().length > 0">
+    <div class="table-responsive mb-0">
+  
+      <table class="table table-centered table-nowrap">
+        <thead class="table-light">
+          <tr>
+            <th class="align-middle">Projet</th>
+            <th class="align-middle">Client</th>
+            <th class="align-middle" (click)="sortDevisByDate()" style="cursor: pointer;">
+              Date de création
+              <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+            </th>
+            <th class="align-middle">Etat</th>
+            <th class="align-middle">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let devis of getArchivedDevis()">
+            <td class="text-body fw-bold">{{ devis.projet }}</td>
+            <td>{{ devis.user?.email }}</td>
+            <td>{{ devis.dateCreation | date}}</td>
+            <td>
+              <span class="badge badge-pill badge-soft-success font-size-11"
+                [ngClass]="{
+                  'badge-soft-danger': devis.etat === 'Refusé',
+                  'badge-soft-warning': devis.etat === 'En attente'
+                }">
+                {{ devis.etat }}
+              </span>
+            </td>
+            <td>
+              <button class="btn detail-custom" title="Details" (click)="openDetailsModal(devis.id)">
+                <i class="bx bxs-detail" style="font-size: medium;"></i>
+              </button>
+              <!-- <button class="btn moin-btn" title="Supprimer" (click)="openDeleteModal(devis.id, deleteModal)">
+                <i class="fas fa-trash-alt"></i>
+              </button> -->
+
+              <button class="btn moin-btn"  title="Restaurer" (click)="openRestoreModal(devis.id, restoreModal)">
+                <i class="fas fa-trash-restore"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-container">
+      <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+  </div>
+</div>
+  <ng-template #detailsModal>
+
+    <div class="modal-header">
+      <h5 class="modal-title">Détails Devis</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body modal-body-centered">
+      <div class="mb-3">
+        <p><strong>Projet:</strong> {{ devisDetails?.projet }}</p>
+      
+        <p ><strong>Date de création:</strong> {{ devisDetails?.dateCreation }}</p>
+        <p ><strong>Client:</strong> {{ devisDetails.user?.email }}</p>
+        <div class="mb-3">
+          <strong>État:</strong>
+          <span class="badge badge-pill badge-soft-success font-size-13"
+          [ngClass]="{
+            'bg-soft-danger': devisDetails.etat === 'Refusé',
+            'badge-soft-warning': devisDetails.etat === 'En attente'
+          
+          }">
+            {{ devisDetails.etat }}
+          </span>
+        </div>
+      </div>
+      <hr>
+      <div >
+      
+        <div class="mb-3">
+            <p><strong>Pièce Jointe:</strong></p>
+            <div class="d-flex align-items-center">
+              <div class="attachment-icon me-3">
+                <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
+              </div>
+              <div class="attachment-details">
+                <div class="attachment-name">{{ devisDetails.pieceJointe }}</div>
+               
+              </div>
+            </div>
+          </div>
+           <div>
+                <ngx-extended-pdf-viewer
+                  *ngIf="pdfUrl"
+                  [src]="pdfUrl"
+                  useBrowserLocale="true"
+                  height="400px"
+                  [showToolbar]="true"
+                  [showFindButton]="true"
+                  [textLayer]="true" 
+                  [showSidebarOnLoad]="false">
+                </ngx-extended-pdf-viewer>
+              </div>
+        <div *ngIf="devisDetails.commentaire">
+          <hr>
+          <p><strong>Commentaire:</strong> {{ devisDetails.commentaire }}</p>
+        </div>
+      </div>
+    </div>
+
+</ng-template>
+      <!-- Modal -->
+      <ng-template #deleteModal>
+        <div class="modal-header">
+          <h4 class="modal-title">Confirmation</h4>
+          <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+            
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Voulez-vous vraiment supprimer ce devis ? </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()">supprimer</button>
+        </div>
+      </ng-template>
+    <!-- end removeItemModal -->
+
+        <!-- Modal -->
+        <ng-template #restoreModal>
+            <div class="modal-header">
+              <h4 class="modal-title">Confirmation</h4>
+              <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+                
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Voulez-vous vraiment restaurer ce devis ? </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+              <button type="button" class="btn btn-danger" (click)="confirmRestore()">Restorer</button>
+            </div>
+          </ng-template>
+        <!-- end removeItemModal -->

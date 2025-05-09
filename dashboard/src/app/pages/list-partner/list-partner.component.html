@@ -1,0 +1,62 @@
+<div class="container">
+    <h1>Liste des Partenaires</h1>
+
+    <div class="mb-3">
+        <div class="d-flex justify-content-between">
+            <input type="text" class="form-control" placeholder="Rechercher par Nom, ID, Email de l'utilisateur ou Rôle de l'utilisateur..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
+            <button class="btn btn-secondary" (click)="clearSearch()">Effacer</button>
+            <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" class="btn btn-success" (click)="navigateToAddPartner()">Ajouter un Partenaire</button>
+        </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div class="table-responsive mb-0">
+        <table class="table table-centered table-nowrap">
+            <thead class="table-light">
+            <tr>
+                <th style="width: 20px;">
+                    <div class="form-check font-size-16 align-middle">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label" for="selectAll"></label>
+                    </div>
+                </th>
+                <th class="align-middle">ID</th>
+                <th class="align-middle">Nom</th>
+                <th class="align-middle">Téléphone</th>
+                <th class="align-middle">Utilisateurs</th>
+                <th class="align-middle">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkbox{{partner.id}}">
+                        <label class="form-check-label" for="checkbox{{partner.id}}"></label>
+                    </div>
+                </td>
+                <td>{{ partner.id }}</td>
+                <td>
+                    <a href="javascript:void(0);" class="text-body fw-bold">{{ partner.name }}</a>
+                </td>
+                <td>{{ partner.tel }}</td>
+                <td>
+                    <ul *ngIf="partner.users && partner.users.length > 0">
+                        <li *ngFor="let user of partner.users">{{ user.email }} ({{ user.role }})</li>
+                    </ul>
+                    <p *ngIf="!partner.users || partner.users.length === 0">Aucun utilisateur</p>
+                </td>
+                <td>
+                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-success" (click)="editPartner(partner)">Modifier</button>
+                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="deletePartner(partner.id)">Supprimer</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+</div>

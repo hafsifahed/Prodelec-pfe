@@ -1,0 +1,183 @@
+<!-- <div class="container">
+    
+    <div class="row" *ngIf="cahierDesCharges.length > 0; else nocahiers">
+      <div class="col-md-4" *ngFor="let cahier of cahierDesCharges">
+        <div class="card" style="width: 18rem; margin-bottom: 1rem;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">{{ cahier.titre }}</h5>
+              <button class="btn moin-btn"  (click)="openDeleteModal(cahier.id, deleteModal)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+              
+            </div>
+            <p class="card-text" *ngIf="cahier.description">Description: {{ cahier.description }}</p>
+            <p class="card-text" *ngIf="cahier.user">Client: {{ cahier.user.email }}</p>
+            <p class="card-text" *ngIf="cahier.pieceJointe">Pièce Jointe: {{ cahier.pieceJointe }}</p>
+            <div *ngIf="cahier.etat === 'Refusé'">
+              <p class="card-text text-danger" *ngIf="cahier.commentaire">**Commentaire : {{ cahier.commentaire }}</p>
+            </div>
+            <div class="d-flex align-items-center p-auto"> 
+            <p class="card-text" style="margin-right: 10%;">Etat : </p>
+            <p class="badge badge-pill badge-soft-success font-size-13"
+               [ngClass]="{
+                 'badge-soft-danger': cahier.etat === 'Refusé',
+                 'badge-soft-warning': cahier.etat === 'en_attente'
+               }">
+              {{ cahier.etat }}
+            </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #nocahiers>
+      <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
+    </ng-template>
+  </div> -->
+
+  <div class="container-fluid">
+    <app-page-title title="Cahier des charges"></app-page-title>
+  </div>  
+
+
+
+<div class="row mb-4">
+
+    <div class="d-flex flex-column col-sm-12 col-md-2">
+      <select [(ngModel)]="filterYear" class="form-control">
+        <option value="">Tous</option>
+        <option *ngFor="let year of getAvailableYears()" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+    <div class=" col-sm-12 col-md-4">
+
+      <input type="text" [(ngModel)]="searchTitle" placeholder="Rechercher par titre" class="form-control">
+    </div>
+    
+  </div>
+
+
+  <div *ngIf="getNonArchivedCahiers().length > 0; else nocahiers">
+    <div class="table-responsive mb-0">
+  
+      <table class="table table-centered table-nowrap">
+        <thead class="table-light">
+          <tr>
+            <th class="align-middle">Projet</th>
+            <th class="align-middle" title="Trier par date" (click)="sortDevisByDate()" style="cursor: pointer;">
+              Date de création
+              <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+            </th>
+            <th class="align-middle">Etat</th>
+            <th class="align-middle">Details</th>
+            <th class="align-middle">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cahier of getNonArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+            <td class="text-body fw-bold">{{ cahier?.titre }}</td>
+            <td>{{ cahier.dateCreation | date }}</td>
+            <td>
+              <span class="badge badge-pill badge-soft-success font-size-11"
+                [ngClass]="{
+                  'badge-soft-danger': cahier.etat === 'Refusé',
+                  'badge-soft-warning': cahier.etat === 'en_attente'
+                }">
+                {{ cahier.etat }}
+              </span>
+            </td>
+            <td>
+              <button class="btn detail-custom" (click)="openDetailsModal(cahier.id)">
+                <i class="bx bxs-detail" style="font-size: medium;"></i>
+              </button>
+            </td>
+            <td>
+                <button class="btn "  (click)="openDeleteModal(cahier.id, deleteModal)">
+                    <i class="fas fa-trash-restore"></i>
+                  </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+      </div>
+    </div>
+
+  </div>
+  <ng-template #nocahiers>
+    <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
+  </ng-template>
+  <!-- Modal -->
+  <ng-template #deleteModal>
+    <div class="modal-header">
+      <h4 class="modal-title">Confirmation</h4>
+      <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
+        
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Voulez-vous vraiment Restaurer ce cahier des charges ? </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+      <button type="button" class="btn btn-danger" (click)="confirmDelete()">Restaurer</button>
+    </div>
+  </ng-template>
+
+<ng-template #detailsModal>
+
+  <div class="modal-header">
+    <h5 class="modal-title">Détails du Cahier des Charges</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body modal-body-centered">
+    <div class="mb-3">
+      <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
+      <p *ngIf="cahier.dateCreation"><strong>Date de création:</strong>{{ cahier.dateCreation }} </p>
+ 
+      <p *ngIf="cahier.user"><strong>Client:</strong> {{ cahier.user?.email }}</p>
+      <div class="mb-3">
+        <strong>État:</strong>
+        <span class="badge badge-pill badge-soft-success font-size-13"
+        [ngClass]="{
+          'badge-soft-danger': cahier.etat === 'Refusé',
+          'badge-soft-warning ': cahier.etat === 'en_attente',
+
+        }">
+          {{ cahier.etat }}
+        </span>
+      </div>
+      <div *ngIf="cahier.pieceJointe">
+          
+        <div *ngIf="cahier?.pieceJointe">
+          <div class="mb-3">
+            <p><strong>Pièce Jointe:</strong></p>
+            <div class="d-flex align-items-center">
+              <div class="attachment-icon me-3">
+                <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
+              </div>
+              <div class="attachment-details">
+                <div class="attachment-name">{{ cahier.pieceJointe }}</div>
+               
+              </div>
+            </div>
+          </div>
+          
+        </div>
+    </div>
+    </div>
+    
+    <hr>
+ 
+    
+  
+      <div *ngIf="cahier.commentaire">
+        <hr>
+        <p><strong>Commentaire:</strong> {{ cahier.commentaire }}</p>
+      </div>
+  
+  </div>
+
+</ng-template>

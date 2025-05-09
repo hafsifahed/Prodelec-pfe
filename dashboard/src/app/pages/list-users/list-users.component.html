@@ -1,0 +1,47 @@
+<div class="container">
+    <h1>Liste des Utilisateurs</h1>
+    <div class="mb-3">
+        <div class="d-flex justify-content-between">
+            <input type="text" class="form-control" placeholder="Rechercher par Nom, ID, Email de l'utilisateur ou Rôle de l'utilisateur..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
+            <button class="btn btn-secondary" (click)="clearSearch()">Effacer</button>
+            <button *ngIf="userr.role === 'ADMIN' || userr.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="navigateToAddUser()">Ajouter un Utilisateur</button>
+        </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div class="table-responsive mb-0">
+        <table class="table table-centered table-nowrap">
+            <thead class="table-light">
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Partenaire</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td>{{ user.firstName }} {{ user.lastName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{user.partner.name}}</td>
+                <td>
+                    <button *ngIf="userr.role === 'ADMIN' || userr.role === 'SUBADMIN'" type="button" class="btn btn-success" (click)="editUser(user)">Modifier</button>
+                    <button *ngIf="userr.role === 'ADMIN' || userr.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="deleteUser(user)">Supprimer</button>
+                    <button *ngIf="userr.role === 'ADMIN' || userr.role === 'SUBADMIN'" type="button" class="btn btn-info" (click)="editUserPassword(user)">Modifier le Mot de Passe</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+
+    <div *ngIf="users.length === 0 && !errorMessage">
+        <p>Aucun utilisateur trouvé.</p>
+    </div>
+</div>

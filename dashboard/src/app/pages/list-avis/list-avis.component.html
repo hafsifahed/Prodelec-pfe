@@ -1,0 +1,41 @@
+<div class="container">
+    <h1>Liste des Avis</h1>
+    <input type="text" class="form-control mb-3" placeholder="Rechercher par Nom ou Client" [(ngModel)]="searchTerm" (input)="onSearchInputChange()">
+
+    <div class="table-responsive mb-0">
+        <table class="table table-centered table-nowrap">
+            <thead class="table-light">
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Client</th>
+                <th>Note Moyenne</th>
+                <th>Créé le</th>
+                <th>Mis à jour le</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let avis of avisList | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td>{{ avis.id }}</td>
+                <td>{{ avis.nomPrenom }}</td>
+                <td>{{ avis.visa }}</td>
+                <td>{{ avis.avg }}</td>
+                <td>{{ avis.createdAt | date:'short' }}</td>
+                <td>{{ avis.updatedAt | date:'short' }}</td>
+                <td>
+                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="PrintToPdf(avis)">Imprimer</button>
+                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-danger" (click)="deleteAvis(avis.id)">Supprimer</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-container">
+        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    </div>
+
+    <!-- Div caché pour générer le contenu du PDF -->
+    <div #pdfContainer></div>
+</div>

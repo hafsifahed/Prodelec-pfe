@@ -1,0 +1,69 @@
+<div class="container-fluid">
+    <app-page-title title="Commandes"></app-page-title>
+  
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row mb-2">
+              <div class="col-sm-4">
+                <div class="search-box me-2 mb-2 d-inline-block">
+                  <div class="position-relative">
+                    <input type="text" class="form-control" autocomplete="off" id="searchTableList" placeholder="Search..." [(ngModel)]="search">
+                    <i class="bx bx-search-alt search-icon"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Table data -->
+            <div class="table-responsive mb-0">
+              <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check" id="order-list">
+                <thead class="table-light">
+                  <tr >
+                    <th class="align-middle">Numéro de commande</th>
+                    <th class="align-middle">Numéro de devis</th>
+                    <th class="align-middle">Etat de commande</th>
+                    <th class="align-middle">Télécharger</th>
+                    <th class="align-middle">aperçu</th>
+                    <th class="align-middle">Date de création</th>
+                    <th class="align-middle">Date de dernière mise à jour</th>
+                    <th class="align-middle">Action</th>
+                  </tr>
+                </thead>
+                <tbody *ngFor="let data of list | paginate: { itemsPerPage: itemsPerPage, currentPage: p }; let i = index;" id="o_{{data.id}}">
+                  <tr *ngIf="data.orderName === search || data.quoteNumber === search || !search">
+                    <td>{{data.orderName}}</td>
+                    <td>{{data.quoteNumber}}</td>
+                    <td>
+                        <span class="badge badge-pill font-size-11"
+                              [ngClass]="{ 
+                                'badge-soft-danger': data.annuler,
+                                'badge-soft-success': !data.annuler
+                              }">
+                          {{data.annuler ? 'Annulée' : 'Validée'}}
+                        </span>
+                      </td>
+                      <td>
+                        <a (click)="onDownloadFile(data.attachementName,data.orderName,data.user)" class="list-group-item" style="cursor: pointer;"><i class="bx bx-download"></i></a>
+                      </td>
+                      <td>
+                        <a [routerLink]="['/file',data.attachementName,data.idOrder]" class="list-group-item" style="cursor: pointer;"><i class="dripicons-preview"></i></a>
+                      </td>
+                      <td>{{data.createdAt | date:'yyyy-MM-dd HH:mm'}}</td>
+                    <td>{{data.updatedAt | date:'yyyy-MM-dd HH:mm'}}</td>
+                    
+                    
+                    <td>
+                      <div class="d-flex gap-3">
+                        <a href="javascript:void(0);" class="text-primary" (click)="restaurer(data.idOrder)">
+                        <i class="mdi mdi-undo font-size-18"></i>
+                      </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination-container">
+              <pagination-controls (pageChange)="p = $event"></pagination-controls>
+            </div>

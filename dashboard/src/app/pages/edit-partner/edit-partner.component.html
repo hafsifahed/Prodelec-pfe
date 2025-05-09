@@ -1,0 +1,28 @@
+<div class="container">
+    <h2>Modifier un Partenaire</h2>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <form (ngSubmit)="updatePartner()" #partnerForm="ngForm">
+        <div class="form-group">
+            <label for="name">Nom :</label>
+            <input type="text" class="form-control" id="name" name="name" [(ngModel)]="partner.name" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Adresse :</label>
+            <input type="text" class="form-control" id="address" name="address" [(ngModel)]="partner.address" required>
+        </div>
+        <div class="form-group">
+            <label for="tel">Téléphone :</label>
+            <input type="tel" class="form-control" id="tel" name="tel" [(ngModel)]="partner.tel" required>
+        </div>
+        <div class="form-group">
+            <label for="users">Utilisateurs :</label>
+            <select class="form-control" id="users" name="users" [(ngModel)]="selectedUsers" multiple required disabled>
+                <option *ngFor="let user of partner.users" [ngValue]="user">{{user.email}}</option>
+            </select>
+        </div>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary" [disabled]="partnerForm.invalid">Mettre à jour</button>
+            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
+        </div>
+    </form>
+</div>
