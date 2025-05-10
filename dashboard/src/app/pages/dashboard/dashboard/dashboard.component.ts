@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
   lastAvisDate: Date | null = null;
   showAlert: boolean = false;
   alertMessage: string = '';
-  userType = localStorage.getItem('userType');
+  userType = "worker";
   user: any;
   errorMessage: string;
   users: UserModel[] = [];
@@ -120,7 +120,7 @@ export class DashboardComponent implements OnInit {
   
   
  
-    this.userType = localStorage.getItem('userType');
+    /*this.userType = localStorage.getItem('userType');
     const userEmail = localStorage.getItem('userMail');
 
     if (this.userType && userEmail) {
@@ -170,11 +170,11 @@ export class DashboardComponent implements OnInit {
 
       this.updateCharts();
  this.loadproject();
-
+*/
    }
 
 
-
+/*
   loadproject():void{
     this.projectService.getAllProjects().subscribe({
       next: (data) => {
@@ -627,5 +627,5 @@ this.calculateReclamationPercentage(data);
           }
         }]
       };
-    }
+    }*/
 }

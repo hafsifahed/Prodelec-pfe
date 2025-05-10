@@ -3,8 +3,6 @@ import { Partner } from '../../core/models/partner.models';
 import { PartnersService } from '../../core/services/partners.service';
 import { Router } from '@angular/router';
 import Swal, {SweetAlertResult} from 'sweetalert2';
-import {WorkersService} from "../../core/services/workers.service";
-import {UsersService} from "../../core/services/users.service";
 import { UserModel } from 'src/app/core/models/user.models';
 
 @Component({
@@ -24,12 +22,11 @@ export class ListPartnerComponent implements OnInit{
 
   constructor(private partnersService: PartnersService,
               private router: Router,
-              private usersService: UsersService,
-              private workersService: WorkersService) {
+) {
   }
   ngOnInit(): void {
     this.loadPartners();
-    this.userType = localStorage.getItem('userType');
+    /*this.userType = localStorage.getItem('userType');
     const userEmail = localStorage.getItem('userMail');
 
     if (this.userType && userEmail) {
@@ -42,7 +39,7 @@ export class ListPartnerComponent implements OnInit{
       }
     } else {
       this.errorMessage = 'User information not found in local storage.';
-    }
+    }*/
 
   }
 
@@ -137,7 +134,7 @@ export class ListPartnerComponent implements OnInit{
     this.router.navigate(['/add-partner']);
   }
 
-  private fetchUserProfile(email: string): void {
+  /*private fetchUserProfile(email: string): void {
     this.usersService.getUserByEmail(email).subscribe(
         (data) => {
           this.user = data;
@@ -159,7 +156,7 @@ export class ListPartnerComponent implements OnInit{
           this.errorMessage = 'Error fetching worker data. Please try again later.';
         }
     );
-  }
+  }*/
 
 
 

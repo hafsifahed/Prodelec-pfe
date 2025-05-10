@@ -6,12 +6,10 @@ import { Router, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
 import { MENU } from './menu';
-import { MenuItem } from './menu.model';
+import { MenuItem, RolePermissions } from './menu.model';
 import { TranslateService } from '@ngx-translate/core';
-import {UsersService} from "../../core/services/users.service";
-import {WorkersService} from "../../core/services/workers.service";
-import {WorkerSessionService} from "../../core/services/worker-session.service";
-import {UserSessionService} from "../../core/services/user-session.service";
+import { UsersService } from 'src/app/core/services/user.service';
+
 
 @Component({
   selector: 'app-sidebar',
@@ -38,10 +36,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   constructor(private eventService: EventService, private router: Router,
               public translate: TranslateService,
               private http: HttpClient,
-  private usersService: UsersService,
-  private workersService: WorkersService,
-              private workerSessionService: WorkerSessionService,
-              private usersSessionService: UserSessionService,
+              private usersService: UsersService
   ) {
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
@@ -54,7 +49,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnInit() {
 
 
-    this.userType = localStorage.getItem('userType');
+    /*this.userType = localStorage.getItem('userType');
     const userEmail = localStorage.getItem('userMail');
 
     const userType = localStorage.getItem('userType');
@@ -75,14 +70,33 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
       }
     } else {
       this.errorMessage = 'User information not found in local storage.';
-    }
+    }*/
   /*  this.initialize(this.user);
     console.log(this.user)*/
     this._scrollElement();
     this._activateMenuDropdown();
 
+    this.loadPermessionProfile();
+
 
   }
+  private loadPermessionProfile(): void {
+    this.usersService.getPermessionProfile().subscribe({
+      next: (userData) => {
+        this.user = userData;
+        if (this.user.role) {
+          this.initialize(this.user.role);
+        } else {
+          this.initialize({ permissions: [] });
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching user profile', error);
+        this.errorMessage = 'Failed to load user profile. Please try again later.';
+      },
+    });
+  }
+  
 
   ngAfterViewInit() {
     this.menu = new MetisMenu(this.sideMenu.nativeElement);
@@ -180,19 +194,34 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   /**
    * Initialize
    */
-  initialize(user: string): void {
-    if (user && user) {
+  initialize(role: { permissions: RolePermissions[] }): void {
+    if (role && role.permissions && role.permissions.length > 0) {
       this.menuItems = MENU.filter(item => {
-        //console.log(item);
-        return !item.roles || item.roles.includes(user);
-
+        // If no rolePermissions specified on the item, show it to everyone
+        if (!item.rolePermissions || item.rolePermissions.length === 0) {
+          return true;
+        }
+  
+        // Check if user has at least one required permission for the menu item
+        return item.rolePermissions.some(menuPerm => {
+          return role.permissions.some(userPerm => {
+            return (
+              userPerm.resource.toLowerCase() === menuPerm.resource.toLowerCase() &&
+              menuPerm.actions.some(action =>
+                userPerm.actions.map(a => a.toLowerCase()).includes(action.toLowerCase())
+              )
+            );
+          });
+        });
       });
     } else {
-      // If user role is not provided or user is not defined, show all menu items
+      // If no permissions, show all menu items or none depending on your policy
       this.menuItems = MENU;
     }
-
   }
+  
+  
+  
   /*initialize(user:any): void {
     this.menuItems = MENU;
   }*/
@@ -205,7 +234,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     return item.subItems !== undefined ? item.subItems.length > 0 : false;
   }
 
-  private fetchUserProfile(email: string): void {
+  /*private fetchUserProfile(email: string): void {
     this.usersService.getUserByEmail(email).subscribe(
         (data) => {
           this.user = data;
@@ -256,5 +285,5 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
       localStorage.clear();
       this.router.navigateByUrl('/signin');
     }
-  }
+  }*/
 }

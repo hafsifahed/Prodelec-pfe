@@ -40,8 +40,19 @@ export class UsersController {
 
   @Get('profile')
   getProfile(@CurrentUser() user: User) {
+    return this.usersService.getProfile(user.id);
+  }
+
+  @Get('nameprofile')
+  getNameProfile(@CurrentUser() user: User) {
+    return this.usersService.getNameProfile(user.id);
+  }
+
+  @Get('profilepermession')
+  getPermesionProfile(@CurrentUser() user: User) {
     return user;
   }
+
 
   @Patch('change-password')
   async changePassword(

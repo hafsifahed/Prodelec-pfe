@@ -148,5 +148,46 @@ export class UsersService {
     return updatedUser;
   }
 
+  async getProfile(userId: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['role'], // eager load role and permissions
+      select: [
+        'id',
+        'username',
+        'firstName',
+        'lastName',
+        'email',
+        'accountStatus',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async getNameProfile(userId: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['role'], // eager load role and permissions
+      select: [
+        'id',
+        'username',
+        'accountStatus',
+
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
   
 }

@@ -32,7 +32,6 @@ import { ToastrModule } from 'ngx-toastr';
 import {SignInComponent} from "./pages/sign-in/sign-in.component";
 import {AuthService} from "./core/services/auth.service";
 import {LoaderService} from "./core/services/loader.service";
-import { AuthGuard} from "./core/guards/auth.guard";
 import {DatePipe} from "@angular/common";
 
 

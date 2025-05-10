@@ -1,17 +1,47 @@
-<div class="profile-container" *ngIf="user">
-    <h1 class="profile-title">{{ userType === 'user' ? 'User' : 'Worker' }} Profile</h1>
-    <div class="profile-info">
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Name:</strong> {{ user.firstName }} {{ user.lastName }}</p>
-        <p><strong>Role:</strong> {{ user.role }}</p>
-        <p *ngIf="userType=='user'"><strong>Client:</strong> {{ user.partner.name }}</p>
-
+<div class="profile-container" *ngIf="user; else loadingOrError">
+    <h1 class="profile-title">Profile</h1>
+  
+    <div class="profile-card">
+      <div class="profile-section">
+        <h2>Personal Information</h2>
+        <p><span class="label">Username:</span> {{ user.username }}</p>
+        <p><span class="label">Name:</span> {{ user.firstName }} {{ user.lastName }}</p>
+        <p><span class="label">Email:</span> {{ user.email }}</p>
+        <p *ngIf="user.partner">
+          <span class="label">Client:</span> {{ user.partner.name }}
+        </p>
+        <p><span class="label">Account Status:</span> {{ user.accountStatus }}</p>
+        <p><span class="label">Member Since:</span> {{ user.createdAt | date:'mediumDate' }}</p>
+      </div>
+  
+      <div class="profile-section">
+        <h2>Role & Permissions</h2>
+        <p><span class="label">Role:</span> {{ user.role?.name }}</p>
+        <div *ngIf="user.role?.permissions?.length > 0" class="permissions-list">
+          <h3>Permissions:</h3>
+          <ul>
+            <li *ngFor="let perm of user.role.permissions">
+              <strong>{{ perm.resource | titlecase }}</strong>:
+              <span>{{ perm.actions.join(', ') | titlecase }}</span>
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="!user.role?.permissions?.length">
+          <em>No permissions assigned.</em>
+        </div>
+      </div>
     </div>
-  <!--  <a routerLink="/edit-profile" class="edit-profile-link">Edit Profile</a>-->
-</div>
-
-<div class="error-message-container" *ngIf="errorMessage">
-    <p class="error-message">{{ errorMessage }}</p>
-</div>
-
-
+  
+    <!-- Uncomment if edit profile is implemented -->
+    <!-- <a routerLink="/edit-profile" class="edit-profile-link">Edit Profile</a> -->
+  </div>
+  
+  <ng-template #loadingOrError>
+    <div class="error-message-container" *ngIf="errorMessage; else loading">
+      <p class="error-message">{{ errorMessage }}</p>
+    </div>
+    <ng-template #loading>
+      <p class="loading-message">Loading profile...</p>
+    </ng-template>
+  </ng-template>
+  

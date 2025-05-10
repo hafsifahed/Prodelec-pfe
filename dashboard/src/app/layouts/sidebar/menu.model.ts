@@ -1,3 +1,9 @@
+export interface RolePermissions {
+    resource: string;
+    actions: string[];
+  }
+  
+
 export interface MenuItem {
     id?: number;
     label?: string;
@@ -8,5 +14,5 @@ export interface MenuItem {
     badge?: any;
     parentId?: number;
     isLayout?: boolean;
-    roles?: string[];
+    rolePermissions?: RolePermissions[];  // <-- map roles to permissions
 }

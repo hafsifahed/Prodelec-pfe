@@ -33,7 +33,6 @@ export class AddPartnerComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.fetchUser(this.userMail);
 
   }
 
@@ -86,17 +85,7 @@ export class AddPartnerComponent implements OnInit{
         }
     );
   }
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Erreur lors de la récupération des données utilisateur. Veuillez réessayer ultérieurement.';
-        }
-    );
-  }
+  
   private resetForm(): void {
     this.addPartnerForm.reset();
   }

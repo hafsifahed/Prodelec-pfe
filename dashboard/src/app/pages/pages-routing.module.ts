@@ -36,8 +36,6 @@ import { ThreeViewerComponent } from './ThreeDViewer/three-viewer/three-viewer.c
 import { CDCUserlistArchiveComponent } from './cahierDesCharges/cdc-userlist-archive/cdc-userlist-archive.component';
 import { DevisUserlistArchiveComponent } from './devis/devis-userlist-archive/devis-userlist-archive.component';
 import { ReclamationArchiveUserlistComponent } from './reclamation/reclamation-archive-userlist/reclamation-archive-userlist.component';
-import {AuthGuardUser} from "../core/guards/auth-user.guard";
-import {AuthGuardWorker} from "../core/guards/auth-worker.guard";
 import { AddOrderComponent } from './order/add-order/add-order.component';
 import { ListOrderComponent } from './order/list-order/list-order.component';
 import { OrderFileComponent } from './order/order-file/order-file.component';
@@ -51,69 +49,74 @@ import { ArchiveProjectUserComponent } from './projectfo/archive-project-user/ar
 import { ArchiveProjectAdminCComponent } from './projectfo/archive-project-admin-c/archive-project-admin-c.component';
 import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archive-order-admin-c.component';
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
-import {AuthGuard} from "../core/guards/auth.guard";
-import {AuthGuardUserAdmin} from "../core/guards/auth-useradmin.guard";
+
 
 
 const routes: Routes = [
   // { path: '', redirectTo: 'dashboard' },
   {
     path: "",
-    component: DashboardComponent
+    component: DashboardComponent,
+    pathMatch: 'full'
   },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'edit-profile', component: EditProfileComponent },
-  { path: 'add-user', component: AddUserComponent, canActivate: [AuthGuardWorker] },
-  { path: 'edit-user/:id', component: EditUserComponent , canActivate: [AuthGuardWorker]},
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
 
-  { path: 'add-worker', component: AddWorkerComponent, canActivate: [AuthGuardWorker] },
-  { path: 'edit-worker/:id', component: EditWorkerComponent , canActivate: [AuthGuardWorker]},
+  }
+  ,
+ { path: 'profile', component: ProfileComponent},
+   { path: 'edit-profile', component: EditProfileComponent },
+  { path: 'add-user', component: AddUserComponent  },
+  { path: 'edit-user/:id', component: EditUserComponent  },
 
-  { path: 'add-partner', component: AddPartnerComponent , canActivate: [AuthGuardWorker]},
-  { path: 'edit-partner/:id', component: EditPartnerComponent , canActivate: [AuthGuardWorker]},
+  { path: 'add-worker', component: AddWorkerComponent  },
+  { path: 'edit-worker/:id', component: EditWorkerComponent  },
+
+  { path: 'add-partner', component: AddPartnerComponent  },
+  { path: 'edit-partner/:id', component: EditPartnerComponent  },
 
 
-  { path: 'list-user', component: ListUsersComponent, canActivate: [AuthGuardWorker] },
+  { path: 'list-user', component: ListUsersComponent  },
 
-  { path: 'list-worker', component: ListWorkersComponent, canActivate: [AuthGuardWorker] },
-  { path: 'list-partner', component: ListPartnerComponent, canActivate: [AuthGuardWorker] },
-  { path: 'list-worker-session', component: ListSessionWorkersComponent , canActivate: [AuthGuardWorker]},
-  { path: 'list-user-session', component: ListSessionUsersComponent, canActivate: [AuthGuardWorker] },
+  { path: 'list-worker', component: ListWorkersComponent  },
+  { path: 'list-partner', component: ListPartnerComponent  },
+  { path: 'list-worker-session', component: ListSessionWorkersComponent  },
+  { path: 'list-user-session', component: ListSessionUsersComponent  },
   { path: 'list-notifications', component: ListNotificationsComponent },
 
-  { path: 'avis', component: AvisComponent , canActivate: [AuthGuardUser]  },
-  { path: 'list-avis', component: ListAvisComponent , canActivate: [AuthGuardWorker] },
+  { path: 'avis', component: AvisComponent ,    },
+  { path: 'list-avis', component: ListAvisComponent   },
 
 
   { path: 'user', component: UserComponent },
 
-  { path: 'cdc', component: CDCListAdminComponent, canActivate: [AuthGuardWorker] },
-  { path: 'cdcUser', component: CDCListUserComponent, canActivate: [AuthGuardUser] },
-  {path: 'cdcUser/cdcAdd', component: AddCdCComponent, canActivate: [AuthGuardUser] },
-  {path: 'reclamation', component:ReclamationAdminListComponent, canActivate: [AuthGuardWorker] },
-  {path: 'reclamationUser', component:ReclamationListComponent, canActivate: [AuthGuardUser] },
-  {path: 'devis', component:DevisAdminlistComponent, canActivate: [AuthGuardWorker] },
-  {path:'devisUser', component:DevisUserlistComponent, canActivate: [AuthGuardUser]},
-  {path: 'cdc/cdcArchive', component: CDCListArchiveComponent, canActivate: [AuthGuardWorker] },
-  {path: 'devis/devisArchive', component: DevisListArchiveComponent, canActivate: [AuthGuardWorker] },
-  {path: 'reclamation/reclamationArchive', component: ReclamationArchiveListComponent, canActivate: [AuthGuardWorker] },
-  {path: 'cdcUser/cdcArchive', component: CDCUserlistArchiveComponent, canActivate: [AuthGuardUser] },
-  {path: 'devisUser/devisArchive', component: DevisUserlistArchiveComponent , canActivate: [AuthGuardUser]},
-  {path: 'reclamationUser/reclamationArchive', component: ReclamationArchiveUserlistComponent , canActivate: [AuthGuardUser]},
-  { path: 'addorder', component: AddOrderComponent , canActivate: [AuthGuardUser]},
-  { path: 'listorder', component: ListOrderComponent, canActivate: [AuthGuardWorker] },
+  { path: 'cdc', component: CDCListAdminComponent  },
+  { path: 'cdcUser', component: CDCListUserComponent,   },
+  {path: 'cdcUser/cdcAdd', component: AddCdCComponent,   },
+  {path: 'reclamation', component:ReclamationAdminListComponent  },
+  {path: 'reclamationUser', component:ReclamationListComponent,   },
+  {path: 'devis', component:DevisAdminlistComponent  },
+  {path:'devisUser', component:DevisUserlistComponent,  },
+  {path: 'cdc/cdcArchive', component: CDCListArchiveComponent  },
+  {path: 'devis/devisArchive', component: DevisListArchiveComponent  },
+  {path: 'reclamation/reclamationArchive', component: ReclamationArchiveListComponent  },
+  {path: 'cdcUser/cdcArchive', component: CDCUserlistArchiveComponent,   },
+  {path: 'devisUser/devisArchive', component: DevisUserlistArchiveComponent ,  },
+  {path: 'reclamationUser/reclamationArchive', component: ReclamationArchiveUserlistComponent ,  },
+  { path: 'addorder', component: AddOrderComponent ,  },
+  { path: 'listorder', component: ListOrderComponent  },
   { path: 'file/:filename/:ido', component: OrderFileComponent },
-  { path: 'listorderclient', component: ListOrderUserComponent, canActivate: [AuthGuardUser] },
-  { path: 'listproject', component: ListProjectComponent, canActivate: [AuthGuardWorker] },
-  { path: 'listprojectclient', component: ListProjectUserComponent , canActivate: [AuthGuardUser]},
-  { path: 'archiveorderadmin', component: ArchiveOrderAdminComponent , canActivate: [AuthGuardWorker]},
-  { path: 'archiveorderclient', component: ArchiveOrderUserComponent , canActivate: [AuthGuardUser]},
-  { path: 'archiveprojectadmin', component: ArchiveProjectAdminComponent, canActivate: [AuthGuardWorker] },
-  { path: 'archiveprojectclient', component: ArchiveProjectUserComponent, canActivate: [AuthGuardUser] },
-  { path: 'listprojetclientadmin', component: ListProjetUserAdminComponent, canActivate: [AuthGuardUserAdmin] },
-  { path: 'archiveprojectadminclient', component: ArchiveProjectAdminCComponent , canActivate: [AuthGuardWorker]},
-  { path: 'archiveorderadminclient', component: ArchiveOrderAdminCComponent, canActivate: [AuthGuardWorker] },
+  { path: 'listorderclient', component: ListOrderUserComponent,   },
+  { path: 'listproject', component: ListProjectComponent  },
+  { path: 'listprojectclient', component: ListProjectUserComponent ,  },
+  { path: 'archiveorderadmin', component: ArchiveOrderAdminComponent  },
+  { path: 'archiveorderclient', component: ArchiveOrderUserComponent ,  },
+  { path: 'archiveprojectadmin', component: ArchiveProjectAdminComponent  },
+  { path: 'archiveprojectclient', component: ArchiveProjectUserComponent,   },
+  { path: 'listprojetclientadmin', component: ListProjetUserAdminComponent },
+  { path: 'archiveprojectadminclient', component: ArchiveProjectAdminCComponent  },
+  { path: 'archiveorderadminclient', component: ArchiveOrderAdminCComponent  },
 
 
 ];

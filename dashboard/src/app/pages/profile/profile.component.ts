@@ -1,61 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService } from '../../core/services/users.service';
-import { WorkersService } from '../../core/services/workers.service';
-import {UserModel} from "../../core/models/user.models";
+import { User } from 'src/app/core/models/auth.models';
+import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  user: UserModel;
-  userType: string | null = '';
+  user: User | null = null;
   errorMessage = '';
 
-  constructor(
-      private usersService: UsersService,
-      private workersService: WorkersService
-  ) { }
+  constructor(private usersService: UsersService) {}
 
   ngOnInit(): void {
-    this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    if (this.userType && userEmail) {
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-      } else {
-        this.errorMessage = 'Invalid user type.';
-      }
-    } else {
-      this.errorMessage = 'User information not found in local storage.';
-    }
+    this.loadUserProfile();
   }
 
-  private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
-
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-        },
-        (error) => {
-          console.error('Error fetching worker data', error);
-          this.errorMessage = 'Error fetching worker data. Please try again later.';
-        }
-    );
+  private loadUserProfile(): void {
+    this.usersService.getProfile().subscribe({
+      next: (userData) => {
+        this.user = userData;
+      },
+      error: (error) => {
+        console.error('Error fetching user profile', error);
+        this.errorMessage = 'Failed to load user profile. Please try again later.';
+      },
+    });
   }
 }

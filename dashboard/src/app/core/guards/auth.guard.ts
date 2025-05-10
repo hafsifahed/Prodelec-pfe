@@ -1,121 +1,119 @@
 import { Injectable } from '@angular/core';
-import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivate, UrlTree } from '@angular/router';
-import { Observable, of } from "rxjs";
-import { WorkerSessionService } from "../services/worker-session.service";
-import { UserSessionService } from "../services/user-session.service";
+import {
+  Router,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  CanActivate,
+  UrlTree,
+} from '@angular/router';
+import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { User } from '../models/auth.models';
+import { UsersService } from '../services/user.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-    private inactivityTimer: any;
-    private inactivityDuration: number = 60 * 60 * 1000;
+  private inactivityTimer: any;
+  private inactivityDuration = 60 * 60 * 1000; // 1 hour
 
-    constructor(private router: Router,
-                private workerSessionService: WorkerSessionService,
-                private usersSessionService: UserSessionService) { }
+  constructor(private router: Router, private usersService: UsersService) {}
 
-    canActivate(
-        route: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ): Observable<boolean | UrlTree> {
+    const token = localStorage.getItem('token');
 
-        const userType = localStorage.getItem('userType');
-        const sessionId = localStorage.getItem('sessionId');
+    // Extract required resource and actions from route data
+    const requiredResource: string = route.data['resource'];
+    const requiredActions: string[] = route.data['actions'] || [];
 
-        // Check if the session is active
-        return this.checkSessionActive(userType, sessionId).pipe(
-            map(isActive => {
-                if (!isActive) {
-                    this.router.navigate(['/signin']);
-                    return false;
-                }
-
-                // Check token expiration
-                if (!this.checkTokenExpiration()) {
-                    return false;
-                }
-
-                // Start or reset the inactivity timer
-                this.startInactivityTimer();
-
-                return userType === 'user' || userType === 'worker';
-            }),
-            catchError(() => {
-                this.router.navigate(['/signin']);
-                return of(false);
-            })
-        );
+    if (!token) {
+        console.log("aaaa");
+      this.router.navigate(['/signin']);
+      return of(false);
     }
 
-    checkTokenExpiration(): boolean {
-        const token = localStorage.getItem('token');
+    if (!this.checkTokenExpiration(token)) {
+      return of(false);
+    }
 
-        if (token) {
-            try {
-                const tokenData = JSON.parse(atob(token.split('.')[1])); // Decoding the token
-                const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-                if (currentTime > tokenData.exp) {
-                    this.logout();
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error decoding token', error);
-                this.router.navigate(['/signin']);
-                return false;
-            }
-        } else {
-            console.error('Token not found.');
-            this.router.navigate(['/signin']);
-            return false;
+    // Fetch current user profile from backend
+    return this.usersService.getProfile().pipe(
+      map((user: User) => {
+        if (
+          requiredResource &&
+          requiredActions.length > 0 &&
+          !this.hasAnyPermission(user, requiredResource, requiredActions)
+        ) {
+          this.router.navigate(['/unauthorized']);
+          return false;
         }
 
+        this.startInactivityTimer();
         return true;
+      }),
+      catchError(err => {
+        console.error('Failed to get user profile or unauthorized', err);
+       this.router.navigate(['/signin']);
+        return of(false);
+      }),
+    );
+  }
+
+  private hasAnyPermission(user: User, resource: string, actions: string[]): boolean {
+    if (!user?.role?.permissions) {
+      return false;
     }
 
-    logout() {
-        const userType = localStorage.getItem('userType');
-        const sessionId = localStorage.getItem('sessionId');
+    // Check if user has at least one of the required actions on the resource
+    return actions.some(action =>
+      user.role.permissions.some(perm =>
+        perm.resource.toLowerCase() === resource.toLowerCase() &&
+        perm.actions.some(a => a.toLowerCase() === action.toLowerCase()),
+      ),
+    );
+  }
 
-        const endSession = userType === 'worker'
-            ? this.workerSessionService.endSession(Number(sessionId))
-            : this.usersSessionService.endSession(Number(sessionId));
-
-        endSession.subscribe(
-            (response) => {
-                console.log(`${userType} session ended`, response);
-                this.clearLocalStorageAndRedirect();
-            },
-            (error) => {
-                console.error(`Failed to end ${userType} session`, error);
-                this.clearLocalStorageAndRedirect();
-            }
-        );
+  private checkTokenExpiration(token: string): boolean {
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+  
+      // If 'exp' is missing, log a warning but don't clear storage
+      if (tokenData.exp === undefined) {
+        console.warn('Token has no expiration time');
+        return true; // Assume token is valid if 'exp' is missing
+      }
+  
+      if (currentTime > tokenData.exp) {
+        console.log('Token expired');
+        this.clearLocalStorageAndRedirect();
+        return false;
+      }
+  
+      return true;
+    } catch (error) {
+      console.error('Invalid token format', error);
+      this.clearLocalStorageAndRedirect();
+      return false;
     }
+  }
+  
 
-    clearLocalStorageAndRedirect() {
-        localStorage.clear();
-        this.router.navigate(['/signin']);
+  private clearLocalStorageAndRedirect(): void {
+    localStorage.clear();
+    this.router.navigate(['/signin']);
+    console.log("clearLocalStorageAndRedirect ");
+
+  }
+
+  private startInactivityTimer(): void {
+    if (this.inactivityTimer) {
+      clearTimeout(this.inactivityTimer);
     }
-
-    startInactivityTimer() {
-        if (this.inactivityTimer) {
-            clearTimeout(this.inactivityTimer);
-        }
-
-        this.inactivityTimer = setTimeout(() => {
-            this.logout();
-        }, this.inactivityDuration);
-    }
-
-    checkSessionActive(userType: string, sessionId: string): Observable<boolean> {
-        const id = Number(sessionId);
-
-        if (userType === 'worker') {
-            return this.workerSessionService.isSessionActive(id);
-        } else if (userType === 'user') {
-            return this.usersSessionService.isSessionActive(id);
-        } else {
-            this.clearLocalStorageAndRedirect();
-            return of(false);
-        }
-    }
+    this.inactivityTimer = setTimeout(() => {
+      this.clearLocalStorageAndRedirect();
+    }, this.inactivityDuration);
+  }
 }

@@ -7,7 +7,6 @@ import { environment } from '../../../environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { LanguageService } from '../../core/services/language.service';
 import { TranslateService } from '@ngx-translate/core';
-import { UsersService } from '../../core/services/users.service';
 import { WorkersService } from '../../core/services/workers.service';
 import { WorkerSessionService } from '../../core/services/worker-session.service';
 import { UserSessionService } from '../../core/services/user-session.service';
@@ -17,6 +16,7 @@ import { StompSubscription } from '@stomp/stompjs';
 import { Subscription } from 'rxjs';
 import {NotificationService} from "../../core/services/notification.service";
 import {NotificationrService} from "../../core/services/notificationr.service";
+import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-topbar',
@@ -85,15 +85,29 @@ export class TopbarComponent implements OnInit {
       this.flagvalue = val.map(element => element.flag);
     }
 
-    const userType = localStorage.getItem('userType');
+  /*  const userType = localStorage.getItem('userType');
     const sessionId = localStorage.getItem('sessionId');
     this.checkSessionActive(userType,sessionId);
-this.getUserTypeAndFetchProfile();
+this.getUserTypeAndFetchProfile();*/
+
+this.loadUserProfile();
 
 
   }
 
-  getUserTypeAndFetchProfile(): void {
+  private loadUserProfile(): void {
+    this.usersService.getnameProfile().subscribe({
+      next: (userData) => {
+        this.user = userData;
+      },
+      error: (error) => {
+        console.error('Error fetching user profile', error);
+        this.errorMessage = 'Failed to load user profile. Please try again later.';
+      },
+    });
+  }
+
+  /*getUserTypeAndFetchProfile(): void {
     this.userType = localStorage.getItem('userType');
     const userEmail = localStorage.getItem('userMail');
 
@@ -110,7 +124,7 @@ this.getUserTypeAndFetchProfile();
     } else {
       this.errorMessage = 'User information not found in local storage.';
     }
-  }
+  }*/
  /* ngOnDestroy(): void {
     if (this.stompSubscription) {
       this.webSocketService.unsubscribe(this.stompSubscription);
@@ -133,7 +147,7 @@ this.getUserTypeAndFetchProfile();
     }
   }*/
 
-  private fetchUserProfile(email: string): void {
+ /* private fetchUserProfile(email: string): void {
     this.usersService.getUserByEmail(email).subscribe(
         (data) => {
           this.user = data;
@@ -160,7 +174,7 @@ this.getUserTypeAndFetchProfile();
         }
     );
   }
-
+*/
   setLanguage(text: string, lang: string, flag: string) {
     this.countryName = text;
     this.flagvalue = flag;
@@ -176,7 +190,7 @@ this.getUserTypeAndFetchProfile();
     event.preventDefault();
     this.mobileMenuButtonClicked.emit();
   }
-
+/*
   logout() {
     const userType = localStorage.getItem('userType');
 
@@ -209,7 +223,7 @@ this.getUserTypeAndFetchProfile();
       this.router.navigate(['/signin']);
     }
   }
-
+*/
   fullscreen() {
     document.body.classList.toggle('fullscreen-enable');
     if (
@@ -236,7 +250,7 @@ this.getUserTypeAndFetchProfile();
       }
     }
   }
-
+/*
   loadNotifications(u: any): void {
     if (u.role === 'ADMIN' || u.role==='SUBADMIN' ) {
       this.notificationService.getNotifications().subscribe(
@@ -343,7 +357,9 @@ this.getUserTypeAndFetchProfile();
         }
     );
   }
+*/
 
+/*
   updateUnreadCount() {
     this.unreadCount = this.notifications.filter(notification => !notification.read).length;
   }
@@ -424,5 +440,5 @@ this.getUserTypeAndFetchProfile();
       localStorage.clear();
       this.router.navigateByUrl('/signin');
     }
-  }
+  }*/
 }

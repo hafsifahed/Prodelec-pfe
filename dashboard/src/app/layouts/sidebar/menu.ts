@@ -32,43 +32,35 @@ export const MENU: MenuItem[] = [
         label: 'Cahier des charges',
         icon: 'bx-home-circle',
         link: '/cdc',
-        roles: ['ADMIN', 'SUBADMIN']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 44,
         label: 'Cahier des charges',
         icon: 'bx-home-circle',
         link: '/cdcUser',
-        roles: ['CLIENTADMIN', 'CLIENTUSER']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 5,
         label: 'Devis',
         icon: 'bx-home-circle',
         link: '/devis',
-        roles: ['ADMIN', 'SUBADMIN']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 21,
         label: 'Devis',
         icon: 'bx-home-circle',
         link: '/devisUser',
-        roles: ['CLIENTADMIN', 'CLIENTUSER']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 6,
         label: 'Commandes',
         icon: 'bx-home-circle',
         link: '/listorder',
-        roles: ['ADMIN', 'SUBADMIN']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
 
 
     },
@@ -77,7 +69,7 @@ export const MENU: MenuItem[] = [
         label: 'Commandes',
         icon: 'bx-home-circle',
         link: 'listorderclient',
-        roles: ['CLIENTADMIN', 'CLIENTUSER']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
 
 
     },
@@ -86,32 +78,21 @@ export const MENU: MenuItem[] = [
         label: 'Projets',
         icon: 'bx-home-circle',
         link: '/listproject',
-        roles: ['ADMIN', 'SUBADMIN','Processus Management Qualité',
-    'Processus Conception ET Développement',
-    'Processus Methode',
-    'Processus Production',
-    'Processus Logistique ET Commerciale',
-    'Processus DAF']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 7,
         label: 'Mes Projets',
         icon: 'bx-home-circle',
         link: '/listprojectclient',
-        roles: ['CLIENTADMIN', 'CLIENTUSER']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
         id: 7,
         label: 'Tous les Projets',
         icon: 'bx-home-circle',
         link: '/listprojetclientadmin',
-        roles: ['CLIENTADMIN']
-
-
+          rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     
     {
@@ -119,7 +100,7 @@ export const MENU: MenuItem[] = [
         label: 'Reclamation',
         icon: 'bx-home-circle',
         link: '/reclamation',
-        roles: ['ADMIN', 'SUBADMIN']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
      
     },
     {
@@ -127,7 +108,7 @@ export const MENU: MenuItem[] = [
         label: 'Reclamation',
         icon: 'bx-home-circle',
         link: '/reclamationUser',
-        roles: ['CLIENTADMIN', 'CLIENTUSER']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
      
     },
     /*{
@@ -150,7 +131,7 @@ export const MENU: MenuItem[] = [
         id: 40,
         label: 'Utilisateurs',
         icon: 'bx-store',
-        roles: ['ADMIN', 'SUBADMIN'],
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
         subItems: [
     {
         id:12,
@@ -180,7 +161,7 @@ export const MENU: MenuItem[] = [
         label: 'Notifications',
         icon: 'bx-home-circle',
         link: 'list-notifications',
-        roles: ['ADMIN', 'SUBADMIN']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
 
     {
@@ -188,13 +169,13 @@ export const MENU: MenuItem[] = [
         label: 'list Avis',
         icon: 'bx-home-circle',
         link: 'list-avis',
-        roles: ['ADMIN', 'SUBADMIN']
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
     },
     {
          id: 30,
          label: 'Session',
          icon: 'bx-store',
-          roles: ['ADMIN'],
+         rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
          subItems: [
              {
              id:15,
@@ -218,7 +199,7 @@ export const MENU: MenuItem[] = [
         id: 30,
         label: 'Archive',
         icon: 'bx-store',
-         roles: ['ADMIN','SUBADMIN'],
+        rolePermissions: [ { resource: 'users', actions: ['read' ,'create','update','delete']},],
         subItems: [
             {
             id:15,

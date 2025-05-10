@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between">
             <input type="text" class="form-control" placeholder="Rechercher par Nom, ID, Email de l'utilisateur ou Rôle de l'utilisateur..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
             <button class="btn btn-secondary" (click)="clearSearch()">Effacer</button>
-            <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" class="btn btn-success" (click)="navigateToAddPartner()">Ajouter un Partenaire</button>
+            <button class="btn btn-success" (click)="navigateToAddPartner()">Ajouter un Partenaire</button>
         </div>
     </div>
 
@@ -48,8 +48,8 @@
                     <p *ngIf="!partner.users || partner.users.length === 0">Aucun utilisateur</p>
                 </td>
                 <td>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-success" (click)="editPartner(partner)">Modifier</button>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="deletePartner(partner.id)">Supprimer</button>
+                    <button  type="button" class="btn btn-success" (click)="editPartner(partner)">Modifier</button>
+                    <button  type="button" class="btn btn-primary" (click)="deletePartner(partner.id)">Supprimer</button>
                 </td>
             </tr>
             </tbody>

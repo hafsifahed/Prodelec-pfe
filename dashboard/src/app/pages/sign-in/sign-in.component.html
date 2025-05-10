@@ -12,7 +12,7 @@
         </div>
         <button type="submit">Sign In</button>
     </form>
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="error" class="error-message">{{ error }}</div>
 </div>
 
 <div class="background">
@@ -29,7 +29,7 @@
     <input type="password" placeholder="Password" id="password" [(ngModel)]="signInData.password" name="password" required>
 
     <button type="submit">Log In</button>
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="error" class="error-message">{{ error }}</div>
 
 </form>
 -->
@@ -40,12 +40,12 @@
             <img src="assets/images/logoprodelec2024.png" alt="Dashboard example">
 
             <label for="email">username</label>
-            <input type="text" id="email"  placeholder="username" [(ngModel)]="signInData.emailOrUserName" name="emailOrUserName" required>
+            <input type="text" id="email"  placeholder="username" [(ngModel)]="signInData.username" name="username" required>
             <label for="password">Mot de passe</label>
             <input type="password" id="password"  placeholder="******" [(ngModel)]="signInData.password" name="password" required>
             <button type="submit" class="btn btn-signin">Sign In</button>
         </form>
-        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <p *ngIf="error" class="error-message">{{ error }}</p>
     </div>
     <div class="login-right" style="background-color: white; background-image: url('assets/images/PRODELEC-North-AFRICA.png'); background-size: cover; background-position: center;">
       <!--  <div class="login-info">
