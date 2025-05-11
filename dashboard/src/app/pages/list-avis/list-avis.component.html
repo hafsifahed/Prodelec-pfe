@@ -24,8 +24,8 @@
                 <td>{{ avis.createdAt | date:'short' }}</td>
                 <td>{{ avis.updatedAt | date:'short' }}</td>
                 <td>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="PrintToPdf(avis)">Imprimer</button>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-danger" (click)="deleteAvis(avis.id)">Supprimer</button>
+                    <button  type="button" class="btn btn-primary" (click)="PrintToPdf(avis)">Imprimer</button>
+                    <button  type="button" class="btn btn-danger" (click)="deleteAvis(avis.id)">Supprimer</button>
                 </td>
             </tr>
             </tbody>

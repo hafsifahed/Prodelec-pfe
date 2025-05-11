@@ -151,7 +151,7 @@ export class UsersService {
   async getProfile(userId: number): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
-      relations: ['role'], // eager load role and permissions
+      relations: ['role','partner'], // eager load role and permissions
       select: [
         'id',
         'username',

@@ -114,8 +114,7 @@ export class ListPartnerComponent implements OnInit{
           partner.name.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
           String(partner.id).includes(this.searchKeyword) ||
           partner.users.some(user =>
-              user.email.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-              user.role.toLowerCase().includes(this.searchKeyword.toLowerCase())
+              user.email.toLowerCase().includes(this.searchKeyword.toLowerCase()) 
           )
       );
     }

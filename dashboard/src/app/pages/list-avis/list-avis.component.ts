@@ -3,7 +3,6 @@ import { AvisModels } from "../../core/models/avis.models";
 import { AvisService } from "../../core/services/avis.service";
 import { jsPDF } from 'jspdf';
 import {DatePipe} from "@angular/common";
-import {WorkersService} from "../../core/services/workers.service";
 import {UsersService} from "../../core/services/users.service";
 
 @Component({
@@ -24,25 +23,11 @@ export class ListAvisComponent implements OnInit {
 
     constructor(private avisService: AvisService,
                 private usersService: UsersService,
-                private workersService: WorkersService,
                 private datePipe: DatePipe) { }
 
     ngOnInit() {
         this.loadAvis();
-        this.userType = localStorage.getItem('userType');
-        const userEmail = localStorage.getItem('userMail');
-
-        if (this.userType && userEmail) {
-            if (this.userType === 'user') {
-                this.fetchUserProfile(userEmail);
-            } else if (this.userType === 'worker') {
-                this.fetchWorkerProfile(userEmail);
-            } else {
-                this.errorMessage = 'Invalid user type.';
-            }
-        } else {
-            this.errorMessage = 'User information not found in local storage.';
-        }
+        
     }
 
     loadAvis() {
@@ -755,17 +740,6 @@ export class ListAvisComponent implements OnInit {
         );
     }
 
-     fetchWorkerProfile(email: string): void {
-        this.workersService.getWorkerByEmail(email).subscribe(
-            (data) => {
-                this.user = data;
-            },
-            (error) => {
-                console.error('Error fetching worker data', error);
-                this.errorMessage = 'Error fetching worker data. Please try again later.';
-            }
-        );
-    }
 
     onSearchInputChange(): void {
         this.searchAvis();

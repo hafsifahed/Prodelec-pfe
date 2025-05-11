@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AvisModels } from "../../core/models/avis.models";
 import { AvisService } from "../../core/services/avis.service";
-import { UsersService } from "../../core/services/users.service";
-import { UserModel } from "../../core/models/user.models";
 import {Router} from "@angular/router";
 import {PartnersService} from "../../core/services/partners.service";
 import {Partner} from "../../core/models/partner.models";
 import {NotificationService} from "../../core/services/notification.service";
 import Swal from "sweetalert2";
+import { User } from 'src/app/core/models/auth.models';
+import { UsersService } from 'src/app/core/services/user.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-avis',
@@ -15,7 +16,7 @@ import Swal from "sweetalert2";
   styleUrls: ['./avis.component.scss']
 })
 export class AvisComponent implements OnInit {
-  user: UserModel | null = null;
+  user: User | null = null;
   avis: AvisModels = new AvisModels();
   successMessage: string = '';
   errorMessage: string = '';
@@ -61,33 +62,34 @@ export class AvisComponent implements OnInit {
 
 
   constructor(private avisService: AvisService,
-              private usersService: UsersService, private router: Router,
-              private partnersService: PartnersService,
-              private notificationsService: NotificationService,
-
+              private usersService: UsersService,
+               private router: Router,
+                   private userStateService: UserStateService
+               
   ) { }
 
   ngOnInit() {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-      this.loadPartners();
-    }
+    // this.loadUserProfile();
 
+    this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
 
   }
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
+ /* private loadUserProfile(): void {
+    this.usersService.getProfile().subscribe({
+      next: (userData) => {
+        this.user = userData;
+        console.log('avis user partner'+this.user?.partner.id);
+
+      },
+      error: (error) => {
+        console.error('Error fetching user profile', error);
+        this.errorMessage = 'Failed to load user profile. Please try again later.';
+      },
+    });
+  }*/
 
   submitAvis() {
     this.submitted = true;
@@ -106,12 +108,12 @@ export class AvisComponent implements OnInit {
       this.partnerObj = this.user.partner;
       if (this.partnerObj) {
         this.avis.visa = this.partnerObj.name;
+        this.avis.user = this.user;
         this.calculateAverageRatings();
 
         this.avisService.saveAvisForUser(this.user.id, this.avis).subscribe(
             (response: AvisModels) => {
               this.showSuccessMessage('Avis soumis avec succès.');
-              this.createNotification('Nouvel avis ajouté', 'Par: ' + this.userEmail + " le score =" + this.avis.avg.toFixed(2));
               this.resetForm();
               this.router.navigate(['/dashboard']); // Redirect to the dashboard
             },
@@ -157,56 +159,9 @@ export class AvisComponent implements OnInit {
     // Set the avg property to the percentage
     this.avis.avg = averagePercentage; // Store the average as a percentage
   }
-  loadPartners(): void {
-    this.partnersService.getAllPartners()
-        .subscribe(
-            partners => {
-              this.partners = partners;
-            },
-            error => {
-              console.error('Error loading partners', error);
-            }
-        );
-  }
 
   goBack() {
     this.router.navigate(['/']);
-  }
-
-  // searchPartners(usermail: string): Partner {
-  //   // Find the first partner based on user email
-  //   const foundPartner = this.partners.find(partner =>
-  //       partner.name.toLowerCase().includes(usermail.toLowerCase()) ||
-  //       String(partner.id).includes(usermail) ||
-  //       partner.users.some(user =>
-  //           user.email.toLowerCase().includes(usermail.toLowerCase())
-  //       )
-  //   );
-
-  //   return foundPartner;
-  // }
-
-  private createNotification(title: string, message: string): void {
-    const newNotification = {
-      id: 0,
-      title: title,
-      message: message,
-      createdBy: this.user.email, // Replace with the actual creator's name
-      read: false,
-      userId: 0, // Replace with the actual user ID or retrieve it from the logged-in user
-      workerId: 0,
-      createdAt: '',
-      updatedAt: ''
-    };
-
-    this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
-        () => {
-          console.log('Notification created successfully.');
-        },
-        (error) => {
-          console.error('Error creating notification', error);
-        }
-    );
   }
 
 

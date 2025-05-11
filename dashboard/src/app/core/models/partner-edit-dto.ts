@@ -1,3 +1,4 @@
+import { User } from "./auth.models";
 import {UserModel} from "./user.models";
 
 export class PartnerEditDto {
@@ -5,6 +6,6 @@ export class PartnerEditDto {
     address: string;
     name: string;
     tel: string;
-    users:UserModel[];
+    users:User[];
 
 }

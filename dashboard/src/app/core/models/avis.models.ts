@@ -1,4 +1,4 @@
-import {UserModel} from "./user.models";
+import { User } from "./auth.models";
 
 export class AvisModels {
     id: number;
@@ -48,5 +48,5 @@ export class AvisModels {
 
     createdAt: Date;
     updatedAt: Date;
-    user: UserModel;
+    user: User;
 }

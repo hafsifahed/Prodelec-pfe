@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 import {NotificationService} from "../../core/services/notification.service";
 import {NotificationrService} from "../../core/services/notificationr.service";
 import { UsersService } from 'src/app/core/services/user.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-topbar',
@@ -55,6 +56,8 @@ export class TopbarComponent implements OnInit {
       private webSocketService: WebSocketService,
       private notificationService :NotificationService,
       private notificationrService :NotificationrService,
+      private userStateService: UserStateService
+
 
   ) { }
 
@@ -90,12 +93,21 @@ export class TopbarComponent implements OnInit {
     this.checkSessionActive(userType,sessionId);
 this.getUserTypeAndFetchProfile();*/
 
-this.loadUserProfile();
+//this.loadUserProfile();
+this.usersService.getProfile().subscribe({
+  next: (user) => {
+    this.user = user;
+    this.userStateService.setUser(user);
+  },
+  error: (err) => {
+    console.error('Failed to load user profile', err);
+  },
+});
 
 
   }
 
-  private loadUserProfile(): void {
+  /*private loadUserProfile(): void {
     this.usersService.getnameProfile().subscribe({
       next: (userData) => {
         this.user = userData;
@@ -105,7 +117,7 @@ this.loadUserProfile();
         this.errorMessage = 'Failed to load user profile. Please try again later.';
       },
     });
-  }
+  }*/
 
   /*getUserTypeAndFetchProfile(): void {
     this.userType = localStorage.getItem('userType');

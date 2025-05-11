@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PartnersService } from '../../core/services/partners.service';
 import { Partner } from '../../core/models/partner.models';
 import Swal from 'sweetalert2';
-import { UserModel } from '../../core/models/user.models';
 import { PartnerEditDto } from "../../core/models/partner-edit-dto";
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-edit-partner',
@@ -19,7 +19,7 @@ export class EditPartnerComponent implements OnInit {
     tel: '',
     users: []
   };
-  selectedUsers: UserModel[] = [];
+  selectedUsers: User[] = [];
   errorMessage = '';
 
   constructor(

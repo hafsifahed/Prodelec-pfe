@@ -5,6 +5,7 @@ import { LayoutComponent } from './layouts/layout.component';
 import { CyptolandingComponent } from './cyptolanding/cyptolanding.component';
 import { Page404Component } from './extrapages/page404/page404.component';
 import {SignInComponent} from "./pages/sign-in/sign-in.component";
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
 
@@ -13,6 +14,7 @@ const routes: Routes = [
     path: '', 
     component: LayoutComponent, 
     loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule),
+    canActivate:[AuthGuard]
 
   }
   ,

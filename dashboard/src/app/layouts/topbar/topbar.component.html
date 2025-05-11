@@ -137,16 +137,16 @@
       <div class="dropdown d-inline-block" dropdown>
         <button type="button" class="btn header-item" dropdownToggle id="page-header-user-dropdown">
           <span class="d-none d-xl-inline-block ms-1">
-            {{ user.role?.name }} : {{ user.username }}
+            {{ user?.role?.name }} : {{ user?.username }}
             <span 
               class="badge ms-2"
               [ngClass]="{
-                'bg-success': user.accountStatus === 'active',
-                'bg-warning text-dark': user.accountStatus === 'inactive',
-                'bg-danger': user.accountStatus === 'suspended'
+                'bg-success': user?.accountStatus === 'active',
+                'bg-warning text-dark': user?.accountStatus === 'inactive',
+                'bg-danger': user?.accountStatus === 'suspended'
               }"
               >
-              {{ user.accountStatus | titlecase }}
+              {{ user?.accountStatus | titlecase }}
             </span>
           </span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>

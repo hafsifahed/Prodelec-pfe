@@ -1,3 +1,5 @@
+import { Partner } from "./partner.models";
+
 export enum Resource {
     USERS = 'users',
     DASHBOARD = 'dashboard',
@@ -33,5 +35,6 @@ export enum Resource {
     createdAt: string;
     updatedAt: string;
     role: Role;
+    partner?: Partner;
   }
   

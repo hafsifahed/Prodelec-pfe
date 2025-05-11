@@ -12,7 +12,7 @@ export class AvisService {
   constructor(private http: HttpClient) { }
 
   saveAvisForUser(userId: number, avis: AvisModels): Observable<AvisModels> {
-    const url = `${this.apiUrl}/${userId}`;
+    const url = `${this.apiUrl}/`;
     return this.http.post<AvisModels>(url, avis);
   }
 

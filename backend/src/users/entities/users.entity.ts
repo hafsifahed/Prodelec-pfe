@@ -48,7 +48,8 @@ export class User {
   @OneToMany(() => UserSession, session => session.user)
   sessions: UserSession[];
 
-  @ManyToOne(() => Partner, partner => partner.users, { nullable: true })
+  @ManyToOne(() => Partner, { eager: true, nullable: true })
+  @JoinColumn({ name: 'partnerId' })
   partner: Partner;
 
   @OneToMany(() => Avis, avis => avis.user)

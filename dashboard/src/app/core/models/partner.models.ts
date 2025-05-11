@@ -1,3 +1,4 @@
+import { User } from "./auth.models";
 import {UserModel} from "./user.models";
 
 export class Partner {
@@ -5,7 +6,7 @@ export class Partner {
     address: string;
     name: string;
     tel: string;
-    users:UserModel[];
+    users:User[];
     createdAt: string;
     updatedAt: string;
 }
