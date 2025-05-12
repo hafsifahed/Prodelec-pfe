@@ -8,8 +8,12 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AvisModule } from './avis/avis.module';
 import { Avis } from './avis/entities/avis.entity';
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
 import { Partner } from './partners/entities/partner.entity';
 import { PartnersModule } from './partners/partners.module';
+import { Reclamation } from './reclamation/entities/reclamation.entity';
+import { ReclamationModule } from './reclamation/reclamation.module';
 import { Role } from './roles/entities/role.entity';
 import { RolesModule } from './roles/roles.module';
 import { SeedModule } from './seed/seed.module';
@@ -17,8 +21,6 @@ import { UserSession } from './user-session/entities/user-session.entity';
 import { UserSessionModule } from './user-session/user-session.module';
 import { User } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
-import { NotificationsGateway } from './notifications/notifications.gateway';
-import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -32,7 +34,7 @@ import { NotificationsModule } from './notifications/notifications.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'your_database',
-      entities: [User,Role,UserSession,Partner,Avis],
+      entities: [User,Role,UserSession,Partner,Avis,Reclamation],
       synchronize: true,
     }),
     UsersModule,
@@ -43,6 +45,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     PartnersModule,
     AvisModule,
     NotificationsModule,
+    ReclamationModule,
   ],
   controllers: [AppController],
   providers: [

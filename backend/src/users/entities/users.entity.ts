@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Avis } from '../../avis/entities/avis.entity';
 import { Partner } from '../../partners/entities/partner.entity';
+import { Reclamation } from '../../reclamation/entities/reclamation.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { UserSession } from '../../user-session/entities/user-session.entity';
 import { AccountStatus } from '../enums/account-status.enum';
@@ -54,6 +55,9 @@ export class User {
 
   @OneToMany(() => Avis, avis => avis.user)
   avis: Avis[];
+
+  @OneToMany(() => Reclamation, reclamation => reclamation.user)
+reclamations: Reclamation[];
 
 
   @CreateDateColumn({ type: 'timestamp' })
