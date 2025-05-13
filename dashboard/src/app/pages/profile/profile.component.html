@@ -1,47 +1,92 @@
 <div class="profile-container" *ngIf="user; else loadingOrError">
-    <h1 class="profile-title">Profile</h1>
-  
-    <div class="profile-card">
-      <div class="profile-section">
-        <h2>Personal Information</h2>
-        <p><span class="label">Username:</span> {{ user.username }}</p>
-        <p><span class="label">Name:</span> {{ user.firstName }} {{ user.lastName }}</p>
-        <p><span class="label">Email:</span> {{ user.email }}</p>
-        <p *ngIf="user.partner">
-          <span class="label">Client:</span> {{ user.partner.name }}
-        </p>
-        <p><span class="label">Account Status:</span> {{ user.accountStatus }}</p>
-        <p><span class="label">Member Since:</span> {{ user.createdAt | date:'mediumDate' }}</p>
-      </div>
-  
-      <div class="profile-section">
-        <h2>Role & Permissions</h2>
-        <p><span class="label">Role:</span> {{ user.role?.name }}</p>
-        <div *ngIf="user.role?.permissions?.length > 0" class="permissions-list">
-          <h3>Permissions:</h3>
-          <ul>
-            <li *ngFor="let perm of user.role.permissions">
-              <strong>{{ perm.resource | titlecase }}</strong>:
-              <span>{{ perm.actions.join(', ') | titlecase }}</span>
-            </li>
-          </ul>
-        </div>
-        <div *ngIf="!user.role?.permissions?.length">
-          <em>No permissions assigned.</em>
-        </div>
-      </div>
+  <div class="profile-header">
+    <h1 class="profile-title">Profil Utilisateur</h1>
+    <div class="profile-meta">
+      <span class="status-badge" [ngClass]="{
+        'active': user.accountStatus === 'active',
+        'inactive': user.accountStatus !== 'active'
+      }">
+        {{ user.accountStatus | titlecase }}
+      </span>
+      <span class="member-since">Membre depuis {{ user.createdAt | date:'mediumDate' }}</span>
     </div>
-  
-    <!-- Uncomment if edit profile is implemented -->
-    <!-- <a routerLink="/edit-profile" class="edit-profile-link">Edit Profile</a> -->
   </div>
-  
-  <ng-template #loadingOrError>
-    <div class="error-message-container" *ngIf="errorMessage; else loading">
-      <p class="error-message">{{ errorMessage }}</p>
+
+  <div class="profile-grid">
+    <div class="profile-card personal-info">
+      <div class="card-header">
+        <h2><i class="fas fa-user"></i> Informations Personnelles</h2>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Nom d'utilisateur</span>
+          <span class="value">{{ user.username }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Nom complet</span>
+          <span class="value">{{ user.firstName }} {{ user.lastName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email</span>
+          <span class="value">{{ user.email }}</span>
+        </div>
+        <div class="info-row" *ngIf="user.partner">
+          <span class="label">Client</span>
+          <span class="value">{{ user.partner.name }}</span>
+        </div>
+      </div>
     </div>
-    <ng-template #loading>
-      <p class="loading-message">Loading profile...</p>
-    </ng-template>
+
+    <div class="profile-card role-info">
+      <div class="card-header">
+        <h2><i class="fas fa-shield-alt"></i> Rôle & Permissions</h2>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Rôle</span>
+          <span class="value">{{ user.role?.name || 'Aucun rôle attribué' }}</span>
+        </div>
+        
+        <div *ngIf="user.role?.permissions?.length > 0" class="permissions-section">
+          <h3>Permissions</h3>
+          <div class="permissions-grid">
+            <div *ngFor="let perm of user.role.permissions" class="permission-item">
+              <div class="permission-resource">{{ perm.resource | titlecase }}</div>
+              <div class="permission-actions">
+                <span *ngFor="let action of perm.actions" class="action-badge">
+                  {{ action | titlecase }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!user.role?.permissions?.length" class="empty-state">
+          <i class="fas fa-lock-open"></i>
+          <p>Aucune permission attribuée</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Décommenter si l'édition de profil est implémentée -->
+  <!-- <button class="edit-button">
+    <i class="fas fa-edit"></i> Modifier le profil
+  </button> -->
+</div>
+
+<ng-template #loadingOrError>
+  <div class="state-container" *ngIf="errorMessage; else loading">
+    <div class="error-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Erreur de chargement</h3>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-button">Réessayer</button>
+    </div>
+  </div>
+  <ng-template #loading>
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement du profil...</p>
+    </div>
   </ng-template>
-  
+</ng-template>

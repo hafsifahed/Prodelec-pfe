@@ -1,62 +1,97 @@
-<div class="container">
-    <h1>Liste des Partenaires</h1>
-
-    <div class="mb-3">
-        <div class="d-flex justify-content-between">
-            <input type="text" class="form-control" placeholder="Rechercher par Nom, ID, Email de l'utilisateur ou Rôle de l'utilisateur..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
-            <button class="btn btn-secondary" (click)="clearSearch()">Effacer</button>
-            <button class="btn btn-success" (click)="navigateToAddPartner()">Ajouter un Partenaire</button>
+<div class="partner-management">
+    <!-- En-tête -->
+    <div class="management-header">
+        <div class="header-title">
+            <h1><i class="fas fa-handshake"></i> Liste des Partenaires</h1>
+            <p class="header-subtitle">Gestion des partenaires commerciaux</p>
         </div>
     </div>
 
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <!-- Barre de recherche -->
+    <div class="search-section">
+        <div class="search-container">
+            <div class="search-input-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" 
+                       [(ngModel)]="searchKeyword" 
+                       (input)="onSearchInputChange()"
+                       placeholder="Rechercher par nom, ID, email...">
+                <button *ngIf="searchKeyword" class="clear-search" (click)="clearSearch()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <button class="add-partner-btn" (click)="navigateToAddPartner()">
+                <i class="fas fa-plus"></i> Ajouter un partenaire
+            </button>
+        </div>
+    </div>
 
-    <div class="table-responsive mb-0">
-        <table class="table table-centered table-nowrap">
-            <thead class="table-light">
-            <tr>
-                <th style="width: 20px;">
-                    <div class="form-check font-size-16 align-middle">
-                        <input class="form-check-input" type="checkbox" id="selectAll">
-                        <label class="form-check-label" for="selectAll"></label>
-                    </div>
-                </th>
-                <th class="align-middle">ID</th>
-                <th class="align-middle">Nom</th>
-                <th class="align-middle">Téléphone</th>
-                <th class="align-middle">Utilisateurs</th>
-                <th class="align-middle">Actions</th>
-            </tr>
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage" class="error-alert">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+
+    <!-- Tableau des partenaires -->
+    <div class="partner-table-wrapper">
+        <table class="partner-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="selectAll">
+                            <span class="checkmark"></span>
+                        </label>
+                    </th>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Téléphone</th>
+                    <th>Utilisateurs</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-                <td>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="checkbox{{partner.id}}">
-                        <label class="form-check-label" for="checkbox{{partner.id}}"></label>
-                    </div>
-                </td>
-                <td>{{ partner.id }}</td>
-                <td>
-                    <a href="javascript:void(0);" class="text-body fw-bold">{{ partner.name }}</a>
-                </td>
-                <td>{{ partner.tel }}</td>
-                <td>
-                    <ul *ngIf="partner.users && partner.users.length > 0">
-                        <li *ngFor="let user of partner.users">{{ user.email }} ({{ user?.role?.name }})</li>
-                    </ul>
-                    <p *ngIf="!partner.users || partner.users.length === 0">Aucun utilisateur</p>
-                </td>
-                <td>
-                    <button  type="button" class="btn btn-success" (click)="editPartner(partner)">Modifier</button>
-                    <button  type="button" class="btn btn-primary" (click)="deletePartner(partner.id)">Supprimer</button>
-                </td>
-            </tr>
+                <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                    <td class="checkbox-column">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" id="checkbox{{partner.id}}">
+                            <span class="checkmark"></span>
+                        </label>
+                    </td>
+                    <td>{{ partner.id }}</td>
+                    <td>
+                        <a class="partner-name">{{ partner.name }}</a>
+                    </td>
+                    <td>{{ partner.tel || '-' }}</td>
+                    <td class="users-cell">
+                        <div *ngIf="partner.users && partner.users.length > 0" class="users-list">
+                            <div *ngFor="let user of partner.users" class="user-item">
+                                <span class="user-email">{{ user.email }}</span>
+                                <span class="user-role">{{ user?.role?.name || 'Aucun rôle' }}</span>
+                            </div>
+                        </div>
+                        <div *ngIf="!partner.users || partner.users.length === 0" class="no-users">
+                            Aucun utilisateur
+                        </div>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn edit-btn" (click)="editPartner(partner)">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="action-btn delete-btn" (click)="deletePartner(partner.id)">
+                            <i class="fas fa-trash-alt"></i> Supprimer
+                        </button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
 
-    <div class="pagination-container">
-        <pagination-controls (pageChange)="p = $event"></pagination-controls>
+    <!-- Pagination -->
+    <div class="pagination-wrapper">
+        <pagination-controls (pageChange)="p = $event"
+                            previousLabel="Précédent"
+                            nextLabel="Suivant"
+                            maxSize="5">
+        </pagination-controls>
     </div>
 </div>

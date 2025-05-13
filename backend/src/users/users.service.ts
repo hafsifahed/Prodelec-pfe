@@ -8,6 +8,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
+import { UpdateUserFullDto } from './dto/update-user-full.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/users.entity';
 import { AccountStatus } from './enums/account-status.enum';
@@ -266,6 +267,39 @@ export class UsersService {
 
     return this.usersRepository.save(user);
   }
+
+  async updateUserFull(userId: number, dto: UpdateUserFullDto): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+  
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+  
+    // Update simple fields
+    if (dto.firstName !== undefined) user.firstName = dto.firstName;
+    if (dto.lastName !== undefined) user.lastName = dto.lastName;
+    if (dto.email !== undefined) user.email = dto.email;
+    if (dto.accountStatus !== undefined) user.accountStatus = dto.accountStatus;
+  
+    // Update role if provided
+    if (dto.roleId !== undefined) {
+      const role = await this.rolesRepository.findOne({ where: { id: dto.roleId } });
+      if (!role) throw new NotFoundException(`Role with id ${dto.roleId} not found`);
+      user.role = role;
+    }
+  
+    // Update partner if provided
+    if (dto.partnerId !== undefined) {
+      const partner = await this.partnersRepository.findOne({ where: { id: dto.partnerId } });
+      if (!partner) throw new NotFoundException(`Partner with id ${dto.partnerId} not found`);
+      user.partner = partner;
+    }
+  
+    return this.usersRepository.save(user);
+  }
+  
 
   // Change Account Status
   async updateAccountStatus(userId: number, status: AccountStatus): Promise<User> {

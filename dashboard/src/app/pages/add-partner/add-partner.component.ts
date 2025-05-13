@@ -5,6 +5,7 @@ import { PartnersService } from '../../core/services/partners.service';
 import {UsersService} from "../../core/services/users.service";
 import {NotificationService} from "../../core/services/notification.service";
 import {Router} from "@angular/router";
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-add-partner',
@@ -42,24 +43,24 @@ export class AddPartnerComponent implements OnInit{
 
       this.partnersService.addPartner(newPartner).subscribe(
           () => {
-            this.showSuccessMessage('Partenaire ajouté avec succès.');
            // this.createNotification('New partner added', 'A new partner has been added.');
-            this.resetForm();
+           Swal.fire({
+            title: 'Succès!',
+            text: 'Partenaire ajouté avec succès.',
+            icon: 'success'
+          });
+          this.router.navigate(['/list-partner']);
           },
           (error) => {
             console.error('Error adding partner', error);
-            this.showErrorMessage('Erreur lors de l\'ajout du partenaire. Veuillez réessayer ultérieurement.');
+            Swal.fire({
+              title: 'Erreur!',
+              text: 'Erreur lors de l\'ajout du partenaire. Veuillez réessayer ultérieurement.',
+              icon: 'error'
+            });
           }
       );
     }
-  }
-
-  private showSuccessMessage(message: string): void {
-    alert(message);
-  }
-
-  private showErrorMessage(message: string): void {
-    this.errorMessage = message;
   }
 
 

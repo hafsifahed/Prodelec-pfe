@@ -1,40 +1,120 @@
-<form [formGroup]="editUserForm" (ngSubmit)="submit()" novalidate>
-    <div class="mb-3">
-      <label for="firstName" class="form-label">First Name</label>
-      <input id="firstName" type="text" class="form-control" formControlName="firstName" />
-      <div *ngIf="editUserForm.get('firstName').invalid && editUserForm.get('firstName').touched" class="text-danger">
-        First name is required.
-      </div>
+<form [formGroup]="editUserForm" (ngSubmit)="submit()" novalidate class="user-form">
+    <!-- En-tête du formulaire -->
+    <div class="form-header">
+        <h2><i class="fas fa-user-edit"></i> Édition d'utilisateur</h2>
+        <p class="form-subtitle">Modifiez les informations de l'utilisateur</p>
+        <p class="form-subtitle">{{ username }}</p>
+
     </div>
-  
-    <div class="mb-3">
-      <label for="lastName" class="form-label">Last Name</label>
-      <input id="lastName" type="text" class="form-control" formControlName="lastName" />
-      <div *ngIf="editUserForm.get('lastName').invalid && editUserForm.get('lastName').touched" class="text-danger">
-        Last name is required.
-      </div>
+
+    <!-- Champ Prénom -->
+    <div class="form-group">
+        <label for="firstName" class="form-label">
+            <i class="fas fa-user"></i> Prénom
+        </label>
+        <div class="input-container">
+            <input id="firstName" type="text" class="form-input" 
+                   formControlName="firstName"
+                   placeholder="Entrez le prénom">
+            <div *ngIf="editUserForm.get('firstName').invalid && editUserForm.get('firstName').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Le prénom est requis
+            </div>
+        </div>
     </div>
-  
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input id="email" type="email" class="form-control" formControlName="email" />
-      <div *ngIf="editUserForm.get('email').invalid && editUserForm.get('email').touched" class="text-danger">
-        Valid email is required.
-      </div>
+
+    <!-- Champ Nom -->
+    <div class="form-group">
+        <label for="lastName" class="form-label">
+            <i class="fas fa-user"></i> Nom
+        </label>
+        <div class="input-container">
+            <input id="lastName" type="text" class="form-input" 
+                   formControlName="lastName"
+                   placeholder="Entrez le nom">
+            <div *ngIf="editUserForm.get('lastName').invalid && editUserForm.get('lastName').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Le nom est requis
+            </div>
+        </div>
     </div>
-  
-    <div class="mb-3">
-      <label for="roleId" class="form-label">Role</label>
-      <select id="roleId" class="form-select" formControlName="roleId">
-        <option value="" disabled>Select role</option>
-        <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
-      </select>
-      <div *ngIf="editUserForm.get('roleId').invalid && editUserForm.get('roleId').touched" class="text-danger">
-        Role is required.
-      </div>
+
+    <!-- Champ Email -->
+    <div class="form-group">
+        <label for="email" class="form-label">
+            <i class="fas fa-envelope"></i> Email
+        </label>
+        <div class="input-container">
+            <input id="email" type="email" class="form-input" 
+                   formControlName="email"
+                   placeholder="Entrez l'email">
+            <div *ngIf="editUserForm.get('email').invalid && editUserForm.get('email').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Un email valide est requis
+            </div>
+        </div>
     </div>
-  
-    <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">Update User</button>
-    <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Cancel</button>
-  </form>
-  
+
+    <!-- Champ Rôle -->
+    <div class="form-group">
+        <label for="roleId" class="form-label">
+            <i class="fas fa-user-tag"></i> Rôle
+        </label>
+        <div class="input-container">
+            <select id="roleId" class="form-select" formControlName="roleId">
+                <option value="" disabled selected>Sélectionnez un rôle</option>
+                <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+            </select>
+            <div *ngIf="editUserForm.get('roleId').invalid && editUserForm.get('roleId').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Le rôle est requis
+            </div>
+        </div>
+    </div>
+
+    <!-- Champ Partenaire -->
+    <div class="form-group">
+        <label for="partnerId" class="form-label">
+            <i class="fas fa-handshake"></i> Partenaire
+        </label>
+        <div class="input-container">
+            <select id="partnerId" class="form-select" formControlName="partnerId">
+                <option value="" disabled selected>Sélectionnez un partenaire</option>
+                <option *ngFor="let partner of partners" [value]="partner.id">{{ partner.name }}</option>
+            </select>
+            <div *ngIf="editUserForm.get('partnerId').invalid && editUserForm.get('partnerId').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Le partenaire est requis
+            </div>
+        </div>
+    </div>
+
+    <!-- Champ Statut du compte -->
+    <div class="form-group">
+        <label for="accountStatus" class="form-label">
+            <i class="fas fa-user-lock"></i> Statut du compte
+        </label>
+        <div class="input-container">
+            <select id="accountStatus" class="form-select" formControlName="accountStatus">
+                <option value="" disabled selected>Sélectionnez un statut</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+                <option value="suspended">Suspendu</option>
+            </select>
+            <div *ngIf="editUserForm.get('accountStatus').invalid && editUserForm.get('accountStatus').touched" 
+                 class="error-message">
+                <i class="fas fa-exclamation-circle"></i> Le statut est requis
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions du formulaire -->
+    <div class="form-actions">
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+            <i class="fas fa-save"></i> {{ isSubmitting ? 'Enregistrement...' : 'Mettre à jour' }}
+        </button>
+        <button type="button" class="cancel-btn" (click)="cancel()">
+            <i class="fas fa-times"></i> Annuler
+        </button>
+    </div>
+</form>

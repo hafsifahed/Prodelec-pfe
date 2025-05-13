@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateAvisDto {
   @IsOptional() @IsString() conformiteExigences?: string;
@@ -18,7 +18,7 @@ export class CreateAvisDto {
   @IsOptional() @IsString() pointFort?: string;
   @IsOptional() @IsString() nomPrenom?: string;
   @IsOptional() @IsString() visa?: string;
-  @IsOptional() @IsInt() avg?: number;
+  @IsOptional() @IsNumber() avg?: number;
   @IsOptional() @IsString() reactivite?: string;
   @IsOptional() @IsString() delaisintervention?: string;
   @IsOptional() @IsString() gammeproduits?: string;

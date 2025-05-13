@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { UsersService } from 'src/app/core/services/user.service';
+import { PartnersService } from 'src/app/core/services/partners.service';
+import { Partner } from 'src/app/core/models/partner.models';
 
 @Component({
   selector: 'app-edit-user',
@@ -12,27 +14,38 @@ import { UsersService } from 'src/app/core/services/user.service';
 export class EditUserComponent implements OnInit {
   editUserForm: FormGroup;
   userId: number;
-  roles: string[] = ['CLIENTADMIN', 'CLIENTUSER'];
+  username: string;
+
+  roles = [
+    { id: 1, name: 'CLIENTADMIN' },
+    { id: 2, name: 'CLIENTUSER' }
+  ];
   isSubmitting = false;
+  partners: Partner[] = [];
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private partnersService: PartnersService
+
   ) {
     this.editUserForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       roleId: ['', Validators.required],
-      // password is not editable here, manage separately if needed
+      partnerId: ['', Validators.required],
+      accountStatus: ['', Validators.required],
     });
   }
 
   ngOnInit(): void {
     this.userId = +this.route.snapshot.paramMap.get('id');
     this.loadUser();
+    this.loadPartners();
+
   }
 
   loadUser(): void {
@@ -42,11 +55,23 @@ export class EditUserComponent implements OnInit {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
-          roleId: user.role?.id || user.role, // adapt if role is object or string
+          roleId: user.role?.id || user.role,
+          partnerId: user.partner?.id, // uncomment if partnerId is managed
+          accountStatus: user.accountStatus, // uncomment if accountStatus is managed
         });
+        this.username=user.username;
       },
       (error) => {
         Swal.fire('Error', 'Failed to load user data', 'error');
+      }
+    );
+  }
+  loadPartners(): void {
+    this.partnersService.getAllPartners().subscribe(
+      (partners) => (this.partners = partners),
+      (error) => {
+        console.error('Error loading partners', error);
+        Swal.fire('Error', 'Failed to load partners', 'error');
       }
     );
   }
@@ -61,7 +86,11 @@ export class EditUserComponent implements OnInit {
 
     const updateUserDto = this.editUserForm.value;
 
-    this.usersService.updateUser(this.userId, updateUserDto).subscribe(
+    // Convert roleId (and partnerId if added) to number explicitly
+    updateUserDto.roleId = Number(updateUserDto.roleId);
+    updateUserDto.partnerId = Number(updateUserDto.partnerId); 
+
+    this.usersService.updateUserFull(this.userId, updateUserDto).subscribe(
       () => {
         Swal.fire('Success', 'User updated successfully', 'success');
         this.router.navigate(['/list-user']);

@@ -1,224 +1,319 @@
-<div class="avis-container">
-    <h2>Votre Avis</h2>
+<div class="feedback-container">
+    <div class="feedback-header">
+        <h2><i class="fas fa-star"></i> Votre Avis</h2>
+        <p class="subtitle">Partagez votre expérience avec nous</p>
+    </div>
 
-    <form (ngSubmit)="submitAvis()">
-        <!-- Title 1 -->
-        <div class="form-group">
-            <h3>Concernant nos devis :</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(0, 3); let i = index">
-                <div class="form-group">
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+    <form (ngSubmit)="submitAvis()" class="feedback-form">
+        <!-- Section 1: Devis -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h3>Concernant nos devis</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(0, 3); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="deviscomm">Comment:</label>
-                <input type="text" id="deviscomm" [(ngModel)]="avis.deviscomm" name="deviscomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="deviscomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="deviscomm" [(ngModel)]="avis.deviscomm" 
+                          name="deviscomm" 
+                          placeholder="Vos remarques sur nos devis..."></textarea>
             </div>
         </div>
 
-        <!-- Title 2 -->
-        <div class="form-group">
-            <h3>Comment le client juge t-il notre réactivité :</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(3, 6); let i = index">
-                <div class="form-group">
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+        <!-- Section 2: Réactivité -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-bolt"></i>
+                <h3>Notre réactivité</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(3, 6); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="reactivitecomm">Comment:</label>
-                <input type="text" id="reactivitecomm" [(ngModel)]="avis.reactivitecomm" name="reactivitecomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="reactivitecomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="reactivitecomm" [(ngModel)]="avis.reactivitecomm" 
+                          name="reactivitecomm" 
+                          placeholder="Vos remarques sur notre réactivité..."></textarea>
             </div>
         </div>
 
-        <!-- Title 3 -->
-        <div class="form-group">
-            <h3>Développement:</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(6, 9); let i = index">
-                <div class="form-group">
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+        <!-- Section 3: Développement -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-code"></i>
+                <h3>Développement</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(6, 9); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="develocomm">Comment:</label>
-                <input type="text" id="develocomm" [(ngModel)]="avis.develocomm" name="develocomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="develocomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="develocomm" [(ngModel)]="avis.develocomm" 
+                          name="develocomm" 
+                          placeholder="Vos remarques sur le développement..."></textarea>
             </div>
         </div>
 
-        <!-- Title 4 -->
-        <div class="form-group">
-            <h3>Concernant nos prestations/produit :</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(9, 13); let i = index">
-                <div class="form-group">
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+        <!-- Section 4: Prestations -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-box-open"></i>
+                <h3>Nos prestations/produits</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(9, 13); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="presentationcomm">Comment:</label>
-                <input type="text" id="presentationcomm" [(ngModel)]="avis.presentationcomm" name="presentationcomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="presentationcomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="presentationcomm" [(ngModel)]="avis.presentationcomm" 
+                          name="presentationcomm" 
+                          placeholder="Vos remarques sur nos prestations..."></textarea>
             </div>
         </div>
 
-        <!-- Title 5 -->
-        <div class="form-group">
-            <h3>Concernant le SAV :</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(13, 15); let i = index">
-                <div class="form-group">
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+        <!-- Section 5: SAV -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-headset"></i>
+                <h3>Service Après-Vente</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(13, 15); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="savcomm">Comment:</label>
-                <input type="text" id="savcomm" [(ngModel)]="avis.savcomm" name="savcomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="savcomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="savcomm" [(ngModel)]="avis.savcomm" 
+                          name="savcomm" 
+                          placeholder="Vos remarques sur notre SAV..."></textarea>
             </div>
         </div>
 
-        <!-- Title 6 -->
-        <div class="form-group">
-            <h3>Concernant les éléments non contractuels :</h3>
-            <ng-container *ngFor="let attribute of attributes.slice(15, 19); let i = index">
-                <div class="form-group" >
-                    <label>{{ attribute.label }}:</label>
-                    <div *ngFor="let option of options" class="form-check">
-                        <input class="form-check-input" type="radio" name="{{attribute.key}}"
-                               [value]="option.value" [(ngModel)]="avis[attribute.key]" required>
-                        <label class="form-check-label">
-                            {{ option.label }}
-                        </label>
+        <!-- Section 6: Éléments non contractuels -->
+        <div class="feedback-section">
+            <div class="section-header">
+                <i class="fas fa-file-contract"></i>
+                <h3>Éléments non contractuels</h3>
+            </div>
+            
+            <div class="rating-grid">
+                <ng-container *ngFor="let attribute of attributes.slice(15, 19); let i = index">
+                    <div class="rating-item">
+                        <label class="rating-label">{{ attribute.label }}</label>
+                        <div class="rating-options">
+                            <div *ngFor="let option of options" class="rating-option">
+                                <input type="radio" name="{{attribute.key}}" 
+                                       [id]="attribute.key + option.value"
+                                       [value]="option.value" 
+                                       [(ngModel)]="avis[attribute.key]" 
+                                       required>
+                                <label [for]="attribute.key + option.value" 
+                                       class="rating-star" 
+                                       [title]="option.label">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            </div>
+                        </div>
+                        <div *ngIf="!avis[attribute.key] && submitted" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> Sélection requise
+                        </div>
                     </div>
-                    <div *ngIf="!avis[attribute.key] && submitted" class="text-danger">
-                        Veuillez sélectionner une option.
-                    </div>
-                </div>
-            </ng-container>
-            <div class="form-group">
-                <label for="elementcomm">Comment:</label>
-                <input type="text" id="elementcomm" [(ngModel)]="avis.elementcomm" name="elementcomm" class="form-control">
+                </ng-container>
+            </div>
+
+            <div class="comment-field">
+                <label for="elementcomm">
+                    <i class="fas fa-comment"></i> Commentaire
+                </label>
+                <textarea id="elementcomm" [(ngModel)]="avis.elementcomm" 
+                          name="elementcomm" 
+                          placeholder="Vos remarques sur les éléments non contractuels..."></textarea>
             </div>
         </div>
 
-        <!-- Tableau pour les points forts et les points faibles -->
-        <div class="form-group">
-            <h3>Points Forts et Points Faibles</h3>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Points Forts</th>
-                    <th>Points Faibles</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort1" name="pointFort1">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible1" name="pointFaible1">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort2" name="pointFort2">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible2" name="pointFaible2">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort3" name="pointFort3">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible3" name="pointFaible3">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort4" name="pointFort4">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible4" name="pointFaible4">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFort5" name="pointFort5">
-                    </td>
-                    <td>
-                        <input type="text" class="form-control" [(ngModel)]="avis.pointFaible5" name="pointFaible5">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+      <!-- Points Forts/Faibles -->
+<div class="feedback-section strengths-weaknesses">
+    <div class="section-header">
+        <i class="fas fa-balance-scale"></i>
+        <h3>Points Forts et Points Faibles</h3>
+    </div>
+    
+    <div class="sw-grid">
+        <!-- Colonne Points Forts -->
+        <div class="sw-column">
+            <h4><i class="fas fa-thumbs-up"></i> Points Forts</h4>
+            <div *ngFor="let i of getPointFortIndices(); let last = last" class="sw-item">
+                <input type="text" [(ngModel)]="avis['pointFort' + i]" 
+                       [name]="'pointFort' + i" 
+                       placeholder="Point fort #{{i}}"
+                       (input)="onPointFortInput(i)">
+                <button *ngIf="last && showAddPointFortButton()" class="add-field-btn" 
+                        type="button" (click)="addPointFortField()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
-
-
-        <div class="d-flex justify-content-between">
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-        <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+        
+        <!-- Colonne Points Faibles -->
+        <div class="sw-column">
+            <h4><i class="fas fa-thumbs-down"></i> Points Faibles</h4>
+            <div *ngFor="let i of getPointFaibleIndices(); let last = last" class="sw-item">
+                <input type="text" [(ngModel)]="avis['pointFaible' + i]" 
+                       [name]="'pointFaible' + i" 
+                       placeholder="Point faible #{{i}}"
+                       (input)="onPointFaibleInput(i)">
+                <button *ngIf="last && showAddPointFaibleButton()" class="add-field-btn" 
+                        type="button" (click)="addPointFaibleField()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
+    </div>
+</div>
 
+        <!-- Actions -->
+        <div class="form-actions">
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-paper-plane"></i> Envoyer l'avis
+            </button>
+            <button type="button" class="cancel-btn" (click)="goBack()">
+                <i class="fas fa-times"></i> Annuler
+            </button>
+        </div>
     </form>
 
-    <div *ngIf="successMessage" class="alert alert-success mt-3">
-        {{ successMessage }}
+    <!-- Messages -->
+    <div *ngIf="successMessage" class="success-message">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
     </div>
 
-    <div *ngIf="errorMessage" class="alert alert-danger mt-3">
-        {{ errorMessage }}
+    <div *ngIf="errorMessage" class="error-message">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
     </div>
-
-    <!--<div *ngIf="avis.avg" class="mt-3">
-        <h3>Average Rating: {{ avis.avg }}%</h3>
-    </div>-->
 </div>

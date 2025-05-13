@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AvisModels } from "../../core/models/avis.models";
 import { AvisService } from "../../core/services/avis.service";
 import {Router} from "@angular/router";
-import {PartnersService} from "../../core/services/partners.service";
 import {Partner} from "../../core/models/partner.models";
 import {NotificationService} from "../../core/services/notification.service";
 import Swal from "sweetalert2";
@@ -22,12 +21,19 @@ export class AvisComponent implements OnInit {
   errorMessage: string = '';
   userEmail = localStorage.getItem('userMail') || '';
   submitted = false; // Define the submitted variable
+  maxPoints = 5; // Nombre maximum de points forts/faibles
+  visiblePointForts = 1; // Commence avec 1 champ visible
+  visiblePointFaibles = 1; // Commence avec 1 champ visible
+  pointFortInputValues: string[] = [''];
+  pointFaibleInputValues: string[] = [''];
+  
 
   options = [
-    { label: 'Strong Satisfaction (▲▲▲)', value: '4' },
-    { label: 'satisfaction correcte (▲▲)', value: '3' },
+    { label: 'inacceptable (▼)', value: '1' },
     { label: 'Faible (►)', value: '2' },
-    { label: 'inacceptable (▼)', value: '1' }
+    { label: 'satisfaction correcte (▲▲)', value: '3' },
+    { label: 'Strong Satisfaction (▲▲▲)', value: '4' },
+    
   ];
 
   attributes = [
@@ -77,19 +83,6 @@ export class AvisComponent implements OnInit {
 
   }
 
- /* private loadUserProfile(): void {
-    this.usersService.getProfile().subscribe({
-      next: (userData) => {
-        this.user = userData;
-        console.log('avis user partner'+this.user?.partner.id);
-
-      },
-      error: (error) => {
-        console.error('Error fetching user profile', error);
-        this.errorMessage = 'Failed to load user profile. Please try again later.';
-      },
-    });
-  }*/
 
   submitAvis() {
     this.submitted = true;
@@ -157,7 +150,7 @@ export class AvisComponent implements OnInit {
     const averagePercentage = (averageRating / maxRating) * 100;
 
     // Set the avg property to the percentage
-    this.avis.avg = averagePercentage; // Store the average as a percentage
+    this.avis.avg = Number(averagePercentage); // Store the average as a percentage
   }
 
   goBack() {
@@ -177,4 +170,50 @@ export class AvisComponent implements OnInit {
   private showErrorMessage(message: string): void {
     this.errorMessage = message;
   }
+
+ // Méthodes pour Points Forts
+ getPointFortIndices(): number[] {
+  return Array.from({length: this.visiblePointForts}, (_, i) => i + 1);
+}
+
+onPointFortInput(index: number) {
+  // Vérifie si on doit afficher le bouton +
+  this.pointFortInputValues[index - 1] = this.avis['pointFort' + index] || '';
+}
+
+showAddPointFortButton(): boolean {
+  const lastIndex = this.visiblePointForts - 1;
+  return this.visiblePointForts < this.maxPoints && 
+         this.pointFortInputValues[lastIndex]?.trim().length > 0;
+}
+
+addPointFortField() {
+  if (this.visiblePointForts < this.maxPoints) {
+    this.visiblePointForts++;
+    this.pointFortInputValues.push('');
+  }
+}
+
+// Méthodes pour Points Faibles (similaires)
+getPointFaibleIndices(): number[] {
+  return Array.from({length: this.visiblePointFaibles}, (_, i) => i + 1);
+}
+
+onPointFaibleInput(index: number) {
+  this.pointFaibleInputValues[index - 1] = this.avis['pointFaible' + index] || '';
+}
+
+showAddPointFaibleButton(): boolean {
+  const lastIndex = this.visiblePointFaibles - 1;
+  return this.visiblePointFaibles < this.maxPoints && 
+         this.pointFaibleInputValues[lastIndex]?.trim().length > 0;
+}
+
+addPointFaibleField() {
+  if (this.visiblePointFaibles < this.maxPoints) {
+    this.visiblePointFaibles++;
+    this.pointFaibleInputValues.push('');
+  }
+}
+  
 }

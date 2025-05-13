@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/auth.models';
+import { UpdateUserFullDto } from '../models/update-user-full.dto';
 
 export interface CreateUserDto {
   username: string;
@@ -127,6 +128,10 @@ export class UsersService {
 
   getUserById(userId: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/byid/${userId}`);
+  }
+  
+  updateUserFull(userId: number, dto: UpdateUserFullDto): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/${userId}/full`, dto);
   }
   
   

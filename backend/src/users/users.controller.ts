@@ -23,6 +23,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
+import { UpdateUserFullDto } from './dto/update-user-full.dto';
 import { AccountStatusDto, UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
@@ -144,6 +145,17 @@ export class AdminGuard implements CanActivate {
   async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.usersService.deleteUser(id);
   }
+
+  @Patch(':id/full')
+@Permissions({ resource: Resource.users, actions: [Action.update] })
+async updateUserFull(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() dto: UpdateUserFullDto,
+) {
+  return this.usersService.updateUserFull(id, dto);
+}
+
+
 }
 
 
