@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService } from '../../core/services/users.service';
-import { UserModel } from '../../core/models/user.models';
 import Swal from 'sweetalert2';
 import { Router } from "@angular/router";
-import {WorkersService} from "../../core/services/workers.service";
+import { User } from 'src/app/core/models/auth.models';
+import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-list-users',
@@ -11,48 +10,31 @@ import {WorkersService} from "../../core/services/workers.service";
   styleUrls: ['./list-users.component.scss']
 })
 export class ListUsersComponent implements OnInit {
-  users: UserModel[] = [];
+  users: User[] = [];
   searchKeyword: string = '';
-  userr: any;
-  userType: string | null = '';
-
   errorMessage = '';
-  p: number = 1; // Current page number
+  p: number = 1; // Current page number (for pagination)
   itemsPerPage: number = 5; // Number of items per page
 
-  constructor(private usersService: UsersService,
-              private workersService: WorkersService,
-              private router: Router) {}
+  constructor(
+    private usersService: UsersService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.fetchUsers();
-    this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    if (this.userType && userEmail) {
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-      } else {
-        this.errorMessage = 'Invalid user type.';
-      }
-    } else {
-      this.errorMessage = 'User information not found in local storage.';
-    }
   }
 
   fetchUsers(): void {
-    this.usersService.getAllUsers().subscribe(
-        (users) => {
-          this.users = users;
-          console.log(users)
-          console.log(this.users)
-        },
-        (error) => {
-          console.error('Error fetching users', error);
-          this.showErrorMessage('Error fetching users. Please try again later.');
-        }
+    this.usersService.findUsers({}).subscribe(
+      (users) => {
+        this.users = users;
+        this.errorMessage = '';
+      },
+      (error) => {
+        console.error('Error fetching users', error);
+        this.showErrorMessage('Error fetching users. Please try again later.');
+      }
     );
   }
 
@@ -60,11 +42,11 @@ export class ListUsersComponent implements OnInit {
     this.errorMessage = message;
   }
 
-  editUser(user: UserModel): void {
+  editUser(user: User): void {
     this.router.navigate(['/edit-user', user.id]);
   }
 
-  deleteUser(user: UserModel): void {
+  deleteUser(user: User): void {
     Swal.fire({
       title: 'Confirmation',
       text: `Are you sure you want to delete ${user.firstName} ${user.lastName}?`,
@@ -73,61 +55,58 @@ export class ListUsersComponent implements OnInit {
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel'
     }).then((result) => {
-      if (result.value) {
-        // Delete the user
+      if (result.isConfirmed) {
         this.usersService.deleteUser(user.id).subscribe(
-            () => {
-              Swal.fire({
-                title: 'Deleted!',
-                text: 'The user has been deleted successfully.',
-                icon: 'success'
-              });
-              this.fetchUsers(); // Refresh the user list after deletion
-            },
-            (error) => {
-              console.error('Error deleting user', error);
-              Swal.fire({
-                title: 'Error!',
-                text: 'An error occurred while deleting the user.',
-                icon: 'error'
-              });
-            }
+          () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'The user has been deleted successfully.',
+              icon: 'success'
+            });
+            this.fetchUsers(); // Refresh list after deletion
+          },
+          (error) => {
+            console.error('Error deleting user', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'An error occurred while deleting the user.',
+              icon: 'error'
+            });
+          }
         );
       }
     });
   }
 
-  editUserPassword(user: UserModel): void {
+  editUserPassword(user: User): void {
     Swal.fire({
       title: 'Enter New Password',
       input: 'password',
       inputPlaceholder: 'Enter new password',
-      inputAttributes: {
-        autocapitalize: 'off'
-      },
+      inputAttributes: { autocapitalize: 'off' },
       showCancelButton: true,
       confirmButtonText: 'Update',
       cancelButtonText: 'Cancel',
       showLoaderOnConfirm: true,
-      preConfirm: (newPassword) => {
-        // Call the service to update the user's password here
-        this.usersService.updateUserPassword(user.id, newPassword).subscribe(
-            () => {
-              Swal.fire({
-                title: 'Password Updated!',
-                text: 'The password has been updated successfully.',
-                icon: 'success'
-              });
-            },
-            (error) => {
-              console.error('Error updating password', error);
-              Swal.fire({
-                title: 'Error!',
-                text: 'An error occurred while updating the password.',
-                icon: 'error'
-              });
-            }
-        );
+      preConfirm: (newPassword: string) => {
+        if (!newPassword || newPassword.length < 8) {
+          Swal.showValidationMessage('Password must be at least 8 characters');
+          return;
+        }
+        // Use setPassword method (admin reset) or changePassword (user change)
+        // Assuming admin reset here:
+        return this.usersService.setPassword(user.id, { newPassword }).toPromise()
+          .catch(error => {
+            Swal.showValidationMessage(`Request failed: ${error.message}`);
+          });
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Password Updated!',
+          text: 'The password has been updated successfully.',
+          icon: 'success'
+        });
       }
     });
   }
@@ -136,50 +115,32 @@ export class ListUsersComponent implements OnInit {
     this.router.navigate(['/add-user']);
   }
 
-
-
   searchUsers(): void {
-    if (this.searchKeyword.trim() === '') {
-      this.fetchUsers(); // Reload all users if search keyword is empty
-    } else {
-      this.users = this.users.filter(user =>
-          user.firstName.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-          user.lastName.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-          user.email.toLowerCase().includes(this.searchKeyword.toLowerCase()) ||
-          user.role.toLowerCase().includes(this.searchKeyword.toLowerCase())
+    const keyword = this.searchKeyword.trim();
+    if (keyword === '') {
+      this.fetchUsers(); // Reload all users if search is empty
+    } else if (keyword.length >= 2) {
+      this.usersService.searchUsers(keyword).subscribe(
+        (users) => {
+          this.users = users;
+          this.errorMessage = '';
+        },
+        (error) => {
+          console.error('Error searching users', error);
+          this.showErrorMessage('Error searching users. Please try again later.');
+        }
       );
+    } else {
+      this.showErrorMessage('Please enter at least 2 characters to search.');
     }
   }
 
   onSearchInputChange(): void {
     this.searchUsers();
   }
+
   clearSearch(): void {
     this.searchKeyword = '';
     this.fetchUsers();
-  }
-
-  private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.userr = data;
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
-
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.userr = data;
-        },
-        (error) => {
-          console.error('Error fetching worker data', error);
-          this.errorMessage = 'Error fetching worker data. Please try again later.';
-        }
-    );
   }
 }

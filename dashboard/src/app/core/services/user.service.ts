@@ -10,6 +10,7 @@ export interface CreateUserDto {
   lastName: string;
   email: string;
   roleId: number;
+  partnerId:number;
 }
 
 export interface FindUsersDto {
@@ -24,6 +25,20 @@ export interface ChangePasswordDto {
   newPassword: string;
 }
 
+export interface SetPasswordDto {
+  newPassword: string;
+}
+
+export interface UpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
+export interface AccountStatusDto {
+  status: 'active' | 'inactive' | 'suspended';
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -32,10 +47,16 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
+  // Create a new user
   createUser(dto: CreateUserDto): Observable<User> {
     return this.http.post<User>(this.apiUrl, dto);
   }
 
+  createUserBy(dto: CreateUserDto): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/by`, dto);
+  }
+
+  // Find users with optional filters
   findUsers(filters: FindUsersDto): Observable<User[]> {
     let params = new HttpParams();
     if (filters.username) {
@@ -53,22 +74,60 @@ export class UsersService {
     return this.http.get<User[]>(this.apiUrl, { params });
   }
 
-  getnameProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/nameprofile`);
-  }
-
+  // Get current user's profile
   getProfile(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/profile`);
   }
-  getPermessionProfile(): Observable<User> {
+
+  // Get current user's name profile
+  getNameProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/nameprofile`);
+  }
+
+  // Get current user's permissions/profile info
+  getPermissionProfile(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/profilepermession`);
   }
 
+  // Change current user's password (requires current password)
   changePassword(dto: ChangePasswordDto): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${this.apiUrl}/change-password`, dto);
   }
 
+  // Update user role (admin only)
   updateUserRole(userId: number, roleId: number): Observable<User> {
     return this.http.patch<User>(`${this.apiUrl}/${userId}/role`, { roleId });
   }
+
+  // Update user account status (active, inactive, suspended)
+  updateAccountStatus(userId: number, statusDto: AccountStatusDto): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/${userId}/status`, statusDto);
+  }
+
+  // Update user details (firstName, lastName, email)
+  updateUser(userId: number, dto: UpdateUserDto): Observable<User> {
+    return this.http.patch<User>(`${this.apiUrl}/${userId}`, dto);
+  }
+
+  // Search users by keyword (searches firstName, lastName, username, email)
+  searchUsers(keyword: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/search`, {
+      params: new HttpParams().set('q', keyword),
+    });
+  }
+
+  // Admin: Set user password without current password verification
+  setPassword(userId: number, dto: SetPasswordDto): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.apiUrl}/${userId}/set-password`, dto);
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${userId}`);
+  }
+
+  getUserById(userId: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/byid/${userId}`);
+  }
+  
+  
 }

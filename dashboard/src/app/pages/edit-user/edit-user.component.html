@@ -1,29 +1,40 @@
-<div class="container">
-    <h2>Modifier un Utilisateur</h2>
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <form (ngSubmit)="updateUser()" #userForm="ngForm">
-        <div class="form-group">
-            <label for="firstName">Prénom</label>
-            <input type="text" id="firstName" name="firstName" [(ngModel)]="user.firstName" required>
-        </div>
-        <div class="form-group">
-            <label for="lastName">Nom</label>
-            <input type="text" id="lastName" name="lastName" [(ngModel)]="user.lastName" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" [(ngModel)]="user.email" required>
-        </div>
-
-        <div class="form-group">
-            <label for="role">Rôle</label>
-            <select id="role" name="role" [(ngModel)]="user.role" required>
-                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
-            </select>
-        </div>
-        <div class="d-flex justify-content-between">
-            <button type="submit" class="btn btn-primary">Mettre à jour l'utilisateur</button>
-            <button type="button" class="btn btn-secondary" (click)="goBack()">Annuler</button>
-        </div>
-    </form>
-</div>
+<form [formGroup]="editUserForm" (ngSubmit)="submit()" novalidate>
+    <div class="mb-3">
+      <label for="firstName" class="form-label">First Name</label>
+      <input id="firstName" type="text" class="form-control" formControlName="firstName" />
+      <div *ngIf="editUserForm.get('firstName').invalid && editUserForm.get('firstName').touched" class="text-danger">
+        First name is required.
+      </div>
+    </div>
+  
+    <div class="mb-3">
+      <label for="lastName" class="form-label">Last Name</label>
+      <input id="lastName" type="text" class="form-control" formControlName="lastName" />
+      <div *ngIf="editUserForm.get('lastName').invalid && editUserForm.get('lastName').touched" class="text-danger">
+        Last name is required.
+      </div>
+    </div>
+  
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input id="email" type="email" class="form-control" formControlName="email" />
+      <div *ngIf="editUserForm.get('email').invalid && editUserForm.get('email').touched" class="text-danger">
+        Valid email is required.
+      </div>
+    </div>
+  
+    <div class="mb-3">
+      <label for="roleId" class="form-label">Role</label>
+      <select id="roleId" class="form-select" formControlName="roleId">
+        <option value="" disabled>Select role</option>
+        <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+      </select>
+      <div *ngIf="editUserForm.get('roleId').invalid && editUserForm.get('roleId').touched" class="text-danger">
+        Role is required.
+      </div>
+    </div>
+  
+    <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">Update User</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">Cancel</button>
+  </form>
+  

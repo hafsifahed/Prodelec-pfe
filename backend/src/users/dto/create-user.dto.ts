@@ -36,6 +36,10 @@ export class CreateUserDto {
   @IsPositive()
   roleId: number;
 
+  @IsInt()
+  @IsPositive()
+  partnerId: number;
+
   @IsOptional()
   @ArrayUnique()
   @ArrayNotEmpty()

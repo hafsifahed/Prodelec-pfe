@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { Partner } from '../partners/entities/partner.entity';
 import { Role } from '../roles/entities/role.entity'; // Import Role entity
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/users.entity';
 import { AccountStatus } from './enums/account-status.enum';
 
@@ -16,7 +19,10 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
 
     @InjectRepository(Role)
-    private readonly rolesRepository: Repository<Role>, // Inject Role repository
+    private readonly rolesRepository: Repository<Role>, 
+    
+    @InjectRepository(Partner)
+    private readonly partnersRepository: Repository<Partner>, 
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
@@ -46,10 +52,47 @@ export class UsersService {
     return newUser;
   }
 
+  async createBy(dto: CreateUserDto & { partnerId?: number }): Promise<User> {
+    const { username, password, firstName, lastName, email, roleId, partnerId } = dto;
+  
+    const role = await this.rolesRepository.findOne({ where: { id: roleId } });
+    if (!role) {
+      throw new NotFoundException(`Role with id ${roleId} not found`);
+    }
+  
+    let partner = null;
+    if (partnerId) {
+      partner = await this.partnersRepository.findOne({ where: { id: partnerId } });
+      if (!partner) {
+        throw new NotFoundException(`Partner with id ${partnerId} not found`);
+      }
+    }
+  
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+  
+    const user = this.usersRepository.create({
+      username,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      email,
+      role,
+      partner, // assign partner entity if exists
+      accountStatus: AccountStatus.INACTIVE,
+    });
+  
+    const newUser = await this.usersRepository.save(user);
+    delete newUser.password;
+    return newUser;
+  }
+  
+
   async findMany(dto: FindUsersDto): Promise<User[]> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role'); // join role relation
-
+      .leftJoinAndSelect('user.role', 'role')      // join role relation
+      .leftJoinAndSelect('user.partner', 'partner'); // join partner relation
+  
     if (dto.username) {
       queryBuilder.andWhere('user.username LIKE :username', { username: `%${dto.username}%` });
     }
@@ -62,7 +105,7 @@ export class UsersService {
     if (dto.roleId) {
       queryBuilder.andWhere('role.id = :roleId', { roleId: dto.roleId });
     }
-
+  
     queryBuilder.select([
       'user.id',
       'user.username',
@@ -74,10 +117,13 @@ export class UsersService {
       'user.updatedAt',
       'role.id',
       'role.name',
+      'partner.id',     // include partner id
+      'partner.name',   // include partner name
     ]);
-
+  
     return queryBuilder.getMany();
   }
+  
 
   async findOne(username: string, selectSecrets = false): Promise<User | undefined> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user')
@@ -107,7 +153,20 @@ export class UsersService {
     return queryBuilder.getOne();
   }
 
+  async findOneById(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['role', 'partner'], // load related entities if needed
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
+  }
+  
+
   async changePassword(userId: number, dto: ChangePasswordDto): Promise<void> {
+    // Recherche l'utilisateur par son ID
     const user = await this.usersRepository.findOne({
       where: { id: userId },
       select: ['id', 'password'],
@@ -117,15 +176,19 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // Vérifie si le mot de passe actuel correspond
     const passwordMatches = await bcrypt.compare(dto.currentPassword, user.password);
     if (!passwordMatches) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
+    // Crée un mot de passe haché pour le nouveau mot de passe
     const salt = await bcrypt.genSalt();
     const hashedNewPassword = await bcrypt.hash(dto.newPassword, salt);
 
-    await this.usersRepository.update(userId, { password: hashedNewPassword });
+    // Mise à jour du mot de passe dans la base de données
+    user.password = hashedNewPassword;  // Mise à jour du mot de passe directement sur l'entité
+    await this.usersRepository.save(user);  // Utilise save au lieu de update
   }
 
   async updateRole(userId: number, roleId: number): Promise<User> {
@@ -189,5 +252,96 @@ export class UsersService {
 
     return user;
   }
+
+  // Update User Details
+  async updateUser(userId: number, dto: UpdateUserDto): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (dto.firstName) user.firstName = dto.firstName;
+    if (dto.lastName) user.lastName = dto.lastName;
+    if (dto.email) user.email = dto.email;
+
+    return this.usersRepository.save(user);
+  }
+
+  // Change Account Status
+  async updateAccountStatus(userId: number, status: AccountStatus): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!Object.values(AccountStatus).includes(status)) {
+      throw new BadRequestException('Invalid account status');
+    }
+
+    user.accountStatus = status;
+    return this.usersRepository.save(user);
+  }
+
+  // Search Users by Keyword
+  async searchUsers(keyword: string): Promise<User[]> {
+    if (!keyword || keyword.trim().length < 2) {
+      throw new BadRequestException('Search keyword must be at least 2 characters');
+    }
+
+    const searchTerm = `%${keyword.toLowerCase()}%`;
+
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where(
+        'LOWER(user.firstName) LIKE :searchTerm OR ' +
+        'LOWER(user.lastName) LIKE :searchTerm OR ' +
+        'LOWER(user.username) LIKE :searchTerm OR ' +
+        'LOWER(user.email) LIKE :searchTerm',
+        { searchTerm }
+      )
+      .leftJoinAndSelect('user.role', 'role')
+      .select([
+        'user.id',
+        'user.username',
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'user.accountStatus',
+        'user.createdAt',
+        'user.updatedAt',
+        'role.id',
+        'role.name'
+      ])
+      .getMany();
+  }
+
+  async setPassword(userId: number, dto: SetPasswordDto): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+  
+    const salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(dto.newPassword, salt);
+    
+    await this.usersRepository.save(user);
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+    await this.usersRepository.remove(user);
+  }
+  
+  /*method directly
+   async deleteUser(userId: number): Promise<void> {
+    const result = await this.usersRepository.delete(userId);
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+  }*/
+  
   
 }

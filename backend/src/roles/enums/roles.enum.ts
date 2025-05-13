@@ -15,7 +15,7 @@ export enum Role {
 
     
     // Client roles
-    CLIENT_ADMIN = 'clientadmin',
-    CLIENT_USER = 'clientuser'
+    CLIENT_ADMIN = 'CLIENTADMIN',
+    CLIENT_USER = 'CLIENTUSER'
   }
   

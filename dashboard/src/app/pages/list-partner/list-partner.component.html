@@ -43,7 +43,7 @@
                 <td>{{ partner.tel }}</td>
                 <td>
                     <ul *ngIf="partner.users && partner.users.length > 0">
-                        <li *ngFor="let user of partner.users">{{ user.email }} ({{ user.role }})</li>
+                        <li *ngFor="let user of partner.users">{{ user.email }} ({{ user?.role?.name }})</li>
                     </ul>
                     <p *ngIf="!partner.users || partner.users.length === 0">Aucun utilisateur</p>
                 </td>

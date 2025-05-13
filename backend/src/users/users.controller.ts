@@ -1,9 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -18,6 +22,8 @@ import { Resource } from '../roles/enums/resource.enum';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
+import { AccountStatusDto, UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
 
@@ -32,10 +38,21 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('by')
+  @Permissions({ resource: Resource.users, actions: [Action.create] })
+  async createBy(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createBy(createUserDto);
+  }
+
   @Get()
   @Permissions({ resource: Resource.users, actions: [Action.read] })
   async findMany(@Query() query: FindUsersDto) {
     return this.usersService.findMany(query);
+  }
+
+  @Get('byid/:id')
+  async findOneById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOneById(id);
   }
 
   @Get('profile')
@@ -78,5 +95,57 @@ export class UsersController {
     return this.usersService.updateRole(+id, roleId);
   }
 
-  
+  @Patch(':id/status')
+@Permissions({ resource: Resource.users, actions: [Action.update] })
+async updateStatus(
+  @Param('id') id: string,
+  @Body() dto: AccountStatusDto
+) {
+  return this.usersService.updateAccountStatus(+id, dto.status);
 }
+
+@Patch(':id')
+@Permissions({ resource: Resource.users, actions: [Action.update] })
+async updateUser(
+  @Param('id') id: string,
+  @Body() dto: UpdateUserDto
+) {
+  return this.usersService.updateUser(+id, dto);
+}
+
+@Get('search')
+@Permissions({ resource: Resource.users, actions: [Action.read] })
+async searchUsers(@Query('q') keyword: string) {
+  return this.usersService.searchUsers(keyword);
+}
+
+@Patch(':id/set-password')
+@UseGuards(JwtAuthGuard)//AdminGuard
+async setPassword(
+  @Param('id') userId: string,
+  @Body() dto: SetPasswordDto
+) {
+  await this.usersService.setPassword(+userId, dto);
+  return { message: 'Password updated successfully' };
+}
+
+/* admin.guard.ts
+@Injectable()
+export class AdminGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    return request.user.role.name === 'ADMIN'; // Adjust based on your role system
+  }
+}*/
+
+  @Delete(':id')
+  @Permissions({ resource: Resource.users, actions: [Action.delete] })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.usersService.deleteUser(id);
+  }
+}
+
+
+  
+

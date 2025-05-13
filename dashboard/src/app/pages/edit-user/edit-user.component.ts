@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsersService } from '../../core/services/users.service';
-import { UserModel } from '../../core/models/user.models';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { UserEditDto } from "../../core/models/user-edit-dto";
+import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
   selector: 'app-edit-user',
@@ -11,76 +10,70 @@ import { UserEditDto } from "../../core/models/user-edit-dto";
   styleUrls: ['./edit-user.component.scss']
 })
 export class EditUserComponent implements OnInit {
-  user: UserEditDto = {
-    id: 0,
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    role: '',
-    userSessions: [],
-  };
-  errorMessage = '';
+  editUserForm: FormGroup;
+  userId: number;
   roles: string[] = ['CLIENTADMIN', 'CLIENTUSER'];
+  isSubmitting = false;
 
   constructor(
-      private route: ActivatedRoute,
-      private router: Router,
-      private usersService: UsersService
-  ) {}
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private usersService: UsersService
+  ) {
+    this.editUserForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      roleId: ['', Validators.required],
+      // password is not editable here, manage separately if needed
+    });
+  }
 
   ngOnInit(): void {
-    this.getUser();
+    this.userId = +this.route.snapshot.paramMap.get('id');
+    this.loadUser();
   }
 
-  getUser(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
-    this.usersService.getUserById(id).subscribe(
-        (user) => {
-          const processedUser = {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            password: user.password,
-            role: user.role,
-            userSessions: user.userSessions
-          };
-          this.user = processedUser;
-        },
-        (error: any) => {
-          console.error('Erreur lors de la récupération de l\'utilisateur', error);
-          this.showErrorMessage('Erreur lors de la récupération de l\'utilisateur. Veuillez réessayer plus tard.');
-        }
+  loadUser(): void {
+    this.usersService.getUserById(this.userId).subscribe(
+      (user) => {
+        this.editUserForm.patchValue({
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          roleId: user.role?.id || user.role, // adapt if role is object or string
+        });
+      },
+      (error) => {
+        Swal.fire('Error', 'Failed to load user data', 'error');
+      }
     );
   }
 
-  updateUser(): void {
-    this.usersService.updateUser(this.user.id, this.user).subscribe(
-        () => {
-          Swal.fire({
-            title: 'Succès!',
-            text: 'Utilisateur mis à jour avec succès.',
-            icon: 'success'
-          });
-          this.router.navigate(['/list-user']);
-        },
-        (error) => {
-          console.error('Erreur lors de la mise à jour de l\'utilisateur', error);
-          Swal.fire({
-            title: 'Erreur!',
-            text: 'Une erreur s\'est produite lors de la mise à jour de l\'utilisateur.',
-            icon: 'error'
-          });
-        }
+  submit(): void {
+    if (this.editUserForm.invalid) {
+      this.editUserForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const updateUserDto = this.editUserForm.value;
+
+    this.usersService.updateUser(this.userId, updateUserDto).subscribe(
+      () => {
+        Swal.fire('Success', 'User updated successfully', 'success');
+        this.router.navigate(['/list-user']);
+      },
+      (error) => {
+        Swal.fire('Error', 'Failed to update user', 'error');
+        this.isSubmitting = false;
+      }
     );
   }
 
-  private showErrorMessage(message: string): void {
-    this.errorMessage = message;
-  }
-
-  goBack() {
+  cancel(): void {
     this.router.navigate(['/list-user']);
   }
 }
