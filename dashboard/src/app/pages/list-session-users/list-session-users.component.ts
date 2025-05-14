@@ -27,20 +27,6 @@ export class ListSessionUsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserSessions();
-    this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    if (this.userType && userEmail) {
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-      } else {
-        this.errorMessage = 'Invalid user type.';
-      }
-    } else {
-      this.errorMessage = 'User information not found in local storage.';
-    }
   }
 
   loadUserSessions(): void {

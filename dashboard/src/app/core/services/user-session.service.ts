@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class UserSessionService {
-  private apiUrl = `${environment.baseUrl}/sessions`;
+  private apiUrl = `${environment.baseUrl}/user-session`;
 
   constructor(private http: HttpClient) { }
 
@@ -20,8 +20,8 @@ export class UserSessionService {
   }
 
   endSession(sessionId: number): Observable<any> {
-    const url = `${this.apiUrl}/end?sessionId=${sessionId}`;
-    return this.http.post(url, null);
+    const url = `${this.apiUrl}/end/${sessionId}`;
+    return this.http.put(url, null);
   }
 
   getAllUserSessions(): Observable<any> {

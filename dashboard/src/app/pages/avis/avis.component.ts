@@ -27,6 +27,17 @@ export class AvisComponent implements OnInit {
   pointFortInputValues: string[] = [''];
   pointFaibleInputValues: string[] = [''];
   
+  currentSectionIndex = 0;
+  sections = [
+    'Devis',
+    'Réactivité',
+    'Développement',
+    'Prestations',
+    'SAV',
+    'Éléments non contractuels',
+    'Points Forts/Faibles'
+  ];
+
 
   options = [
     { label: 'inacceptable (▼)', value: '1' },
@@ -215,5 +226,54 @@ addPointFaibleField() {
     this.pointFaibleInputValues.push('');
   }
 }
+
+ // Navigation entre sections
+ nextSection() {
+  if (this.validateCurrentSection()) {
+    if (this.currentSectionIndex < this.sections.length - 1) {
+      this.currentSectionIndex++;
+      this.errorMessage = '';
+    }
+  }
+}
+
+prevSection() {
+  if (this.currentSectionIndex > 0) {
+    this.currentSectionIndex--;
+    this.errorMessage = '';
+  }
+}
+
+validateCurrentSection(): boolean {
+  // Validation spécifique à chaque section
+  switch (this.currentSectionIndex) {
+    case 0: // Devis
+      return this.validateSection(this.attributes.slice(0, 3));
+    case 1: // Réactivité
+      return this.validateSection(this.attributes.slice(3, 6));
+    case 2: // Développement
+      return this.validateSection(this.attributes.slice(6, 9));
+    case 3: // Prestations
+      return this.validateSection(this.attributes.slice(9, 13));
+    case 4: // SAV
+      return this.validateSection(this.attributes.slice(13, 15));
+    case 5: // Éléments non contractuels
+      return this.validateSection(this.attributes.slice(15, 19));
+    default:
+      return true;
+  }
+}
+
+validateSection(attributes: any[]): boolean {
+  const isValid = attributes.every(attr => this.avis[attr.key]);
+  
+  if (!isValid) {
+    this.errorMessage = "Veuillez remplir tous les champs obligatoires de cette section";
+    return false;
+  }
+  
+  return true;
+}
+
   
 }
