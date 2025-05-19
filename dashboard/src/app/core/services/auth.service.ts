@@ -18,5 +18,13 @@ export class AuthService {
     logIn(signInData: any): Observable<any> {
         return this.http.post(`${this.apiUrl}/login`, signInData);
     }
+
+    logOut(sessionId: number): Observable<{ message: string }> {
+        return this.http.post<{ message: string }>(
+          `${this.apiUrl}/logout`, // URL without sessionId in the path
+          { sessionId } // Send sessionId in the request body
+        );
+      }
+      
 }
 

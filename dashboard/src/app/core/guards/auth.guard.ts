@@ -10,31 +10,34 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { User } from '../models/auth.models';
 import { UsersService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   private inactivityTimer: any;
   private inactivityDuration = 60 * 60 * 1000; // 1 hour
-
-  constructor(private router: Router, private usersService: UsersService) {}
+  private token=localStorage.getItem('token');
+  constructor(private router: Router, 
+    private usersService: UsersService,
+    private authService: AuthService,
+  ) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> {
-    const token = localStorage.getItem('token');
 
     // Extract required resource and actions from route data
     const requiredResource: string = route.data['resource'];
     const requiredActions: string[] = route.data['actions'] || [];
 
-    if (!token) {
+    if (!this.token) {
         console.log("aaaa");
       this.router.navigate(['/signin']);
       return of(false);
     }
 
-    if (!this.checkTokenExpiration(token)) {
+    if (!this.checkTokenExpiration(this.token)) {
       return of(false);
     }
 
@@ -102,6 +105,7 @@ export class AuthGuard implements CanActivate {
   
 
   private clearLocalStorageAndRedirect(): void {
+    this.logout(this.token);
     localStorage.clear();
     this.router.navigate(['/signin']);
     console.log("clearLocalStorageAndRedirect ");
@@ -116,4 +120,18 @@ export class AuthGuard implements CanActivate {
       this.clearLocalStorageAndRedirect();
     }, this.inactivityDuration);
   }
+
+  logout(token: string) {
+    const tokenData = JSON.parse(atob(token.split('.')[1]));
+    
+    this.authService.logOut(tokenData.sessionId).subscribe(
+    (res) => {
+    console.log(res.message);
+    localStorage.clear();
+  },
+    (err) => {
+    console.error('Logout failed', err);
+    }
+    );
+    } 
 }

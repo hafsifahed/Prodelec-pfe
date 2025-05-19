@@ -25,4 +25,10 @@ export class AuthController {
     const user = await this.usersService.create(body);
     return user;
   }
+
+  @Post('logout')
+  async logout(@Body('sessionId') sessionId: number) {
+    await this.authService.logout(sessionId);
+    return { message: 'Logged out successfully' };
+  }
 }

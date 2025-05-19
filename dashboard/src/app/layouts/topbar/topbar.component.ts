@@ -18,6 +18,7 @@ import {NotificationService} from "../../core/services/notification.service";
 import {NotificationrService} from "../../core/services/notificationr.service";
 import { UsersService } from 'src/app/core/services/user.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-topbar',
@@ -36,7 +37,6 @@ export class TopbarComponent implements OnInit {
   userType: string | null = '';
   errorMessage = '';
   notification: { message: string; type: string; time: string }[] = [];
-  sessionId = localStorage.getItem('sessionId');
   token = localStorage.getItem('token');
   unreadCount: number;
 
@@ -106,6 +106,8 @@ this.usersService.getProfile().subscribe({
 
 
   }
+
+  
 
   /*private loadUserProfile(): void {
     this.usersService.getnameProfile().subscribe({
@@ -202,6 +204,51 @@ this.usersService.getProfile().subscribe({
     event.preventDefault();
     this.mobileMenuButtonClicked.emit();
   }
+
+  logout() {
+    const sessionData = this.getSessionToken(this.token);
+  
+    this.authService.logOut(sessionData).subscribe(
+      (res) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Déconnexion réussie',
+          text: res.message || 'Vous avez été déconnecté avec succès.',
+          confirmButtonText: 'OK',
+          allowOutsideClick: false
+        }).then(() => {
+          // Clear local storage or any auth tokens
+          localStorage.clear();
+  
+          // Redirect to login or home page
+          this.router.navigate(['/signin']);
+        });
+      },
+      (err) => {
+        console.error('Logout failed', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: 'La déconnexion a échoué. Veuillez réessayer.',
+          confirmButtonText: 'OK'
+        });
+      }
+    );
+  }
+
+  private getSessionToken(token: string): any {
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log(' pylod:', payload);
+
+      return payload.sessionId ?? '';
+    } catch (e) {
+      console.error('Error decoding token', e);
+      return '';
+    }
+  }
+  
 /*
   logout() {
     const userType = localStorage.getItem('userType');
