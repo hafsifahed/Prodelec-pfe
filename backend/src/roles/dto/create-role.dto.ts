@@ -1,14 +1,15 @@
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { ArrayNotEmpty, ArrayUnique, IsBoolean, IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Action } from '../enums/action.enum';
 import { Resource } from '../enums/resource.enum';
 
 class PermissionDto {
-  @IsString()
+  @IsEnum(Resource)
   resource: Resource;
 
   @ArrayNotEmpty()
-  @IsString({ each: true })
+  @ArrayUnique()
+  @IsEnum(Action, { each: true })
   actions: Action[];
 }
 
@@ -19,4 +20,8 @@ export class CreateRoleDto {
   @ValidateNested({ each: true })
   @Type(() => PermissionDto)
   permissions: PermissionDto[];
+
+  @IsBoolean()
+  @IsOptional()
+  isSystemRole?: boolean;
 }

@@ -1,7 +1,22 @@
 export enum Resource {
-  settings = 'settings',
-  products = 'products',
-  users = 'users',
-  partners='partners',
-  session='session'
+  // Core
+  USERS = 'users',
+  ROLES = 'roles',
+  PARTNERS = 'partners',
+  SETTINGS = 'settings',
+  
+  // Business Modules
+  PRODUCTS = 'products',
+  ORDERS = 'orders',
+  INVENTORY = 'inventory',
+  QUALITY = 'quality',
+  PRODUCTION = 'production',
+  LOGISTICS = 'logistics',
+  HR = 'hr',
+  FINANCE = 'finance',
+  METHOD ='method',
+  
+  // System
+  AUDIT_LOGS = 'audit_logs',
+  SESSIONS = 'sessions'
 }

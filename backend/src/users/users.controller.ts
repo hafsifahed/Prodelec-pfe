@@ -34,24 +34,25 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Permissions({ resource: Resource.users, actions: [Action.create] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE] })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Post('by')
-  @Permissions({ resource: Resource.users, actions: [Action.create] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE] })
   async createBy(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createBy(createUserDto);
   }
 
   @Get()
-  @Permissions({ resource: Resource.users, actions: [Action.read] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
   async findMany(@Query() query: FindUsersDto) {
     return this.usersService.findMany(query);
   }
 
   @Get('byid/:id')
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
@@ -71,7 +72,6 @@ export class UsersController {
     return user;
   }
 
-
   @Patch('change-password')
   async changePassword(
     @CurrentUser() user: User,
@@ -81,83 +81,66 @@ export class UsersController {
     return { message: 'Password changed successfully' };
   }
 
-  // Admin-only: Update a user's role
   @Patch(':id/role')
-  @Permissions({ resource: Resource.users, actions: [Action.update] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
   async updateRole(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body('roleId') roleId: number,
     @CurrentUser() user: User,
   ) {
-    // Example: simple admin check based on role name
-    if (user.role.name !== 'admin') {
+    if (user.role.name !== 'ADMIN') {
       throw new ForbiddenException('You are not authorized to update roles');
     }
-    return this.usersService.updateRole(+id, roleId);
+    return this.usersService.updateRole(id, roleId);
   }
 
   @Patch(':id/status')
-@Permissions({ resource: Resource.users, actions: [Action.update] })
-async updateStatus(
-  @Param('id') id: string,
-  @Body() dto: AccountStatusDto
-) {
-  return this.usersService.updateAccountStatus(+id, dto.status);
-}
-
-@Patch(':id')
-@Permissions({ resource: Resource.users, actions: [Action.update] })
-async updateUser(
-  @Param('id') id: string,
-  @Body() dto: UpdateUserDto
-) {
-  return this.usersService.updateUser(+id, dto);
-}
-
-@Get('search')
-@Permissions({ resource: Resource.users, actions: [Action.read] })
-async searchUsers(@Query('q') keyword: string) {
-  return this.usersService.searchUsers(keyword);
-}
-
-@Patch(':id/set-password')
-@UseGuards(JwtAuthGuard)//AdminGuard
-async setPassword(
-  @Param('id') userId: string,
-  @Body() dto: SetPasswordDto
-) {
-  await this.usersService.setPassword(+userId, dto);
-  return { message: 'Password updated successfully' };
-}
-
-/* admin.guard.ts
-@Injectable()
-export class AdminGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    return request.user.role.name === 'ADMIN'; // Adjust based on your role system
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AccountStatusDto
+  ) {
+    return this.usersService.updateAccountStatus(id, dto.status);
   }
-}*/
+
+  @Patch(':id')
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserDto
+  ) {
+    return this.usersService.updateUser(id, dto);
+  }
+
+  @Get('search')
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
+  async searchUsers(@Query('q') keyword: string) {
+    return this.usersService.searchUsers(keyword);
+  }
+
+  @Patch(':id/set-password')
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  async setPassword(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() dto: SetPasswordDto
+  ) {
+    await this.usersService.setPassword(userId, dto);
+    return { message: 'Password updated successfully' };
+  }
 
   @Delete(':id')
-  @Permissions({ resource: Resource.users, actions: [Action.delete] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.DELETE] })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.usersService.deleteUser(id);
   }
 
   @Patch(':id/full')
-@Permissions({ resource: Resource.users, actions: [Action.update] })
-async updateUserFull(
-  @Param('id', ParseIntPipe) id: number,
-  @Body() dto: UpdateUserFullDto,
-) {
-  return this.usersService.updateUserFull(id, dto);
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  async updateUserFull(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateUserFullDto,
+  ) {
+    return this.usersService.updateUserFull(id, dto);
+  }
 }
-
-
-}
-
-
-  
-

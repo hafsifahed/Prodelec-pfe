@@ -33,6 +33,8 @@ import {SignInComponent} from "./pages/sign-in/sign-in.component";
 import {AuthService} from "./core/services/auth.service";
 import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
+import { RolesComponent } from './pages/roles/roles.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 /*if (environment.defaultauth === 'firebase') {
@@ -50,10 +52,12 @@ export function createTranslateLoader(http: HttpClient): any {
   declarations: [
     AppComponent,
     CyptolandingComponent,
+    RolesComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     TranslateModule.forRoot({
       loader: {

@@ -1,6 +1,14 @@
 export enum Action {
-  read = 'read',
-  create = 'create',
-  update = 'update',
-  delete = 'delete',
+  // Basic CRUD
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  
+  // Special Actions
+  MANAGE = 'manage', // Full control
+  APPROVE = 'approve',
+  EXPORT = 'export',
+  IMPORT = 'import',
+  ASSIGN = 'assign'
 }

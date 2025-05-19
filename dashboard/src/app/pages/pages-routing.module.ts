@@ -49,6 +49,7 @@ import { ArchiveProjectUserComponent } from './projectfo/archive-project-user/ar
 import { ArchiveProjectAdminCComponent } from './projectfo/archive-project-admin-c/archive-project-admin-c.component';
 import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archive-order-admin-c.component';
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
+import { RolesComponent } from './roles/roles.component';
 
 
 
@@ -117,6 +118,8 @@ const routes: Routes = [
   { path: 'listprojetclientadmin', component: ListProjetUserAdminComponent },
   { path: 'archiveprojectadminclient', component: ArchiveProjectAdminCComponent  },
   { path: 'archiveorderadminclient', component: ArchiveOrderAdminCComponent  },
+  { path: 'roles', component: RolesComponent  },
+
 
 
 ];

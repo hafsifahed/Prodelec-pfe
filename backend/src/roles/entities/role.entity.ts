@@ -2,11 +2,6 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 import { Action } from '../enums/action.enum';
 import { Resource } from '../enums/resource.enum';
 
-interface Permission {
-  resource: Resource;
-  actions: Action[];
-}
-
 @Entity('role')
 export class Role {
   @PrimaryGeneratedColumn()
@@ -15,12 +10,18 @@ export class Role {
   @Column({ unique: true })
   name: string;
 
-  @Column({ type: 'json' }) // Store permissions as JSON array of Permission objects
-  permissions: Permission[];
+  @Column({ type: 'json' })
+  permissions: Array<{
+    resource: Resource;
+    actions: Action[];
+  }>;
+
+  @Column({ default: false })
+  isSystemRole: boolean; // For pre-defined roles like ADMIN
 
   @CreateDateColumn({ type: 'timestamp' })
-    createdAt: Date;
-  
+  createdAt: Date;
+
   @UpdateDateColumn({ type: 'timestamp' })
-    updatedAt: Date;
+  updatedAt: Date;
 }
