@@ -1,48 +1,72 @@
-import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Role, RolesService } from 'src/app/core/services/roles.service';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { RolesService } from 'src/app/core/services/roles.service';
+import Swal from 'sweetalert2';
 
-declare var window: any; // For Bootstrap modals
+// Adapt this interface to your backend shape if needed
+export interface Role {
+  id?: number;
+  name: string;
+  permissions: { resource: string; actions: string[] }[];
+}
 
 @Component({
   selector: 'app-roles',
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.scss']
 })
-export class RolesComponent implements OnInit {
+export class RolesComponent {
   roles: Role[] = [];
   selectedRole: Role | null = null;
+
+  modalRef?: BsModalRef;
+  rejectId: number | null = null;
 
   addRoleForm: FormGroup;
   editRoleForm: FormGroup;
 
-  // Bootstrap modal references
-  addModal: any;
-  showModal: any;
-  editModal: any;
+  // Backend enums as lists
+  resources = [
+    { value: 'users', label: 'Utilisateurs' },
+    { value: 'roles', label: 'Rôles' },
+    { value: 'partners', label: 'Partenaires' },
+    { value: 'settings', label: 'Paramètres' },
+    { value: 'products', label: 'Produits' },
+    { value: 'orders', label: 'Commandes' },
+    { value: 'inventory', label: 'Stock' },
+    { value: 'quality', label: 'Qualité' },
+    { value: 'production', label: 'Production' },
+    { value: 'logistics', label: 'Logistique' },
+    { value: 'hr', label: 'RH' },
+    { value: 'finance', label: 'Finance' },
+    { value: 'method', label: 'Méthode' },
+    { value: 'audit_logs', label: 'Logs d’audit' },
+    { value: 'sessions', label: 'Sessions' }
+  ];
+
+  actions = [
+    { value: 'create', label: 'Créer' },
+    { value: 'read', label: 'Lire' },
+    { value: 'update', label: 'Mettre à jour' },
+    { value: 'delete', label: 'Supprimer' },
+    { value: 'manage', label: 'Gérer (tous droits)' },
+    { value: 'approve', label: 'Approuver' },
+    { value: 'export', label: 'Exporter' },
+    { value: 'import', label: 'Importer' },
+    { value: 'assign', label: 'Assigner' }
+  ];
+
+  @ViewChild('addModal', { static: false }) addModal?: TemplateRef<any>;
+  @ViewChild('editModal', { static: false }) editModal?: TemplateRef<any>;
+  @ViewChild('showModal', { static: false }) showModal?: TemplateRef<any>;
+  @ViewChild('deleteModal', { static: false }) deleteModal?: TemplateRef<any>;
 
   constructor(
     private rolesService: RolesService,
+    private modalService: BsModalService,
     private fb: FormBuilder
-  ) {}
-
-  ngOnInit(): void {
-    this.loadRoles();
-    this.initForms();
-
-    // Initialize Bootstrap modals (if using Bootstrap 5)
-    setTimeout(() => {
-      this.addModal = new window.bootstrap.Modal(document.getElementById('addRoleModal'));
-      this.showModal = new window.bootstrap.Modal(document.getElementById('showRoleModal'));
-      this.editModal = new window.bootstrap.Modal(document.getElementById('editRoleModal'));
-    }, 0);
-  }
-
-  loadRoles() {
-    this.rolesService.findAll().subscribe(roles => this.roles = roles);
-  }
-
-  initForms() {
+  ) {
     this.addRoleForm = this.fb.group({
       name: ['', Validators.required],
       permissions: this.fb.array([])
@@ -55,100 +79,137 @@ export class RolesComponent implements OnInit {
     });
   }
 
-  // Permissions FormArray getters for template
-  get addPermissionsArray(): FormArray {
+  ngOnInit(): void {
+    this.loadRoles();
+  }
+
+  loadRoles(): void {
+    this.rolesService.findAll().subscribe(
+      (data) => { this.roles = data; },
+      (error) => { console.error('Error loading roles', error); }
+    );
+  }
+
+  // FormArray helpers
+  get addPermissions(): FormArray {
     return this.addRoleForm.get('permissions') as FormArray;
   }
-  get editPermissionsArray(): FormArray {
+  get editPermissions(): FormArray {
     return this.editRoleForm.get('permissions') as FormArray;
   }
 
-  addPermission(type: 'add' | 'edit') {
-    const permGroup = this.fb.group({
+  addPermission(type: 'add' | 'edit'): void {
+    const group = this.fb.group({
       resource: ['', Validators.required],
-      actions: ['', Validators.required] // comma-separated string, will split on submit
+      actions: [''] // Will be handled by checkboxes
     });
     if (type === 'add') {
-      this.addPermissionsArray.push(permGroup);
+      this.addPermissions.push(group);
     } else {
-      this.editPermissionsArray.push(permGroup);
+      this.editPermissions.push(group);
     }
   }
 
-  removePermission(index: number, type: 'add' | 'edit') {
+  removePermission(index: number, type: 'add' | 'edit'): void {
     if (type === 'add') {
-      this.addPermissionsArray.removeAt(index);
+      this.addPermissions.removeAt(index);
     } else {
-      this.editPermissionsArray.removeAt(index);
+      this.editPermissions.removeAt(index);
     }
+  }
+
+  // Checkbox handler for actions
+  onActionToggle(index: number, action: string, type: 'add' | 'edit') {
+    const permArray = type === 'add' ? this.addPermissions : this.editPermissions;
+    const actionsControl = permArray.at(index).get('actions');
+    let actions = actionsControl.value ? actionsControl.value.split(',').map((a: string) => a.trim()).filter(Boolean) : [];
+    if (actions.includes(action)) {
+      actions = actions.filter((a: string) => a !== action);
+    } else {
+      actions.push(action);
+    }
+    actionsControl.setValue(actions.join(','));
   }
 
   // Modal openers
-  openAddModal() {
+  openAddModal(template: TemplateRef<any>): void {
     this.addRoleForm.reset();
-    this.addPermissionsArray.clear();
-    this.addPermission('add'); // Start with one permission
-    this.addModal.show();
+    this.addPermissions.clear();
+    this.addPermission('add');
+    this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
   }
 
-  openShowModal(role: Role) {
-    this.selectedRole = role;
-    this.showModal.show();
-  }
-
-  openEditModal(role: Role) {
+  openEditModal(role: Role, template: TemplateRef<any>): void {
     this.editRoleForm.reset();
-    this.editPermissionsArray.clear();
+    this.editPermissions.clear();
     this.editRoleForm.patchValue({ id: role.id, name: role.name });
-    // Populate permissions
-    role.permissions.forEach(perm => {
-      this.editPermissionsArray.push(
-        this.fb.group({
-          resource: [perm.resource, Validators.required],
-          actions: [perm.actions.join(','), Validators.required]
-        })
-      );
+    role.permissions.forEach(p => {
+      this.editPermissions.push(this.fb.group({
+        resource: [p.resource, Validators.required],
+        actions: [p.actions.join(',')]
+      }));
     });
-    this.editModal.show();
+    this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
+  }
+
+  openShowModal(role: Role, template: TemplateRef<any>): void {
+    this.selectedRole = role;
+    this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
+  }
+
+  openDeleteModal(id: number, template: TemplateRef<any>): void {
+    this.rejectId = id;
+    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
   // CRUD operations
-  submitAddRole() {
+  submitAddRole(): void {
     if (this.addRoleForm.invalid) return;
     const formValue = this.addRoleForm.value;
-    const role: Role = {
+    const newRole: Role = {
       name: formValue.name,
-      permissions: formValue.permissions.map(p => ({
+      permissions: formValue.permissions.map((p: any) => ({
         resource: p.resource,
-        actions: p.actions.split(',').map(a => a.trim())
+        actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
       }))
     };
-    this.rolesService.create(role).subscribe(() => {
-      this.addModal.hide();
+    this.rolesService.create(newRole).subscribe(() => {
+      Swal.fire('Succès', 'Rôle ajouté avec succès', 'success');
+      this.modalRef?.hide();
       this.loadRoles();
+    }, error => {
+      Swal.fire('Erreur', 'Erreur lors de l\'ajout du rôle', 'error');
     });
   }
 
-  submitEditRole() {
+  submitEditRole(): void {
     if (this.editRoleForm.invalid) return;
     const formValue = this.editRoleForm.value;
-    const role: Role = {
+    const updatedRole: Role = {
       id: formValue.id,
       name: formValue.name,
-      permissions: formValue.permissions.map(p => ({
+      permissions: formValue.permissions.map((p: any) => ({
         resource: p.resource,
-        actions: p.actions.split(',').map(a => a.trim())
+        actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
       }))
     };
-    this.rolesService.update(role.id, role).subscribe(() => {
-      this.editModal.hide();
+    this.rolesService.update(updatedRole.id, updatedRole).subscribe(() => {
+      Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
+      this.modalRef?.hide();
       this.loadRoles();
+    }, error => {
+      Swal.fire('Erreur', 'Erreur lors de la modification du rôle', 'error');
     });
   }
 
-  deleteRole(id: number) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce rôle ?')) {
-      this.rolesService.remove(id).subscribe(() => this.loadRoles());
-    }
+  confirmDelete(): void {
+    if (this.rejectId === null) return;
+    this.rolesService.remove(this.rejectId).subscribe(() => {
+      Swal.fire('Supprimé', 'Rôle supprimé avec succès', 'success');
+      this.modalRef?.hide();
+      this.loadRoles();
+    }, error => {
+      Swal.fire('Erreur', 'Erreur lors de la suppression du rôle', 'error');
+    });
   }
 }
