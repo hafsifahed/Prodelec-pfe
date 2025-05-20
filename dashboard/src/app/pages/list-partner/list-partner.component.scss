@@ -1,347 +1,462 @@
-/* Style général */
+// Variables
+$primary: #4f46e5;
+$primary-hover: #4338ca;
+$danger: #dc2626;
+$danger-light: #fee2e2;
+$success: #059669;
+$success-light: #ecfdf5;
+$text: #1e293b;
+$text-light: #64748b;
+$border: #e2e8f0;
+$bg: #fff;
+$bg-secondary: #f8fafc;
+$radius: 8px;
+$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+$transition: all 0.2s ease;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
 .partner-management {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 24px;
-    margin: 20px auto;
-    max-width: 1200px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+  background: $bg;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  padding: 1.5rem;
+  margin: 1.25rem auto;
+  max-width: 1200px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-/* En-tête */
-.management-header {
-    margin-bottom: 28px;
-}
-
-.header-title h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: #2d3748;
-    margin: 0;
+  // Header avec barre de recherche sur une ligne
+  .management-header {
     display: flex;
-    align-items: center;
-    gap: 12px;
-}
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
 
-.header-title h1 i {
-    color: #4f46e5;
-}
+    .header-content {
+      flex: 1;
+      min-width: 0;
 
-.header-subtitle {
-    color: #64748b;
-    font-size: 14px;
-    margin-top: 4px;
-}
+      .header-title {
+        h1 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: $text;
+          margin: 0 0 0.25rem 0;
+          @include flex-center;
+          gap: 0.75rem;
+          white-space: nowrap;
 
-/* Barre de recherche */
-.search-section {
-    margin-bottom: 24px;
-}
+          i {
+            color: $primary;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+          }
+        }
 
-.search-container {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
+        .header-subtitle {
+          color: $text-light;
+          font-size: 0.875rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
 
-.search-input-container {
-    position: relative;
-    flex-grow: 1;
-}
+    .search-section {
+      flex: 2;
+      min-width: 0;
 
-.search-input {
-    width: 100%;
-    padding: 12px 16px 12px 42px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    background-color: #f8fafc;
-}
+      .search-container {
+        @include flex-center;
+        gap: 1rem;
 
-.search-input:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-    background-color: #fff;
-}
+        .search-input-container {
+          position: relative;
+          flex-grow: 1;
+          min-width: 200px;
 
-.search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-}
+          .search-input {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid $border;
+            border-radius: $radius;
+            font-size: 0.875rem;
+            transition: $transition;
+            background-color: $bg-secondary;
 
-.clear-search {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    padding: 4px;
-}
+            &:focus {
+              outline: none;
+              border-color: $primary;
+              box-shadow: 0 0 0 2px rgba($primary, 0.1);
+              background-color: $bg;
+            }
+          }
 
-.clear-search:hover {
-    color: #64748b;
-}
+          .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $text-light;
+            font-size: 1rem;
+          }
 
-.add-partner-btn {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+          .clear-search {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: $text-light;
+            cursor: pointer;
+            padding: 0.25rem;
+            font-size: 1rem;
 
-.add-partner-btn:hover {
-    background-color: #4338ca;
-}
+            &:hover {
+              color: darken($text-light, 10%);
+            }
+          }
+        }
 
-/* Message d'erreur */
-.error-alert {
-    background-color: #fef2f2;
-    color: #dc2626;
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-}
+        .add-partner-btn {
+          background-color: $primary;
+          color: white;
+          border: none;
+          border-radius: $radius;
+          padding: 0.625rem 1rem;
+          font-weight: 500;
+          @include flex-center;
+          gap: 0.5rem;
+          cursor: pointer;
+          transition: $transition;
+          white-space: nowrap;
+          flex-shrink: 0;
 
-/* Tableau */
-.partner-table-wrapper {
+          &:hover {
+            background-color: $primary-hover;
+          }
+        }
+      }
+    }
+  }
+
+  // Message d'erreur
+  .error-alert {
+    background-color: lighten($danger, 42%);
+    color: $danger;
+    padding: 0.75rem 1rem;
+    border-radius: $radius;
+    margin-bottom: 1.5rem;
+    @include flex-center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    border-left: 3px solid $danger;
+  }
+
+  // Tableau
+  .partner-table-wrapper {
     overflow-x: auto;
-    margin-bottom: 24px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
+    margin-bottom: 1.5rem;
+    border-radius: $radius;
+    border: 1px solid $border;
+    -webkit-overflow-scrolling: touch;
 
-.partner-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-}
+    .partner-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
 
-.partner-table thead {
-    background-color: #f8fafc;
-}
+      thead {
+        background-color: $bg-secondary;
 
-.partner-table th {
-    padding: 16px;
-    text-align: left;
-    color: #475569;
-    font-weight: 600;
-    font-size: 14px;
-    border-bottom: 1px solid #e2e8f0;
-}
+        th {
+          padding: 1rem;
+          text-align: left;
+          color: $text-light;
+          font-weight: 600;
+          font-size: 0.875rem;
+          border-bottom: 1px solid $border;
+        }
+      }
 
-.partner-table td {
-    padding: 16px;
-    border-bottom: 1px solid #e2e8f0;
-    color: #334155;
-    font-size: 14px;
-}
+      tbody {
+        tr {
+          td {
+            padding: 1rem;
+            border-bottom: 1px solid $border;
+            color: $text;
+            font-size: 0.875rem;
+            vertical-align: middle;
 
-.partner-table tr:last-child td {
-    border-bottom: none;
-}
+            .partner-name {
+              font-weight: 500;
+              color: $primary;
+              text-decoration: none;
+              transition: $transition;
 
-.partner-table tr:hover {
-    background-color: #f8fafc;
-}
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
 
-/* Cases à cocher */
-.checkbox-column {
+          &:last-child td {
+            border-bottom: none;
+          }
+
+          &:hover {
+            background-color: $bg-secondary;
+          }
+        }
+      }
+    }
+  }
+
+  // Cases à cocher
+  .checkbox-column {
     width: 40px;
-}
+  }
 
-.custom-checkbox {
+  .custom-checkbox {
     display: block;
     position: relative;
     cursor: pointer;
     height: 20px;
     width: 20px;
-}
 
-.custom-checkbox input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
+    input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
 
-.checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 20px;
-    width: 20px;
-    background-color: #fff;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-}
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: $bg;
+      border: 1px solid $border;
+      border-radius: 4px;
+      transition: $transition;
+    }
 
-.custom-checkbox:hover input ~ .checkmark {
-    background-color: #f1f5f9;
-}
+    &:hover input ~ .checkmark {
+      background-color: $bg-secondary;
+    }
 
-.custom-checkbox input:checked ~ .checkmark {
-    background-color: #4f46e5;
-    border-color: #4f46e5;
-}
+    input:checked ~ .checkmark {
+      background-color: $primary;
+      border-color: $primary;
+    }
 
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
 
-.custom-checkbox input:checked ~ .checkmark:after {
-    display: block;
-}
+    input:checked ~ .checkmark:after {
+      display: block;
+    }
 
-.custom-checkbox .checkmark:after {
-    left: 7px;
-    top: 3px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
+    .checkmark:after {
+      left: 7px;
+      top: 3px;
+      width: 5px;
+      height: 10px;
+      border: solid $bg;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
 
-/* Cellule utilisateurs */
-.users-cell {
+  // Cellule utilisateurs
+  .users-cell {
     max-width: 300px;
-}
+  }
 
-.users-list {
+  .users-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
+    gap: 0.5rem;
+  }
 
-.user-item {
+  .user-item {
     display: flex;
     flex-direction: column;
-}
+  }
 
-.user-email {
+  .user-email {
     font-weight: 500;
-    color: #1e293b;
-}
+    color: $text;
+  }
 
-.user-role {
-    font-size: 12px;
-    color: #64748b;
-}
+  .user-role {
+    font-size: 0.75rem;
+    color: $text-light;
+  }
 
-.no-users {
-    color: #94a3b8;
+  .no-users {
+    color: $text-light;
     font-style: italic;
-}
+  }
 
-/* Boutons d'action */
-.actions-cell {
-    display: flex;
-    gap: 8px;
-}
+  // Boutons d'action
+  .actions-cell {
+    @include flex-center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 
-.action-btn {
-    border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
+    .action-btn {
+      border: none;
+      border-radius: $radius;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      @include flex-center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: $transition;
+      white-space: nowrap;
 
-.edit-btn {
-    background-color: #e0e7ff;
-    color: #4f46e5;
-}
+      &.edit-btn {
+        background-color: lighten($primary, 40%);
+        color: $primary;
 
-.edit-btn:hover {
-    background-color: #c7d2fe;
-}
+        &:hover {
+          background-color: lighten($primary, 30%);
+        }
+      }
 
-.delete-btn {
-    background-color: #fee2e2;
-    color: #dc2626;
-}
+      &.delete-btn {
+        background-color: lighten($danger, 40%);
+        color: $danger;
 
-.delete-btn:hover {
-    background-color: #fecaca;
-}
-
-/* Pagination */
-.pagination-wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-.ngx-pagination {
-    display: flex;
-    gap: 8px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.ngx-pagination li {
-    min-width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.ngx-pagination a {
-    text-decoration: none;
-    color: #475569;
-    padding: 0 8px;
-}
-
-.ngx-pagination .current {
-    background-color: #4f46e5;
-    color: white;
-}
-
-.ngx-pagination .disabled a {
-    color: #cbd5e1;
-    cursor: not-allowed;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .search-container {
-        flex-direction: column;
+        &:hover {
+          background-color: lighten($danger, 30%);
+        }
+      }
     }
-    
-    .add-partner-btn {
-        width: 100%;
+  }
+
+  // Pagination
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+
+    .ngx-pagination {
+      @include flex-center;
+      gap: 0.5rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex-wrap: wrap;
+
+      li {
+        min-width: 2rem;
+        height: 2rem;
+        @include flex-center;
         justify-content: center;
+        border-radius: $radius;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: $transition;
+
+        a {
+          text-decoration: none;
+          color: $text-light;
+          padding: 0 0.5rem;
+        }
+
+        &.current {
+          background-color: $primary;
+          color: white;
+        }
+
+        &:not(.disabled):not(.current):hover {
+          background-color: $bg-secondary;
+        }
+
+        &.disabled a {
+          color: lighten($text-light, 20%);
+          cursor: not-allowed;
+        }
+      }
     }
+  }
+
+  // Responsive
+  @media (max-width: 992px) {
+    .management-header {
+      gap: 1rem;
+    }
+
+    .header-title h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .management-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .search-section {
+      width: 100%;
+
+      .search-container {
+        flex-direction: column;
+        gap: 1rem;
+
+        .add-partner-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .partner-table {
+      th, td {
+        padding: 0.75rem;
+      }
+    }
+
+    .actions-cell {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-title h1 {
+      font-size: 1.1rem;
+    }
+
+    .partner-table {
+      th, td {
+        padding: 0.5rem;
+        font-size: 0.8125rem;
+      }
+    }
+
+    .action-btn {
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
 }

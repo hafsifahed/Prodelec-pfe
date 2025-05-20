@@ -34,25 +34,25 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] })
   async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Post('by')
-  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] })
   async createBy(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createBy(createUserDto);
   }
 
   @Get()
-  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] })
   async findMany(@Query() query: FindUsersDto) {
     return this.usersService.findMany(query);
   }
 
   @Get('byid/:id')
-  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] })
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
@@ -82,7 +82,7 @@ export class UsersController {
   }
 
   @Patch(':id/role')
-  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] })
   async updateRole(
     @Param('id', ParseIntPipe) id: number,
     @Body('roleId') roleId: number,
@@ -95,7 +95,7 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] })
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AccountStatusDto
@@ -104,7 +104,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] })
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserDto
@@ -113,13 +113,13 @@ export class UsersController {
   }
 
   @Get('search')
-  @Permissions({ resource: Resource.USERS, actions: [Action.READ] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] })
   async searchUsers(@Query('q') keyword: string) {
     return this.usersService.searchUsers(keyword);
   }
 
   @Patch(':id/set-password')
-  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] })
   async setPassword(
     @Param('id', ParseIntPipe) userId: number,
     @Body() dto: SetPasswordDto
@@ -129,14 +129,14 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Permissions({ resource: Resource.USERS, actions: [Action.DELETE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.DELETE,Action.MANAGE] })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.usersService.deleteUser(id);
   }
 
   @Patch(':id/full')
-  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE] })
+  @Permissions({ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] })
   async updateUserFull(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateUserFullDto,

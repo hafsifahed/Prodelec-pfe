@@ -1,15 +1,14 @@
 <div class="user-management">
-    <!-- En-tête -->
-    <div class="management-header">
-        <div class="header-title">
-            <h1><i class="fas fa-users"></i> Liste des Utilisateurs</h1>
-            <p class="header-subtitle">Gestion des accès utilisateurs</p>
+    <!-- En-tête et barre de recherche combinés -->
+    <div class="header-search-container">
+        <div class="header-title-container">
+            <div class="header-title">
+                <h1><i class="fas fa-users"></i> Liste des Utilisateurs</h1>
+                <p class="header-subtitle">Gestion des accès utilisateurs</p>
+            </div>
         </div>
-    </div>
-
-    <!-- Barre de recherche -->
-    <div class="search-section">
-        <div class="search-container">
+        
+        <div class="search-section">
             <div class="search-input-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" class="search-input" 
@@ -21,7 +20,7 @@
                 </button>
             </div>
             <button class="add-user-btn" (click)="navigateToAddUser()">
-                <i class="fas fa-user-plus"></i> Ajouter un utilisateur
+                <i class="fas fa-user-plus"></i> <span class="btn-text">Ajouter</span>
             </button>
         </div>
     </div>

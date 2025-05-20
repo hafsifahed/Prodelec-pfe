@@ -1,28 +1,29 @@
 <div class="partner-management">
-    <!-- En-tête -->
+    <!-- En-tête et barre de recherche sur la même ligne -->
     <div class="management-header">
-        <div class="header-title">
-            <h1><i class="fas fa-handshake"></i> Liste des Partenaires</h1>
-            <p class="header-subtitle">Gestion des partenaires commerciaux</p>
+        <div class="header-content">
+            <div class="header-title">
+                <h1><i class="fas fa-handshake"></i> Liste des Partenaires</h1>
+                <p class="header-subtitle">Gestion des partenaires commerciaux</p>
+            </div>
         </div>
-    </div>
 
-    <!-- Barre de recherche -->
-    <div class="search-section">
-        <div class="search-container">
-            <div class="search-input-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" 
-                       [(ngModel)]="searchKeyword" 
-                       (input)="onSearchInputChange()"
-                       placeholder="Rechercher par nom, ID, email...">
-                <button *ngIf="searchKeyword" class="clear-search" (click)="clearSearch()">
-                    <i class="fas fa-times"></i>
+        <div class="search-section">
+            <div class="search-container">
+                <div class="search-input-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" 
+                           [(ngModel)]="searchKeyword" 
+                           (input)="onSearchInputChange()"
+                           placeholder="Rechercher par nom, ID, email...">
+                    <button *ngIf="searchKeyword" class="clear-search" (click)="clearSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button class="add-partner-btn" (click)="navigateToAddPartner()">
+                    <i class="fas fa-plus"></i> Ajouter un partenaire
                 </button>
             </div>
-            <button class="add-partner-btn" (click)="navigateToAddPartner()">
-                <i class="fas fa-plus"></i> Ajouter un partenaire
-            </button>
         </div>
     </div>
 

@@ -33,8 +33,8 @@
         <table class="session-table">
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Role</th>
+                    <th>ID</th>
+                    <th>Email</th>
                     <th>Début Session</th>
                     <th>Fin Session</th>
                     <th>Statut</th>
@@ -43,9 +43,9 @@
             </thead>
             <tbody>
                 <tr *ngFor="let userSession of userSessions | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-                    <td>{{ userSession.user.username }}</td>
+                    <td>{{ userSession.id }}</td>
                     <td>
-                        <span class="user-email">{{ userSession.user.role.name }}</span>
+                        <span class="user-email">{{ userSession.usermail }}</span>
                     </td>
                     <td>{{ userSession.sessionStart | date:'dd/MM/yyyy HH:mm' }}</td>
                     <td>{{ userSession.sessionEnd ? (userSession.sessionEnd | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
