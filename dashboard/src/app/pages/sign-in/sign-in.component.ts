@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UsersService } from 'src/app/core/services/user.service';
 
 interface SignInData {
   username: string;
@@ -12,14 +13,30 @@ interface SignInData {
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss'],
 })
-export class SignInComponent {
+export class SignInComponent implements OnInit {
   signInData: SignInData = {
     username: '',
     password: '',
   };
   error = '';
+  user: any;
 
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(private authService: AuthService, private router: Router,
+
+    private usersService:UsersService
+
+  ) {}
+
+  ngOnInit() {
+
+
+
+
+  }
+
+
+  
 
   onSubmit(): void {
     console.log(`${this.signInData.username} : ${this.signInData.password}`);

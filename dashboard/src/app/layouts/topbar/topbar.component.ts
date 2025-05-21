@@ -219,6 +219,7 @@ this.usersService.getProfile().subscribe({
         }).then(() => {
           // Clear local storage or any auth tokens
           localStorage.clear();
+          this.userStateService.setUser(null);
   
           // Redirect to login or home page
           this.router.navigate(['/signin']);

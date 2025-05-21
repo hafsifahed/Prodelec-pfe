@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/users.entity';
 import { TypeReclamation } from '../enums/type-reclamation.enum';
 
@@ -38,4 +38,10 @@ export class Reclamation {
 
   @Column({ default: false })
   archiveU: boolean;
+
+  @CreateDateColumn({ type: 'timestamp' })
+    createdAt: Date;
+  
+    @UpdateDateColumn({ type: 'timestamp' })
+    updatedAt: Date;
 }

@@ -9,6 +9,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Avis } from '../../avis/entities/avis.entity';
+import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
+import { Devis } from '../../devis/entities/devi.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Reclamation } from '../../reclamation/entities/reclamation.entity';
 import { Role } from '../../roles/entities/role.entity';
@@ -59,6 +61,11 @@ export class User {
   @OneToMany(() => Reclamation, reclamation => reclamation.user)
 reclamations: Reclamation[];
 
+@OneToMany(() => Devis, devis => devis.user)
+devis: Devis[];
+
+@OneToMany(() => CahierDesCharges, cdc => cdc.user)
+cahierDesCharges: CahierDesCharges[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

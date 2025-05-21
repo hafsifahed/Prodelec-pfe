@@ -30,7 +30,7 @@ export class ReclamationListComponent {
   isAscending : boolean = true;
   user: UserModel | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
+  userEmail = localStorage.getItem('userMail') || 'rh.process@example.com';
 
   constructor(
     private reclamationService: ReclamationService,
@@ -256,6 +256,7 @@ export class ReclamationListComponent {
           this.ngOnInit();
         },
         (error) => {
+          console.log(error)
           Swal.fire({
             title: 'Erreur!',
             text: "Une erreur s'est produite lors de l'ajout de la Réclamation.",
