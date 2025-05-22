@@ -30,12 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       );
     }
   
-    // Return user info with role and permissions
-    /*{
-      userId: user.id,
-      username: user.username,
-      role: user.role, // role with permissions JSON
-    }*/
     return user;
   }
   

@@ -94,16 +94,10 @@ export class TopbarComponent implements OnInit {
 this.getUserTypeAndFetchProfile();*/
 
 //this.loadUserProfile();
-this.usersService.getProfile().subscribe({
-  next: (user) => {
-    this.user = user;
-    this.userStateService.setUser(user);
-  },
-  error: (err) => {
-    console.error('Failed to load user profile', err);
-  },
-});
 
+this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
 
   }
 

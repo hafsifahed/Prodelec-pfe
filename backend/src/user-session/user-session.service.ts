@@ -62,4 +62,15 @@ export class UserSessionService {
     const result = await this.sessionRepo.delete(id);
     return result.affected > 0;
   }
+
+  async countActiveSessionsByUserId(userId: number): Promise<number> {
+  return this.sessionRepo
+    .createQueryBuilder('session')
+    .innerJoin('session.user', 'user') // Jointure explicite
+    .where('user.id = :userId', { userId })
+    .andWhere('session.sessionEnd IS NULL')
+    .getCount();
+}
+
+
 }
