@@ -31,6 +31,10 @@ import { User } from './users/entities/users.entity';
 import { CahierDesCharges } from './cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from './devis/entities/devi.entity';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { Order } from './order/entities/order.entity';
+import { OrderModule } from './order/order.module';
+import { Project } from './project/entities/project.entity';
+import { ProjectModule } from './project/project.module';
 
 @Module({
   imports: [
@@ -55,6 +59,8 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
         Reclamation,
         Devis,
         CahierDesCharges,
+        Order,
+        Project
       ],
       synchronize: true, // à désactiver en prod !
       //logging: true,
@@ -86,6 +92,8 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     ReclamationModule,
     DevisModule,
     CahierDesChargesModule,
+    ProjectModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [
