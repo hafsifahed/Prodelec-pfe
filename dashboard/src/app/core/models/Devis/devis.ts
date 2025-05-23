@@ -1,3 +1,4 @@
+import { User } from "../auth.models";
 import { CahierDesCharges } from "../CahierDesCharges/cahier-des-charges";
 import { UserModel } from "../user.models";
 
@@ -11,5 +12,5 @@ export class Devis {
     archive: boolean;
     archiveU: boolean;
     cahierDesCharges: CahierDesCharges;
-    user: UserModel;
+    user: User;
 }

@@ -1,3 +1,4 @@
+import { User } from "../auth.models";
 import { UserModel } from "../user.models";
 
 export class CahierDesCharges {
@@ -10,5 +11,5 @@ export class CahierDesCharges {
     dateCreation: Date;
     archive:boolean;
     archiveU:boolean;
-    user: UserModel;
+    user: User;
 }

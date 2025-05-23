@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CahierDesCharges } from '../../models/CahierDesCharges/cahier-des-charges';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
-import { UserModel } from '../../models/user.models';
+import { User } from '../../models/auth.models';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +24,7 @@ export class CdcServiceService {
  addCdc(cdc:CahierDesCharges){
   return this.http.post(`${environment.baseUrl}/cdc`,cdc);
  }
- downloadFile(fileName: string , user : UserModel): Observable<Blob> {
+ downloadFile(fileName: string , user : User): Observable<Blob> {
   let params = new HttpParams()
   .set('email', user.email);  // Assuming `email` is a property of `UserModel`
 

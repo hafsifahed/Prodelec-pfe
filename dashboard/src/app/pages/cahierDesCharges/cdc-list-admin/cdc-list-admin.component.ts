@@ -251,68 +251,42 @@ telechargerPieceJointe(fileName: string, id: number): void {
     }
   }
   submitDevis(): void {
-    if (this.cahier && this.selectedFile) {
-      console.log('Cahier des charges:', this.cahier);
-      console.log('Fichier sélectionné:', this.selectedFile);
-  
-      const devis: Devis = {
-        id: 0,
-        projet: this.cahier.titre || '',
-        pieceJointe: this.selectedFile.name || '',
-        commentaire: '',
-        etat: 'En attente',
-        archive: false,
-        archiveU: false,
-        dateCreation: new Date(),
-        user: this.cahier.user,
-        cahierDesCharges: this.cahier
-      };
-  
-      this.devisService.saveDevis(this.cahier.id,devis.pieceJointe).subscribe(
-        (response) => {
-          console.log('Réponse du service addDevis :', response);
-          if (response) {
-            console.log('Devis ajouté avec succès', response);
-            this.accepterCahier(this.cahier.id); // Accepter le cahier des charges après avoir ajouté le devis
-            this.saveCahierDesCharges(); 
+  if (this.cahier && this.selectedFile) {
+    // 1. Upload du fichier
+    this.devisService.uploadFile(this.selectedFile).subscribe({
+      next: (uploadResponse: any) => {
+        // uploadResponse peut être { filename: '...' } ou juste le nom
+        const filename = uploadResponse.filename || uploadResponse;
+
+        // 2. Envoi du devis avec le nom de la pièce jointe
+        this.devisService.saveDevis(this.cahier.id, filename).subscribe({
+          next: (response) => {
+            // Suite inchangée...
             Swal.fire({
               title: 'Ajouté!',
-              text: "La Devis  a été ajouté avec succès.",
+              text: "La Devis a été ajoutée avec succès.",
               icon: 'success'
             }).then(() => {
-              this.modalRef?.hide(); // Fermer le modal après l'ajout réussi
-            });// Sauvegarde du cahier des charges si nécessaire
-          } else {
-            console.error('Réponse du service addDevis est null ou vide');
+              this.modalRef?.hide();
+            });
+            this.accepterCahier(this.cahier.id);
+          },
+          error: (error) => {
+            console.error('Erreur lors de l\'ajout du devis:', error);
           }
-        },
-        (error) => {
-          console.log('Objet d\'erreur complet:', error); // Journaliser l'objet d'erreur complet
-  
-          if (error) {
-            if (error.message) {
-              console.error('Erreur lors de l\'ajout du devis:', error.message);
-            } else if (error.error && error.error.message) {
-              // Certains frameworks retournent l'erreur dans une propriété "error"
-              console.error('Erreur lors de l\'ajout du devis:', error.error.message);
-            } else {
-              console.error('Erreur lors de l\'ajout du devis:', JSON.stringify(error));
-            }
-          } else {
-            console.error('Erreur lors de l\'ajout du devis : une erreur inconnue s\'est produite');
-          }
-        }
-      );
-    } else {
-      console.error('Erreur : Cahier des charges ou pièce jointe non sélectionnés.');
-    }
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'upload du fichier:', error);
+      }
+    });
+  } else {
+    console.error('Erreur : Cahier des charges ou pièce jointe non sélectionnés.');
   }
+}
+
   
-  
-  
-  
-  
-  saveCahierDesCharges() {
+  /*saveCahierDesCharges() {
     if (this.selectedFile) {
       this.devisService.uploadFile(this.selectedFile).subscribe(
         (filename) => {
@@ -324,6 +298,6 @@ telechargerPieceJointe(fileName: string, id: number): void {
         }
       );
     }
-  }
+  }*/
   
 }

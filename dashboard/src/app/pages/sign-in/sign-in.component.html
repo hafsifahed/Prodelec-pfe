@@ -1,56 +1,44 @@
-<!-- src/app/sign-in/sign-in.component.html
-<div class="sign-in-container">
-    <h2>Sign In</h2>
-    <form (ngSubmit)="onSubmit()">
-        <div>
-            <label for="emailOrUserName">Email or Username</label>
-            <input type="text" id="emailOrUserName" [(ngModel)]="signInData.emailOrUserName" name="emailOrUserName" required>
-        </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" id="password" [(ngModel)]="signInData.password" name="password" required>
-        </div>
-        <button type="submit">Sign In</button>
-    </form>
-    <div *ngIf="error" class="error-message">{{ error }}</div>
-</div>
-
-<div class="background">
-    <div class="shape"></div>
-    <div class="shape"></div>
-</div>
-<form (ngSubmit)="onSubmit()">
-    <h3>Login Here</h3>
-
-    <label for="username">Username</label>
-    <input type="text" placeholder="Email or Phone" id="username" [(ngModel)]="signInData.emailOrUserName" name="emailOrUserName" required>
-
-    <label for="password">Password</label>
-    <input type="password" placeholder="Password" id="password" [(ngModel)]="signInData.password" name="password" required>
-
-    <button type="submit">Log In</button>
-    <div *ngIf="error" class="error-message">{{ error }}</div>
-
-</form>
--->
-
 <div class="login-container">
-    <div class="login-left">
-        <form (ngSubmit)="onSubmit()">
-            <img src="assets/images/logoprodelec2024.png" alt="Dashboard example">
+  <div class="login-left">
+    <form (ngSubmit)="onSubmit()">
+      <img src="assets/images/logoprodelec2024.png" alt="Logo">
 
-            <label for="email">username</label>
-            <input type="text" id="email"  placeholder="username" [(ngModel)]="signInData.username" name="username" required>
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password"  placeholder="******" [(ngModel)]="signInData.password" name="password" required>
-            <button type="submit" class="btn btn-signin">Sign In</button>
-        </form>
-        <p *ngIf="error" class="error-message">{{ error }}</p>
-    </div>
-    <div class="login-right" style="background-color: white; background-image: url('assets/images/PRODELEC-North-AFRICA.png'); background-size: cover; background-position: center;">
-      <!--  <div class="login-info">
-            <h3>Why should I login?</h3>
-            <p>By logging in, you can access your personal dashboard, where you can manage your account, view your profile, and much more.</p>
-        </div>-->
-    </div>
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        placeholder="username"
+        [(ngModel)]="signInData.username"
+        name="username"
+        required
+      />
+
+      <label for="password">Mot de passe</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="******"
+        [(ngModel)]="signInData.password"
+        name="password"
+        required
+      />
+
+      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Connexion en cours...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <p *ngIf="error" class="error-message">{{ error }}</p>
+  </div>
+  <div
+    class="login-right"
+    style="
+      background-color: white;
+      background-image: url('assets/images/PRODELEC-North-AFRICA.png');
+      background-size: cover;
+      background-position: center;
+    "
+  >
+    <!-- Section décorative ou info -->
+  </div>
 </div>

@@ -15,8 +15,8 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: any) {
-    return this.authService.login(req.user, req.ip);
+  async login(@Request() req: any,@Body('ipAddress') ipAddress?: string) {
+    return this.authService.login(req.user, ipAddress || req.ip);
   }
 
   @Public()

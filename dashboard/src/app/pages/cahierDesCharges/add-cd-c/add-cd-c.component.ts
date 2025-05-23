@@ -10,6 +10,7 @@ import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { EmailService } from 'src/app/core/services/email.service';
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-add-cd-c',
@@ -20,7 +21,7 @@ export class AddCdCComponent implements OnInit {
   addForm: FormGroup;
   modalRef?: BsModalRef;
   selectedFile: File | null = null;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
   userEmail = localStorage.getItem('userMail') || '';
 
@@ -91,12 +92,12 @@ private createNotification(title: string, message: string): void {
         user: {
           id: this.user?.id,
           email: this.user?.email,
+          username:this.user.username,
           firstName: this.user?.firstName,
           lastName: this.user?.lastName,
-          password: this.user?.password,
           role: this.user?.role,
-          userSessions: this.user?.userSessions,
           partner: this.user?.partner,
+          accountStatus:this.user.accountStatus,
           createdAt: this.user?.createdAt,
           updatedAt: this.user?.updatedAt
       
