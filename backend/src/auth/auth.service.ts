@@ -1,5 +1,5 @@
 // auth.service.ts
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UserSessionService } from '../user-session/user-session.service';
@@ -31,30 +31,44 @@ export class AuthService {
     return user;
   }
 
-  async login(user: any, ipAddress: string) {
-    // Vérifier le nombre de sessions actives
-    const activeSessions = await this.userSessionService.countActiveSessionsByUserId(user.id);
-    console.log("count session : "+ activeSessions);
-    if (activeSessions >= 3) {
-      throw new BadRequestException('Vous êtes déjà connecté sur deux sessions. Veuillez vous déconnecter avant de vous reconnecter.');
-    }
+ async login(user: any, ipAddress: string) {
+  const activeSessions = await this.userSessionService.findActiveSessionsByUserId(user.id);
 
-    // Créer une nouvelle session
-    const session = await this.userSessionService.createSession({
-      usermail: user.email,
-      ipAddress,
-      userId: user.id,
-    });
+  const MAX_SESSIONS = 3;
 
-    const payload = { username: user.username, sub: user.id, sessionId: session.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-      sessionId: session.id,
-    };
+  if (activeSessions.length >= MAX_SESSIONS) {
+    const sessionsToClose = activeSessions.length - (MAX_SESSIONS - 1);
+
+    // Fermer les sessions excédentaires en parallèle
+    await Promise.all(
+      activeSessions
+        .slice(0, sessionsToClose)
+        .map(session => this.userSessionService.endSession(session.id))
+    );
   }
+
+  // Créer la nouvelle session
+  const session = await this.userSessionService.createSession({
+    usermail: user.email,
+    ipAddress,
+    userId: user.id,
+  });
+
+  const payload = { username: user.username, sub: user.id, sessionId: session.id };
+  return {
+    access_token: this.jwtService.sign(payload),
+    sessionId: session.id,
+  };
+}
+
+
+
+
 
   async logout(sessionId: number) {
     await this.userSessionService.endSession(sessionId);
     return { message: 'Logged out successfully' };
   }
+
+
 }

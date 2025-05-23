@@ -72,5 +72,13 @@ export class UserSessionService {
     .getCount();
 }
 
+async findActiveSessionsByUserId(userId: number): Promise<UserSession[]> {
+  return this.sessionRepo.find({
+    where: { user: { id: userId }, sessionEnd: null }, // sessionEnd null = active
+    order: { sessionStart: 'ASC' },
+  });
+}
+
+
 
 }
