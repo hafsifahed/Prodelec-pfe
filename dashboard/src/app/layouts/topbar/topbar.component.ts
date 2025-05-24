@@ -102,37 +102,6 @@ this.userStateService.user$.subscribe(user => {
   }
 
   
-
-  /*private loadUserProfile(): void {
-    this.usersService.getnameProfile().subscribe({
-      next: (userData) => {
-        this.user = userData;
-      },
-      error: (error) => {
-        console.error('Error fetching user profile', error);
-        this.errorMessage = 'Failed to load user profile. Please try again later.';
-      },
-    });
-  }*/
-
-  /*getUserTypeAndFetchProfile(): void {
-    this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    if (this.userType && userEmail) {
-      this.checkTokenExpiration();
-
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-      } else {
-        this.errorMessage = 'Invalid user type.';
-      }
-    } else {
-      this.errorMessage = 'User information not found in local storage.';
-    }
-  }*/
  /* ngOnDestroy(): void {
     if (this.stompSubscription) {
       this.webSocketService.unsubscribe(this.stompSubscription);
@@ -155,34 +124,7 @@ this.userStateService.user$.subscribe(user => {
     }
   }*/
 
- /* private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadUserNotifications(this.user.id)
-         // this.subscribeToNotifications();
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
-
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadNotifications(this.user)
-
-        },
-        (error) => {
-          console.error('Error fetching worker data', error);
-          this.errorMessage = 'Error fetching worker data. Please try again later.';
-        }
-    );
-  }
-*/
+ 
   setLanguage(text: string, lang: string, flag: string) {
     this.countryName = text;
     this.flagvalue = flag;
@@ -244,40 +186,7 @@ this.userStateService.user$.subscribe(user => {
     }
   }
   
-/*
-  logout() {
-    const userType = localStorage.getItem('userType');
 
-    if (userType === 'worker') {
-      this.workerSessionService.endSession(Number(this.sessionId)).subscribe(
-          (response) => {
-            console.log('Worker session ended', response);
-            localStorage.clear();
-            this.router.navigate(['/signin']);
-          },
-          (error) => {
-            console.error('Failed to end worker session', error);
-            this.router.navigate(['/signin']);
-          }
-      );
-    } else if (userType === 'user') {
-      this.usersSessionService.endSession(Number(this.sessionId)).subscribe(
-          (response) => {
-            console.log('User session ended', response);
-            localStorage.clear();
-            this.router.navigate(['/signin']);
-          },
-          (error) => {
-            console.error('Failed to end user session', error);
-            this.router.navigate(['/signin']);
-          }
-      );
-    } else {
-      localStorage.clear();
-      this.router.navigate(['/signin']);
-    }
-  }
-*/
   fullscreen() {
     document.body.classList.toggle('fullscreen-enable');
     if (

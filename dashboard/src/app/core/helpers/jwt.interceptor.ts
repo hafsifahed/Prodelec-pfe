@@ -4,6 +4,7 @@ import { Observable, throwError, BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 import { UserStateService } from '../services/user-state.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -11,7 +12,9 @@ export class JwtInterceptor implements HttpInterceptor {
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   constructor(private authService: AuthService,
-        private userStateService:UserStateService,
+        private userStateService:UserStateService,  
+        private router: Router
+
     
   ) {}
 
@@ -74,8 +77,8 @@ export class JwtInterceptor implements HttpInterceptor {
 
   private logoutUser() {
     localStorage.clear();
-    this.userStateService.setUser(null)
-    // Rediriger vers login, par ex. via Router (injecter si besoin)
-    window.location.href = '/signin';
+    this.userStateService.setUser(null);
+      this.router.navigate(['/signin']);
+
   }
 }

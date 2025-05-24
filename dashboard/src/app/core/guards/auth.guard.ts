@@ -16,34 +16,34 @@ import { UserStateService } from '../services/user-state.service';
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   private inactivityTimer: any;
-  private inactivityDuration = 60 * 60 * 1000; // 1 hour
-  private token=localStorage.getItem('token');
-  constructor(private router: Router, 
+  private inactivityDuration = 60 * 60 * 1000; // 1 heure
+
+  constructor(
+    private router: Router,
     private usersService: UsersService,
     private authService: AuthService,
-    private userStateService:UserStateService,
+    private userStateService: UserStateService,
   ) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> {
+    const token = localStorage.getItem('token'); // Récupérer le token à chaque appel
 
-    // Extract required resource and actions from route data
+    // Extraire les permissions attendues de la route
     const requiredResource: string = route.data['resource'];
     const requiredActions: string[] = route.data['actions'] || [];
 
-    if (!this.token) {
-        console.log("aaaa");
+    if (!token) {
       this.router.navigate(['/signin']);
       return of(false);
     }
 
-    if (!this.checkTokenExpiration(this.token)) {
+    if (!this.checkTokenExpiration(token)) {
       return of(false);
     }
 
-    // Fetch current user profile from backend
     return this.usersService.getProfile().pipe(
       map((user: User) => {
         if (
@@ -59,8 +59,8 @@ export class AuthGuard implements CanActivate {
         return true;
       }),
       catchError(err => {
-        console.error('Failed to get user profile or unauthorized', err);
-       this.router.navigate(['/signin']);
+        console.error('Erreur lors de la récupération du profil ou non autorisé', err);
+        this.router.navigate(['/signin']);
         return of(false);
       }),
     );
@@ -71,7 +71,6 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
-    // Check if user has at least one of the required actions on the resource
     return actions.some(action =>
       user.role.permissions.some(perm =>
         perm.resource.toLowerCase() === resource.toLowerCase() &&
@@ -84,35 +83,30 @@ export class AuthGuard implements CanActivate {
     try {
       const tokenData = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);
-  
-      // If 'exp' is missing, log a warning but don't clear storage
+
       if (tokenData.exp === undefined) {
-        console.warn('Token has no expiration time');
-        return true; // Assume token is valid if 'exp' is missing
+        console.warn('Le token ne contient pas de date d\'expiration');
+        return true; // On suppose valide si pas d'expiration
       }
-  
+
       if (currentTime > tokenData.exp) {
-        console.log('Token expired');
-        this.clearLocalStorageAndRedirect();
+        console.log('Token expiré');
+        this.clearLocalStorageAndRedirect(token);
         return false;
       }
-  
+
       return true;
     } catch (error) {
-      console.error('Invalid token format', error);
-      this.clearLocalStorageAndRedirect();
+      console.error('Format de token invalide', error);
+      this.clearLocalStorageAndRedirect(token);
       return false;
     }
   }
-  
 
-  private clearLocalStorageAndRedirect(): void {
-    this.logout(this.token);
-    //localStorage.clear();
-    //this.userStateService.setUser(null)
-    //this.router.navigate(['/signin']);
-    console.log("clearLocalStorageAndRedirect ");
-
+  private clearLocalStorageAndRedirect(token: string): void {
+    this.logout(token);
+    // Ne pas vider localStorage ici, attendre la réponse logout
+    console.log("clearLocalStorageAndRedirect appelée");
   }
 
   private startInactivityTimer(): void {
@@ -120,25 +114,36 @@ export class AuthGuard implements CanActivate {
       clearTimeout(this.inactivityTimer);
     }
     this.inactivityTimer = setTimeout(() => {
-      this.clearLocalStorageAndRedirect();
+      const token = localStorage.getItem('token');
+      if (token) {
+        this.clearLocalStorageAndRedirect(token);
+      }
     }, this.inactivityDuration);
   }
 
-  logout(token: string) {
-    const tokenData = JSON.parse(atob(token.split('.')[1]));
-    
-    this.authService.logOut(tokenData.sessionId).subscribe(
-    (res) => {
-    console.log(res.message);
-    localStorage.clear();
-    this.userStateService.setUser(null);
-    this.router.navigate(['/signin']);
-  },
-    (err) => {
-    console.error('Logout failed', err);
+  private logout(token: string): void {
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      this.authService.logOut(tokenData.sessionId).subscribe(
+        (res) => {
+          console.log(res.message);
+          localStorage.clear();
+          this.userStateService.setUser(null);
+          this.router.navigate(['/signin']);
+        },
+        (err) => {
+          console.error('Échec du logout', err);
+          // Nettoyage quand même en cas d'erreur
+          localStorage.clear();
+          this.userStateService.setUser(null);
+          this.router.navigate(['/signin']);
+        }
+      );
+    } catch (e) {
+      console.error('Erreur lors du décodage du token pour logout', e);
+      localStorage.clear();
+      this.userStateService.setUser(null);
+      this.router.navigate(['/signin']);
     }
-    );
-    } 
-
-    
+  }
 }
