@@ -1,30 +1,23 @@
 import { Injectable } from '@angular/core';
-
-import { getFirebaseBackend } from '../../authUtils';
-
-import { User } from '../models/auth.models';
-import {environment} from "../../../environments/environment";
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
-
 export class AuthService {
+  private apiUrl = `${environment.baseUrl}/auth`;
 
-    private apiUrl = `${environment.baseUrl}/auth`; // Update with your actual backend URL
+  constructor(private http: HttpClient) {}
 
-    constructor(private http: HttpClient) {}
+  logIn(signInData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, signInData);
+  }
 
-    logIn(signInData: any): Observable<any> {
-        return this.http.post(`${this.apiUrl}/login`, signInData);
-    }
+  logOut(sessionId: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/logout`, { sessionId });
+  }
 
-    logOut(sessionId: number): Observable<{ message: string }> {
-        return this.http.post<{ message: string }>(
-          `${this.apiUrl}/logout`, // URL without sessionId in the path
-          { sessionId } // Send sessionId in the request body
-        );
-      }
-      
+  refreshToken(refreshToken: string): Observable<{ access_token: string }> {
+    return this.http.post<{ access_token: string }>(`${this.apiUrl}/refresh-token`, { refreshToken });
+  }
 }
-

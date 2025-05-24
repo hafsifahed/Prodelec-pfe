@@ -15,18 +15,24 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: any,@Body('ipAddress') ipAddress?: string) {
+  async login(@Request() req: any, @Body('ipAddress') ipAddress?: string) {
     return this.authService.login(req.user, ipAddress || req.ip);
   }
 
   @Public()
   @Post('register')
   async register(@Body() body: CreateUserDto) {
-    const user = await this.usersService.create(body);
-    return user;
+    return this.usersService.create(body);
+  }
+
+  @Public()
+  @Post('refresh-token')
+  async refreshToken(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshAccessToken(refreshToken);
   }
 
   @Post('logout')
+  @Public()
   async logout(@Body('sessionId') sessionId: number) {
     await this.authService.logout(sessionId);
     return { message: 'Logged out successfully' };

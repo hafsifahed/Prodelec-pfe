@@ -13,24 +13,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>('JWT_ACCESS_SECRET'),
     });
   }
 
   async validate(payload: any) {
-    const user = await this.usersService.findOne(payload.username, false); // load role relation
-  //console.log(payload)
+    const user = await this.usersService.findOne(payload.username, false);
     if (!user) {
       throw new UnauthorizedException();
     }
-  
+
     if (user.accountStatus !== 'active') {
-      throw new UnauthorizedException(
-        `${user.username}, account ${user.accountStatus}`,
-      );
+      throw new UnauthorizedException(`${user.username}, account ${user.accountStatus}`);
     }
-  
+
     return user;
   }
-  
 }

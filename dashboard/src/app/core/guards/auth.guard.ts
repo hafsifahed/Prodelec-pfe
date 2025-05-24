@@ -11,6 +11,7 @@ import { catchError, map } from 'rxjs/operators';
 import { User } from '../models/auth.models';
 import { UsersService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
+import { UserStateService } from '../services/user-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
@@ -20,6 +21,7 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router, 
     private usersService: UsersService,
     private authService: AuthService,
+    private userStateService:UserStateService,
   ) {}
 
   canActivate(
@@ -106,8 +108,9 @@ export class AuthGuard implements CanActivate {
 
   private clearLocalStorageAndRedirect(): void {
     this.logout(this.token);
-    localStorage.clear();
-    this.router.navigate(['/signin']);
+    //localStorage.clear();
+    //this.userStateService.setUser(null)
+    //this.router.navigate(['/signin']);
     console.log("clearLocalStorageAndRedirect ");
 
   }
@@ -128,10 +131,14 @@ export class AuthGuard implements CanActivate {
     (res) => {
     console.log(res.message);
     localStorage.clear();
+    this.userStateService.setUser(null);
+    this.router.navigate(['/signin']);
   },
     (err) => {
     console.error('Logout failed', err);
     }
     );
     } 
+
+    
 }
