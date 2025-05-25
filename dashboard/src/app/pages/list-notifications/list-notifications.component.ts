@@ -25,7 +25,7 @@ export class ListNotificationsComponent implements OnInit {
               private workersService: WorkersService) { }
 
   ngOnInit(): void {
-    this.getNotifications();
+   // this.getNotifications();
 
       this.userType = localStorage.getItem('userType');
       const userEmail = localStorage.getItem('userMail');
@@ -43,7 +43,7 @@ export class ListNotificationsComponent implements OnInit {
       }
   }
 
-  getNotifications(): void {
+ /* getNotifications(): void {
     this.notificationService.getNotifications().subscribe(
         notifications => this.notifications = notifications,
         error => console.log(error)
@@ -71,7 +71,7 @@ export class ListNotificationsComponent implements OnInit {
         },
         error => console.log(error)
     );
-  }
+  }*/
 
     private fetchUserProfile(email: string): void {
         this.usersService.getUserByEmail(email).subscribe(
@@ -99,7 +99,7 @@ export class ListNotificationsComponent implements OnInit {
 
     searchNotificationBy(): void {
         if (this.searchNotification.trim() === '') {
-            this.getNotifications();
+           // this.getNotifications();
         } else {
             this.notifications = this.notifications.filter(n =>
                 n.createdBy.toLowerCase().includes(this.searchNotification.toLowerCase())||

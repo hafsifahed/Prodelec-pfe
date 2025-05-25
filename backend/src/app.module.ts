@@ -1,5 +1,5 @@
 import { MailerModule } from '@nestjs-modules/mailer';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -30,6 +30,7 @@ import { User } from './users/entities/users.entity';
 
 import { CahierDesCharges } from './cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from './devis/entities/devi.entity';
+import { Notification } from './notifications/notification.entity';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { Order } from './order/entities/order.entity';
 import { OrderModule } from './order/order.module';
@@ -60,7 +61,8 @@ import { ProjectModule } from './project/project.module';
         Devis,
         CahierDesCharges,
         Order,
-        Project
+        Project,
+        Notification
       ],
       synchronize: true, // à désactiver en prod !
       //logging: true,
@@ -88,7 +90,7 @@ import { ProjectModule } from './project/project.module';
     UserSessionModule,
     PartnersModule,
     AvisModule,
-    NotificationsModule,
+     forwardRef(() => NotificationsModule),
     ReclamationModule,
     DevisModule,
     CahierDesChargesModule,

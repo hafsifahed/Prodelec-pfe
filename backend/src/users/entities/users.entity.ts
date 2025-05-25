@@ -11,6 +11,7 @@ import {
 import { Avis } from '../../avis/entities/avis.entity';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../../devis/entities/devi.entity';
+import { Notification } from '../../notifications/notification.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Partner } from '../../partners/entities/partner.entity';
 import { Reclamation } from '../../reclamation/entities/reclamation.entity';
@@ -70,6 +71,9 @@ cahierDesCharges: CahierDesCharges[];
 
 @OneToMany(() => Order, order => order.user)
   orders: Order[];
+
+   @OneToMany(() => Notification, notification => notification.user)
+  notifications: Notification[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

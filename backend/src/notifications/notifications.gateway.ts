@@ -1,4 +1,4 @@
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
@@ -7,10 +7,13 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { UsersService } from '../users/users.service';
+import { Notification } from './notification.entity';
+import { NotificationsService } from './notifications.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Adjust for your frontend URL in production
+    origin: '*', // En prod, mettre l’URL frontend
     methods: ['GET', 'POST'],
   },
 })
@@ -20,22 +23,32 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   private logger = new Logger('NotificationsGateway');
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => NotificationsService))
+    private readonly notificationsService: NotificationsService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     try {
       const token = client.handshake.auth.token;
-      if (!token) {
-        throw new UnauthorizedException('No token provided');
-      }
-      const payload = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET || 'your_jwt_secret',
-      });
-      client.data.userId = payload.sub; // store userId for later use
-      client.join(payload.sub); // join room by userId
-      this.logger.log(`Client connected: ${client.id}, userId: ${payload.sub}`);
+      if (!token) throw new UnauthorizedException('No token provided');
+
+      const payload = this.jwtService.verify(token, { secret: process.env.JWT_ACCESS_SECRET });
+      const user = await this.usersService.findOneById(payload.sub);
+      if (!user) throw new UnauthorizedException('User not found');
+
+      client.data.userId = user.id;
+      client.join(user.id.toString());
+
+      // Envoyer notifications non lues au client
+      const notifications = await this.notificationsService.getUnreadNotifications(user.id);
+      client.emit('initial_notifications', notifications);
+
+      this.logger.log(`Client connected: ${client.id}, userId: ${user.id}`);
     } catch (err) {
-      this.logger.warn(`Client connection rejected: ${client.id} - ${err.message}`);
+      this.logger.warn(`Connection rejected: ${client.id} - ${err.message}`);
       client.disconnect(true);
     }
   }
@@ -44,11 +57,12 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  sendNotificationToUser(userId: string, payload: any) {
-    this.server.to(userId).emit('notification', payload);
-  }
+  async sendNotificationToUser(userId: number, notification: Notification) {
+  this.server.to(userId.toString()).emit('notification', notification);
+}
 
-  sendNotificationToAll(payload: any) {
-    this.server.emit('notification', payload);
+  async sendNotificationToAll(message: string, payload?: any) {
+    // Optionnel : créer notifications en base pour tous les utilisateurs
+    this.server.emit('notification', { message, payload });
   }
 }

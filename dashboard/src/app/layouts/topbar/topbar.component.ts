@@ -11,7 +11,7 @@ import { WorkersService } from '../../core/services/workers.service';
 import { WorkerSessionService } from '../../core/services/worker-session.service';
 import { UserSessionService } from '../../core/services/user-session.service';
 import { NotificationModels } from '../../core/models/notification.models';
-import { WebSocketService } from '../../core/services/websocket.service';
+import { WebsocketService } from '../../core/services/websocket.service';
 import { StompSubscription } from '@stomp/stompjs';
 import { Subscription } from 'rxjs';
 import {NotificationService} from "../../core/services/notification.service";
@@ -38,7 +38,7 @@ export class TopbarComponent implements OnInit {
   errorMessage = '';
   notification: { message: string; type: string; time: string }[] = [];
   token = localStorage.getItem('token');
-  unreadCount: number;
+  unreadCount : number=0;
 
 
   constructor(
@@ -53,7 +53,7 @@ export class TopbarComponent implements OnInit {
       private workerSessionService: WorkerSessionService,
       private usersSessionService: UserSessionService,
       public _cookiesService: CookieService,
-      private webSocketService: WebSocketService,
+      private webSocketService: WebsocketService,
       private notificationService :NotificationService,
       private notificationrService :NotificationrService,
       private userStateService: UserStateService
@@ -88,41 +88,64 @@ export class TopbarComponent implements OnInit {
       this.flagvalue = val.map(element => element.flag);
     }
 
-  /*  const userType = localStorage.getItem('userType');
-    const sessionId = localStorage.getItem('sessionId');
-    this.checkSessionActive(userType,sessionId);
-this.getUserTypeAndFetchProfile();*/
-
-//this.loadUserProfile();
 
 this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
 
+      this.webSocketService.notifications$.subscribe(notifs => {
+      this.notifications = notifs;
+      this.unreadCount = notifs.filter(n => !n.read).length;
+    });
+
+  }
+ markAsRead(notification: NotificationModels): void {
+    if (!notification.read) {
+      this.webSocketService.markAsRead(notification.id);
+      notification.read = true;
+      this.unreadCount = this.notifications.filter(n => !n.read).length;
+    }
   }
 
-  
- /* ngOnDestroy(): void {
-    if (this.stompSubscription) {
-      this.webSocketService.unsubscribe(this.stompSubscription);
-    }
-  }*/
 
- /* private subscribeToNotifications() {
-    if (this.userType === 'user' && this.user) {
-      this.stompSubscription = this.webSocketService.subscribe(`/topic/notifications/user/${this.user.id}`, (notification: NotificationModels) => {
-        this.notifications.push(notification);
-      });
-    } else if (this.userType === 'worker' && this.user) {
-      this.stompSubscription = this.webSocketService.subscribe(`/topic/notifications/worker/${this.user.id}`, (notification: NotificationModels) => {
-        this.notifications.push(notification);
-      });
-    } else {
-      this.stompSubscription = this.webSocketService.subscribe('/topic/notifications', (notification: NotificationModels) => {
-        this.notifications.push(notification);
-      });
-    }
-  }*/
+  getTimeAgo(date: string): string {
+    // Petite fonction pour afficher "il y a X minutes"
+    const d = new Date(date);
+    const diff = Math.floor((Date.now() - d.getTime()) / 60000);
+    if (diff < 1) return 'à l’instant';
+    if (diff < 60) return `il y a ${diff} min`;
+    const h = Math.floor(diff / 60);
+    if (h < 24) return `il y a ${h} h`;
+    return d.toLocaleDateString();
+  }
+
+  getNotificationColor(title?: string): string {
+  if (!title) return 'gray'; // Valeur par défaut si title est undefined ou vide
+  title = title.toLowerCase();
+  if (title.includes('projet')) return '#007bff';
+  if (title.includes('cahier')) return '#f0cc1a';
+  if (title.includes('réclamation')) return '#a11616';
+  if (title.includes('devis') || title.includes('avis')) return '#28a745';
+  if (title.includes('commande')) return '#17a2b8';
+  return 'gray';
+}
+
+
+getNotificationIcon(title?: string): string {
+  if (!title) return 'bx bx-question-mark';
+  title = title.toLowerCase();
+  if (title.includes('projet')) return 'bx bx-cart';
+  if (title.includes('cahier')) return 'bx bx-file';
+  if (title.includes('réclamation')) return 'bx bx-error';
+  if (title.includes('avis')) return 'bx bx-comment-detail';
+  if (title.includes('commande')) return 'bx bx-package';
+  return 'bx bx-question-mark';
+}
+
+
+
+
+
 
  
   setLanguage(text: string, lang: string, flag: string) {
@@ -213,195 +236,5 @@ this.userStateService.user$.subscribe(user => {
       }
     }
   }
-/*
-  loadNotifications(u: any): void {
-    if (u.role === 'ADMIN' || u.role==='SUBADMIN' ) {
-      this.notificationService.getNotifications().subscribe(
-          (notifications) => {
-            // Get the current date and the date from three months ago
-            const now = new Date();
-            const threeMonthsAgo = new Date(now);
-            threeMonthsAgo.setMonth(now.getMonth() - 3);
 
-            // Filter notifications from the last 3 months
-            const recentNotifications = notifications.filter(notification => {
-              const notificationDate = new Date(notification.createdAt);
-              return notificationDate >= threeMonthsAgo;
-            });
-
-            // Sort notifications to have unread ones on top
-            this.notifications = recentNotifications.sort((a, b) => {
-              // First, sort by read status
-              if (a.read === b.read) {
-                // If both have the same read status, sort by createdAt date
-                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Newest first
-              }
-              return a.read ? 1 : -1; // Unread notifications come first
-            });
-
-            // Optionally, you can reverse the order if you want the latest notifications first
-            // this.notifications.reverse();
-
-            this.updateUnreadCount();
-          },
-          (error) => {
-            console.log("Error loading notifications:", error);
-          }
-      );
-    } else {
-      this.loadWorkerNotifications(u.id);
-    }
-  }
-  loadWorkerNotifications(id: any): void {
-    this.notificationService.getNotificationsByWorkerId(id).subscribe(
-        (notifications) => {
-          // Get the current date and the date from three months ago
-          const now = new Date();
-          const threeMonthsAgo = new Date(now);
-          threeMonthsAgo.setMonth(now.getMonth() - 3);
-
-          // Filter notifications from the last 3 months
-          const recentNotifications = notifications.filter(notification => {
-            const notificationDate = new Date(notification.createdAt); // Assurez-vous que createdAt est un format de date valide
-            return notificationDate >= threeMonthsAgo;
-          });
-
-          // Sort notifications to have unread ones on top
-          this.notifications = recentNotifications.sort((a, b) => {
-            // First, sort by read status
-            if (a.read === b.read) {
-              // If both have the same read status, sort by createdAt date
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Newest first
-            }
-            return a.read ? 1 : -1; // Unread notifications come first
-          });
-
-          // Optionally, you can reverse the order if you want the latest notifications first
-          // this.notifications.reverse();
-
-          this.updateUnreadCount();
-        },
-        (error) => {
-          console.log("Error loading worker notifications:", error);
-        }
-    );
-  }
-  loadUserNotifications(id: any): void {
-    this.notificationService.getNotificationsByUserId(id).subscribe(
-        (notifications) => {
-          // Get the current date and the date from three months ago
-          const now = new Date();
-          const threeMonthsAgo = new Date(now);
-          threeMonthsAgo.setMonth(now.getMonth() - 3);
-
-          // Filter notifications from the last 3 months
-          const recentNotifications = notifications.filter(notification => {
-            const notificationDate = new Date(notification.createdAt); // Assurez-vous que createdAt est un format de date valide
-            return notificationDate >= threeMonthsAgo;
-          });
-
-          // Sort notifications to have unread ones on top
-          this.notifications = recentNotifications.sort((a, b) => {
-            // First, sort by read status
-            if (a.read === b.read) {
-              // If both have the same read status, sort by createdAt date
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Newest first
-            }
-            return a.read ? 1 : -1; // Unread notifications come first
-          });
-
-          // Optionally, you can reverse the order if you want the latest notifications first
-          // this.notifications.reverse();
-
-          this.updateUnreadCount();
-        },
-        (error) => {
-          console.log("Error loading user notifications:", error);
-        }
-    );
-  }
-*/
-
-/*
-  updateUnreadCount() {
-    this.unreadCount = this.notifications.filter(notification => !notification.read).length;
-  }
-
-  markAsRead(notification: NotificationModels): void {
-    this.notificationService
-        .markNotificationAsRead(notification.id)
-        .subscribe((updatedNotification) => {
-          notification.read = updatedNotification.read;
-        });
-    this.loadNotifications(this.user);
-  }
-
-  getTimeAgo(timestamp: string): string {
-    const currentTime = new Date().getTime();
-    const notificationTime = new Date(timestamp).getTime();
-    const timeDifference = currentTime - notificationTime;
-
-    // Calculate the time in various units
-    const minutes = Math.floor(timeDifference / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const weeks = Math.floor(days / 7);
-
-    if (weeks > 0) {
-      return weeks === 1 ? "1w" : `${weeks}w`;
-    } else if (days > 0) {
-      return days === 1 ? "1d" : `${days}d`;
-    } else if (hours > 0) {
-      return hours === 1 ? "1h" : `${hours}h`;
-    } else {
-      return minutes <= 1 ? "just now" : `${minutes}m`;
-    }
-  }
-
-  // Assuming you have a method like this in your component
-
-  checkTokenExpiration() {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      const tokenData = JSON.parse(atob(token.split('.')[1])); // Decoding the token
-      // Check if the token has an expiry time
-      if (tokenData && tokenData.exp) {
-        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-
-        // Compare the current time with the expiry time
-        if (currentTime > tokenData.exp) {
-          // Token has expired, initiate logout
-          this.logout();
-        }
-      } else {
-        console.error('Token does not contain an expiry time.');
-      }
-    } else {
-      console.error('Token not found.');
-
-    }
-  }
-  checkSessionActive(userType: string, sessionId: string): void {
-    const id = Number(sessionId);
-
-    if (userType === 'worker') {
-      this.workerSessionService.isSessionActive(id).subscribe((isActive: boolean) => {
-        if(isActive==false){
-          localStorage.clear();
-          this.router.navigateByUrl('/signin');
-        }
-      });
-    } else if (userType === 'user') {
-      this.usersSessionService.isSessionActive(id).subscribe((isActive: boolean) => {
-        if(isActive==false){
-          localStorage.clear();
-          this.router.navigateByUrl('/signin');
-        }
-      });
-    } else {
-      localStorage.clear();
-      this.router.navigateByUrl('/signin');
-    }
-  }*/
 }

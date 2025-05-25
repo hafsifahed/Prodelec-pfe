@@ -52,14 +52,14 @@ private createNotification(title: string, message: string): void {
     updatedAt: ''
   };
 
-  this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
+ /* this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
       () => {
         console.log('Notification created successfully.');
       },
       (error) => {
         console.error('Error creating notification', error);
       }
-  );
+  );*/
 }
   private fetchUser(email: string): void {
     this.usersService.getUserByEmail(email).subscribe(

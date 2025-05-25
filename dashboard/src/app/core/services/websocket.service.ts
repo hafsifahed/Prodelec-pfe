@@ -1,38 +1,43 @@
+// websocket.service.ts
 import { Injectable } from '@angular/core';
-import { Client, StompSubscription } from '@stomp/stompjs';
-import * as SockJS from 'sockjs-client';
-import { environment } from '../../../environments/environment';
+import { io, Socket } from 'socket.io-client';
+import { BehaviorSubject } from 'rxjs';
+import { NotificationModels } from '../models/notification.models';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class WebSocketService {
-  /*private client: Client;
+@Injectable({ providedIn: 'root' })
+export class WebsocketService {
+  private socket: Socket;
+  private notificationsSubject = new BehaviorSubject<NotificationModels[]>([]);
+  public notifications$ = this.notificationsSubject.asObservable();
 
   constructor() {
-    this.client = new Client({
-      brokerURL: `${environment.apiUrl}/ws`,
-      webSocketFactory: () => new SockJS(`${environment.apiUrl}/ws`),
-      reconnectDelay: 5000,
-      debug: (str) => console.log(str),
+    this.socket = io('http://localhost:3000', {
+      auth: { token: localStorage.getItem('token') }
     });
-    this.client.activate();
+
+    this.socket.on('notification', (notification: NotificationModels) => {
+      const current = this.notificationsSubject.value;
+      this.notificationsSubject.next([notification, ...current]);
+    });
+
+    // Optionnel : charger les notifications non lues à la connexion
+    this.socket.on('initial_notifications', (notifs: NotificationModels[]) => {
+      this.notificationsSubject.next(notifs);
+    });
   }
 
-  subscribe(topic: string, handler: (message: any) => void): StompSubscription {
-    return this.client.subscribe(topic, (message) => {
-      handler(JSON.parse(message.body));
-    });
+  markAsRead(notificationId: number) {
+    this.socket.emit('markAsRead', notificationId);
+    // Optionnel : mettre à jour localement
+    const current = this.notificationsSubject.value.map(n =>
+      n.id === notificationId ? { ...n, read: true } : n
+    );
+    this.notificationsSubject.next(current);
   }
 
-  unsubscribe(subscription: StompSubscription): void {
-    subscription.unsubscribe();
-  }
-
-  send(topic: string, message: any): void {
-    this.client.publish({
-      destination: topic,
-      body: JSON.stringify(message),
+   listenForNotifications(callback: (notification: NotificationModels) => void): void {
+    this.socket.on('notification', (notification: NotificationModels) => {
+      callback(notification);
     });
-  }*/
+  }
 }

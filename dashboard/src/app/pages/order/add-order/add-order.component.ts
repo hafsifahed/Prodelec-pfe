@@ -141,14 +141,14 @@ export class AddOrderComponent implements OnInit{
       updatedAt: ''
     };
 
-    this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
+    /*this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
         () => {
           console.log('Notification created successfully.');
         },
         (error) => {
           console.error('Error creating notification', error);
         }
-    );
+    );*/
   }
 
   save1()

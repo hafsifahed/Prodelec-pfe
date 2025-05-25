@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User } from '../users/entities/users.entity';
 import { CreateAvisDto } from './dto/create-avis.dto';
 import { UpdateAvisDto } from './dto/update-avis.dto';
@@ -14,24 +14,33 @@ export class AvisService {
     private avisRepository: Repository<Avis>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private readonly notificationsGateway: NotificationsGateway,
+        private notificationsService: NotificationsService,
+
+
 
   ) {}
 
   async create(createAvisDto: CreateAvisDto): Promise<Avis> {
-    const user = await this.userRepository.findOneBy({ id: createAvisDto.userId });
-    if (!user) throw new NotFoundException('User not found');
-    
-    const avis = this.avisRepository.create({
-      ...createAvisDto,
-      user
-    });
-    this.notificationsGateway.sendNotificationToAll({
-      type: 'NEW_AVIS',
-      data: avis
-    });
-    return this.avisRepository.save(avis);
-  }
+  const user = await this.userRepository.findOneBy({ id: createAvisDto.userId });
+  if (!user) throw new NotFoundException('User not found');
+
+  const avis = this.avisRepository.create({
+    ...createAvisDto,
+    user,
+  });
+  const savedAvis = await this.avisRepository.save(avis);
+
+  // Notifier tous les admins
+  await this.notificationsService.notifyAdmins(
+    'Nouvel avis soumis',
+    { avisId: savedAvis.id }
+  );
+
+  return savedAvis;
+}
+
+
+
 
   findAll(): Promise<Avis[]> {
     return this.avisRepository.find({ relations: ['user'] });

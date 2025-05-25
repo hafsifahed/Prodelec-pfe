@@ -124,6 +124,15 @@ export class UsersService {
   
     return queryBuilder.getMany();
   }
+
+  async findAdmins(): Promise<User[]> {
+  return this.usersRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .where('role.name = :roleName', { roleName: 'ADMIN' })
+    .getMany();
+}
+
   
 
   async findOne(username: string, selectSecrets = false): Promise<User | undefined> {

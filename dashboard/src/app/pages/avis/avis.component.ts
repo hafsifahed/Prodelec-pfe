@@ -119,7 +119,7 @@ export class AvisComponent implements OnInit {
             (response: AvisModels) => {
               this.showSuccessMessage('Avis soumis avec succès.');
               this.resetForm();
-              this.router.navigate(['/dashboard']); // Redirect to the dashboard
+              this.router.navigate(['/list-avis']); // Redirect to the dashboard
             },
             (error) => {
               console.error('Error submitting review', error);

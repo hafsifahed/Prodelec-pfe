@@ -93,14 +93,14 @@ export class ReclamationListComponent {
       updatedAt: ''
     };
 
-    this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
+   /* this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
         () => {
           console.log('Notification created successfully.');
         },
         (error) => {
           console.error('Error creating notification', error);
         }
-    );
+    );*/
   }
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;

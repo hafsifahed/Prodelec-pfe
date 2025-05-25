@@ -77,14 +77,14 @@ export class AddPartnerComponent implements OnInit{
       updatedAt: ''
     };
 
-    this.notificationService.createNotificationForUser(newNotification,this.user.id).subscribe(
+    /*this.notificationService.createNotificationForUser(newNotification,this.user.id).subscribe(
         () => {
           console.log('Notification created successfully.');
         },
         (error) => {
           console.error('Error creating notification', error);
         }
-    );
+    );*/
   }
   
   private resetForm(): void {
