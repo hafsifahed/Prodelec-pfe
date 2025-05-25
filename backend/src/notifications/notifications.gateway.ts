@@ -51,6 +51,10 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       this.logger.warn(`Connection rejected: ${client.id} - ${err.message}`);
       client.disconnect(true);
     }
+    client.on('markAsRead', async (notificationId: number) => {
+    await this.notificationsService.markAsRead(notificationId);
+    // Optionnel : tu peux émettre un événement de confirmation ici
+  });
   }
 
   handleDisconnect(client: Socket) {

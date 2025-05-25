@@ -11,10 +11,13 @@ export class AvisService {
   private apiUrl = `${environment.baseUrl}/avis`;
   constructor(private http: HttpClient) { }
 
-  saveAvisForUser(userId: number, avis: AvisModels): Observable<AvisModels> {
-    const url = `${this.apiUrl}/`;
-    return this.http.post<AvisModels>(url, avis);
-  }
+  saveAvisForUser(userId: number, avis: AvisModels) {
+  return this.http.post<AvisModels>(`${this.apiUrl}/`, {
+    ...avis,
+    userId // <-- ajoute explicitement userId
+  });
+}
+
 
   getAvisById(id: number): Observable<AvisModels> {
     const url = `${this.apiUrl}/${id}`;

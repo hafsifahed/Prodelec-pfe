@@ -19,7 +19,6 @@ export class AvisComponent implements OnInit {
   avis: AvisModels = new AvisModels();
   successMessage: string = '';
   errorMessage: string = '';
-  userEmail = localStorage.getItem('userMail') || '';
   submitted = false; // Define the submitted variable
   maxPoints = 5; // Nombre maximum de points forts/faibles
   visiblePointForts = 1; // Commence avec 1 champ visible

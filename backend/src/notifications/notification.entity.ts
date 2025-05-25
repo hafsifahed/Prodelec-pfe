@@ -22,10 +22,6 @@ export class Notification {
   @ManyToOne(() => User, user => user.notifications, { eager: true })
   user: User;
 
-  // Utilisateur qui a créé la notification (optionnel)
-  @ManyToOne(() => User, { nullable: true, eager: true })
-  createdBy?: User;
-
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

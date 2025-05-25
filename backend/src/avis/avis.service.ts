@@ -21,23 +21,28 @@ export class AvisService {
   ) {}
 
   async create(createAvisDto: CreateAvisDto): Promise<Avis> {
-  const user = await this.userRepository.findOneBy({ id: createAvisDto.userId });
-  if (!user) throw new NotFoundException('User not found');
+    // Récupérer l'utilisateur à partir de l'id
+    const user = await this.userRepository.findOneBy({ id: createAvisDto.userId });
+if (!user) throw new NotFoundException('User not found');
 
-  const avis = this.avisRepository.create({
-    ...createAvisDto,
-    user,
-  });
-  const savedAvis = await this.avisRepository.save(avis);
+const avis = this.avisRepository.create({
+  ...createAvisDto, // ne doit PAS contenir un champ "user"
+  user,             // c'est ici que tu lies l'utilisateur
+});
 
-  // Notifier tous les admins
-  await this.notificationsService.notifyAdmins(
-    'Nouvel avis soumis',
-    { avisId: savedAvis.id }
-  );
 
-  return savedAvis;
-}
+    // Sauvegarder l'avis en base
+    const savedAvis = await this.avisRepository.save(avis);
+
+    // Notifier tous les admins
+    await this.notificationsService.notifyAdmins(
+      'Nouvel avis soumis',
+      'Un nouvel avis a été soumis',
+      { avisId: savedAvis.id, userId: user.id ,username:user.username}
+    );
+
+    return savedAvis;
+  }
 
 
 

@@ -2,6 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User } from '../users/entities/users.entity';
 import { CreateReclamationDto } from './dto/create-reclamation.dto';
 import { UpdateReclamationDto } from './dto/update-reclamation.dto';
@@ -12,15 +13,27 @@ export class ReclamationService {
   constructor(
     @InjectRepository(Reclamation)
     private readonly reclamationRepo: Repository<Reclamation>,
+    private notificationsService:NotificationsService,
   ) {}
 
   async create(createDto: CreateReclamationDto, user: User): Promise<Reclamation> {
-    const reclamation = this.reclamationRepo.create({
-      ...createDto,
-      user,  // assign user entity here
-    });
-    return this.reclamationRepo.save(reclamation);
-  }
+  // Création de la réclamation avec l'utilisateur associé
+  const reclamation = this.reclamationRepo.create({
+    ...createDto,
+    user,
+  });
+  const savedReclamation = await this.reclamationRepo.save(reclamation);
+
+  // Notifier tous les admins qu'une nouvelle réclamation a été soumise
+  await this.notificationsService.notifyAdmins(
+    'Nouvelle réclamation soumise',       // titre de la notification
+    'Une nouvelle réclamation a été créée', // message
+    { reclamationId: savedReclamation.id_reclamation, userId: user.id, username: user.username } // payload optionnel
+  );
+
+  return savedReclamation;
+}
+
 
   async update(id: number, updateReclamationDto: UpdateReclamationDto): Promise<Reclamation> {
     const existing = await this.findOne(id);

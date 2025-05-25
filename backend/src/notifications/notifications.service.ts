@@ -17,24 +17,24 @@ export class NotificationsService {
 
   ) {}
 
-  async notifyAdmins(message: string, payload?: any): Promise<Notification[]> {
+  async notifyAdmins(title: string,message: string, payload?: any): Promise<Notification[]> {
   const admins = await this.usersService.findAdmins();
   const notifications: Notification[] = [];
 
   for (const admin of admins) {
-    const notification = await this.createNotification(admin, message, payload);
+const notification = await this.createNotification(admin, title, message, payload);
     notifications.push(notification);
-    
-    // Envoyer la notification existante plutôt que de créer une nouvelle
     this.notificationsGateway.sendNotificationToUser(admin.id, notification);
   }
   return notifications;
 }
 
-  async createNotification(user: User, message: string, payload?: any): Promise<Notification> {
-    const notification = this.notificationRepository.create({ user, message, payload });
-    return this.notificationRepository.save(notification);
-  }
+async createNotification(user: User, title: string, message: string, payload?: any): Promise<Notification> {
+  const notification = this.notificationRepository.create({ user, title, message, payload });
+  return this.notificationRepository.save(notification);
+}
+
+
 
   async getUnreadNotifications(userId: number): Promise<Notification[]> {
     return this.notificationRepository.find({
@@ -45,5 +45,17 @@ export class NotificationsService {
 
   async markAsRead(notificationId: number): Promise<void> {
     await this.notificationRepository.update(notificationId, { read: true });
+  }
+
+  async getNotifications(): Promise<Notification[]> {
+    // Charge toutes les notifications, avec user créateur si besoin
+    return this.notificationRepository.find({
+      relations: ['user'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async deleteNotification(notificationId: number): Promise<void> {
+    await this.notificationRepository.delete(notificationId);
   }
 }
