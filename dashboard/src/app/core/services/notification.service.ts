@@ -40,6 +40,11 @@ export class NotificationService {
     return this.http.get<NotificationModels[]>(this.apiUrl);
   }
 
+  // Récupérer toutes les notifications via API REST
+  getNotificationsMe(): Observable<NotificationModels[]> {
+    return this.http.get<NotificationModels[]>(`${this.apiUrl}/me`);
+  }
+
   // Supprimer une notification par son id
   deleteNotification(notificationId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${notificationId}`);

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationService } from '../../core/services/notification.service';
 import { NotificationModels } from '../../core/models/notification.models';
-import { UsersService } from '../../core/services/users.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
@@ -19,13 +18,11 @@ export class ListNotificationsComponent implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
-    private usersService: UsersService,
-    private userStateService:UserStateService,
+    private userStateService: UserStateService,
   ) {}
 
   ngOnInit(): void {
-    // Récupérer l'utilisateur connecté (exemple)
-
+    // Récupérer l'utilisateur connecté
     this.userStateService.user$.subscribe(user => {
       this.user = user;
       this.loadNotifications();
@@ -33,7 +30,7 @@ export class ListNotificationsComponent implements OnInit {
   }
 
   loadNotifications(): void {
-    this.notificationService.getNotifications().subscribe({
+    this.notificationService.getNotificationsMe().subscribe({
       next: (notifications) => this.notifications = notifications,
       error: (err) => this.errorMessage = err
     });

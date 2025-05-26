@@ -58,4 +58,11 @@ async createNotification(user: User, title: string, message: string, payload?: a
   async deleteNotification(notificationId: number): Promise<void> {
     await this.notificationRepository.delete(notificationId);
   }
+
+   async getNotificationsForUser(userId: number): Promise<Notification[]> {
+    return this.notificationRepository.find({
+      where: { user: { id: userId } },
+      order: { createdAt: 'DESC' },
+    });
+  }
 }
