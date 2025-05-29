@@ -1,9 +1,10 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { User } from 'src/app/core/models/auth.models';
 import { Devis } from 'src/app/core/models/Devis/devis';
-import { UserModel } from 'src/app/core/models/user.models';
 import { DevisService } from 'src/app/core/services/Devis/devis.service';
-import { UsersService } from 'src/app/core/services/users.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { UsersService } from 'src/app/core/services/user.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,25 +24,28 @@ export class DevisUserlistComponent {
   p: number = 1; // Current page number
   itemsPerPage: number = 5; // Items per page
   isAscending : boolean =true;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
 
   constructor(
 
     private devisService: DevisService,
     private modalService: BsModalService,
-    private usersService: UsersService
+    private usersService:UsersService,
+    private userStateService: UserStateService
+    
   ) {}
 
   ngOnInit(): void { 
- if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-    }
+    this.userStateService.user$.subscribe(user => {
+      this.user = user;
+      this.loadDevis(user);
+
+    });
   }
  
-  loadDevis(user: UserModel): void {
-    if (user.role === 'CLIENTADMIN') {
+  loadDevis(user: User): void {
+    if (user.role.name === 'CLIENTADMIN') {
       // Fetch all devis for the partner
       this.devisService.getAlldevis().subscribe(
         (data) => {
@@ -68,18 +72,7 @@ export class DevisUserlistComponent {
       );
     }
   }
-  fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadDevis(data);
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error downloading file', error);
-        }
-    );
-  }
+  
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.filteredDevis.sort((a, b) => {
