@@ -6,9 +6,20 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const allowedOrigins = [
+  'http://localhost:4200',               // Angular en local
+  'https://prodelec-pfe.onrender.com'   // Angular en production (Vercel)
+];
   // Enable CORS for your Angular frontend
   app.enableCors({
-    origin: 'http://localhost:4200', // Angular app URL
+    origin: (origin, callback) => {
+    // Autoriser les requêtes sans origine (ex: Postman) ou celles dans la liste
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
     credentials: true, // if you use cookies or auth headers
