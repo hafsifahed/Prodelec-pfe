@@ -1,14 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AvisService } from "../../../core/services/avis.service";
-import { UsersService } from "../../../core/services/users.service";
-import { WorkersService } from "../../../core/services/workers.service";
-import {UserModel} from "../../../core/models/user.models";
 import {PartnersService} from "../../../core/services/partners.service";
 import {Partner} from "../../../core/models/partner.models";
 import {AvisModels} from "../../../core/models/avis.models";
-import {WorkerModel} from "../../../core/models/worker.models";
-import {WorkerSessionModels} from "../../../core/models/worker-session.models";
-import {WorkerSessionService} from "../../../core/services/worker-session.service";
 import { Reclamation } from 'src/app/core/models/reclamation';
 import { ReclamationService } from 'src/app/core/services/Reclamation/reclamation.service';
 import { ChangeDetectorRef } from '@angular/core';
@@ -20,6 +14,8 @@ import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
+import { UserSessionStats, UsersService } from 'src/app/core/services/user.service';
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,11 +29,9 @@ export class DashboardComponent implements OnInit {
   userType = "worker";
   user: any;
   errorMessage: string;
-  users: UserModel[] = [];
+  users: User[] = [];
   partners: Partner[] = [];
     avisList: AvisModels[];
-    workers: WorkerModel[] = [];
-    workerSessions: WorkerSessionModels[] = [];
 
     avgTotal: number=0;
     totalWorkerConnect: number;
@@ -70,6 +64,13 @@ export class DashboardComponent implements OnInit {
   projectsterm: Project[] = [];
   ordersannuler: Order[] = [];
   projectretard: Project[] = [];
+     stats :UserSessionStats= {
+    totalEmployees: 0,
+    connectedEmployees: 0,
+    totalClients: 0,
+    connectedClients: 0
+  };
+
 
   statData = [
     {
@@ -103,9 +104,7 @@ export class DashboardComponent implements OnInit {
   constructor(
       private avisService: AvisService,
       private usersService: UsersService,
-      private workersService: WorkersService,
       private partnersService: PartnersService,
-      private workerSessionService: WorkerSessionService,
       private reclamationService: ReclamationService,
     private cahierDesChargesService: CdcServiceService,
     private devisService: DevisService,
@@ -117,28 +116,9 @@ export class DashboardComponent implements OnInit {
   ) {}
 
    async ngOnInit() {
-  
-  
- 
-    /*this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    if (this.userType && userEmail) {
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-        
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-      } else {
-        this.errorMessage = 'Type d\'utilisateur invalide.';
-      }
-    } else {
-      this.errorMessage = 'Informations utilisateur non trouvées dans le stockage local.';
-    }
+    this.usersSessionStats();
     this.loadPartners();
       this.loadAvis();
-      this.fetchWorkers();
-      this.loadWorkerSessions();
 
      this.fetchUsers();
 
@@ -170,11 +150,11 @@ export class DashboardComponent implements OnInit {
 
       this.updateCharts();
  this.loadproject();
-*/
+
    }
 
 
-/*
+
   loadproject():void{
     this.projectService.getAllProjects().subscribe({
       next: (data) => {
@@ -212,18 +192,7 @@ this.calculateReclamationPercentage(data);
     );
   }
 
-  private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.checkLastAvisDate(this.user.id);
-        },
-        (error) => {
-          console.error('Erreur lors de la récupération des données utilisateur', error);
-          this.errorMessage = 'Erreur lors de la récupération des données utilisateur. Veuillez réessayer plus tard.';
-        }
-    );
-  }
+
   reclamationPercentage: number = 0;
   calculateReclamationPercentage(projects : Project[]) {
     const totalReclamations = this.reclamations.length;
@@ -241,17 +210,6 @@ this.calculateReclamationPercentage(data);
     }
   }
 
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-        },
-        (error) => {
-          console.error('Erreur lors de la récupération des données du travailleur', error);
-          this.errorMessage = 'Erreur lors de la récupération des données du travailleur. Veuillez réessayer plus tard.';
-        }
-    );
-  }
 
   fetchUsers(): void {
     this.usersService.getAllUsers().subscribe(
@@ -292,33 +250,8 @@ this.calculateReclamationPercentage(data);
         return totalAvis / avisList.length;
     }
 
-    fetchWorkers(): void {
-        this.workersService.getAllWorkers().subscribe(
-            (workers) => {
-                this.workers = workers;
-            },
-            (error) => {
-                console.error('Error fetching workers', error);
-            }
-        );
-    }
 
-    loadWorkerSessions(): void {
-        this.workerSessionService.getAllWorkerSessions()
-            .subscribe(
-                userSessions => {
-                    this.workerSessions = userSessions;
-                    this.totalWorkerConnect=this.getTotalConnectedWorkers(this.workerSessions);
-                },
-                error => {
-                    console.error('Error loading user sessions', error);
-                }
-            );
-    }
-
-     getTotalConnectedWorkers(workerSessions: WorkerSessionModels[]): number {
-        return workerSessions.filter(worker => worker.sessionEnd === null).length;
-    }
+     
     getYears(reclamations: Reclamation[]): number[] {
       const years = reclamations.map(r => new Date(r.dateDeCreation).getFullYear());
       return Array.from(new Set(years)).sort((a, b) => b - a);
@@ -450,7 +383,7 @@ this.calculateReclamationPercentage(data);
   
     filterCahiersDesCharges(cahiers: CahierDesCharges[]): CahierDesCharges[] {
       return cahiers.filter(c => {
-        const matchesYear = this.selectedYearCahier ? new Date(c.dateCreation).getFullYear() === this.selectedYearCahier : true;
+        const matchesYear = this.selectedYearCahier ? new Date(c.createdAt).getFullYear() === this.selectedYearCahier : true;
         const matchesUser = this.selectedUserCahier ? c.user.id === this.selectedUserCahier : true;
         return matchesYear && matchesUser;
       });
@@ -627,5 +560,12 @@ this.calculateReclamationPercentage(data);
           }
         }]
       };
-    }*/
+    }
+
+    usersSessionStats(){
+      this.usersService.getUserSessionStats().subscribe({
+      next: (data) => this.stats = data,
+      error: (err) => console.error('Erreur récupération stats', err)
+    });
+    }
 }

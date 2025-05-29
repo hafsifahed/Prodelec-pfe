@@ -377,6 +377,56 @@ export class UsersService {
     }
     await this.usersRepository.remove(user);
   }
+
+   async getUserAndSessionStats(): Promise<{
+  totalEmployees: number;
+  connectedEmployees: number;
+  totalClients: number;
+  connectedClients: number;
+}> {
+  const clientPattern = '%client%';
+
+  const totalEmployees = await this.usersRepository
+    .createQueryBuilder('user')
+    .innerJoin('user.role', 'role')
+    .where('LOWER(role.name) NOT LIKE :clientPattern', { clientPattern })
+    .getCount();
+
+  const connectedEmployees = await this.usersRepository
+    .createQueryBuilder('user')
+    .innerJoin('user.role', 'role')
+    .innerJoin('user.sessions', 'session')
+    .where('LOWER(role.name) NOT LIKE :clientPattern', { clientPattern })
+    .andWhere('session.sessionEnd IS NULL')
+    .getCount();
+
+  const totalClients = await this.usersRepository
+    .createQueryBuilder('user')
+    .innerJoin('user.role', 'role')
+    .where('LOWER(role.name) LIKE :clientPattern', { clientPattern })
+    .getCount();
+
+  const connectedClients = await this.usersRepository
+    .createQueryBuilder('user')
+    .innerJoin('user.role', 'role')
+    .innerJoin('user.sessions', 'session')
+    .where('LOWER(role.name) LIKE :clientPattern', { clientPattern })
+    .andWhere('session.sessionEnd IS NULL')
+    .getCount();
+
+  return {
+    totalEmployees,
+    connectedEmployees,
+    totalClients,
+    connectedClients,
+  };
+}
+
+
+
+   findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
   
   /*method directly
    async deleteUser(userId: number): Promise<void> {

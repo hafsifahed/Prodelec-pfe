@@ -98,6 +98,7 @@ export class SignInComponent implements OnInit {
           confirmButtonText: 'OK'
         }).then(() => {
           this.router.navigate(['/profile']);
+          
         });
       },
       error: () => {

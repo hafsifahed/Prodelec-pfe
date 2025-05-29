@@ -14,6 +14,14 @@ export interface CreateUserDto {
   partnerId:number;
 }
 
+export interface UserSessionStats {
+  totalEmployees: number;
+  connectedEmployees: number;
+  totalClients: number;
+  connectedClients: number;
+}
+
+
 export interface FindUsersDto {
   username?: string;
   email?: string;
@@ -75,6 +83,10 @@ export class UsersService {
     return this.http.get<User[]>(this.apiUrl, { params });
   }
 
+  getAllUsers() : Observable<any[]>  {
+    return this.http.get<any[]>(`${this.apiUrl}/all`);
+  }
+
   // Get current user's profile
   getProfile(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/profile`);
@@ -132,6 +144,10 @@ export class UsersService {
   
   updateUserFull(userId: number, dto: UpdateUserFullDto): Observable<User> {
     return this.http.patch<User>(`${this.apiUrl}/${userId}/full`, dto);
+  }
+
+   getUserSessionStats(): Observable<UserSessionStats> {
+    return this.http.get<UserSessionStats>(`${this.apiUrl}/stats/users-sessions`);
   }
   
   

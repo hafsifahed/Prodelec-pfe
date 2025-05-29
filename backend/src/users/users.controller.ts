@@ -51,6 +51,12 @@ export class UsersController {
     return this.usersService.findMany(query);
   }
 
+   @Get('all')
+   @Permissions({ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] })
+  getAllUsers() {
+    return this.usersService.findAll();
+  }
+
   @Get('byid/:id')
   @Permissions({ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] })
   async findOneById(@Param('id', ParseIntPipe) id: number) {
@@ -143,6 +149,11 @@ export class UsersController {
   ) {
     return this.usersService.updateUserFull(id, dto);
   }
+
+  @Get('stats/users-sessions')
+async getStats() {
+  return this.usersService.getUserAndSessionStats();
+}
 
 
 

@@ -181,6 +181,7 @@ getNotificationIcon(title?: string): string {
           this.userStateService.setUser(null);
   
           // Redirect to login or home page
+          
           this.router.navigate(['/signin']);
         });
       },

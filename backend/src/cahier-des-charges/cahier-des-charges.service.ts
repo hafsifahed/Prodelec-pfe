@@ -2,6 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User } from '../users/entities/users.entity';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
 import { CahierDesCharges } from './entities/cahier-des-charge.entity';
@@ -13,9 +14,10 @@ export class CahierDesChargesService {
     private readonly repository: Repository<CahierDesCharges>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
-   async saveCahierDesCharges(dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
+  async saveCahierDesCharges(dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
   const user = await this.userRepository.findOneBy({ id: dto.userId });
   if (!user) throw new NotFoundException('User not found');
 
@@ -25,8 +27,18 @@ export class CahierDesChargesService {
   });
   delete (cdc as any).userId;
 
-  return this.repository.save(cdc);
+  const savedCdc = await this.repository.save(cdc);
+
+  // Notification aux admins après création
+  await this.notificationsService.notifyAdmins(
+    'Nouveau cahier des charges soumis',
+    `Un nouveau cahier des charges a été soumis par ${user.username}`,
+    { cdcId: savedCdc.id, userId: user.id, username: user.username }
+  );
+
+  return savedCdc;
 }
+
 
 
 
