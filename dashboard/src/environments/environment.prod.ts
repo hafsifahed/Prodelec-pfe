@@ -2,5 +2,5 @@ export const environment = {
   production: true,
   defaultauth: 'backend',
 
-  baseUrl:"http://localhost:3000"
+  baseUrl:"https://prodelec-pfe.onrender.com"
 };
