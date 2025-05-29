@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  defaultauth: 'fackbackend',
+  defaultauth: 'backend',
 
-  baseUrl:"http://loclhost:9090"
+  baseUrl:"http://localhost:3000"
 };
