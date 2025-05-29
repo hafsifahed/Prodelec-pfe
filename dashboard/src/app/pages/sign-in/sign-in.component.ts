@@ -58,18 +58,20 @@ export class SignInComponent implements OnInit {
         this.handleLoginSuccess(response);
       },
       error: (err) => {
+         console.log('Erreur HTTP reçue:', err);
         this.isSubmitting = false;
-        this.handleLoginError(err);
+        if (err.status === 401) {
+          Swal.fire('Erreur', 'Identifiants invalides', 'error');
+        } else if (err.status === 0) {
+          Swal.fire('Erreur', 'Impossible de joindre le serveur. Vérifiez votre connexion.', 'error');
+        } else {
+          Swal.fire('Erreur', err.error?.message || 'Erreur inconnue', 'error');
+        }
       }
     });
   }
 
   private handleLoginSuccess(response: any): void {
-    if (response?.statusCode === 500 && response?.error === 'Bad credentials') {
-      Swal.fire('Erreur', 'Identifiants invalides', 'error');
-      return;
-    }
-
     const accessToken = response?.access_token;
     const refreshToken = response?.refresh_token;
     const sessionId = response?.sessionId;
@@ -95,7 +97,6 @@ export class SignInComponent implements OnInit {
           icon: 'success',
           confirmButtonText: 'OK'
         }).then(() => {
-          this.userStateService.setUser(user);
           this.router.navigate(['/profile']);
         });
       },
@@ -104,11 +105,5 @@ export class SignInComponent implements OnInit {
         Swal.fire('Erreur', 'Impossible de charger le profil utilisateur.', 'error');
       }
     });
-  }
-
-  private handleLoginError(err: any): void {
-    console.error('Erreur de connexion:', err);
-    const errorMessage = err.error?.message || 'Erreur de connexion. Veuillez réessayer.';
-    Swal.fire('Erreur', errorMessage, 'error');
   }
 }

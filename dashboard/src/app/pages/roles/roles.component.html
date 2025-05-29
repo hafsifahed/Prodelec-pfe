@@ -1,153 +1,255 @@
 <!-- Add Role Modal -->
 <ng-template #addModal>
     <div class="modal-header">
-      <h5 class="modal-title">Ajouter un rôle</h5>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+        <h5 class="modal-title">Ajouter un rôle</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
     </div>
     <form [formGroup]="addRoleForm" (ngSubmit)="submitAddRole()">
-      <div class="modal-body">
-        <div class="mb-3">
-          <label>Nom du rôle</label>
-          <input formControlName="name" class="form-control" />
-        </div>
-        <div formArrayName="permissions">
-          <div *ngFor="let perm of addPermissions.controls; let i = index" [formGroupName]="i" class="mb-3 border rounded p-2">
-            <label>Ressource</label>
-            <select formControlName="resource" class="form-select">
-              <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
-            </select>
-            <label class="mt-2">Actions</label>
-            <div class="d-flex flex-wrap gap-2">
-              <ng-container *ngFor="let act of actions">
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [value]="act.value"
-                    [checked]="perm.get('actions').value?.split(',').includes(act.value)"
-                    (change)="onActionToggle(i, act.value, 'add')"
-                    id="add-action-{{i}}-{{act.value}}"
-                  />
-                  <label class="form-check-label" [for]="'add-action-' + i + '-' + act.value">{{ act.label }}</label>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label>Nom du rôle</label>
+                <input formControlName="name" class="form-control" [class.is-invalid]="addRoleForm.get('name')?.invalid && addRoleForm.get('name')?.touched" />
+                <div *ngIf="addRoleForm.get('name')?.invalid && addRoleForm.get('name')?.touched" class="invalid-feedback">
+                    Le nom du rôle est requis
                 </div>
-              </ng-container>
             </div>
-            <button type="button" class="btn btn-danger mt-1" (click)="removePermission(i, 'add')">Supprimer permission</button>
-          </div>
-          <button type="button" class="btn btn-secondary" (click)="addPermission('add')">Ajouter permission</button>
+            <div formArrayName="permissions">
+                <div *ngFor="let perm of addPermissions.controls; let i = index" [formGroupName]="i" class="mb-3 border rounded p-2">
+                    <div class="mb-2">
+                        <label>Ressource</label>
+                        <select formControlName="resource" class="form-select" [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
+                            <option value="">Sélectionner une ressource</option>
+                            <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
+                        </select>
+                        <div *ngIf="perm.get('resource')?.invalid && perm.get('resource')?.touched" class="invalid-feedback">
+                            La ressource est requise
+                        </div>
+                    </div>
+                    <label class="mt-2">Actions</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <ng-container *ngFor="let act of actions">
+                            <div class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    [value]="act.value"
+                                    [checked]="perm.get('actions')?.value?.split(',').includes(act.value)"
+                                    (change)="onActionToggle(i, act.value, 'add')"
+                                    id="add-action-{{i}}-{{act.value}}"
+                                />
+                                <label class="form-check-label" [for]="'add-action-' + i + '-' + act.value">{{ act.label }}</label>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <button type="button" class="btn btn-danger mt-2 btn-sm" (click)="removePermission(i, 'add')">
+                        <i class="fas fa-trash-alt me-1"></i> Supprimer
+                    </button>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="addPermission('add')">
+                    <i class="fas fa-plus me-1"></i> Ajouter permission
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" [disabled]="addRoleForm.invalid">Ajouter</button>
-        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="addRoleForm.invalid || isLoading">
+                <span *ngIf="!isLoading">Ajouter</span>
+                <span *ngIf="isLoading">
+                    <i class="fas fa-spinner fa-spin me-1"></i> En cours...
+                </span>
+            </button>
+        </div>
     </form>
-  </ng-template>
-  
-  <!-- Edit Role Modal -->
-  <ng-template #editModal>
+</ng-template>
+
+<!-- Edit Role Modal -->
+<ng-template #editModal>
     <div class="modal-header">
-      <h5 class="modal-title">Modifier le rôle</h5>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+        <h5 class="modal-title">Modifier le rôle</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
     </div>
     <form [formGroup]="editRoleForm" (ngSubmit)="submitEditRole()">
-      <div class="modal-body">
-        <div class="mb-3">
-          <label>Nom du rôle</label>
-          <input formControlName="name" class="form-control" />
-        </div>
-        <div formArrayName="permissions">
-          <div *ngFor="let perm of editPermissions.controls; let i = index" [formGroupName]="i" class="mb-3 border rounded p-2">
-            <label>Ressource</label>
-            <select formControlName="resource" class="form-select">
-              <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
-            </select>
-            <label class="mt-2">Actions</label>
-            <div class="d-flex flex-wrap gap-2">
-              <ng-container *ngFor="let act of actions">
-                <div class="form-check form-check-inline">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [value]="act.value"
-                    [checked]="perm.get('actions').value?.split(',').includes(act.value)"
-                    (change)="onActionToggle(i, act.value, 'edit')"
-                    id="edit-action-{{i}}-{{act.value}}"
-                  />
-                  <label class="form-check-label" [for]="'edit-action-' + i + '-' + act.value">{{ act.label }}</label>
+        <div class="modal-body">
+            <div class="mb-3">
+                <label>Nom du rôle</label>
+                <input formControlName="name" class="form-control" [class.is-invalid]="editRoleForm.get('name')?.invalid && editRoleForm.get('name')?.touched" />
+                <div *ngIf="editRoleForm.get('name')?.invalid && editRoleForm.get('name')?.touched" class="invalid-feedback">
+                    Le nom du rôle est requis
                 </div>
-              </ng-container>
             </div>
-            <button type="button" class="btn btn-danger mt-1" (click)="removePermission(i, 'edit')">Supprimer permission</button>
-          </div>
-          <button type="button" class="btn btn-secondary" (click)="addPermission('edit')">Ajouter permission</button>
+            <div formArrayName="permissions">
+                <div *ngFor="let perm of editPermissions.controls; let i = index" [formGroupName]="i" class="mb-3 border rounded p-2">
+                    <div class="mb-2">
+                        <label>Ressource</label>
+                        <select formControlName="resource" class="form-select" [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
+                            <option value="">Sélectionner une ressource</option>
+                            <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
+                        </select>
+                        <div *ngIf="perm.get('resource')?.invalid && perm.get('resource')?.touched" class="invalid-feedback">
+                            La ressource est requise
+                        </div>
+                    </div>
+                    <label class="mt-2">Actions</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <ng-container *ngFor="let act of actions">
+                            <div class="form-check form-check-inline">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    [value]="act.value"
+                                    [checked]="perm.get('actions')?.value?.split(',').includes(act.value)"
+                                    (change)="onActionToggle(i, act.value, 'edit')"
+                                    id="edit-action-{{i}}-{{act.value}}"
+                                />
+                                <label class="form-check-label" [for]="'edit-action-' + i + '-' + act.value">{{ act.label }}</label>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <button type="button" class="btn btn-danger mt-2 btn-sm" (click)="removePermission(i, 'edit')">
+                        <i class="fas fa-trash-alt me-1"></i> Supprimer
+                    </button>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="addPermission('edit')">
+                    <i class="fas fa-plus me-1"></i> Ajouter permission
+                </button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" [disabled]="editRoleForm.invalid">Enregistrer</button>
-        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-      </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="editRoleForm.invalid || isLoading">
+                <span *ngIf="!isLoading">Enregistrer</span>
+                <span *ngIf="isLoading">
+                    <i class="fas fa-spinner fa-spin me-1"></i> En cours...
+                </span>
+            </button>
+        </div>
     </form>
-  </ng-template>
-  
-  <!-- Show Role Modal -->
-  <ng-template #showModal>
+</ng-template>
+
+<!-- Show Role Modal -->
+<ng-template #showModal>
     <div class="modal-header">
-      <h5 class="modal-title">Détails du rôle</h5>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+        <h5 class="modal-title">Détails du rôle</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
     </div>
     <div class="modal-body">
-      <p><strong>Nom:</strong> {{ selectedRole?.name }}</p>
-      <p><strong>Permissions:</strong></p>
-      <ul>
-        <li *ngFor="let perm of selectedRole?.permissions">
-          <b>{{ perm.resource }}</b>: {{ perm.actions.join(', ') }}
-        </li>
-      </ul>
+        <div class="mb-3">
+            <h6 class="text-muted">Nom</h6>
+            <p class="fs-5">{{ selectedRole?.name }}</p>
+        </div>
+        <div>
+            <h6 class="text-muted">Permissions</h6>
+            <div class="permissions-container">
+                <div *ngFor="let perm of selectedRole?.permissions" class="permission-item mb-2 p-2 bg-light rounded">
+                    <div class="fw-bold mb-1">{{ perm.resource }}</div>
+                    <div class="permission-actions">
+                        <span *ngFor="let action of perm.actions" class="action-badge me-1 mb-1">{{ action }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
     </div>
-  </ng-template>
-  
-  <!-- Delete Confirmation Modal -->
-  <ng-template #deleteModal>
-    <div class="modal-body text-center">
-      <p>Êtes-vous sûr de vouloir supprimer ce rôle ?</p>
-      <button class="btn btn-danger me-2" (click)="confirmDelete()">Oui</button>
-      <button class="btn btn-secondary" (click)="modalRef?.hide()">Non</button>
+</ng-template>
+
+<!-- Delete Confirmation Modal -->
+<ng-template #deleteModal>
+    <div class="modal-header">
+        <h5 class="modal-title">Confirmation</h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
     </div>
-  </ng-template>
-  
-  <!-- List and action buttons example -->
-  <div class="container mt-4">
-    <h2>Gestion des rôles</h2>
-    <button class="btn btn-primary mb-3" (click)="openAddModal(addModal)">Ajouter un rôle</button>
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Nom</th>
-          <th>Permissions</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let role of roles">
-          <td>{{ role.name }}</td>
-          <td>
-            <ul>
-              <li *ngFor="let perm of role.permissions">
-                <b>{{ perm.resource }}</b>: {{ perm.actions.join(', ') }}
-              </li>
-            </ul>
-          </td>
-          <td>
-            <button class="btn btn-info btn-sm me-1" (click)="openShowModal(role, showModal)">Afficher</button>
-            <button class="btn btn-warning btn-sm me-1" (click)="openEditModal(role, editModal)">Modifier</button>
-            <button class="btn btn-danger btn-sm" (click)="openDeleteModal(role.id!, deleteModal)">Supprimer</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
+    <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer ce rôle ? Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()" [disabled]="isLoading">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Supprimer</span>
+            <span *ngIf="isLoading">
+                <i class="fas fa-spinner fa-spin me-1"></i> Suppression...
+            </span>
+        </button>
+    </div>
+</ng-template>
+
+<!-- Main Content -->
+<div class="role-management">
+    <!-- Header Section -->
+    <div class="header-search-container">
+        <div class="header-title-container">
+            <div class="header-title">
+                <h1><i class="fas fa-user-shield me-2"></i> Gestion des Rôles</h1>
+                <p class="header-subtitle">Configuration des permissions et accès</p>
+            </div>
+        </div>
+        
+        <div class="action-section">
+            <button class="add-role-btn" (click)="openAddModal(addModal)">
+                <i class="fas fa-plus-circle me-2"></i> Ajouter un rôle
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading && roles.length === 0" class="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Chargement des rôles...</p>
+    </div>
+    
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-alert">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
+    </div>
+
+    <!-- Roles Table -->
+    <div class="role-table-wrapper" *ngIf="!isLoading || roles.length > 0">
+        <table class="role-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Permissions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let role of roles">
+                    <td>
+                        <span class="role-name">{{ role.name }}</span>
+                    </td>
+                    <td>
+                        <div class="permissions-container">
+                            <div *ngFor="let perm of role.permissions" class="permission-item">
+                                <span class="permission-resource">{{ perm.resource }}</span>
+                                <div class="permission-actions">
+                                    <span *ngFor="let action of perm.actions" class="action-badge">{{ action }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn view-btn" (click)="openShowModal(role, showModal)" title="Afficher">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit-btn" (click)="openEditModal(role, editModal)" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" (click)="openDeleteModal(role.id!, deleteModal)" title="Supprimer">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="roles.length === 0 && !errorMessage && !isLoading" class="empty-state">
+        <i class="fas fa-user-tag"></i>
+        <p>Aucun rôle configuré</p>
+        <button class="add-role-btn outline" (click)="openAddModal(addModal)">
+            <i class="fas fa-plus-circle me-2"></i> Créer un nouveau rôle
+        </button>
+    </div>
+</div>

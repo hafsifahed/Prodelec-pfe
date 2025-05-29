@@ -43,7 +43,7 @@
       <tbody>
         <tr *ngFor="let cahier of getNonArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
           <td class="text-body fw-bold" [title]="cahier.titre">{{ cahier.titre }}</td>
-          <td>{{ cahier.user?.email }}</td>
+          <td>{{ cahier.user?.username }} ( {{ cahier.user?.partner?.name}})</td>
           <td>
             <a *ngIf="cahier?.pieceJointe; else noAttachment"
                class="attachment-download"
@@ -59,7 +59,7 @@
           
           
     
-          <td>{{ cahier.dateCreation | date}}</td>
+          <td>{{ cahier.createdAt | date}}</td>
           <td>
             <span class="badge badge-pill badge-soft-success font-size-11"
               [ngClass]="{
@@ -127,8 +127,8 @@
         <div class="modal-body modal-body-centered">
           <div class="mb-3">
             <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-            <p *ngIf="cahier.description" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.description }}</p>
-            <p *ngIf="cahier.dateCreation"><strong>Date de création:</strong> {{ cahier.dateCreation }}</p>
+            <p *ngIf="cahier.commentaire" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.commentaire }}</p>
+            <p *ngIf="cahier.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt }}</p>
             <p><strong>Client:</strong> {{ cahier.user?.partner?.name }}</p>
 
             <p *ngIf="cahier.user"><strong>email:</strong> {{ cahier.user?.email }}</p>

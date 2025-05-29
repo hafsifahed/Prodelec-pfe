@@ -80,8 +80,8 @@ export class CDCUserlistArchiveComponent {
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.cahierDesCharges.sort((a, b) => {
-      const dateA = new Date(a.dateCreation).getTime();
-      const dateB = new Date(b.dateCreation).getTime();
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
       return this.isAscending ? dateA - dateB : dateB - dateA;
     });
   }
@@ -90,12 +90,12 @@ export class CDCUserlistArchiveComponent {
     return this.cahierDesCharges ? this.cahierDesCharges.filter(cdc => 
       cdc.archiveU && 
       (!this.searchTitle || cdc.titre.toLowerCase().includes(this.searchTitle.toLowerCase())) &&
-      (!this.filterYear || new Date(cdc.dateCreation).getFullYear().toString() === this.filterYear)
+      (!this.filterYear || new Date(cdc.createdAt).getFullYear().toString() === this.filterYear)
     ) : [];
   }
 
   getAvailableYears(): string[] {
-    const years = this.cahierDesCharges.map(cdc => new Date(cdc.dateCreation).getFullYear().toString());
+    const years = this.cahierDesCharges.map(cdc => new Date(cdc.createdAt).getFullYear().toString());
     return Array.from(new Set(years));
   }
 
@@ -107,7 +107,7 @@ export class CDCUserlistArchiveComponent {
 
   confirmDelete(): void {
     if (this.deleteId !== null) {
-      this.cdcService.RestorerU(this.deleteId).subscribe(
+      this.cdcService.restorerU(this.deleteId).subscribe(
         () => {
           Swal.fire({
             title: 'Restaurer!',

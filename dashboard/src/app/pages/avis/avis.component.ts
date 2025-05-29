@@ -85,7 +85,6 @@ export class AvisComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.loadUserProfile();
 
     this.userStateService.user$.subscribe(user => {
       this.user = user;

@@ -1,35 +1,48 @@
 <div class="login-container">
   <div class="login-left">
-    <form (ngSubmit)="onSubmit()">
-      <img src="assets/images/logoprodelec2024.png" alt="Logo">
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
+      <img src="assets/images/logoprodelec2024.png" alt="Logo Prodelec 2024" />
 
-      <label for="username">Username</label>
+      <label for="username">Nom d'utilisateur</label>
       <input
         type="text"
         id="username"
-        placeholder="username"
-        [(ngModel)]="signInData.username"
         name="username"
+        placeholder="Nom d'utilisateur"
+        [(ngModel)]="signInData.username"
+        #username="ngModel"
         required
+        autocomplete="username"
+        aria-describedby="usernameError"
       />
+      <div *ngIf="username.invalid && username.touched" id="usernameError" class="error-message">
+        Le nom d'utilisateur est requis.
+      </div>
 
       <label for="password">Mot de passe</label>
       <input
         type="password"
         id="password"
+        name="password"
         placeholder="******"
         [(ngModel)]="signInData.password"
-        name="password"
+        #password="ngModel"
         required
+        autocomplete="current-password"
+        aria-describedby="passwordError"
       />
+      <div *ngIf="password.invalid && password.touched" id="passwordError" class="error-message">
+        Le mot de passe est requis.
+      </div>
 
-      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'Connexion en cours...' : 'Sign In' }}
+      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting || loginForm.invalid">
+        {{ isSubmitting ? 'Connexion en cours...' : 'Se connecter' }}
       </button>
     </form>
 
     <p *ngIf="error" class="error-message">{{ error }}</p>
   </div>
+
   <div
     class="login-right"
     style="

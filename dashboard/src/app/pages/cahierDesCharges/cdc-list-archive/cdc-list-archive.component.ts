@@ -31,8 +31,8 @@ export class CDCListArchiveComponent implements OnInit {
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.cahierDesCharges.sort((a, b) => {
-      const dateA = new Date(a.dateCreation).getTime();
-      const dateB = new Date(b.dateCreation).getTime();
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
       return this.isAscending ? dateA - dateB : dateB - dateA;
     });
   }
@@ -64,7 +64,7 @@ export class CDCListArchiveComponent implements OnInit {
 
   confirmRestore(): void {
     if (this.restoreId !== null) {
-      this.cdcService.Restorer(this.restoreId).subscribe(
+      this.cdcService.restorer(this.restoreId).subscribe(
         () => {
           Swal.fire({
             title: 'Restauré!',

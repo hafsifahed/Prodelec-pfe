@@ -55,8 +55,8 @@ export class CDCListAdminComponent {
     this.isAscending = !this.isAscending;
     this.filteredCahiersDesCharges.sort((a, b) => {
       return this.isAscending ? 
-        new Date(a.dateCreation).getTime() - new Date(b.dateCreation).getTime() :
-        new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime();
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() :
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
 
@@ -82,7 +82,7 @@ export class CDCListAdminComponent {
   applyFilter(): void {
     const searchTerm = this.searchQuery.toLowerCase();
     this.filteredCahiersDesCharges = this.cahiersDesCharges.filter(cahier => {
-      if (this.selectedYear !== 'All' && new Date(cahier.dateCreation).getFullYear().toString() !== this.selectedYear) {
+      if (this.selectedYear !== 'All' && new Date(cahier.createdAt).getFullYear().toString() !== this.selectedYear) {
         return false;
       }
       return cahier.titre.toLowerCase().includes(searchTerm) || 
@@ -90,7 +90,7 @@ export class CDCListAdminComponent {
     });
   }
   getUniqueYears(): string[] {
-    const years = this.cahiersDesCharges.map(cahier => new Date(cahier.dateCreation).getFullYear().toString());
+    const years = this.cahiersDesCharges.map(cahier => new Date(cahier.createdAt).getFullYear().toString());
     return ['All', ...Array.from(new Set(years))];
   }
 
@@ -221,7 +221,7 @@ telechargerPieceJointe(fileName: string, id: number): void {
     this.cdcService.getById(id).subscribe(
       (data) => {
         this.cahier = data;
-        console.log("aaaaaaaa",data.user.partner)
+        console.log("aaaaaaaa",data.user.partner.name)
         this.loadPDF();  // Stocker les détails du cahier dans this.cahier
         this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-lg' });
        

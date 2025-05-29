@@ -22,10 +22,11 @@ export class RolesComponent {
 
   modalRef?: BsModalRef;
   rejectId: number | null = null;
+  isLoading: boolean = false;
 
   addRoleForm: FormGroup;
   editRoleForm: FormGroup;
-
+ errorMessage: string | null = null;
   // Backend enums as lists
   resources = [
     { value: 'users', label: 'Utilisateurs' },
@@ -83,12 +84,21 @@ export class RolesComponent {
     this.loadRoles();
   }
 
-  loadRoles(): void {
-    this.rolesService.findAll().subscribe(
-      (data) => { this.roles = data; },
-      (error) => { console.error('Error loading roles', error); }
-    );
-  }
+loadRoles(): void {
+  this.isLoading = true;
+  this.errorMessage = null;
+  this.rolesService.findAll().subscribe(
+    (data) => { 
+      this.roles = data;
+      this.isLoading = false;
+    },
+    (error) => { 
+      console.error('Error loading roles', error);
+      this.errorMessage = 'Erreur lors du chargement des rôles. Veuillez réessayer.';
+      this.isLoading = false;
+    }
+  );
+}
 
   // FormArray helpers
   get addPermissions(): FormArray {
@@ -163,53 +173,78 @@ export class RolesComponent {
   }
 
   // CRUD operations
-  submitAddRole(): void {
-    if (this.addRoleForm.invalid) return;
-    const formValue = this.addRoleForm.value;
-    const newRole: Role = {
-      name: formValue.name,
-      permissions: formValue.permissions.map((p: any) => ({
-        resource: p.resource,
-        actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
-      }))
-    };
-    this.rolesService.create(newRole).subscribe(() => {
+submitAddRole(): void {
+  if (this.addRoleForm.invalid) return;
+  const formValue = this.addRoleForm.value;
+  const newRole: Role = {
+    name: formValue.name,
+    permissions: formValue.permissions.map((p: any) => ({
+      resource: p.resource,
+      actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
+    }))
+  };
+  
+  this.errorMessage = null;
+  this.rolesService.create(newRole).subscribe(
+    () => {
       Swal.fire('Succès', 'Rôle ajouté avec succès', 'success');
       this.modalRef?.hide();
       this.loadRoles();
-    }, error => {
-      Swal.fire('Erreur', 'Erreur lors de l\'ajout du rôle', 'error');
-    });
-  }
+    }, 
+    error => {
+      this.errorMessage = 'Erreur lors de l\'ajout du rôle';
+      Swal.fire('Erreur', this.errorMessage, 'error');
+    }
+  );
+}
+
 
   submitEditRole(): void {
-    if (this.editRoleForm.invalid) return;
-    const formValue = this.editRoleForm.value;
-    const updatedRole: Role = {
-      id: formValue.id,
-      name: formValue.name,
-      permissions: formValue.permissions.map((p: any) => ({
-        resource: p.resource,
-        actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
-      }))
-    };
-    this.rolesService.update(updatedRole.id, updatedRole).subscribe(() => {
+  if (this.editRoleForm.invalid) return;
+  const formValue = this.editRoleForm.value;
+  const updatedRole: Role = {
+    id: formValue.id,
+    name: formValue.name,
+    permissions: formValue.permissions.map((p: any) => ({
+      resource: p.resource,
+      actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
+    }))
+  };
+
+  this.isLoading = true;
+  this.errorMessage = null;
+  
+  this.rolesService.update(updatedRole.id, updatedRole).subscribe(
+    () => {
       Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
       this.modalRef?.hide();
       this.loadRoles();
-    }, error => {
-      Swal.fire('Erreur', 'Erreur lors de la modification du rôle', 'error');
-    });
-  }
+    }, 
+    error => {
+      this.isLoading = false;
+      this.errorMessage = 'Erreur lors de la modification du rôle';
+      Swal.fire('Erreur', this.errorMessage, 'error');
+    }
+  );
+}
 
-  confirmDelete(): void {
-    if (this.rejectId === null) return;
-    this.rolesService.remove(this.rejectId).subscribe(() => {
+confirmDelete(): void {
+  if (this.rejectId === null) return;
+
+  this.isLoading = true;
+  this.errorMessage = null;
+  
+  this.rolesService.remove(this.rejectId).subscribe(
+    () => {
       Swal.fire('Supprimé', 'Rôle supprimé avec succès', 'success');
       this.modalRef?.hide();
       this.loadRoles();
-    }, error => {
-      Swal.fire('Erreur', 'Erreur lors de la suppression du rôle', 'error');
-    });
-  }
+    }, 
+    error => {
+      this.isLoading = false;
+      this.errorMessage = 'Erreur lors de la suppression du rôle';
+      Swal.fire('Erreur', this.errorMessage, 'error');
+    }
+  );
+}
 }

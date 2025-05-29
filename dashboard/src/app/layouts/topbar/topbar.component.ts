@@ -237,4 +237,8 @@ getNotificationIcon(title?: string): string {
     }
   }
 
+  navigateToListNotifications(): void {
+    this.router.navigate(['/list-notifications']);
+  }
+
 }

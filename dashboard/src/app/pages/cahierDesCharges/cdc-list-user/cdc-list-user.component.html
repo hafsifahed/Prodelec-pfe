@@ -81,7 +81,7 @@
         <tbody>
           <tr *ngFor="let cahier of getNonArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
             <td class="text-body fw-bold">{{ cahier?.titre }}</td>
-            <td>{{ cahier.dateCreation | date }}</td>
+            <td>{{ cahier.createdAt | date }}</td>
             <td>
               <span class="badge badge-pill badge-soft-success font-size-11"
                 [ngClass]="{
@@ -151,9 +151,9 @@
   <div class="modal-body modal-body-centered">
     <div class="mb-3">
       <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-      <p *ngIf="cahier.dateCreation"><strong>Date de création:</strong>{{ cahier.dateCreation }} </p>
+      <p *ngIf="cahier.createdAt"><strong>Date de création:</strong>{{ cahier.createdAt }} </p>
  
-      <p *ngIf="cahier.user"><strong>Client:</strong> {{ cahier.user?.email }}</p>
+      <p *ngIf="cahier.user"><strong>Client:</strong> {{ cahier.user?.username }} ( {{ cahier.user?.partner?.name }})</p>
       <div class="mb-3">
         <strong>État:</strong>
         <span class="badge badge-pill badge-soft-success font-size-13"

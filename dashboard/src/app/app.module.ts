@@ -82,7 +82,7 @@ export function createTranslateLoader(http: HttpClient): any {
       DatePipe,
     AuthService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    //{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
    // { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
     // LoaderService,
    //  { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptorService, multi: true },

@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/users.entity';
+import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
 import { CahierDesCharges } from './entities/cahier-des-charge.entity';
 
 @Injectable()
@@ -10,11 +11,24 @@ export class CahierDesChargesService {
   constructor(
     @InjectRepository(CahierDesCharges)
     private readonly repository: Repository<CahierDesCharges>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  saveCahierDesCharges(cdc: CahierDesCharges): Promise<CahierDesCharges> {
-    return this.repository.save(cdc);
-  }
+   async saveCahierDesCharges(dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
+  const user = await this.userRepository.findOneBy({ id: dto.userId });
+  if (!user) throw new NotFoundException('User not found');
+
+  const cdc = this.repository.create({
+    ...dto,
+    user,
+  });
+  delete (cdc as any).userId;
+
+  return this.repository.save(cdc);
+}
+
+
 
   getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
     return this.repository.find();

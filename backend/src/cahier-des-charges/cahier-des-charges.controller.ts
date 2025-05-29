@@ -16,7 +16,10 @@ import { Response } from 'express';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from '../users/entities/users.entity';
 import { CahierDesChargesService } from './cahier-des-charges.service';
+import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
 import { EmailRequestDto } from './dto/email-request.dto';
 import { CahierDesCharges } from './entities/cahier-des-charge.entity';
 
@@ -31,24 +34,42 @@ export class CahierDesChargesController {
 
   // UPLOAD
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        //req.user?.email ||
-        const email =  req.body.email || 'anonymous';
-        const userDir = join(CahierDesChargesController.BASE_DIRECTORY, email, 'Cahier des charges');
-        if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
-        cb(null, userDir);
-      },
-      filename: (req, file, cb) => {
-        cb(null, file.originalname);
-      }
-    })
-  }))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new BadRequestException('No file uploaded');
-    return { filename: file.originalname };
+@UseInterceptors(FileInterceptor('file', {
+  storage: diskStorage({
+    destination: (req, file, cb) => {
+      const tempDir = join(CahierDesChargesController.BASE_DIRECTORY, 'temp');
+      if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
+      cb(null, tempDir);
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.originalname);
+    }
+  })
+}))
+async uploadFile(
+  @UploadedFile() file: Express.Multer.File,
+  @Body('username') username: string,
+  @CurrentUser() currentUser: User,
+) {
+  if (!file) throw new BadRequestException('No file uploaded');
+  if (username !== currentUser.username) {
+    throw new BadRequestException('Username mismatch');
   }
+  const fs = require('fs');
+  const path = require('path');
+
+  const userDir = join(CahierDesChargesController.BASE_DIRECTORY, username, 'Cahier des charges');
+  if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
+
+  const tempPath = file.path;
+  const targetPath = path.join(userDir, file.originalname);
+
+  fs.renameSync(tempPath, targetPath);
+
+  return { filename: file.originalname };
+}
+
+
 
   // CRUD
   @Get()
@@ -61,10 +82,11 @@ export class CahierDesChargesController {
     return this.service.getCahierDesChargesById(id);
   }
 
-  @Post()
-  create(@Body() cdc: CahierDesCharges): Promise<CahierDesCharges> {
-    return this.service.saveCahierDesCharges(cdc);
+     @Post()
+  async create(@Body() dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
+    return this.service.saveCahierDesCharges(dto);
   }
+
 
   @Put()
   update(@Body() cdc: CahierDesCharges): Promise<CahierDesCharges> {

@@ -5,68 +5,78 @@ import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 import { User } from '../../models/auth.models';
 
+interface UploadResponse {
+  filename: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CdcServiceService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllCdc(){
+  getAllCdc(): Observable<CahierDesCharges[]> {
     return this.http.get<CahierDesCharges[]>(`${environment.baseUrl}/cdc`);
   }
-  getByIdUser( id:number){
+
+  getByIdUser(id: number): Observable<CahierDesCharges[]> {
     return this.http.get<CahierDesCharges[]>(`${environment.baseUrl}/cdc/user/${id}`);
   }
-  getById(id:number){
+
+  getById(id: number): Observable<CahierDesCharges> {
     return this.http.get<CahierDesCharges>(`${environment.baseUrl}/cdc/${id}`);
-  
-  }
- addCdc(cdc:CahierDesCharges){
-  return this.http.post(`${environment.baseUrl}/cdc`,cdc);
- }
- downloadFile(fileName: string , user : User): Observable<Blob> {
-  let params = new HttpParams()
-  .set('email', user.email);  // Assuming `email` is a property of `UserModel`
-
-return this.http.get(`${environment.baseUrl}/cdc/download/${fileName}`, {
-  responseType: 'blob',
-  params: params
-});
-
-}
-getFileUrl(fileName: string):  Observable<Blob>{
-  return this.http.get(`${environment.baseUrl}/cdc/pdf/${fileName}`, { responseType: 'blob' });
-}
-
-uploadFile(file: File): Observable<string> {
-  const formData: FormData = new FormData();
-  formData.append('file', file, file.name);
-
-  return this.http.post<string>(`${environment.baseUrl}/cdc/upload`, formData);
-}
- acceptCdc(id:number){
-    return this.http.put(`${environment.baseUrl}/cdc/accept/${id}`,null);
- } 
- archiver(id:number){
-  return this.http.put(`${environment.baseUrl}/cdc/archiver/${id}`,null);
-} 
-Restorer(id:number){
-  return this.http.put(`${environment.baseUrl}/cdc/restorer/${id}`,null);
-} 
-archiverU(id:number){
-  return this.http.put(`${environment.baseUrl}/cdc/archiverU/${id}`,null);
-} 
-RestorerU(id:number){
-  return this.http.put(`${environment.baseUrl}/cdc/restorerU/${id}`,null);
-} 
-  rejectCdc(id:number , commentaire:string){
-    return this.http.put(`${environment.baseUrl}/cdc/refuse/${id}`,{commentaire});
   }
 
-  deleteCdc(id:number){
-    return this.http.delete(`${environment.baseUrl}/cdc/${id}`);
+  addCdc(cdc: any): Observable<CahierDesCharges> {
+    return this.http.post<CahierDesCharges>(`${environment.baseUrl}/cdc`, cdc);
   }
 
+  downloadFile(fileName: string, user: User): Observable<Blob> {
+    const params = new HttpParams().set('email', user.email);
+    return this.http.get(`${environment.baseUrl}/cdc/download/${fileName}`, {
+      responseType: 'blob',
+      params
+    });
+  }
+
+  getFileUrl(fileName: string): Observable<Blob> {
+    return this.http.get(`${environment.baseUrl}/cdc/pdf/${fileName}`, { responseType: 'blob' });
+  }
+
+  // Correction ici : retour d'un objet { filename: string }
+  uploadFile(file: File,username:string): Observable<UploadResponse> {
+    const formData: FormData = new FormData();
+    formData.append('file', file, file.name);
+        formData.append('username', username);
+
+    return this.http.post<UploadResponse>(`${environment.baseUrl}/cdc/upload`, formData);
+  }
+
+  acceptCdc(id: number): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/accept/${id}`, null);
+  }
+
+  archiver(id: number): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/archiver/${id}`, null);
+  }
+
+  restorer(id: number): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/restorer/${id}`, null);
+  }
+
+  archiverU(id: number): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/archiverU/${id}`, null);
+  }
+
+  restorerU(id: number): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/restorerU/${id}`, null);
+  }
+
+  rejectCdc(id: number, commentaire: string): Observable<void> {
+    return this.http.put<void>(`${environment.baseUrl}/cdc/refuse/${id}`, { commentaire });
+  }
+
+  deleteCdc(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.baseUrl}/cdc/${id}`);
+  }
 }
-
-

@@ -1,5 +1,4 @@
-// src/cdc/entities/cahier-des-charges.entity.ts
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/users.entity';
 
 @Entity('cahier_des_charges')
@@ -10,11 +9,17 @@ export class CahierDesCharges {
   @Column()
   titre: string;
 
-  @Column({ default: 'En attente' })
-  etat: string;
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({ nullable: true })
+  pieceJointe: string;
 
   @Column({ nullable: true })
   commentaire: string;
+
+  @Column({ default: 'En attente' })
+  etat: string;
 
   @Column({ default: false })
   archive: boolean;
@@ -22,13 +27,13 @@ export class CahierDesCharges {
   @Column({ default: false })
   archiveU: boolean;
 
-  @ManyToOne(() => User, user => user.cahierDesCharges)
+  @ManyToOne(() => User, user => user.cahierDesCharges, { eager: true })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
-  /*@CreateDateColumn({ type: 'timestamp' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp' })
-    updatedAt: Date;*/
+  @CreateDateColumn()
+  createdAt: Date;
 
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

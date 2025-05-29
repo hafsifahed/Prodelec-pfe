@@ -4,8 +4,9 @@ import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-de
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
 import { AddCdCComponent } from '../add-cd-c/add-cd-c.component';
-import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-cdc-list-user',
@@ -13,7 +14,7 @@ import { UsersService } from 'src/app/core/services/users.service';
   styleUrls: ['./cdc-list-user.component.scss']
 })
 export class CDCListUserComponent {
-  cahierDesCharges: CahierDesCharges[];
+  cahierDesCharges: CahierDesCharges[]=[];
   cahier: CahierDesCharges;
   modalRef?: BsModalRef;
   submitted = false;
@@ -23,24 +24,26 @@ export class CDCListUserComponent {
   p: number = 1; // Current page number
   itemsPerPage: number = 5; // Items per page
   isAscending: boolean = true;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
 
-  constructor(private cdcService: CdcServiceService, private modalService: BsModalService , private usersService: UsersService) { } 
+  constructor(private cdcService: CdcServiceService,
+     private modalService: BsModalService ,
+      private usersService: UsersService,
+      private userStateService: UserStateService
+      
+    ) { } 
 
   ngOnInit(): void {
-     if (this.userEmail) {
-      this.fetchUser(this.userEmail);
 
-  
-    }
-   
+   this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
   
   }
 
-  loadCDC(user: UserModel): void {
-    if (user.role === 'CLIENTADMIN') {
+  loadCDC(user: User): void {
+    if (user.role.name === 'CLIENTADMIN') {
       // Fetch all CDCs and filter them based on the partner
       this.cdcService.getAllCdc().subscribe(
         (data) => {
@@ -70,36 +73,33 @@ export class CDCListUserComponent {
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.cahierDesCharges.sort((a, b) => {
-      const dateA = new Date(a.dateCreation).getTime();
-      const dateB = new Date(b.dateCreation).getTime();
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
       return this.isAscending ? dateA - dateB : dateB - dateA;
     });
   }
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadCDC(data);
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
+
   getNonArchivedCahiers(): CahierDesCharges[] {
-    return this.cahierDesCharges ? this.cahierDesCharges.filter(cdc => cdc.user.partner.name === this.user.partner.name &&
-      !cdc.archiveU && 
-      (!this.searchTitle || cdc.titre.toLowerCase().includes(this.searchTitle.toLowerCase())) &&
-      (!this.filterYear || new Date(cdc.dateCreation).getFullYear().toString() === this.filterYear)
-    ) : [];
+  if (!this.cahierDesCharges || !this.user) {
+    return [];
   }
+  return this.cahierDesCharges.filter(cdc => 
+    cdc.user.partner.name === this.user.partner.name &&
+    !cdc.archiveU && 
+    (!this.searchTitle || cdc.titre.toLowerCase().includes(this.searchTitle.toLowerCase())) &&
+    (!this.filterYear || new Date(cdc.createdAt).getFullYear().toString() === this.filterYear)
+  );
+}
+
 
   getAvailableYears(): string[] {
-    const years = this.cahierDesCharges.map(cdc => new Date(cdc.dateCreation).getFullYear().toString());
-    return Array.from(new Set(years));
+  if (!this.cahierDesCharges || this.cahierDesCharges.length === 0) {
+    return [];
   }
+  const years = this.cahierDesCharges.map(cdc => new Date(cdc.createdAt).getFullYear().toString());
+  return Array.from(new Set(years));
+}
+
 
 
   openDeleteModal(id: number, template: TemplateRef<any>): void {

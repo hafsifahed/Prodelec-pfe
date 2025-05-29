@@ -1,12 +1,12 @@
-<div class="container">
+<div class="notification-container">
   <h1>Liste des notifications</h1>
 
-  <input type="text" class="form-control mb-3" placeholder="Recherche par utilisateur, titre, message"
+  <input type="text" class="search-input" placeholder="Recherche par utilisateur, titre, message"
          [(ngModel)]="searchNotification" (input)="searchNotificationBy()">
 
-  <div class="table-responsive mb-0">
-    <table class="table table-centered table-nowrap">
-      <thead class="table-light">
+  <div class="table-responsive">
+    <table class="notification-table">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Titre</th>
@@ -22,11 +22,13 @@
           <td>{{ notification.message }}</td>
           <td>{{ notification.createdBy || 'Système' }}</td>
           <td>
-            <button *ngIf="user?.role === 'ADMIN' || user?.role === 'SUBADMIN'" type="button" class="btn btn-danger btn-sm"
+            <button *ngIf="user?.role === 'ADMIN' || user?.role === 'SUBADMIN'" 
+                    class="action-btn btn-danger"
                     (click)="deleteNotification(notification.id)">
               Supprimer
             </button>
-            <button *ngIf="!notification.read" type="button" class="btn btn-primary btn-sm"
+            <button *ngIf="!notification.read" 
+                    class="action-btn btn-primary"
                     (click)="markNotificationAsRead(notification.id)">
               Marquer comme lu
             </button>
@@ -36,5 +38,7 @@
     </table>
   </div>
 
-  <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  <div class="pagination-controls">
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  </div>
 </div>

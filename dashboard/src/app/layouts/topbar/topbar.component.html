@@ -111,12 +111,13 @@
         </div>
       </a>
       <div *ngIf="notifications.length === 0" class="text-center p-3 text-muted">
-        {{ 'HEADER.NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}
+        Pas De Notification
+       <!-- {{ 'HEADER.NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}-->
       </div>
     </ngx-simplebar>
     <div class="p-2 border-top d-grid">
       <!-- Bouton charger plus optionnel -->
-      <!-- <a class="btn btn-sm btn-link font-size-14 text-center" href="#">{{ 'HEADER.NOTIFICATIONS.LOAD_MORE' | translate }}</a> -->
+       <a class="btn btn-sm btn-link font-size-14 text-center" (click)="  navigateToListNotifications()">{{ 'HEADER.NOTIFICATIONS.LOAD_MORE' | translate }}</a>
     </div>
   </div>
 </div>
