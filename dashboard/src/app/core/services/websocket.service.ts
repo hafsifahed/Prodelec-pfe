@@ -3,15 +3,17 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject } from 'rxjs';
 import { NotificationModels } from '../models/notification.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class WebsocketService {
   private socket: Socket;
   private notificationsSubject = new BehaviorSubject<NotificationModels[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
+    public url =`${environment.baseUrl}`
 
   constructor() {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(this.url, {
       auth: { token: localStorage.getItem('token') }
     });
 

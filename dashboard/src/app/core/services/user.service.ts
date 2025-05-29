@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/auth.models';
 import { UpdateUserFullDto } from '../models/update-user-full.dto';
+import { environment } from 'src/environments/environment';
 
 export interface CreateUserDto {
   username: string;
@@ -52,7 +53,7 @@ export interface AccountStatusDto {
   providedIn: 'root',
 })
 export class UsersService {
-  private apiUrl = 'http://localhost:3000/users'; // Adjust base URL
+  private apiUrl = `${environment.baseUrl}/users`; // Adjust base URL
 
   constructor(private http: HttpClient) {}
 
