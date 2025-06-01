@@ -5,6 +5,7 @@ import { Partner } from '../../core/models/partner.models';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UsersService } from 'src/app/core/services/user.service';
+import { Role } from 'src/app/core/models/role.model'; // adapte selon ton modèle
 
 @Component({
   selector: 'app-add-user',
@@ -13,13 +14,13 @@ import { UsersService } from 'src/app/core/services/user.service';
 })
 export class AddUserComponent implements OnInit {
   addUserForm: FormGroup;
-  errorMessage = '';
   partners: Partner[] = [];
-  roles = [
-    { id: 1, name: 'CLIENTADMIN' },
-    { id: 2, name: 'CLIENTUSER' }
-  ];
-   // Adjust roles as needed
+  clientRoles: Role[] = [];
+  workerRoles: Role[] = [];
+  roles: Role[] = [];
+
+  selectedUserType: 'client' | 'worker' = 'client';
+
   isSubmitting = false;
 
   constructor(
@@ -33,23 +34,62 @@ export class AddUserComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      roleId: [0, Validators.required],
-      partnerId: [0, Validators.required]
+      roleId: [null, Validators.required],
+      partnerId: [null] // validation dynamique selon userType
     });
   }
 
   ngOnInit(): void {
     this.loadPartners();
+    this.loadRoles();
+    this.setRolesForSelectedType();
   }
 
   loadPartners(): void {
     this.partnersService.getAllPartners().subscribe(
-      (partners) => (this.partners = partners),
-      (error) => {
-        console.error('Error loading partners', error);
-        Swal.fire('Error', 'Failed to load partners', 'error');
+      partners => this.partners = partners,
+      error => {
+        console.error('Erreur chargement partenaires', error);
+        Swal.fire('Erreur', 'Impossible de charger les partenaires', 'error');
       }
     );
+  }
+
+  loadRoles(): void {
+    this.usersService.getClientRoles().subscribe(
+      roles => {
+        this.clientRoles = roles;
+        if (this.selectedUserType === 'client') this.roles = this.clientRoles;
+      },
+      error => console.error('Erreur chargement rôles clients', error)
+    );
+
+    this.usersService.getWorkerRoles().subscribe(
+      roles => {
+        this.workerRoles = roles;
+        if (this.selectedUserType === 'worker') this.roles = this.workerRoles;
+      },
+      error => console.error('Erreur chargement rôles employés', error)
+    );
+  }
+
+  selectUserType(type: 'client' | 'worker'): void {
+    this.selectedUserType = type;
+    this.setRolesForSelectedType();
+    this.addUserForm.get('roleId').setValue(null);
+
+    const partnerControl = this.addUserForm.get('partnerId');
+    if (type === 'client') {
+      partnerControl.setValidators([Validators.required]);
+    } else {
+      partnerControl.clearValidators();
+      partnerControl.setValue(null);
+    }
+    partnerControl.updateValueAndValidity();
+  }
+
+  setRolesForSelectedType(): void {
+    this.roles = this.selectedUserType === 'client' ? this.clientRoles : this.workerRoles;
   }
 
   submit(): void {
@@ -57,33 +97,32 @@ export class AddUserComponent implements OnInit {
       this.addUserForm.markAllAsTouched();
       return;
     }
-  
+
     this.isSubmitting = true;
     const formValue = this.addUserForm.value;
-  
+
     const createUserDto = {
       username: formValue.email,
       email: formValue.email,
       password: formValue.password,
       firstName: formValue.firstName,
       lastName: formValue.lastName,
-      roleId: Number(formValue.roleId),     // convert to number
-      partnerId: Number(formValue.partnerId) // convert to number
+      roleId: Number(formValue.roleId),
+      partnerId: this.selectedUserType === 'client' ? Number(formValue.partnerId) : null
     };
-  
+
     this.usersService.createUserBy(createUserDto).subscribe(
       () => {
-        Swal.fire('Success', 'User added successfully', 'success');
+        Swal.fire('Succès', 'Utilisateur ajouté avec succès', 'success');
         this.router.navigate(['/list-user']);
       },
-      (error) => {
-        console.error('Error adding user', error);
-        Swal.fire('Error', 'Failed to add user', 'error');
+      error => {
+        console.error('Erreur ajout utilisateur', error);
+        Swal.fire('Erreur', 'Échec de l\'ajout de l\'utilisateur', 'error');
         this.isSubmitting = false;
       }
     );
   }
-  
 
   cancel(): void {
     this.router.navigate(['/list-user']);

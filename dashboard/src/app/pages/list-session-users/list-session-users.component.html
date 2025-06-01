@@ -1,89 +1,103 @@
-<div class="session-management">
-    <!-- En-tête -->
-    <div class="management-header">
-        <div class="header-title">
-            <h1><i class="fas fa-clock"></i> Liste des Sessions Utilisateurs</h1>
-            <p class="header-subtitle">Gestion des sessions actives et historiques</p>
-        </div>
+<div class="container session-management">
+  <!-- En-tête -->
+  <div class="management-header mb-4">
+    <div class="header-title d-flex align-items-center gap-3">
+      <h1 class="m-0 fw-semibold text-dark">
+        <i class="fas fa-clock text-primary fs-4"></i> Liste des Sessions Utilisateurs
+      </h1>
     </div>
+    <p class="header-subtitle text-secondary fs-7 mt-1 mb-0">Gestion des sessions actives et historiques</p>
+  </div>
 
-    <!-- Barre de recherche -->
-    <div class="search-section">
-        <div class="search-container">
-            <div class="search-input-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" 
-                       [(ngModel)]="searchUsermail" 
-                       (input)="onUsermailSearchInputChange()"
-                       placeholder="Rechercher par email utilisateur...">
-                <button *ngIf="searchUsermail" class="clear-search" (click)="searchUsermail = ''; onUsermailSearchInputChange()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
+  <!-- Barre de recherche -->
+  <div class="search-section d-flex mb-4">
+    <div class="position-relative flex-grow-1 search-input-container">
+      <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y text-secondary ps-3 search-icon"></i>
+      <input
+        type="text"
+        class="form-control ps-5"
+        placeholder="Rechercher par email utilisateur..."
+        [(ngModel)]="searchUsermail"
+        (input)="onUsermailSearchInputChange()"
+      />
+      <button
+        *ngIf="searchUsermail"
+        class="btn btn-link position-absolute top-50 end-0 translate-middle-y pe-3 clear-search"
+        (click)="searchUsermail = ''; onUsermailSearchInputChange()"
+        type="button"
+        aria-label="Effacer la recherche"
+      >
+        <i class="fas fa-times text-secondary"></i>
+      </button>
     </div>
+  </div>
 
-    <!-- Message d'erreur -->
-    <div *ngIf="errorMessage" class="error-alert">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-    </div>
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
 
-    <!-- Tableau des sessions -->
-    <div class="session-table-wrapper">
-        <table class="session-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Début Session</th>
-                    <th>Fin Session</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let userSession of userSessions | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-                    <td>{{ userSession.id }}</td>
-                    <td>
-                        <span class="user-email">{{ userSession.usermail }}</span>
-                    </td>
-                    <td>{{ userSession.sessionStart | date:'dd/MM/yyyy HH:mm' }}</td>
-                    <td>{{ userSession.sessionEnd ? (userSession.sessionEnd | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
-                    <td>
-                        <span class="session-status" [ngClass]="{
-                            'status-active': !userSession.sessionEnd,
-                            'status-ended': userSession.sessionEnd
-                        }">
-                            {{ userSession.sessionEnd ? 'Terminée' : 'Active' }}
-                        </span>
-                    </td>
-                    <td class="actions-cell">
-                        <button *ngIf="!userSession.sessionEnd" 
-                                class="action-btn end-btn" 
-                                (click)="endSession(userSession.id)" 
-                                title="Terminer la session">
-                            <i class="fas fa-power-off"></i>
-                        </button>
-                        <span *ngIf="userSession.sessionEnd" class="no-action">-</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Tableau des sessions -->
+  <div class="table-responsive session-table-wrapper mb-4">
+    <table class="table session-table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Début Session</th>
+          <th>Fin Session</th>
+          <th>Statut</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let userSession of userSessions | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+          <td>{{ userSession.id }}</td>
+          <td><span class="user-email">{{ userSession.usermail }}</span></td>
+          <td>{{ userSession.sessionStart | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ userSession.sessionEnd ? (userSession.sessionEnd | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          <td>
+            <span
+              class="session-status badge"
+              [ngClass]="{
+                'bg-success': !userSession.sessionEnd,
+                'bg-secondary': userSession.sessionEnd
+              }"
+            >
+              {{ userSession.sessionEnd ? 'Terminée' : 'Active' }}
+            </span>
+          </td>
+          <td class="actions-cell text-center">
+            <button
+              *ngIf="!userSession.sessionEnd"
+              class="btn btn-danger btn-sm action-btn end-btn"
+              (click)="endSession(userSession.id)"
+              title="Terminer la session"
+            >
+              <i class="fas fa-power-off"></i>
+            </button>
+            <span *ngIf="userSession.sessionEnd" class="no-action text-muted">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Pagination -->
-    <div class="pagination-wrapper">
-        <pagination-controls (pageChange)="p = $event"
-                            previousLabel="Précédent"
-                            nextLabel="Suivant"
-                            maxSize="7"
-                            autoHide="true">
-        </pagination-controls>
-    </div>
+  <!-- Pagination -->
+  <div class="pagination-wrapper d-flex justify-content-center">
+    <pagination-controls
+      (pageChange)="p = $event"
+      previousLabel="Précédent"
+      nextLabel="Suivant"
+      maxSize="7"
+      autoHide="true"
+    >
+    </pagination-controls>
+  </div>
 
-    <!-- Message vide -->
-    <div *ngIf="userSessions.length === 0 && !errorMessage" class="empty-state">
-        <i class="fas fa-search-minus"></i>
-        <p>Aucune session trouvée</p>
-    </div>
+  <!-- Message vide -->
+  <div *ngIf="userSessions.length === 0 && !errorMessage" class="empty-state text-center text-secondary mt-5 d-flex flex-column align-items-center gap-3">
+    <i class="fas fa-search-minus fs-1 opacity-50"></i>
+    <p class="fs-5 m-0">Aucune session trouvée</p>
+  </div>
 </div>

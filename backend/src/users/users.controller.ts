@@ -155,6 +155,15 @@ async getStats() {
   return this.usersService.getUserAndSessionStats();
 }
 
+ @Get('roles/client')
+  async getClientRoles() {
+    return this.usersService.getClientRoles();
+  }
+
+  @Get('roles/worker')
+  async getWorkerRoles() {
+    return this.usersService.getWorkerRoles();
+  }
 
 
 }

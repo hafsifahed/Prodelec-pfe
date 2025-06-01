@@ -427,6 +427,21 @@ export class UsersService {
    findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
+
+  async getClientRoles(): Promise<Role[]> {
+    return this.rolesRepository
+      .createQueryBuilder('role')
+      .where('UPPER(role.name) LIKE :prefix', { prefix: 'CLIENT%' })
+      .getMany();
+  }
+
+
+  async getWorkerRoles(): Promise<Role[]> {
+    return this.rolesRepository
+      .createQueryBuilder('role')
+      .where('UPPER(role.name) NOT LIKE :prefix', { prefix: 'CLIENT%' })
+      .getMany();
+  }
   
   /*method directly
    async deleteUser(userId: number): Promise<void> {

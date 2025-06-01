@@ -38,6 +38,7 @@ export class CreateUserDto {
 
   @IsInt()
   @IsPositive()
+  @IsOptional()
   partnerId: number;
 
   @IsOptional()

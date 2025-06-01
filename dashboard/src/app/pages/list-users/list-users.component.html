@@ -1,86 +1,98 @@
-<div class="user-management">
-    <!-- En-tête et barre de recherche combinés -->
-    <div class="header-search-container">
-        <div class="header-title-container">
-            <div class="header-title">
-                <h1><i class="fas fa-users"></i> Liste des Utilisateurs</h1>
-                <p class="header-subtitle">Gestion des accès utilisateurs</p>
-            </div>
-        </div>
-        
-        <div class="search-section">
-            <div class="search-input-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" 
-                       [(ngModel)]="searchKeyword" 
-                       (input)="onSearchInputChange()"
-                       placeholder="Rechercher par nom, email, rôle...">
-                <button *ngIf="searchKeyword" class="clear-search" (click)="clearSearch()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <button class="add-user-btn" (click)="navigateToAddUser()">
-                <i class="fas fa-user-plus"></i> <span class="btn-text">Ajouter</span>
+<div class="container user-management">
+  <!-- En-tête et barre de recherche combinés -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
+    
+    <div class="flex-grow-1 min-w-250 header-title-container">
+      <div class="header-title d-flex align-items-center gap-3 mb-2">
+        <h1 class="m-0 fw-semibold text-dark">
+          <i class="fas fa-users text-primary fs-4"></i> Liste des Utilisateurs
+        </h1>
+      </div>
+      <p class="header-subtitle text-secondary fs-7 m-0">Gestion des accès utilisateurs</p>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 flex-grow-2 min-w-600 search-section">
+      <div class="position-relative flex-grow-1 search-input-container">
+        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y text-secondary ps-3 search-icon"></i>
+        <input
+          type="text"
+          class="form-control ps-5"
+          placeholder="Rechercher par nom, email, rôle..."
+          [(ngModel)]="searchKeyword"
+          (input)="onSearchInputChange()"
+        />
+        <button
+          *ngIf="searchKeyword"
+          class="btn btn-link position-absolute top-50 end-0 translate-middle-y pe-3 clear-search"
+          (click)="clearSearch()"
+          type="button"
+          aria-label="Effacer la recherche"
+        >
+          <i class="fas fa-times text-secondary"></i>
+        </button>
+      </div>
+
+      <button class="btn btn-primary add-user-btn d-flex align-items-center gap-2" (click)="navigateToAddUser()">
+        <i class="fas fa-user-plus"></i>
+        <span class="btn-text">Ajouter</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-responsive user-table-wrapper mb-4">
+    <table class="table user-table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Partenaire</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+          <td><span class="user-name fw-semibold">{{ user.firstName }} {{ user.lastName }}</span></td>
+          <td>{{ user.email }}</td>
+          <td><span class="user-role-badge badge bg-primary text-white">{{ user.role?.name || user.role }}</span></td>
+          <td>{{ user.partner?.name || '-' }}</td>
+          <td class="actions-cell text-center d-flex justify-content-center gap-2">
+            <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editUser(user)" title="Modifier">
+              <i class="fas fa-edit"></i>
             </button>
-        </div>
-    </div>
+            <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="deleteUser(user)" title="Supprimer">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-warning action-btn password-btn" (click)="editUserPassword(user)" title="Mot de passe">
+              <i class="fas fa-key"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Message d'erreur -->
-    <div *ngIf="errorMessage" class="error-alert">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-    </div>
+  <!-- Pagination -->
+  <div class="pagination-wrapper d-flex justify-content-center">
+    <pagination-controls
+      (pageChange)="p = $event"
+      previousLabel="Précédent"
+      nextLabel="Suivant"
+      maxSize="7"
+      autoHide="true"
+    >
+    </pagination-controls>
+  </div>
 
-    <!-- Tableau des utilisateurs -->
-    <div class="user-table-wrapper">
-        <table class="user-table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Partenaire</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-                    <td>
-                        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-                    </td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        <span class="user-role-badge">{{ user.role?.name || user.role }}</span>
-                    </td>
-                    <td>{{ user.partner?.name || '-' }}</td>
-                    <td class="actions-cell">
-                        <button class="action-btn edit-btn" (click)="editUser(user)" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete-btn" (click)="deleteUser(user)" title="Supprimer">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                        <button class="action-btn password-btn" (click)="editUserPassword(user)" title="Mot de passe">
-                            <i class="fas fa-key"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination-wrapper">
-        <pagination-controls (pageChange)="p = $event"
-                            previousLabel="Précédent"
-                            nextLabel="Suivant"
-                            maxSize="7"
-                            autoHide="true">
-        </pagination-controls>
-    </div>
-
-    <!-- Message vide -->
-    <div *ngIf="users.length === 0 && !errorMessage" class="empty-state">
-        <i class="fas fa-user-slash"></i>
-        <p>Aucun utilisateur trouvé</p>
-    </div>
+  <!-- Message vide -->
+  <div *ngIf="users.length === 0 && !errorMessage" class="empty-state text-center text-secondary mt-5 d-flex flex-column align-items-center gap-3">
+    <i class="fas fa-user-slash fs-1 opacity-50"></i>
+    <p class="fs-5 m-0">Aucun utilisateur trouvé</p>
+  </div>
 </div>

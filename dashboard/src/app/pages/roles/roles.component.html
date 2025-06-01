@@ -175,81 +175,100 @@
 </ng-template>
 
 <!-- Main Content -->
-<div class="role-management">
-    <!-- Header Section -->
-    <div class="header-search-container">
-        <div class="header-title-container">
-            <div class="header-title">
-                <h1><i class="fas fa-user-shield me-2"></i> Gestion des Rôles</h1>
-                <p class="header-subtitle">Configuration des permissions et accès</p>
-            </div>
+<div class="container role-management">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
+    <div class="header-title-container flex-grow-1 min-w-250">
+      <div class="header-title d-flex align-items-center gap-3">
+        <h1 class="m-0 fw-semibold text-dark">
+          <i class="fas fa-user-shield text-primary fs-4"></i> Gestion des Rôles
+        </h1>
+      </div>
+      <p class="header-subtitle text-secondary fs-7 mt-1 mb-0">
+        Configuration des permissions et accès
+      </p>
+    </div>
+
+    <div class="action-section flex-shrink-0">
+      <button class="btn btn-primary add-role-btn d-flex align-items-center gap-2" (click)="openAddModal(addModal)">
+        <i class="fas fa-plus-circle"></i> Ajouter un rôle
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && roles.length === 0" class="loading-state text-center text-secondary my-5 d-flex flex-column align-items-center gap-3">
+    <i class="fas fa-spinner fa-spin fs-2"></i>
+    <p class="fs-5 m-0">Chargement des rôles...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Roles Table -->
+  <div class="table-responsive role-table-wrapper mb-4" *ngIf="!isLoading || roles.length > 0">
+    <table class="table role-table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Nom</th>
+          <th>Permissions</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let role of roles">
+          <td><span class="role-name fw-semibold">{{ role.name }}</span></td>
+          <td>
+  <div class="permissions-container d-flex flex-column gap-2">
+    <div *ngIf="role.permissions.length > 0">
+      <div class="permission-item d-flex justify-content-between align-items-center">
+        <span class="permission-resource text-dark fw-medium">{{ role.permissions[0].resource }}</span>
+        <div class="permission-actions">
+          <span *ngFor="let action of role.permissions[0].actions" class="badge bg-secondary me-1">{{ action }}</span>
         </div>
-        
-        <div class="action-section">
-            <button class="add-role-btn" (click)="openAddModal(addModal)">
-                <i class="fas fa-plus-circle me-2"></i> Ajouter un rôle
+      </div>
+
+      <button
+        *ngIf="role.permissions.length > 1"
+        class="btn btn-link p-0 mt-1"
+        (click)="openShowModal(role, showModal)"
+        title="Voir plus de permissions"
+        style="font-size: 0.875rem;"
+      >
+        +{{ role.permissions.length - 1 }} autres permissions
+      </button>
+    </div>
+    <div *ngIf="role.permissions.length === 0" class="text-muted fst-italic">
+      Aucune permission
+    </div>
+  </div>
+</td>
+
+          <td >
+            <div class="actions-cell text-center d-flex justify-content-center gap-2">
+            <button class="btn btn-sm btn-info action-btn view-btn" (click)="openShowModal(role, showModal)" title="Afficher">
+              <i class="fas fa-eye"></i>
             </button>
-        </div>
-    </div>
+            <button class="btn btn-sm btn-success action-btn edit-btn" (click)="openEditModal(role, editModal)" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="openDeleteModal(role.id!, deleteModal)" title="Supprimer">
+              <i class="fas fa-trash-alt"></i>
+            </button></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading && roles.length === 0" class="loading-state">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Chargement des rôles...</p>
-    </div>
-    
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="error-alert">
-        <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
-    </div>
-
-    <!-- Roles Table -->
-    <div class="role-table-wrapper" *ngIf="!isLoading || roles.length > 0">
-        <table class="role-table">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Permissions</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let role of roles">
-                    <td>
-                        <span class="role-name">{{ role.name }}</span>
-                    </td>
-                    <td>
-                        <div class="permissions-container">
-                            <div *ngFor="let perm of role.permissions" class="permission-item">
-                                <span class="permission-resource">{{ perm.resource }}</span>
-                                <div class="permission-actions">
-                                    <span *ngFor="let action of perm.actions" class="action-badge">{{ action }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="actions-cell">
-                        <button class="action-btn view-btn" (click)="openShowModal(role, showModal)" title="Afficher">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="action-btn edit-btn" (click)="openEditModal(role, editModal)" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete-btn" (click)="openDeleteModal(role.id!, deleteModal)" title="Supprimer">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="roles.length === 0 && !errorMessage && !isLoading" class="empty-state">
-        <i class="fas fa-user-tag"></i>
-        <p>Aucun rôle configuré</p>
-        <button class="add-role-btn outline" (click)="openAddModal(addModal)">
-            <i class="fas fa-plus-circle me-2"></i> Créer un nouveau rôle
-        </button>
-    </div>
+  <!-- Empty State -->
+  <div *ngIf="roles.length === 0 && !errorMessage && !isLoading" class="empty-state text-center text-secondary d-flex flex-column align-items-center gap-3 py-5">
+    <i class="fas fa-user-tag fs-1 opacity-50"></i>
+    <p class="fs-5 mb-3">Aucun rôle configuré</p>
+    <button class="btn btn-outline-primary add-role-btn d-flex align-items-center gap-2" (click)="openAddModal(addModal)">
+      <i class="fas fa-plus-circle"></i> Créer un nouveau rôle
+    </button>
+  </div>
 </div>

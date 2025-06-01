@@ -6,8 +6,8 @@ $danger: #dc2626;
 $danger-light: #fee2e2;
 $warning: #f59e0b;
 $success: #059669;
-$text: #1e293b;
-$text-light: #64748b;
+$text: #6e63e6;
+$text-light: #6e63e6;
 $border: #e2e8f0;
 $bg: #fff;
 $bg-secondary: #f8fafc;
@@ -21,9 +21,9 @@ $transition: all 0.2s ease;
   align-items: center;
 }
 
+
 // Styles généraux
 .role-management {
-  background: $bg;
   border-radius: $radius;
   box-shadow: $shadow;
   padding: 1.5rem;
@@ -317,5 +317,17 @@ $transition: all 0.2s ease;
 
   p {
     margin: 0;
+  }
+}
+.permissions-container button.btn-link {
+  color: $primary; // ou ta variable couleur principale
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  text-decoration: underline;
+
+  &:hover {
+    color: darken($primary, 10%);
   }
 }

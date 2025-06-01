@@ -45,7 +45,6 @@ import { ListSessionUsersComponent } from './list-session-users/list-session-use
 import { ListSessionWorkersComponent } from './list-session-workers/list-session-workers.component';
 import { ListNotificationsComponent } from './list-notifications/list-notifications.component';
 import { AvisComponent } from './avis/avis.component';
-import { AddAvisComponent } from './add-avis/add-avis.component';
 import { ListAvisComponent } from './list-avis/list-avis.component';
 import { AddCdCComponent } from './cahierDesCharges/add-cd-c/add-cd-c.component';
 import { CDCListUserComponent } from './cahierDesCharges/cdc-list-user/cdc-list-user.component';
@@ -99,7 +98,6 @@ import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin
     ListSessionWorkersComponent,
     ListNotificationsComponent,
     AvisComponent,
-    AddAvisComponent,
     ListAvisComponent,
     AddCdCComponent,
     CDCListUserComponent,

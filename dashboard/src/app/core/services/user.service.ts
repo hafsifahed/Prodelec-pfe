@@ -150,6 +150,14 @@ export class UsersService {
    getUserSessionStats(): Observable<UserSessionStats> {
     return this.http.get<UserSessionStats>(`${this.apiUrl}/stats/users-sessions`);
   }
+
+  getClientRoles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/roles/client`);
+  }
+
+   getWorkerRoles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/roles/worker`);
+  }
   
   
 }

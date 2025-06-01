@@ -1,240 +1,317 @@
-// Variables
-$primary: #4361ee;
-$primary-light: #e6ebfd;
-$danger: #f72585;
-$danger-light: #fde8f1;
-$success: #4cc9f0;
-$text: #2b2d42;
-$text-light: #8d99ae;
-$border: #edf2f4;
-$bg: #ffffff;
-$radius: 12px;
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+// Variables (à adapter selon ton thème)
+$primary: #4f46e5;
+$primary-hover: #4338ca;
+$danger: #dc2626;
+$danger-light: #fee2e2;
+$success: #059669;
+$success-light: #ecfdf5;
+$text: #1e293b;
+$text-light: #6e63e6;
+$border: #e2e8f0;
+$bg: #fff;
+$bg-secondary: #f8fafc;
+$radius: 8px;
+$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 $transition: all 0.2s ease;
 
 // Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @mixin card-style {
-  background: $bg;
   border-radius: $radius;
   box-shadow: $shadow;
   padding: 1.5rem;
 }
 
+// Styles généraux
 .notification-container {
   @include card-style;
   max-width: 1200px;
-  margin: 2rem auto;
-  font-family: 'Inter', system-ui, sans-serif;
+  margin: 1.25rem auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-  h1 {
-    color: $text;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+  // En-tête et recherche
+  .header-search-container {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
-
-    &::before {
-      content: '';
-      display: block;
-      width: 24px;
-      height: 24px;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234361ee"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>');
-    }
-  }
-
-  .search-input {
-    width: 100%;
-    padding: 0.75rem 1.25rem;
-    border: 1px solid $border;
-    border-radius: $radius;
-    font-size: 0.95rem;
-    transition: $transition;
+    gap: 1.5rem;
     margin-bottom: 1.5rem;
-    background-color: lighten($border, 3%);
+    flex-wrap: wrap;
 
-    &:focus {
-      outline: none;
-      border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
-      background-color: $bg;
-    }
+    .header-title-container {
+      flex: 1;
+      min-width: 250px;
 
-    &::placeholder {
-      color: $text-light;
-    }
-  }
+      .header-title {
+        h1 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin: 0 0 0.25rem 0;
+          @include flex-center;
+          gap: 0.75rem;
 
-  .notification-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-bottom: 1.5rem;
-
-    thead {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-
-      tr {
-        background-color: $primary;
-        
-        th {
-          color: white;
-          padding: 1rem 1.25rem;
-          font-weight: 500;
-          text-align: left;
-          font-size: 0.875rem;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-
-          &:first-child {
-            border-top-left-radius: $radius;
-          }
-
-          &:last-child {
-            border-top-right-radius: $radius;
-          }
-        }
-      }
-    }
-
-    tbody {
-      tr {
-        transition: $transition;
-        background-color: $bg;
-
-        &:nth-child(even) {
-          background-color: lighten($border, 3%);
-        }
-
-        &:hover {
-          background-color: $primary-light;
-        }
-
-        td {
-          padding: 1rem 1.25rem;
-          color: $text;
-          font-size: 0.95rem;
-          border-bottom: 1px solid $border;
-
-          &:first-child {
-            font-weight: 500;
+          i {
             color: $primary;
+            font-size: 1.5rem;
           }
         }
 
-        &:last-child td {
-          border-bottom: none;
+        .header-subtitle {
+          color: $text-light;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .search-section {
+      @include flex-center;
+      gap: 1rem;
+      flex: 2;
+      min-width: min(100%, 600px);
+
+      .search-input-container {
+        position: relative;
+        flex-grow: 1;
+
+        .search-input {
+          width: 100%;
+          padding: 0.625rem 1rem 0.625rem 2.5rem;
+          border: 1px solid $border;
+          border-radius: $radius;
+          font-size: 0.875rem;
+          transition: $transition;
+          background-color: $bg-secondary;
+
+          &:focus {
+            outline: none;
+            border-color: $primary;
+            box-shadow: 0 0 0 2px rgba($primary, 0.1);
+          }
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          color: $text-light;
+          font-size: 1rem;
+        }
+
+        .clear-search {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: $text-light;
+          cursor: pointer;
+          padding: 0.25rem;
+          font-size: 1rem;
+
+          &:hover {
+            color: darken($text-light, 10%);
+          }
         }
       }
     }
   }
 
-  .action-btn {
-    border: none;
+  // Message d'erreur
+  .error-alert {
+    background-color: lighten($danger, 42%);
+    color: $danger;
+    padding: 0.75rem 1rem;
     border-radius: $radius;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: $transition;
-    margin-right: 0.5rem;
-    display: inline-flex;
-    align-items: center;
+    margin-bottom: 1.5rem;
+    @include flex-center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  // Tableau
+  .notification-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    border-radius: $radius;
+    border: 1px solid $border;
+    -webkit-overflow-scrolling: touch;
+
+    .notification-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+
+      thead {
+        background-color: $bg-secondary;
+
+        th {
+          padding: 1rem;
+          text-align: left;
+          color: $text-light;
+          font-weight: 600;
+          font-size: 0.875rem;
+          border-bottom: 1px solid $border;
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            padding: 1rem;
+            border-bottom: 1px solid $border;
+            font-size: 0.875rem;
+            vertical-align: middle;
+
+            &:first-child {
+              font-weight: 500;
+              color: $primary;
+            }
+          }
+
+          &:last-child td {
+            border-bottom: none;
+          }
+
+          &:hover {
+            background-color: $bg-secondary;
+          }
+        }
+      }
+    }
+  }
+
+  // Boutons d'action
+  .actions-cell {
+    @include flex-center;
     gap: 0.5rem;
 
-    &.btn-danger {
-      background-color: $danger-light;
-      color: $danger;
+    .action-btn {
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-size: 0.8125rem;
+      @include flex-center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition;
 
-      &:hover {
-        background-color: darken($danger-light, 5%);
+      &.btn-danger {
+        background-color: lighten($danger, 40%);
+        color: $danger;
+
+        &:hover {
+          background-color: lighten($danger, 30%);
+        }
       }
-    }
 
-    &.btn-primary {
-      background-color: $primary-light;
-      color: $primary;
+      &.btn-primary {
+        background-color: lighten($primary, 40%);
+        color: $primary;
 
-      &:hover {
-        background-color: darken($primary-light, 5%);
+        &:hover {
+          background-color: lighten($primary, 30%);
+        }
       }
     }
   }
 
-  .pagination-controls {
+  // Pagination
+  .pagination-wrapper {
     display: flex;
     justify-content: center;
-    margin-top: 1.5rem;
 
     .ngx-pagination {
-      display: flex;
+      @include flex-center;
       gap: 0.5rem;
       list-style: none;
       padding: 0;
       margin: 0;
 
       li {
-        a {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 2.5rem;
-          height: 2.5rem;
-          border-radius: $radius;
-          color: $text;
-          text-decoration: none;
-          transition: $transition;
-          font-weight: 500;
+        min-width: 2rem;
+        height: 2rem;
+        @include flex-center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
 
-          &:hover {
-            background-color: $primary-light;
-          }
+        a {
+          text-decoration: none;
+          color: $text-light;
+          padding: 0 0.5rem;
         }
 
         &.current {
-          a {
-            background-color: $primary;
-            color: white;
-          }
+          background-color: $primary;
+          color: white;
         }
 
-        &.disabled {
-          a {
-            color: $text-light;
-            cursor: not-allowed;
-          }
+        &.disabled a {
+          color: lighten($text-light, 15%);
+          cursor: not-allowed;
         }
       }
     }
   }
 
+  // État vide
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1.25rem;
+    color: $text-light;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 3rem;
+      opacity: 0.5;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
   // Responsive
   @media (max-width: 768px) {
-    padding: 1rem;
-    margin: 1rem;
-    border-radius: $radius - 4;
+    .header-search-container {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
 
-    h1 {
-      font-size: 1.5rem;
+    .search-section {
+      width: 100%;
+
+      .btn-text {
+        display: none;
+      }
+
+      .add-user-btn {
+        padding: 0.625rem;
+      }
     }
 
     .notification-table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-
-      thead tr th,
-      tbody tr td {
+      th, td {
         padding: 0.75rem;
       }
     }
 
-    .action-btn {
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
+    .actions-cell {
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 }

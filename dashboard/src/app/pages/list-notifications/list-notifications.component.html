@@ -1,18 +1,54 @@
-<div class="notification-container">
-  <h1>Liste des notifications</h1>
+<div class="container notification-container">
+  <!-- En-tête et barre de recherche combinés -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
+    
+    <div class="flex-grow-1 min-w-250 header-title-container">
+      <div class="header-title d-flex align-items-center gap-3 mb-2">
+        <h1 class="m-0 fw-semibold text-dark">
+          <i class="fas fa-bell text-primary fs-4"></i> Liste des notifications
+        </h1>
+      </div>
+      <p class="header-subtitle text-secondary fs-7 m-0">Gestion des notifications</p>
+    </div>
 
-  <input type="text" class="search-input" placeholder="Recherche par utilisateur, titre, message"
-         [(ngModel)]="searchNotification" (input)="searchNotificationBy()">
+    <div class="d-flex align-items-center gap-3 flex-grow-2 min-w-600 search-section">
+      <div class="position-relative flex-grow-1 search-input-container">
+        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y text-secondary ps-3 search-icon"></i>
+        <input
+          type="text"
+          class="form-control ps-5 search-input"
+          placeholder="Recherche par utilisateur, titre, message"
+          [(ngModel)]="searchNotification"
+          (input)="searchNotificationBy()"
+        />
+        <button
+          *ngIf="searchNotification"
+          class="btn btn-link position-absolute top-50 end-0 translate-middle-y pe-3 clear-search"
+          (click)="searchNotification = ''; searchNotificationBy()"
+          type="button"
+          aria-label="Effacer la recherche"
+        >
+          <i class="fas fa-times text-secondary"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <div class="table-responsive">
-    <table class="notification-table">
-      <thead>
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Tableau des notifications -->
+  <div class="table-responsive notification-table-wrapper mb-4">
+    <table class="table notification-table table-hover align-middle">
+      <thead class="table-light">
         <tr>
           <th>ID</th>
           <th>Titre</th>
           <th>Message</th>
           <th>Créé par</th>
-          <th>Actions</th>
+          <th class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -21,24 +57,46 @@
           <td>{{ notification.title }}</td>
           <td>{{ notification.message }}</td>
           <td>{{ notification.createdBy || 'Système' }}</td>
-          <td>
-            <button *ngIf="user?.role === 'ADMIN' || user?.role === 'SUBADMIN'" 
-                    class="action-btn btn-danger"
-                    (click)="deleteNotification(notification.id)">
+          <td >
+            <div class="actions-cell text-center d-flex justify-content-center gap-2">
+            <button
+              *ngIf="user?.role.name === 'ADMIN' || user?.role.name === 'SUBADMIN'"
+              class="btn btn-sm btn-danger action-btn"
+              (click)="deleteNotification(notification.id)"
+              title="Supprimer"
+            >
               Supprimer
             </button>
-            <button *ngIf="!notification.read" 
-                    class="action-btn btn-primary"
-                    (click)="markNotificationAsRead(notification.id)">
+            <button
+              *ngIf="!notification.read"
+              class="btn btn-sm btn-primary action-btn"
+              (click)="markNotificationAsRead(notification.id)"
+              title="Marquer comme lu"
+            >
               Marquer comme lu
             </button>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <div class="pagination-controls">
-    <pagination-controls (pageChange)="p = $event"></pagination-controls>
+  <!-- Pagination -->
+  <div class="pagination-wrapper d-flex justify-content-center">
+    <pagination-controls
+      (pageChange)="p = $event"
+      previousLabel="Précédent"
+      nextLabel="Suivant"
+      maxSize="7"
+      autoHide="true"
+    >
+    </pagination-controls>
+  </div>
+
+  <!-- Message vide -->
+  <div *ngIf="notifications.length === 0 && !errorMessage" class="empty-state text-center text-secondary mt-5 d-flex flex-column align-items-center gap-3">
+    <i class="fas fa-bell-slash fs-1 opacity-50"></i>
+    <p class="fs-5 m-0">Aucune notification trouvée</p>
   </div>
 </div>
