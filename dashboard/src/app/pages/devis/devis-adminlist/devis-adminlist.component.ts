@@ -117,6 +117,7 @@ export class DevisAdminlistComponent implements OnInit {
     }
   }
   openDetailsModal(id: number): void {
+    console.log("id :"+id)
     this.devisService.getById(id).subscribe(
       (data) => {
         this.devisDetails = data; // Stocker les détails du devis dans this.devisDetails

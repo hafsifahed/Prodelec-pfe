@@ -1,6 +1,5 @@
 import { User } from "../auth.models";
 import { CahierDesCharges } from "../CahierDesCharges/cahier-des-charges";
-import { UserModel } from "../user.models";
 
 export class Devis {
     id: number;

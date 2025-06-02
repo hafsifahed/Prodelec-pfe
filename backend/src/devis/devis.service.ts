@@ -56,10 +56,14 @@ export class DevisService {
   }
 
   async getDevisById(id: number): Promise<Devis> {
-    const devis = await this.devisRepo.findOne({ where: { id } });
-    if (!devis) throw new NotFoundException("Ce Devis n'existe pas");
-    return devis;
-  }
+  const devis = await this.devisRepo.findOne({
+    where: { id },
+    relations: ['user', 'user.partner', 'cahierDesCharges', 'cahierDesCharges.user']
+  });
+  if (!devis) throw new NotFoundException("Ce Devis n'existe pas");
+  return devis;
+}
+
 
   async archiver(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({ where: { id } });
