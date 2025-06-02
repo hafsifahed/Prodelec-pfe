@@ -29,9 +29,8 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> {
-    const token = localStorage.getItem('token'); // Récupérer le token à chaque appel
+    const token = localStorage.getItem('token');
 
-    // Extraire les permissions attendues de la route
     const requiredResource: string = route.data['resource'];
     const requiredActions: string[] = route.data['actions'] || [];
 
@@ -86,7 +85,7 @@ export class AuthGuard implements CanActivate {
 
       if (tokenData.exp === undefined) {
         console.warn('Le token ne contient pas de date d\'expiration');
-        return true; // On suppose valide si pas d'expiration
+        return true;
       }
 
       if (currentTime > tokenData.exp) {
@@ -105,7 +104,6 @@ export class AuthGuard implements CanActivate {
 
   private clearLocalStorageAndRedirect(token: string): void {
     this.logout(token);
-    // Ne pas vider localStorage ici, attendre la réponse logout
     console.log("clearLocalStorageAndRedirect appelée");
   }
 
@@ -133,7 +131,6 @@ export class AuthGuard implements CanActivate {
         },
         (err) => {
           console.error('Échec du logout', err);
-          // Nettoyage quand même en cas d'erreur
           localStorage.clear();
           this.userStateService.setUser(null);
           this.router.navigate(['/signin']);

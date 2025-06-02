@@ -150,7 +150,7 @@ export class ReclamationArchiveListComponent {
             icon: 'success'
           })
      
-          this.reclamations = this.reclamations.filter(cdc => cdc.id_Reclamation !== this.rejectId);
+          this.reclamations = this.reclamations.filter(cdc => cdc.id_reclamation !== this.rejectId);
           this.rejectId = null;
                this.ngOnInit();
           this.modalRef?.hide();

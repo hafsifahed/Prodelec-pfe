@@ -21,16 +21,16 @@ export class ReclamationService {
   const reclamation = this.reclamationRepo.create({
     ...createDto,
     user,
+     PieceJointe: createDto.PieceJointe || null,
   });
   const savedReclamation = await this.reclamationRepo.save(reclamation);
 
   // Notifier tous les admins qu'une nouvelle réclamation a été soumise
   await this.notificationsService.notifyAdmins(
     'Nouvelle réclamation soumise',       // titre de la notification
-    'Une nouvelle réclamation a été créée', // message
+    `Par ${user.username}`, // message
     { reclamationId: savedReclamation.id_reclamation, userId: user.id, username: user.username } // payload optionnel
   );
-
   return savedReclamation;
 }
 

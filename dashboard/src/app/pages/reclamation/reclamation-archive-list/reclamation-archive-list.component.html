@@ -65,8 +65,8 @@
         <tr *ngFor="let reclamation of filteredReclamations  | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
           <td>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="checkbox{{reclamation.id_Reclamation}}">
-              <label class="form-check-label" for="checkbox{{reclamation.id_Reclamation}}"></label>
+              <input class="form-check-input" type="checkbox" id="checkbox{{reclamation.id_reclamation}}">
+              <label class="form-check-label" for="checkbox{{reclamation.id_reclamation}}"></label>
             </div>
           </td>
           <td>
@@ -84,15 +84,15 @@
         
            
               <button class="btn detail-custom"
-                      (click)="openDetailsModal(reclamation.id_Reclamation)">
+                      (click)="openDetailsModal(reclamation.id_reclamation)">
                        <i class="bx bxs-detail" style="font-size: medium;">
 
                        </i></button>
-                      <!-- <button class="btn moin-btn" title="Supprimer" (click)="openDeleteModal(reclamation.id_Reclamation, deleteModal)">
+                      <!-- <button class="btn moin-btn" title="Supprimer" (click)="openDeleteModal(reclamation.id_reclamation, deleteModal)">
                         <i class="fas fa-trash-alt"></i>
                       </button> -->
         
-                      <button class="btn moin-btn"  title="Restaurer" (click)="openRestoreModal(reclamation.id_Reclamation, restoreModal)">
+                      <button class="btn moin-btn"  title="Restaurer" (click)="openRestoreModal(reclamation.id_reclamation, restoreModal)">
                         <i class="fas fa-trash-restore"></i>
                       </button>
           </td>
@@ -130,7 +130,7 @@
         </div>
       </div>
       <hr>
-      <div *ngIf="reclamation.pieceJointe">
+      <div *ngIf="reclamation.PieceJointe">
       
         <div class="mb-3">
           <p><strong>Pièce Jointe:</strong></p>
@@ -139,8 +139,8 @@
               <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
             </div>
             <div class="attachment-details">
-              <div class="attachment-name">{{ reclamation.pieceJointe }}</div>
-              <a class="attachment-download" (click)="telechargerPieceJointe(reclamation.pieceJointe,reclamation.id_Reclamation)">Télécharger</a>
+              <div class="attachment-name">{{ reclamation.PieceJointe }}</div>
+              <a class="attachment-download" (click)="telechargerPieceJointe(reclamation.PieceJointe,reclamation.id_reclamation)">Télécharger</a>
             </div>
           </div>
         </div>

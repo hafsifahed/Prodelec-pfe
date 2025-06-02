@@ -68,8 +68,8 @@
       <tr *ngFor="let reclamation of filteredReclamations  | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
         <td>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="checkbox{{reclamation.id_Reclamation}}">
-            <label class="form-check-label" for="checkbox{{reclamation.id_Reclamation}}"></label>
+            <input class="form-check-input" type="checkbox" id="checkbox{{reclamation.id_reclamation}}">
+            <label class="form-check-label" for="checkbox{{reclamation.id_reclamation}}"></label>
           </div>
         </td>
         <td>
@@ -85,18 +85,18 @@
         </td>
         <td>
           <button class="btn detail-custom " title="Details"
-          (click)="openDetailsModal(reclamation.id_Reclamation)"><i class="bx bxs-detail" style="font-size: medium;"></i></button>
+          (click)="openDetailsModal(reclamation.id_reclamation)"><i class="bx bxs-detail" style="font-size: medium;"></i></button>
 
         </td>
         <td>
           <div *ngIf="reclamation.status === 'En cours'">
             <button type="button" class="btn detail-custom " title="Repondre"
-                    (click)="openCommentModal(reclamation.id_Reclamation, commentModal)"><i class='bx bx-reply' style="font-size: medium;"></i></button>
+                    (click)="openCommentModal(reclamation.id_reclamation, commentModal)"><i class='bx bx-reply' style="font-size: medium;"></i></button>
                   </div>
           <div *ngIf="reclamation.status === 'Traité'">
             
               <button class="btn detail-custom">
-        <i class="mdi mdi-archive" (click)="openDeleteModal(reclamation.id_Reclamation, deleteModal)"></i>
+        <i class="mdi mdi-archive" (click)="openDeleteModal(reclamation.id_reclamation, deleteModal)"></i>
             </button>
                 
           </div>
@@ -149,7 +149,7 @@
       </div>
     </div>
     <hr>
-    <div *ngIf="reclamation.pieceJointe">
+    <div *ngIf="reclamation.PieceJointe">
     
       <div class="mb-3">
         <p><strong>Pièce Jointe:</strong></p>
@@ -158,8 +158,8 @@
             <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
           </div>
           <div class="attachment-details">
-            <div class="attachment-name">{{ reclamation.pieceJointe }}</div>
-            <a class="attachment-download" (click)="telechargerPieceJointe(reclamation.pieceJointe,reclamation.id_Reclamation)">Télécharger</a>
+            <div class="attachment-name">{{ reclamation.PieceJointe }}</div>
+            <a class="attachment-download" (click)="telechargerPieceJointe(reclamation.PieceJointe,reclamation.id_reclamation)">Télécharger</a>
           </div>
         </div>
       </div>

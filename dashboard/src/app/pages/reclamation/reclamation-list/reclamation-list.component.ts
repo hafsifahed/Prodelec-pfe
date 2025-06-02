@@ -5,9 +5,10 @@ import { Reclamation } from 'src/app/core/models/reclamation';
 import Swal from 'sweetalert2';
 import { ReclamationService } from 'src/app/core/services/Reclamation/reclamation.service';
 import { EmailService } from 'src/app/core/services/email.service';
-import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { User } from 'src/app/core/models/auth.models';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-reclamation-list',
@@ -28,39 +29,24 @@ export class ReclamationListComponent {
   selectedType: string = 'All';
   searchQuery: string = '';
   isAscending : boolean = true;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || 'rh.process@example.com';
 
   constructor(
     private reclamationService: ReclamationService,
     private modalService: BsModalService,
     private fb: FormBuilder,
     private emailService: EmailService,
-    private usersService : UsersService,
-    private notificationsService : NotificationService
+    private userStateService: UserStateService
   ) {
     this.reclamationForm = this.fb.group({
       type_de_defaut: ['', Validators.required],
       description: ['', Validators.required],
-      pieceJointe: [null]
+      PieceJointe: [null]
     });
   }
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadReclamation(data);
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
   openDetailsModal(id: number): void {
     this.reclamationService.getById(id).subscribe(
       (data) => {
@@ -75,33 +61,12 @@ export class ReclamationListComponent {
   }
 
   ngOnInit(): void {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
- 
-    }
+    this.userStateService.user$.subscribe(user => {
+      this.user = user;
+      this.loadReclamation(user);
+    });
   }
-  private createNotification(title: string, message: string): void {
-    const newNotification = {
-      id: 0,
-      title: title,
-      message: message,
-      createdBy: this.user.email, // Replace with the actual creator's name
-      read: false,
-      userId: 0, // Replace with the actual user ID or retrieve it from the logged-in user
-      workerId: 0,
-      createdAt: '',
-      updatedAt: ''
-    };
 
-   /* this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
-        () => {
-          console.log('Notification created successfully.');
-        },
-        (error) => {
-          console.error('Error creating notification', error);
-        }
-    );*/
-  }
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.filteredReclamations.sort((a, b) => {
@@ -112,8 +77,8 @@ export class ReclamationListComponent {
   }
 
 
-  loadReclamation(user: UserModel): void {
-    if (user.role === 'CLIENTADMIN') {
+  loadReclamation(user: User): void {
+    if (user.role.name === 'CLIENTADMIN') {
       this.reclamationService.getAllreclamation().subscribe(
         (data) => {
           // Filter the fetched reclamations by partner
@@ -191,7 +156,7 @@ export class ReclamationListComponent {
             icon: 'success'
           })
      
-          this.reclamation = this.reclamation.filter(reclamation => reclamation.id_Reclamation !== this.rejectId);
+          this.reclamation = this.reclamation.filter(reclamation => reclamation.id_reclamation !== this.rejectId);
           this.rejectId = null;
                this.ngOnInit();
           this.modalRef?.hide();
@@ -213,67 +178,74 @@ export class ReclamationListComponent {
   }
 
   addReclamation() {
-    if (this.reclamationForm.valid) {
-      const newReclamation: Reclamation = {
-        id_Reclamation: 0,
-        type_de_defaut: this.reclamationForm.value.type_de_defaut,
-        description: this.reclamationForm.value.description,
-        pieceJointe: this.selectedFile ? this.selectedFile.name : '',
-        reponse: '',
-        archive: false,
-        archiveU: false,
-        dateDeCreation: new Date(),
-        status: 'En cours',
-        user:  {
-          id: this.user?.id,
-          email: this.user?.email,
-          firstName: this.user?.firstName,
-          lastName: this.user?.lastName,
-          password: this.user?.password,
-          role: this.user?.role,
-          userSessions: this.user?.userSessions,
-          partner: this.user?.partner,
-          createdAt: this.user?.createdAt,
-          updatedAt: this.user?.updatedAt
-      
-        }
-      };
-
-      this.reclamationService.addreclamation(newReclamation).subscribe(
-        (response) => {
-       
-          Swal.fire({
-            title: 'Ajouté!',
-            text: "La Réclamation a été ajoutée avec succès.",
-            icon: 'success'
-          });
-         
-          this.sendmail(['contact@prodelecna.com','Fmrad@prodelecna.com','Tooling@prodelecna.com'],'Nouvelle Réclamation', newReclamation);//email de responsable Reclamation Proelec
-          this.saveReclamation();
-          this.modalRef?.hide();
-          this.reclamationForm.reset();
-          this.createNotification('Nouvel réclamation ajouté', 'Par: ' + this.userEmail );
-          this.ngOnInit();
+  if (this.reclamationForm.valid) {
+    // Si fichier sélectionné, uploader d'abord
+    if (this.selectedFile) {
+      this.reclamationService.uploadFile(this.selectedFile).subscribe(
+        (uploadResult) => {
+          // uploadResult.filename contient le nom réel sauvegardé côté backend
+          this.createReclamationWithFile(uploadResult.filename);
         },
         (error) => {
-          console.log(error)
-          Swal.fire({
-            title: 'Erreur!',
-            text: "Une erreur s'est produite lors de l'ajout de la Réclamation.",
-            icon: 'error'
-          });
+          console.error('Erreur upload fichier', error);
+          Swal.fire('Erreur', 'Erreur lors de l\'upload du fichier.', 'error');
         }
       );
     } else {
-      Swal.fire({
-        title: 'Erreur de formulaire!',
-        text: "Veuillez remplir tous les champs obligatoires.",
-        icon: 'error'
-      });
+      // Pas de pièce jointe
+      this.createReclamationWithFile('');
     }
+  } else {
+    Swal.fire({
+      title: 'Erreur de formulaire!',
+      text: "Veuillez remplir tous les champs obligatoires.",
+      icon: 'error'
+    });
   }
-  sendmail(to: string[], subject: string,  reclamation : Reclamation
-  ) {
+}
+
+createReclamationWithFile(pieceJointe: string) {
+  const newReclamation: Reclamation = {
+    id_reclamation: 0,
+    type_de_defaut: this.reclamationForm.value.type_de_defaut,
+    description: this.reclamationForm.value.description,
+    PieceJointe: pieceJointe,
+    reponse: '',
+    archive: false,
+    archiveU: false,
+    dateDeCreation: new Date(),
+    status: 'En cours',
+    user: {
+      id: this.user?.id,
+      email: this.user?.email,
+      username: this.user?.username,
+      accountStatus: this.user?.accountStatus,
+      firstName: this.user?.firstName,
+      lastName: this.user?.lastName,
+      role: this.user?.role,
+      partner: this.user?.partner,
+      createdAt: this.user?.createdAt,
+      updatedAt: this.user?.updatedAt
+    }
+  };
+
+  this.reclamationService.addreclamation(newReclamation).subscribe(
+    (response) => {
+      Swal.fire('Ajouté!', "La Réclamation a été ajoutée avec succès.", 'success');
+      this.sendmail(['hafsifahed98@gmail.com', 'hafsifahed019@gmail.com'], 'Nouvelle Réclamation', newReclamation);
+      this.modalRef?.hide();
+      this.reclamationForm.reset();
+      this.ngOnInit();
+    },
+    (error) => {
+      Swal.fire('Erreur!', "Une erreur s'est produite lors de l'ajout de la Réclamation.", 'error');
+    }
+  );
+}
+
+
+
+  sendmail(to: string[], subject: string,  reclamation : Reclamation) {
     const emailText = `
 <html>
 <head>

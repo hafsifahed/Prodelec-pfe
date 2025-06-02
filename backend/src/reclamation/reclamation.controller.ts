@@ -90,28 +90,33 @@ async create(
 
     // Save file buffer to disk
     fs.writeFileSync(filePath, file.buffer);
+console.log("piece path"+filePath);
+console.log("path name"+filename)
 
     return { filename, path: filePath };
   }
 
-  @Get('download/:filename')
-  async downloadFile(
-    @Param('filename') filename: string,
-    @CurrentUser() user: User,
-    @Res() res: Response,
-  ) {
-    const userDir = path.join(this.BASE_DIRECTORY, user.username, 'Reclamations');
-    const filePath = path.join(userDir, filename);
+@Get('download/:ownerEmail/:filename')
+async downloadFile(
+  @Param('ownerEmail') ownerEmail: string,
+  @Param('filename') filename: string,
+  @Res() res: Response,
+) {
+  const userDir = path.join(this.BASE_DIRECTORY, ownerEmail, 'Reclamations');
+  const filePath = path.join(userDir, filename);
 
-    if (!fs.existsSync(filePath)) {
-      throw new NotFoundException('File not found');
-    }
+  console.log(`Tentative de téléchargement du fichier : ${filePath}`);
 
-    // Detect MIME type for proper Content-Type header
-    const contentType = mime.lookup(filePath) || 'application/octet-stream';
-
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.sendFile(filePath);
+  if (!fs.existsSync(filePath)) {
+    throw new NotFoundException('File not found');
   }
+
+  const contentType = mime.lookup(filePath) || 'application/octet-stream';
+
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.sendFile(filePath);
+}
+
+
 }

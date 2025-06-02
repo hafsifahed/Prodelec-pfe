@@ -79,7 +79,7 @@ import { ProjectModule } from './project/project.module';
         },
       },
       defaults: {
-        from: `"No Reply" <${process.env.MAIL_FROM || 'noreply@example.com'}>`,
+        from: `"No Reply" <${process.env.MAIL_FROM || 'hafsifahed06@gmail.com'}>`,
       },
     }),
 

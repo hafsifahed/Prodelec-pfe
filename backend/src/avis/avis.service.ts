@@ -37,7 +37,7 @@ const avis = this.avisRepository.create({
     // Notifier tous les admins
     await this.notificationsService.notifyAdmins(
       'Nouvel avis soumis',
-      'Un nouvel avis a été soumis',
+      `Par ${user.username}`,
       { avisId: savedAvis.id, userId: user.id ,username:user.username}
     );
 

@@ -1,15 +1,15 @@
-import { UserModel } from "./user.models";
+import { User } from "./auth.models";
 
 export class Reclamation {
-    id_Reclamation: number;
+    id_reclamation: number;
     description: string;
     type_de_defaut: string;
     status: string;
-    pieceJointe:String;
+    PieceJointe:String;
     reponse:String;
     archive: boolean;
     archiveU: boolean;
 
     dateDeCreation: Date;
-    user: UserModel;
+    user: User;
 }

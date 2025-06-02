@@ -32,7 +32,7 @@ export class CahierDesChargesService {
   // Notification aux admins après création
   await this.notificationsService.notifyAdmins(
     'Nouveau cahier des charges soumis',
-    `Un nouveau cahier des charges a été soumis par ${user.username}`,
+    `Par ${user.username}`,
     { cdcId: savedCdc.id, userId: user.id, username: user.username }
   );
 

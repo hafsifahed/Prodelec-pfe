@@ -1,7 +1,16 @@
-// src/cdc/dto/email-request.dto.ts
+import { ArrayNotEmpty, IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+
 export class EmailRequestDto {
-    to: string[];
-    subject: string;
-    text: string;
-  }
-  
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsEmail({}, { each: true })
+  to: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  subject: string;
+
+  @IsString()
+  @IsNotEmpty()
+  text: string;
+}

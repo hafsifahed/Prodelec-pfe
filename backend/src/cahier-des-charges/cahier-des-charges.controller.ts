@@ -162,15 +162,20 @@ async uploadFile(
 
   // ENVOI EMAIL
   @Post('send')
-  async sendEmail(@Body() emailRequest: EmailRequestDto) {
-    for (const recipient of emailRequest.to) {
-      await this.mailerService.sendMail({
-        to: recipient,
-        from: 'noreply@prodelecna.com',
-        subject: emailRequest.subject,
-        html: emailRequest.text,
-      });
-    }
-    return { message: 'Emails envoyés' };
+async sendEmail(@Body() emailRequest: EmailRequestDto) {
+  if (!emailRequest.to || !Array.isArray(emailRequest.to)) {
+    throw new BadRequestException('Le champ "to" doit être un tableau d\'emails');
   }
+
+  for (const recipient of emailRequest.to) {
+    await this.mailerService.sendMail({
+      to: recipient,
+      from: 'hafsifahed98@gmail.com',
+      subject: emailRequest.subject,
+      html: emailRequest.text,
+    });
+  }
+  return { message: 'Emails envoyés' };
+}
+
 }

@@ -176,25 +176,11 @@ export enum Role {
       id: 10,
       label: 'Session',
       icon: 'bx-time',
+       link: '/list-user-session',
+
       rolePermissions: [
         { resource: Resource.SESSIONS, actions: [Action.MANAGE], roles: [Role.ADMIN] },
         { resource: Resource.SESSIONS, actions: [Action.READ], roles: [Role.CLIENT_ADMIN, Role.CLIENT_USER] }
-      ],
-      subItems: [
-        {
-          id: 101,
-          label: 'Sessions Utilisateurs',
-          icon: 'bx-user',
-          link: '/list-user-session',
-          parentId: 10,
-        },
-        {
-          id: 102,
-          label: 'Sessions Employés',
-          icon: 'bx-user',
-          link: '/list-worker-session',
-          parentId: 10,
-        },
       ],
     },
     {

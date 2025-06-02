@@ -36,7 +36,7 @@ export class ReclamationArchiveUserlistComponent {
     this.reclamationForm = this.fb.group({
       type_de_defaut: ['', Validators.required],
       description: ['', Validators.required],
-      pieceJointe: [null]
+      PieceJointe: [null]
     });
   }
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
@@ -159,7 +159,7 @@ fetchUser(email: string): void {
             icon: 'success'
           })
      
-          this.reclamation = this.reclamation.filter(reclamation => reclamation.id_Reclamation !== this.rejectId);
+          this.reclamation = this.reclamation.filter(reclamation => reclamation.id_reclamation !== this.rejectId);
           this.rejectId = null;
                this.ngOnInit();
           this.modalRef?.hide();

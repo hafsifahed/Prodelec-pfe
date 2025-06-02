@@ -84,14 +84,14 @@
             </span>
           </td>
           <td>
-            <button class="btn detail-custom" title="Details" (click)="openDetailsModal(rec.id_Reclamation)">
+            <button class="btn detail-custom" title="Details" (click)="openDetailsModal(rec.id_reclamation)">
               <i class="bx bxs-detail" style="font-size: medium;"></i>
             </button>
           </td>
           
           <td>
             <ng-container *ngIf="rec.status === 'Traité'">
-              <button class="btn moin-btn"  (click)="openDeleteModal(rec.id_Reclamation, deleteModal)">
+              <button class="btn moin-btn"  (click)="openDeleteModal(rec.id_reclamation, deleteModal)">
                 <i class="mdi mdi-archive"></i>
               </button>
           
@@ -183,7 +183,7 @@
         </div>
       </div>
       <hr>
-      <div *ngIf="rec.pieceJointe">
+      <div *ngIf="rec.PieceJointe">
       
         <div class="mb-3">
           <p><strong>Pièce Jointe:</strong></p>
@@ -192,8 +192,8 @@
               <img src="//ssl.gstatic.com/docs/doclist/images/mediatype/icon_3_pdf_x16.png" alt="PDF">
             </div>
             <div class="attachment-details">
-              <div class="attachment-name">{{ rec.pieceJointe }}</div>
-              <a class="attachment-download" (click)="telechargerPieceJointe(rec.pieceJointe)">Télécharger</a>
+              <div class="attachment-name">{{ rec.PieceJointe }}</div>
+              <a class="attachment-download" (click)="telechargerPieceJointe(rec.PieceJointe)">Télécharger</a>
             </div>
           </div>
         </div>

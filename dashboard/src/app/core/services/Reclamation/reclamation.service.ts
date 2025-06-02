@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Reclamation } from '../../models/reclamation';
 import { Observable } from 'rxjs';
-import { UserModel } from '../../models/user.models';
+import { User } from '../../models/auth.models';
 
 @Injectable({
   providedIn: 'root'
@@ -39,23 +39,20 @@ RestorerU(id:number){
   return this.http.put(`${environment.baseUrl}/reclamation/restorerU/${id}`,null);
 } 
 
-downloadFile(fileName: string , user : UserModel): Observable<Blob> {
-  let params = new HttpParams()
-  .set('email', user.email);  // Assuming `email` is a property of `UserModel`
-
-return this.http.get(`${environment.baseUrl}/reclamation/download/${fileName}`, {
-  responseType: 'blob',
-  params: params
-});
-
+downloadFile(fileName: string, user: User): Observable<Blob> {
+  return this.http.get(`${environment.baseUrl}/reclamation/download/${user.email}/${fileName}`, {
+    responseType: 'blob', // important pour récupérer un fichier binaire
+  });
 }
 
-uploadFile(file: File): Observable<string> {
+
+uploadFile(file: File): Observable<{ filename: string; path: string }> {
   const formData: FormData = new FormData();
   formData.append('file', file, file.name);
 
-  return this.http.post<string>(`${environment.baseUrl}/reclamation/upload`, formData);
+  return this.http.post<{ filename: string; path: string }>(`${environment.baseUrl}/reclamation/upload`, formData);
 }
+
 deleteRec(id:number){
   return this.http.delete(`${environment.baseUrl}/reclamation/${id}`);
 }
