@@ -164,7 +164,7 @@ loadRoles(): void {
 
   openShowModal(role: Role, template: TemplateRef<any>): void {
     this.selectedRole = role;
-    this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
+    this.modalRef = this.modalService.show(template, { class: 'modal-fullscreen' });
   }
 
   openDeleteModal(id: number, template: TemplateRef<any>): void {

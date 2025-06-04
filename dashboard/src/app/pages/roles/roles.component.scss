@@ -319,15 +319,3 @@ $transition: all 0.2s ease;
     margin: 0;
   }
 }
-.permissions-container button.btn-link {
-  color: $primary; // ou ta variable couleur principale
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 0;
-  text-decoration: underline;
-
-  &:hover {
-    color: darken($primary, 10%);
-  }
-}
