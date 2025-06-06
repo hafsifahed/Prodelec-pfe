@@ -83,12 +83,6 @@ export enum Role {
       ],
       subItems: [
         {
-          id: 31,
-          label: 'Liste Employés',
-          icon: 'bx-user',
-          link: '/list-worker',
-        },
-        {
           id: 32,
           label: 'Liste Utilisateurs',
           icon: 'bx-user',

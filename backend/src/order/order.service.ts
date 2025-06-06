@@ -46,10 +46,14 @@ export class OrderService {
   }
 
   async getOrdersByUser(idUser: number): Promise<Order[]> {
-    const user = await this.userRepo.findOne({ where: { id: idUser } });
-    if (!user) throw new NotFoundException(`User not found with id: ${idUser}`);
-    return this.orderRepo.find({ where: { user } });
-  }
+  const exists = await this.userRepo.findOne({ where: { id: idUser } });
+  if (!exists) throw new NotFoundException(`User not found with id: ${idUser}`);
+
+  return this.orderRepo.find({
+    where: { user: { id: idUser } },
+    relations: ['user'],
+  });
+}
 
   async changeStatus(idOrder: number): Promise<Order> {
     const order = await this.getOrderById(idOrder);

@@ -8,8 +8,9 @@ import { OrderDto } from 'src/app/core/models/order/order-dto';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import Swal from 'sweetalert2';
 import { saveAs } from 'file-saver';
-import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
+import { User } from 'src/app/core/models/auth.models';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-list-order-user',
@@ -31,20 +32,25 @@ export class ListOrderUserComponent {
   selectedYear: string = 'Tous'; 
   p: number = 1; // Current page number
   itemsPerPage: number = 5;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
-  constructor(private router: Router, private orderservice: OrderServiceService,private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
+  constructor(private router: Router, private orderservice: OrderServiceService,
+        private userStateService: UserStateService,
+    private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
   }
   ngOnInit() {
 
-    if (this.userEmail) {
+    /*if (this.userEmail) {
       this.fetchUser(this.userEmail);
       
-    }
+    }*/
+       this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
 
-    
+          this.loadOrder(this.user);
+
 
     this.ordersForm = this.formBuilder.group({
       numcomm: ['', [Validators.required]],
@@ -55,7 +61,7 @@ export class ListOrderUserComponent {
 
   }
 
-  loadOrder(user:UserModel):void{
+  loadOrder(user:User):void{
     this.orderservice.getOrdersByUser(user.id).subscribe({
       next: (data) => {
         if (data.length == 0) {
@@ -80,20 +86,6 @@ export class ListOrderUserComponent {
     });
   }
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadOrder(data)
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-    
-  }
 
   cancel(id: number) {
     Swal.fire({
@@ -135,8 +127,8 @@ export class ListOrderUserComponent {
     });
   }
 
-  onDownloadFile(filename:string,ordernumber:string,user:UserModel){
-    this.orderservice.download(filename,user).subscribe(
+  onDownloadFile(filename:string,ordernumber:string,user:User){
+    this.orderservice.download(filename,user.username).subscribe(
       event=>{
         console.log(event);
         this.reportProgress(event,ordernumber);
@@ -222,7 +214,7 @@ export class ListOrderUserComponent {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    this.orderservice.upload(formData).subscribe(
+    this.orderservice.upload(formData,this.user.username).subscribe(
       (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Handle upload progress (if needed)

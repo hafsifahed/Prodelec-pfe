@@ -11,8 +11,9 @@ import { OrderDto } from 'src/app/core/models/order/order-dto';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { formatDate } from '@angular/common';
-import { UserModel } from 'src/app/core/models/user.models';
 import { PartnersService } from 'src/app/core/services/partners.service';
+import { User } from 'src/app/core/models/auth.models';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-list-order',
@@ -37,9 +38,14 @@ export class ListOrderComponent {
   selectedYear: string = 'Tous'; 
   p: number = 1; // Current page number
   itemsPerPage: number = 5;
+    user: User | null = null;
+
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
-  constructor(private spartner:PartnersService,private router: Router, private orderservice: OrderServiceService,private formBuilder: UntypedFormBuilder,private projectservice:ProjectService) {
+  constructor(private spartner:PartnersService,
+            private userStateService: UserStateService,
+
+    private router: Router, private orderservice: OrderServiceService,private formBuilder: UntypedFormBuilder,private projectservice:ProjectService) {
   }
   ngOnInit() {
     this.orderservice.getAllOrders().subscribe({
@@ -65,6 +71,9 @@ export class ListOrderComponent {
       },
     });
 
+    this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
     this.ordersForm = this.formBuilder.group({
       numcomm: ['', [Validators.required]],
       numdev: ['', [Validators.required]],
@@ -103,7 +112,7 @@ export class ListOrderComponent {
       qte: [0, [Validators.required]]
     });
 
-    this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
+    this.orderservice.getAllOrders().subscribe((res:any)=>{
         this.listr=res;
     });
 
@@ -174,8 +183,8 @@ export class ListOrderComponent {
     });
   }
 
-  onDownloadFile(filename:string,ordernumber:string,user:UserModel){
-    this.orderservice.download(filename,user).subscribe(
+  onDownloadFile(filename:string,ordernumber:string,user:User){
+    this.orderservice.download(filename,user.username).subscribe(
       event=>{
         console.log(event);
         this.reportProgress(event,ordernumber);
@@ -235,7 +244,7 @@ export class ListOrderComponent {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    this.orderservice.upload(formData).subscribe(
+    this.orderservice.upload(formData,this.user.username).subscribe(
       (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Handle upload progress (if needed)

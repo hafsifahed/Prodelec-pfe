@@ -53,14 +53,13 @@ private reportProgress(httpEvent: HttpEvent<string | Blob>) {
         this.blobUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
           URL.createObjectURL(httpEvent.body)
         );
-      } else {
-        console.error('Invalid response body. Expected Blob, but received:', typeof httpEvent.body);
       }
       break;
     default:
       console.log(httpEvent);
   }
 }
+
 
   viewBlob(blob: Blob) {
     this.blobUrl = URL.createObjectURL(blob);

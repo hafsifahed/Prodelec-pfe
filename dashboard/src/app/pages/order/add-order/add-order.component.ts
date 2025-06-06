@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
 import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { User } from 'src/app/core/models/auth.models';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -25,32 +27,22 @@ export class AddOrderComponent implements OnInit{
   attachementName: string ="";
   fileStatus={ status:'',requestType:'',percent:0 };
   showProductSection: boolean = false;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
-  constructor(private router: Router,private http: HttpClient,private fileService:OrderServiceService,private usersService : UsersService,private notificationsService:NotificationService)
+  constructor(private router: Router,private http: HttpClient,
+        private userStateService: UserStateService,
+
+    private fileService:OrderServiceService,private usersService : UsersService,private notificationsService:NotificationService)
   {
   }
 
   ngOnInit(): void {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-      
-    }
+        this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
   }
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
+
 
   addForm = new FormGroup({
     orderNumber: new FormControl('', [Validators.required]),
@@ -63,36 +55,42 @@ export class AddOrderComponent implements OnInit{
     products: new FormArray([])
   });
 
-  onUploadFile(event: any): void {
-    const file = event.target.files[0];
-    if (!file) {
-      return;
-    }
-    this.attachementName = file.name;
+  onUploadFile(evt: Event): void {
+  const input = evt.target as HTMLInputElement;
+  const file   = input.files?.[0];
+  if (!file) { return; }
 
-    const formData = new FormData();
-    formData.append('file', file, file.name);
+  // On stocke immédiatement le nom (facultatif — pour l’affichage)
+  this.attachementName = file.name;
 
-    this.fileService.upload(formData).subscribe(
-      (event: any) => {
-        if (event.type === HttpEventType.UploadProgress) {
-          // Handle upload progress (if needed)
-          this.reportProgress(event);
-        } else if (event.type === HttpEventType.Response) {
-          // Handle the final response
-          this.attachementName = event.body;
-          console.log(this.attachementName);
-        }
-      },
-      (error) => {
-        if (error.status === 400) {
-          const errorMessage = error.error;
-          console.log(errorMessage);
-          alert(errorMessage);
-        }
+  const formData = new FormData();
+  formData.append('file', file, file.name);
+  // Si ton backend range par utilisateur
+  formData.append('username', this.user?.username ?? 'anonymous');
+
+  this.fileService.upload(formData,this.user.username).subscribe({
+    next: (event) => {
+      if (event.type === HttpEventType.UploadProgress) {
+        this.reportProgress(event);
       }
-    );
-  }
+      if (event.type === HttpEventType.Response) {
+        /* le backend renvoie { filename: 'res-123.txt' } */
+        this.attachementName = (event.body as any).filename;  // ✅ chaîne simple
+        console.log('upload ok →', this.attachementName);
+        // (optionnel) : vider l’input pour pouvoir re-sélectionner le même fichier
+        input.value = '';
+      }
+    },
+    error: (err) => {
+      if (err.status === 400) {
+        alert(err.error);
+      } else {
+        console.error(err);
+      }
+    }
+  });
+}
+
 
   private reportProgress(httpEvent: HttpEvent<string | Blob>) {
     switch (httpEvent.type){
@@ -128,28 +126,6 @@ export class AddOrderComponent implements OnInit{
     this.fileStatus.requestType=requestType;
     this.fileStatus.percent=Math.round(100*loaded/total);
   }
-  private createNotification(title: string, message: string): void {
-    const newNotification = {
-      id: 0,
-      title: title,
-      message: message,
-      createdBy: this.user.email, // Replace with the actual creator's name
-      read: false,
-      userId: 0, // Replace with the actual user ID or retrieve it from the logged-in user
-      workerId: 0,
-      createdAt: '',
-      updatedAt: ''
-    };
-
-    /*this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
-        () => {
-          console.log('Notification created successfully.');
-        },
-        (error) => {
-          console.error('Error creating notification', error);
-        }
-    );*/
-  }
 
   save1()
   {
@@ -166,7 +142,6 @@ export class AddOrderComponent implements OnInit{
         showConfirmButton: false,
         timer: 1500
       });
-      this.createNotification('Nouvelle commande ajouté', 'Par: ' + this.userEmail );
       this.router.navigate(['/listorderclient']);
     },
     (error: any) => {
@@ -223,7 +198,7 @@ export class AddOrderComponent implements OnInit{
     const formData = new FormData();
     formData.append('file', blob, this.attachementName);
   
-    this.fileService.upload(formData).subscribe(
+    this.fileService.upload(formData,this.user.username).subscribe(
       (event: any) => {
         
         
@@ -255,7 +230,6 @@ export class AddOrderComponent implements OnInit{
           showConfirmButton: false,
           timer: 1500
         });
-        this.createNotification('Nouvelle commande ajouté', 'Par: ' + this.userEmail );
         this.router.navigate(['/listorderclient']);
       },
       (error: any) => {

@@ -38,6 +38,7 @@ export class CDCListUserComponent {
 
    this.userStateService.user$.subscribe(user => {
       this.user = user;
+      this.loadCDC(user);
     });
   
   }

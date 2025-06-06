@@ -52,8 +52,14 @@
                   <div class="row">
                     <div class="col-lg-12">
                       <div class="form-group">
-                        <input name="file" type="file" (change)="onUploadFile($event)" [(ngModel)]="attachementName"
-                          class="form-control" id="file">
+                        <input name="file"
+                              type="file"
+                              class="form-control"
+                              (change)="onUploadFile($event)">
+                        <small *ngIf="attachementName" class="text-muted">
+                          Fichier sélectionné : {{ attachementName }}
+                        </small>
+
                       </div>
                     </div>
                   </div>

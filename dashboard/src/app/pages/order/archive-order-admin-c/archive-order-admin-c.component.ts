@@ -11,6 +11,7 @@ import { OrderDto } from 'src/app/core/models/order/order-dto';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { UserModel } from 'src/app/core/models/user.models';
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-archive-order-admin-c',
@@ -126,8 +127,8 @@ export class ArchiveOrderAdminCComponent {
     });
   }
 
-  onDownloadFile(filename:string,ordernumber:string,user:UserModel){
-    this.orderservice.download(filename,user).subscribe(
+  onDownloadFile(filename:string,ordernumber:string,user:User){
+    this.orderservice.download(filename,user.username).subscribe(
       event=>{
         console.log(event);
         this.reportProgress(event,ordernumber);
@@ -155,7 +156,7 @@ export class ArchiveOrderAdminCComponent {
   }
 
 
-
+/*
   onUploadFile(event: any): void {
     const file = event.target.files[0];
     if (!file) {
@@ -166,7 +167,7 @@ export class ArchiveOrderAdminCComponent {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
-    this.orderservice.upload(formData).subscribe(
+    this.orderservice.upload(formData,this.).subscribe(
       (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           // Handle upload progress (if needed)
@@ -221,7 +222,7 @@ export class ArchiveOrderAdminCComponent {
     this.fileStatus.requestType=requestType;
     this.fileStatus.percent=Math.round(100*loaded/total);
   }
-
+*/
 
   
   getFileNameFromPath(path: string): string {

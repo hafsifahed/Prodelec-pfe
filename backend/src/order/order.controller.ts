@@ -17,7 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { join } from 'path';
 import { Order } from './entities/order.entity';
 import { OrderService } from './order.service';
 
@@ -27,6 +27,73 @@ export class OrderController {
 
   static BASE_DIRECTORY = join(process.env.HOME || process.env.USERPROFILE || '', 'Downloads', 'uploads');
 
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        /* 1) on met d’abord le fichier dans un dossier temporaire */
+        destination: (req, file, cb) => {
+          const tempDir = join(OrderController.BASE_DIRECTORY, 'temp');
+          if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
+          cb(null, tempDir);
+        },
+        /* 2) on conserve le nom d’origine (ou tu peux ajouter un suffixe) */
+        filename: (req, file, cb) => cb(null, file.originalname),
+      }),
+    }),
+  )
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('username') username: string, // le frontend passera ?username=alice
+  ) {
+    if (!file) throw new BadRequestException('Aucun fichier reçu');
+    if (!username) throw new BadRequestException('Paramètre username manquant');
+
+    /* -- déplacement du fichier depuis temp/ vers le dossier définitif -- */
+    const fs = await import('fs'); // import dynamique pour ESM/CJS
+    const path = await import('path');
+
+    const userDir = join(
+      OrderController.BASE_DIRECTORY,
+      username,
+      'Commandes',
+    );
+    if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
+
+    const tempPath = file.path;
+    const targetPath = path.join(userDir, file.originalname);
+
+    fs.renameSync(tempPath, targetPath);
+
+    return { filename: file.originalname };
+  }
+
+  @Get('download/:fileName')
+  async downloadFile(
+    @Param('fileName') fileName: string,
+    @Query('username') username: string,
+    @Res() res: Response,
+  ) {
+    if (!username) throw new BadRequestException('Paramètre username manquant');
+
+    const userDir = join(
+      OrderController.BASE_DIRECTORY,
+      username,
+      'Commandes',
+    );
+    const filePath = join(userDir, fileName);
+
+    if (!existsSync(filePath)) {
+      throw new NotFoundException('Fichier introuvable');
+    }
+
+    res.set({
+      'Content-Type': 'application/pdf', // adapte si tu acceptes d’autres types
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+    });
+    createReadStream(filePath).pipe(res);
+  }
+  
   @Post('/:idUser')
   async addOrder(@Body() orderData: Partial<Order>, @Param('idUser') idUser: number): Promise<Order> {
     return this.orderService.addOrder(orderData, idUser);
@@ -72,40 +139,5 @@ export class OrderController {
     return this.orderService.archiverc(id);
   }
 
-  @Post('/upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const username = req.body.username || 'anonymous';
-          const userDir = join(OrderController.BASE_DIRECTORY, username, 'Commandes');
-          if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
-          cb(null, userDir);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `${file.originalname.replace(ext, '')}-${uniqueSuffix}${ext}`);
-        },
-      }),
-    }),
-  )
-  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<{ filename: string }> {
-    if (!file) throw new BadRequestException('No file uploaded');
-    return { filename: file.filename };
-  }
-
-  @Get('/download/:fileName')
-  async downloadFile(@Param('fileName') fileName: string, @Query('username') username: string, @Res() res: Response) {
-    const userDir = join(OrderController.BASE_DIRECTORY, username, 'Commandes');
-    const filePath = join(userDir, fileName);
-
-    if (!existsSync(filePath)) throw new NotFoundException('File not found');
-
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${fileName}"`,
-    });
-    createReadStream(filePath).pipe(res);
-  }
+  
 }

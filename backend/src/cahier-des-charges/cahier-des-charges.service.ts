@@ -43,6 +43,7 @@ export class CahierDesChargesService {
 
 
   getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
+    console.log(this.repository.find());
     return this.repository.find();
   }
 

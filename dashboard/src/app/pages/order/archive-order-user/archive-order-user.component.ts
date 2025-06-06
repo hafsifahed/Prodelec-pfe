@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { saveAs } from 'file-saver';
 import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
+import { User } from 'src/app/core/models/auth.models';
 
 @Component({
   selector: 'app-archive-order-user',
@@ -84,8 +85,8 @@ export class ArchiveOrderUserComponent {
 
 
 
-  onDownloadFile(filename:string,ordernumber:string,user:UserModel){
-    this.orderservice.download(filename,user).subscribe(
+  onDownloadFile(filename:string,ordernumber:string,user:User){
+    this.orderservice.download(filename,user.username).subscribe(
       event=>{
         console.log(event);
         this.reportProgress(event,ordernumber);
@@ -147,7 +148,7 @@ export class ArchiveOrderUserComponent {
 
 
 
-  onUploadFile(event: any): void {
+ /* onUploadFile(event: any): void {
     const file = event.target.files[0];
     if (!file) {
       return;
@@ -211,7 +212,7 @@ export class ArchiveOrderUserComponent {
     this.fileStatus.status='progress';
     this.fileStatus.requestType=requestType;
     this.fileStatus.percent=Math.round(100*loaded/total);
-  }
+  }*/
 
 
   
