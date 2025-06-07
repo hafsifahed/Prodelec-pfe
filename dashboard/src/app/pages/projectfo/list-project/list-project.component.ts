@@ -7,6 +7,7 @@ import { Project } from 'src/app/core/models/projectfo/project';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 import { WorkersService } from 'src/app/core/services/workers.service';
 import Swal from 'sweetalert2';
 
@@ -36,7 +37,6 @@ export class ListProjectComponent {
   itemsPerPage: number = 3;
   modalRef?: BsModalRef;
   userr: any;
-  userEmail = localStorage.getItem('userMail');
   
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
@@ -45,12 +45,15 @@ export class ListProjectComponent {
   @ViewChild('detailsprodModal') detailsprodModal?: TemplateRef<any>;
   @ViewChild('detailsfcModal') detailsfcModal?: TemplateRef<any>;
   @ViewChild('detailsdelModal') detailsdelModal?: TemplateRef<any>;
-  constructor(private workersService: WorkersService,private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private modalService: BsModalService) {
+  constructor(private workersService: WorkersService,
+        private userStateService: UserStateService,
+    private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private modalService: BsModalService) {
   }
 
   ngOnInit() {
-
-    this.fetchWorkerProfile(this.userEmail);
+this.userStateService.user$.subscribe(user => {
+      this.userr = user;
+    });
 
     this.projectservice.getAllProjects().subscribe({
       next: (data) => {
@@ -143,17 +146,6 @@ export class ListProjectComponent {
 
   }
 
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          console.log(data);
-          this.userr = data;
-        },
-        (error) => {
-          console.error('Error fetching worker data', error);
-        }
-    );
-  }
 
 
   calculateProgress(project: Project) {

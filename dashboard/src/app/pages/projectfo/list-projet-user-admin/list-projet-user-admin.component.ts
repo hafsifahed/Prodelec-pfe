@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { User } from 'src/app/core/models/auth.models';
 import { Project } from 'src/app/core/models/projectfo/project';
-import { UserModel } from 'src/app/core/models/user.models';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UsersService } from 'src/app/core/services/users.service';
 import Swal from 'sweetalert2';
 
@@ -27,41 +28,29 @@ export class ListProjetUserAdminComponent {
   selectedYear: string = 'Tous'; 
   p: number = 1; // Current page number
   itemsPerPage: number = 3;
-  user: UserModel | null = null;
+  user: User | null = null;
   errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
-  constructor(private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
+  constructor(private router: Router, private orderservice: OrderServiceService,
+        private userStateService: UserStateService, 
+    private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
   }
   ngOnInit() {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-      
-    }
+this.userStateService.user$.subscribe(user => {
+      this.user = user;
+    });
 
-    
+      this.loadProject(this.user);
 
   }
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadProject(data)
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
 
-  loadProject(user: UserModel): void {
+  loadProject(user: User): void {
     this.list = [];
     this.flist = [];
   
-    this.projectservice.getAllProjects().subscribe({
+    this.projectservice.getProjectsByPartner(user.partner.id).subscribe({
       next: (data: any) => {
+        console.log('projects : '+data)
         if (data.length === 0) {
           Swal.fire({
             icon: 'warning',
@@ -84,7 +73,7 @@ export class ListProjetUserAdminComponent {
     });
   }
   
-  filterProjects(projects: any[], user: UserModel, withLog: boolean = false): any[] {
+  filterProjects(projects: any[], user: User, withLog: boolean = false): any[] {
     return projects.filter((project) => {
       const isNotArchived = !project.archiverc;
       const partnerMatches = project.order.user.partner.name === user.partner.name;

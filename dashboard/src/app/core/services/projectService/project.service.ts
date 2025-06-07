@@ -152,5 +152,8 @@ export class ProjectService {
     const url = `${environment.baseUrl}/projects/reall/${id}`;
     return this.http.put(url,{});
   }
+  getProjectsByPartner(partnerId: number) {
+  return this.http.get<Project[]>(`${environment.baseUrl}/projects/partner/${partnerId}`);
+}
 
 }

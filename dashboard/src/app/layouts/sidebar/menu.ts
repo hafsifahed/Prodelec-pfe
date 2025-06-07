@@ -99,6 +99,12 @@ export const MENU: MenuItem[] = [
       { resource: Resource.PROJECT, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
   },
+  {
+    id: 70, label: 'Projets (Admin Client)', icon: 'bx-briefcase', link: '/listprojetclientadmin',
+    rolePermissions: [
+      { resource: Resource.PROJECT, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN] }
+    ]
+  },
 
   /* --- Réclamation --- */
   {

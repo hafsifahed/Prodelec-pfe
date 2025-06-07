@@ -51,4 +51,6 @@ export class PartnersService {
   async getUsersByPartnerId(partnerId: number): Promise<User[]> {
     return this.userRepository.find({ where: { partner: { id: partnerId } } });
   }
+
+  
 }

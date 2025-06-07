@@ -17,21 +17,9 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    //this.loadUserProfile();
       this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
   }
 
-  /*private loadUserProfile(): void {
-    this.usersService.getProfile().subscribe({
-      next: (userData) => {
-        this.user = userData;
-      },
-      error: (error) => {
-        console.error('Error fetching user profile', error);
-        this.errorMessage = 'Failed to load user profile. Please try again later.';
-      },
-    });
-  }*/
 }
