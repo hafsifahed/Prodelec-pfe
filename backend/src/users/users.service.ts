@@ -39,7 +39,7 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = this.usersRepository.create({
-      username,
+      username: email.split('@')[0],
       password: hashedPassword,
       firstName,
       lastName,

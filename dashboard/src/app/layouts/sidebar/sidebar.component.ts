@@ -9,6 +9,7 @@ import { MENU } from './menu';
 import { MenuItem, RolePermissions } from './menu.model';
 import { TranslateService } from '@ngx-translate/core';
 import { UsersService } from 'src/app/core/services/user.service';
+import { Action } from 'src/app/core/models/role.model';
 
 
 @Component({
@@ -48,31 +49,6 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnInit() {
 
-
-    /*this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
-
-    const userType = localStorage.getItem('userType');
-    const sessionId = localStorage.getItem('sessionId');
-    this.checkSessionActive(userType,sessionId);
-
-    if (this.userType && userEmail) {
-      if (this.userType === 'user') {
-        this.fetchUserProfile(userEmail);
-
-
-      } else if (this.userType === 'worker') {
-        this.fetchWorkerProfile(userEmail);
-
-
-      } else {
-        this.errorMessage = 'Invalid user type.';
-      }
-    } else {
-      this.errorMessage = 'User information not found in local storage.';
-    }*/
-  /*  this.initialize(this.user);
-    console.log(this.user)*/
     this._scrollElement();
     this._activateMenuDropdown();
 
@@ -191,40 +167,51 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
 
   }
 
-  /**
-   * Initialize
-   */
-  initialize(role: { permissions: RolePermissions[] }): void {
-    if (role && role.permissions && role.permissions.length > 0) {
-      this.menuItems = MENU.filter(item => {
-        // If no rolePermissions specified on the item, show it to everyone
-        if (!item.rolePermissions || item.rolePermissions.length === 0) {
-          return true;
-        }
-  
-        // Check if user has at least one required permission for the menu item
-        return item.rolePermissions.some(menuPerm => {
-          return role.permissions.some(userPerm => {
-            return (
-              userPerm.resource.toLowerCase() === menuPerm.resource.toLowerCase() &&
-              menuPerm.actions.some(action =>
-                userPerm.actions.map(a => a.toLowerCase()).includes(action.toLowerCase())
-              )
-            );
-          });
-        });
-      });
-    } else {
-      // If no permissions, show all menu items or none depending on your policy
-      this.menuItems = MENU;
-    }
+   /* ------------- filtre du menu ------------- */
+  /* ------------- filtre du menu ------------- */
+initialize(role: { name?: string; permissions: RolePermissions[] }): void {
+  const userRole: string | undefined = role?.name;          // nom du rôle (ex. "CLIENTADMIN")
+
+  if (!role?.permissions?.length) {
+    this.menuItems = MENU;          // pas de permissions ⇒ tout le menu (ou rien selon ta politique)
+    return;
   }
+
+  this.menuItems = MENU.filter(item =>
+    /* --------------------------------------------------
+       1) S’il n’y a pas de contraintes, on garde l’item
+       -------------------------------------------------- */
+    !item.rolePermissions?.length ||
+
+    /* --------------------------------------------------
+       2) Sinon on teste chaque contrainte déclarée
+       -------------------------------------------------- */
+    item.rolePermissions.some(menuPerm => {
+      /* 2.a) Le rôle est-il autorisé pour cette contrainte ?           */
+      /*      – Si menuPerm.roles est vide/undefined → pas de filtre    */
+      /*      – Sinon le rôle de l’utilisateur doit y figurer           */
+      const roleOK =
+        !menuPerm.roles?.length ||
+        (userRole && menuPerm.roles.includes(userRole as any));
+
+      if (!roleOK) return false;
+
+      /* 2.b) L’utilisateur possède-t-il la ressource + actions ?       */
+      return role.permissions.some(userPerm =>
+        userPerm.resource === menuPerm.resource &&
+        (
+          /* MANAGE = super-pouvoir                                       */
+          userPerm.actions.includes(Action.MANAGE) ||
+          /* Sinon il faut au moins une des actions attendues             */
+          menuPerm.actions.some(a => userPerm.actions.includes(a))
+        )
+      );
+    })
+  );
+}
+
   
   
-  
-  /*initialize(user:any): void {
-    this.menuItems = MENU;
-  }*/
 
   /**
    * Returns true or false if given menu item has child or not
@@ -234,56 +221,4 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     return item.subItems !== undefined ? item.subItems.length > 0 : false;
   }
 
-  /*private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          console.log(this.user.role);
-          this.initialize(this.user.role);
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
-
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          console.log(this.user.role);
-          this.initialize(this.user.role);
-
-
-        },
-        (error) => {
-          console.error('Error fetching worker data', error);
-          this.errorMessage = 'Error fetching worker data. Please try again later.';
-        }
-    );
-  }
-
-  checkSessionActive(userType: string, sessionId: string): void {
-    const id = Number(sessionId);
-
-    if (userType === 'worker') {
-      this.workerSessionService.isSessionActive(id).subscribe((isActive: boolean) => {
-        if(isActive==false){
-          localStorage.clear();
-          this.router.navigateByUrl('/signin');
-        }
-      });
-    } else if (userType === 'user') {
-      this.usersSessionService.isSessionActive(id).subscribe((isActive: boolean) => {
-        if(isActive==false){
-          localStorage.clear();
-          this.router.navigateByUrl('/signin');
-        }
-      });
-    } else {
-      localStorage.clear();
-      this.router.navigateByUrl('/signin');
-    }
-  }*/
 }

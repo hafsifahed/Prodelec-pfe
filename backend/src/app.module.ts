@@ -36,6 +36,7 @@ import { Order } from './order/entities/order.entity';
 import { OrderModule } from './order/order.module';
 import { Project } from './project/entities/project.entity';
 import { ProjectModule } from './project/project.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { ProjectModule } from './project/project.module';
     CahierDesChargesModule,
     ProjectModule,
     OrderModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -36,6 +36,7 @@ export class RolesComponent {
     { value: 'products', label: 'Produits' },
     { value: 'orders', label: 'Commandes' },
     { value: 'inventory', label: 'Stock' },
+    { value: 'project', label: 'Projet' },
     { value: 'quality', label: 'Qualité' },
     { value: 'production', label: 'Production' },
     { value: 'logistics', label: 'Logistique' },

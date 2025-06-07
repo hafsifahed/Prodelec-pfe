@@ -20,6 +20,7 @@ export enum Resource {
   PARTNERS = 'partners',
   SETTINGS = 'settings',
   PRODUCTS = 'products',
+  PROJECT='project',
   ORDERS = 'orders',
   INVENTORY = 'inventory',
   QUALITY = 'quality',
