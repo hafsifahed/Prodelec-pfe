@@ -1,6 +1,10 @@
 import { Partner } from "./partner.models";
 import { Role } from "./role.model";
-
+export enum AccountStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+}
 
   
   export interface User {

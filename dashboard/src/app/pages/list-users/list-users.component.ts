@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import Swal from 'sweetalert2';
 import { Router } from "@angular/router";
-import { User } from 'src/app/core/models/auth.models';
+import { AccountStatus, User } from 'src/app/core/models/auth.models';
 import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -93,8 +93,6 @@ export class ListUsersComponent implements OnInit {
           Swal.showValidationMessage('Password must be at least 8 characters');
           return;
         }
-        // Use setPassword method (admin reset) or changePassword (user change)
-        // Assuming admin reset here:
         return this.usersService.setPassword(user.id, { newPassword }).toPromise()
           .catch(error => {
             Swal.showValidationMessage(`Request failed: ${error.message}`);
@@ -142,5 +140,35 @@ export class ListUsersComponent implements OnInit {
   clearSearch(): void {
     this.searchKeyword = '';
     this.fetchUsers();
+  }
+
+  // --- New method to toggle user status ---
+  toggleUserStatus(user: User): void {
+    if (!user) return;
+
+    const newStatus = user.accountStatus === AccountStatus.ACTIVE
+      ? AccountStatus.INACTIVE
+      : AccountStatus.ACTIVE;
+
+    this.usersService.updateAccountStatus(user.id, { status: newStatus }).subscribe({
+      next: updatedUser => {
+        user.accountStatus = updatedUser.accountStatus;
+        Swal.fire({
+          icon: 'success',
+          title: 'Succès',
+          text: `Le statut de ${user.firstName} ${user.lastName} est maintenant ${newStatus}.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      },
+      error: err => {
+        console.error('Erreur lors de la mise à jour du statut', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erreur',
+          text: 'Impossible de mettre à jour le statut. Veuillez réessayer.',
+        });
+      }
+    });
   }
 }
