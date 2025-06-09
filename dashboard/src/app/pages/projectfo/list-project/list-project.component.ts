@@ -140,7 +140,7 @@ this.userStateService.user$.subscribe(user => {
       qte: [0, [Validators.required]]
     });
 
-    this.orderservice.getAllOrders().subscribe((res:any)=>{
+    this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
       this.listr=res;
   });
 

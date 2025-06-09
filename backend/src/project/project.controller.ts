@@ -8,6 +8,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
 
@@ -16,18 +17,19 @@ export class ProjectController {
   constructor(private readonly projSrv: ProjectService) {}
 
   /* ------------------- CRUD de base ------------------- */
-  @Post()
-  create(
-    @Body() body: Project,
-    @Query('idOrder') idOrder: number,
-    @Query('conceptionResponsible') cr?: string,
-    @Query('methodeResponsible') mr?: string,
-    @Query('productionResponsible') pr?: string,
-    @Query('finalControlResponsible') fcr?: string,
-    @Query('deliveryResponsible') dr?: string,
-  ) {
-    return this.projSrv.addProject(body, +idOrder, cr, mr, pr, fcr, dr);
-  }
+@Post()
+create(
+  @Body() dto: CreateProjectDto,
+  @Query('idOrder') idOrder: number,
+  @Query('conceptionResponsible') cr?: string,
+  @Query('methodeResponsible') mr?: string,
+  @Query('productionResponsible') pr?: string,
+  @Query('finalControlResponsible') fcr?: string,
+  @Query('deliveryResponsible') dr?: string,
+) {
+  return this.projSrv.addProject(dto, +idOrder, cr, mr, pr, fcr, dr);
+}
+
 
   @Put(':id')
   update(

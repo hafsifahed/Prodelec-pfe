@@ -41,10 +41,6 @@ export class ListOrderUserComponent {
   }
   ngOnInit() {
 
-    /*if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-      
-    }*/
        this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
@@ -58,6 +54,7 @@ export class ListOrderUserComponent {
       attach: ['', [Validators.required]]
     });
 
+    
 
   }
 

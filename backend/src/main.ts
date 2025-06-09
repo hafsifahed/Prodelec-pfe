@@ -1,10 +1,11 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as express from 'express';
 import { AppModule } from './app.module';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
 
   // Enable CORS for your Angular frontend
   app.enableCors({
@@ -14,6 +15,8 @@ async function bootstrap() {
     credentials: true, // if you use cookies or auth headers
   });
 
+    app.use(express.json()); // indispensable pour parser les bodies JSON
+  app.use(express.urlencoded({ extended: true })); 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   const config = new DocumentBuilder()

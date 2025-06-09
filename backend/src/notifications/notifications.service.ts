@@ -29,6 +29,12 @@ const notification = await this.createNotification(admin, title, message, payloa
   return notifications;
 }
 
+ async createAndSendNotification(user: User, title: string, message: string, payload?: any): Promise<Notification> {
+    const notification = await this.createNotification(user, title, message, payload);
+    this.notificationsGateway.sendNotificationToUser(user.id, notification);
+    return notification;
+  }
+
 async createNotification(user: User, title: string, message: string, payload?: any): Promise<Notification> {
   const notification = this.notificationRepository.create({ user, title, message, payload });
   return this.notificationRepository.save(notification);

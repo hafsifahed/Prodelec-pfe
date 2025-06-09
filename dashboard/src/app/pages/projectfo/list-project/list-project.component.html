@@ -347,7 +347,7 @@
                           <label for="paymethod-input" class="form-label">Pilote</label>
                           <select class="form-control" name="payment-method" id="paymethod-input" formControlName="rc">
                             <option> </option>
-                            <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                            <option *ngFor="let dt of listr">{{ dt.username }}</option>
                           </select>
                         </div>
                       </div>
@@ -403,7 +403,7 @@
                             <select class="form-control" name="payment-method" id="paymethod-input"
                               formControlName="rm">
                               <option> </option>
-                              <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                              <option *ngFor="let dt of listr">{{ dt.username }}</option>
                             </select>
                           </div>
                         </div>
@@ -459,7 +459,7 @@
                               <select class="form-control" name="payment-method" id="paymethod-input"
                                 formControlName="rp">
                                 <option> </option>
-                                <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                <option *ngFor="let dt of listr">{{ dt.username }}</option>
                               </select>
                             </div>
                           </div>
@@ -514,7 +514,7 @@
                                 <select class="form-control" name="payment-method" id="paymethod-input"
                                   formControlName="rcf">
                                   <option> </option>
-                                  <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                  <option *ngFor="let dt of listr">{{ dt.username }}</option>
                                 </select>
                               </div>
                             </div>
@@ -571,7 +571,7 @@
                                   <select class="form-control" name="payment-method" id="paymethod-input"
                                     formControlName="rl">
                                     <option> </option>
-                                    <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                    <option *ngFor="let dt of listr">{{ dt.username }}</option>
                                   </select>
                                 </div>
                               </div>
@@ -674,7 +674,7 @@
                           <label for="paymethod-input" class="form-label">Pilote</label>
                           <select class="form-control" name="payment-method" id="paymethod-input" formControlName="rc">
                             <option> </option>
-                            <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                            <option *ngFor="let dt of listr">{{ dt.username }}</option>
                           </select>
                         </div>
                       </div>
@@ -730,7 +730,7 @@
                             <select class="form-control" name="payment-method" id="paymethod-input"
                               formControlName="rm">
                               <option> </option>
-                              <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                              <option *ngFor="let dt of listr">{{ dt.username }}</option>
                             </select>
                           </div>
                         </div>
@@ -786,7 +786,7 @@
                               <select class="form-control" name="payment-method" id="paymethod-input"
                                 formControlName="rp">
                                 <option> </option>
-                                <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                <option *ngFor="let dt of listr">{{ dt.username }}</option>
                               </select>
                             </div>
                           </div>
@@ -841,7 +841,7 @@
                                 <select class="form-control" name="payment-method" id="paymethod-input"
                                   formControlName="rcf">
                                   <option> </option>
-                                  <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                  <option *ngFor="let dt of listr">{{ dt.username }}</option>
                                 </select>
                               </div>
                             </div>
@@ -898,7 +898,7 @@
                                   <select class="form-control" name="payment-method" id="paymethod-input"
                                     formControlName="rl">
                                     <option> </option>
-                                    <option *ngFor="let dt of listr">{{ dt.firstName }}</option>
+                                    <option *ngFor="let dt of listr">{{ dt.username }}</option>
                                   </select>
                                 </div>
                               </div>
@@ -960,12 +960,12 @@
   </div>
   <div class="modal-body modal-body-centered">
     <p class="mb-1" 
-              *ngIf="project2?.conceptionResponsible?.firstName">{{ project2.conceptionComment }}</p>
+              *ngIf="project2?.conceptionResponsible?.username">{{ project2.conceptionComment }}</p>
             <p class="mb-1">Durée: {{project2.conceptionDuration }} heures</p>
-            <p class="mb-0" *ngIf="project2?.conceptionResponsible?.firstName">Pilote: {{ project2?.conceptionResponsible?.firstName }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.firstName">Début: {{ project2.startConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.firstName">Fin: {{ project2.endConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.firstName">Fin réelle: {{ project2.realendConception| date:'yyyy-MM-dd'}}</p>
+            <p class="mb-0" *ngIf="project2?.conceptionResponsible?.username">Pilote: {{ project2?.conceptionResponsible?.username }}</p>
+            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Début: {{ project2.startConception| date:'yyyy-MM-dd' }}</p>
+            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Fin: {{ project2.endConception| date:'yyyy-MM-dd' }}</p>
+            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Fin réelle: {{ project2.realendConception| date:'yyyy-MM-dd'}}</p>
       </div>
     
 
@@ -979,17 +979,17 @@
   </div>
   <div class="modal-body modal-body-centered">
     <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.firstName">{{ project2.methodeComment }}</p>
+    *ngIf="project2?.methodeResponsible?.username">{{ project2.methodeComment }}</p>
   <p class="mb-1" >
     Durée: {{ project2.methodeDuration }} heures</p>
   <p class="mb-0" 
-    *ngIf="project2?.methodeResponsible?.firstName">Pilote: {{ project2.methodeResponsible.firstName }}</p>
+    *ngIf="project2?.methodeResponsible?.username">Pilote: {{ project2.methodeResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.firstName">Début: {{ project2.startMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.methodeResponsible?.username">Début: {{ project2.startMethode| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.firstName">Fin: {{ project2.endMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.methodeResponsible?.username">Fin: {{ project2.endMethode| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.firstName">Fin réelle: {{ project2.realendMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.methodeResponsible?.username">Fin réelle: {{ project2.realendMethode| date:'yyyy-MM-dd' }}</p>
       </div>
     
 
@@ -1003,18 +1003,18 @@
   </div>
   <div class="modal-body modal-body-centered">
     <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.firstName">{{ project2.productionComment }}</p>
+              *ngIf="project2?.productionResponsible?.username">{{ project2.productionComment }}</p>
             <p class="mb-1"
               >Durée: {{
               project2.productionDuration }} heures</p>
             <p class="mb-0" 
-              *ngIf="project2?.productionResponsible?.firstName">Pilote: {{ project2.productionResponsible.firstName }}</p>
+              *ngIf="project2?.productionResponsible?.username">Pilote: {{ project2.productionResponsible.username }}</p>
             <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.firstName">Début: {{ project2.startProduction| date:'yyyy-MM-dd' }}</p>
+              *ngIf="project2?.productionResponsible?.username">Début: {{ project2.startProduction| date:'yyyy-MM-dd' }}</p>
             <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.firstName">Fin: {{ project2.endProduction| date:'yyyy-MM-dd' }}</p>
+              *ngIf="project2?.productionResponsible?.username">Fin: {{ project2.endProduction| date:'yyyy-MM-dd' }}</p>
             <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.firstName">Fin réelle: {{ project2.realendProduction| date:'yyyy-MM-dd'
+              *ngIf="project2?.productionResponsible?.username">Fin réelle: {{ project2.realendProduction| date:'yyyy-MM-dd'
               }}</p>
       </div>
     
@@ -1029,17 +1029,17 @@
   </div>
   <div class="modal-body modal-body-centered">
     <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.firstName">{{ project2.finalControlComment }}</p>
+    *ngIf="project2?.finalControlResponsible?.username">{{ project2.finalControlComment }}</p>
   <p class="mb-1" >Durée: {{
     project2.finalControlDuration }} heures</p>
   <p class="mb-0" 
-    *ngIf="project2?.finalControlResponsible?.firstName">Pilote: {{ project2.finalControlResponsible.firstName }}</p>
+    *ngIf="project2?.finalControlResponsible?.username">Pilote: {{ project2.finalControlResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.firstName">Début: {{ project2.startFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.finalControlResponsible?.username">Début: {{ project2.startFc| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.firstName">Fin: {{ project2.endFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.finalControlResponsible?.username">Fin: {{ project2.endFc| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.firstName">Fin réelle: {{ project2.realendFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.finalControlResponsible?.username">Fin réelle: {{ project2.realendFc| date:'yyyy-MM-dd' }}</p>
       </div>
     
 
@@ -1054,17 +1054,17 @@
   </div>
   <div class="modal-body modal-body-centered">
     <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.firstName">{{ project2.deliveryComment }}</p>
+    *ngIf="project2?.deliveryResponsible?.username">{{ project2.deliveryComment }}</p>
   <p class="mb-1" >
     Durée: {{ project2.deliveryDuration }} heures</p>
   <p class="mb-0" 
-    *ngIf="project2?.deliveryResponsible?.firstName">Pilote: {{ project2.deliveryResponsible.firstName }}</p>
+    *ngIf="project2?.deliveryResponsible?.username">Pilote: {{ project2.deliveryResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.firstName">Début: {{ project2.startDelivery| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.deliveryResponsible?.username">Début: {{ project2.startDelivery| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.firstName">Fin: {{ project2.endDelivery| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project2?.deliveryResponsible?.username">Fin: {{ project2.endDelivery| date:'yyyy-MM-dd' }}</p>
   <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.firstName">Fin réelle: {{ project2.realendDelivery| date:'yyyy-MM-dd' }}
+    *ngIf="project2?.deliveryResponsible?.username">Fin réelle: {{ project2.realendDelivery| date:'yyyy-MM-dd' }}
   </p>
       </div>
     

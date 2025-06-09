@@ -112,7 +112,7 @@ export class ListOrderComponent {
       qte: [0, [Validators.required]]
     });
 
-    this.orderservice.getAllOrders().subscribe((res:any)=>{
+    this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
         this.listr=res;
     });
 
@@ -398,7 +398,9 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
     startDelivery: debliv,
     endDelivery: finliv
     };
-    console.log(respcons);
+    console.log("projet dto = ",project);
+        console.log(" resprod = ",resprod);
+
   
     this.projectservice.createProject(project,this.idorder,respcons,resmeth,resprod,rescf,resliv).subscribe(() => {
       Swal.fire({

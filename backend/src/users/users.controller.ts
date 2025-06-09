@@ -164,6 +164,11 @@ async getStats() {
   async getWorkerRoles() {
     return this.usersService.getWorkerRoles();
   }
+  @Get('workers')
+async getWorkers(): Promise<User[]> {
+  return this.usersService.findWorkers();
+}
+
 
 
 }

@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
   {
     id: 7, label: 'Projets (Admin)', icon: 'bx-briefcase', link: '/listproject',
     rolePermissions: [
-      { resource: Resource.PROJECT, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
+      { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.PROCESS_METHOD] }
     ]
   },
   {

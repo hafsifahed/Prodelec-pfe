@@ -18,6 +18,10 @@ export class OrderServiceService {
     return this.http.get<Order[]>(`${environment.baseUrl}/order`);
   }
 
+   getAllOrdersworkers(){
+    return this.http.get(`${environment.baseUrl}/users/workers`);
+  }
+
   // Récupérer une commande par son ID
   getOrderById(id: number): Observable<Order> {
     return this.http.get<Order>(`${environment.baseUrl}/order/${id}`);
