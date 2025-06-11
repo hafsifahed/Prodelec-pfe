@@ -24,14 +24,18 @@ export const MENU: MenuItem[] = [
 
   /* --- Utilisateurs --- */
   {
-    id: 3, label: 'Utilisateurs', icon: 'bx-user',
+    id: 3, label: 'Utilisateurs', icon: 'bx-user', link: '/list-user',
     rolePermissions: [
       { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
       { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ],
-    subItems: [
-      { id: 31, label: 'Liste Utilisateurs',  link: '/list-user' },
-      { id: 32, label: 'Liste Partenaires',   link: '/list-partner' }
+  },
+
+  /* --- Rôles --- */
+  {
+    id: 390, label: 'Liste Partenaires', icon: 'bx-user', link: '/list-partner',
+    rolePermissions: [
+      { resource: Resource.ROLES, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
     ]
   },
 
@@ -40,7 +44,6 @@ export const MENU: MenuItem[] = [
     id: 39, label: 'Roles', icon: 'bx-lock', link: '/roles',
     rolePermissions: [
       { resource: Resource.ROLES, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
-      { resource: Resource.ROLES, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ]
   },
 
@@ -63,6 +66,7 @@ export const MENU: MenuItem[] = [
     id: 5, label: 'Devis (Admin)', icon: 'bx-money', link: '/devis',
     rolePermissions: [
       { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
+      
     ]
   },
   {
@@ -90,7 +94,9 @@ export const MENU: MenuItem[] = [
   {
     id: 7, label: 'Projets (Admin)', icon: 'bx-briefcase', link: '/listproject',
     rolePermissions: [
-      { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.PROCESS_METHOD] }
+      { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.SUBADMIN,RoleName.PROCESS_METHOD] },
+      { resource: Resource.PROJECT, actions: [Action.READ,Action.UPDATE], roles: [RoleName.PROCESS_DESIGN,RoleName.PROCESS_LOGISTICS,RoleName.PROCESS_PRODUCTION,RoleName.PROCESS_QUALITY,RoleName.PROCESS_DAF] }
+
     ]
   },
   {
@@ -119,7 +125,7 @@ export const MENU: MenuItem[] = [
   {
     id: 9, label: 'Notifications', icon: 'bx-bell', link: '/list-notifications',
     rolePermissions: [
-      { resource: Resource.AUDIT_LOGS, actions: [Action.READ], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] }
+      { resource: Resource.AUDIT_LOGS, actions: [Action.READ] }
     ]
   },
 
