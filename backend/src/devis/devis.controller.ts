@@ -73,11 +73,16 @@ export class DevisController {
     return this.devisService.getDevisById(id);
   }
 
-  @Post(':cahierDesChargesId')
-  saveDevis(@Param('cahierDesChargesId') cdcId: number, @Body() body: { pieceJointe: string }): Promise<Devis> {
-    if (!body?.pieceJointe) throw new BadRequestException('pieceJointe is required');
-    return this.devisService.saveDevis(cdcId, body.pieceJointe);
-  }
+@Post(':cahierDesChargesId')
+saveDevis(
+  @Param('cahierDesChargesId') cdcId: number,
+  @Body() body: { pieceJointe: string; numdevis: string }
+): Promise<Devis> {
+  if (!body?.pieceJointe) throw new BadRequestException('pieceJointe is required');
+  if (!body?.numdevis) throw new BadRequestException('numdevis is required');
+  return this.devisService.saveDevis(cdcId, body.pieceJointe, body.numdevis);
+}
+
 
   @Put('accept/:id')
   acceptDevis(@Param('id') id: number): Promise<Devis> {

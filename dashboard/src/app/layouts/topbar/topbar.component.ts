@@ -179,7 +179,7 @@ getNotificationIcon(title?: string): string {
           // Clear local storage or any auth tokens
           localStorage.clear();
           this.userStateService.setUser(null);
-  
+          this.webSocketService.clearNotifications();
           // Redirect to login or home page
           
           this.router.navigate(['/signin']);

@@ -31,6 +31,8 @@ export class CDCListAdminComponent {
   loadingPdf: boolean = false;
   pdfError: string | null = null;
   searchSubject = new Subject<string>();
+  numdevis: string = '';
+
   constructor(
     private cdcService: CdcServiceService,
     private devisService: DevisService,
@@ -251,17 +253,12 @@ telechargerPieceJointe(fileName: string, id: number): void {
     }
   }
   submitDevis(): void {
-  if (this.cahier && this.selectedFile) {
-    // 1. Upload du fichier
+  if (this.cahier && this.selectedFile && this.numdevis.trim()) {
     this.devisService.uploadFile(this.selectedFile).subscribe({
       next: (uploadResponse: any) => {
-        // uploadResponse peut être { filename: '...' } ou juste le nom
         const filename = uploadResponse.filename || uploadResponse;
-
-        // 2. Envoi du devis avec le nom de la pièce jointe
-        this.devisService.saveDevis(this.cahier.id, filename).subscribe({
+        this.devisService.saveDevis(this.cahier.id, filename, this.numdevis).subscribe({
           next: (response) => {
-            // Suite inchangée...
             Swal.fire({
               title: 'Ajouté!',
               text: "La Devis a été ajoutée avec succès.",
@@ -281,9 +278,10 @@ telechargerPieceJointe(fileName: string, id: number): void {
       }
     });
   } else {
-    console.error('Erreur : Cahier des charges ou pièce jointe non sélectionnés.');
+    console.error('Erreur : Cahier des charges, pièce jointe ou numéro du devis non renseignés.');
   }
 }
+
 
   
   /*saveCahierDesCharges() {

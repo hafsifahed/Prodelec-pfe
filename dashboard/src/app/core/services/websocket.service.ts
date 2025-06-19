@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class WebsocketService {
-  private socket: Socket;
+  private socket: Socket | null = null;
   private notificationsSubject = new BehaviorSubject<NotificationModels[]>([]);
   public notifications$ = this.notificationsSubject.asObservable();
     public url =`${environment.baseUrl}`
@@ -41,5 +41,42 @@ export class WebsocketService {
     this.socket.on('notification', (notification: NotificationModels) => {
       callback(notification);
     });
+  }
+
+  clearNotifications() {
+  this.notificationsSubject.next([]);
+}
+
+ public connect(token: string) {
+    if (this.socket) {
+      this.socket.disconnect(); // Déconnecte l'ancienne socket
+    }
+
+    this.socket = io(this.url, {
+      auth: { token } // Utilise le nouveau token
+    });
+
+    this.setupSocketListeners();
+  }
+
+  private setupSocketListeners() {
+    if (!this.socket) return;
+
+    this.socket.on('notification', (notification: NotificationModels) => {
+      const current = this.notificationsSubject.value;
+      this.notificationsSubject.next([notification, ...current]);
+    });
+
+    this.socket.on('initial_notifications', (notifs: NotificationModels[]) => {
+      this.notificationsSubject.next(notifs);
+    });
+  }
+
+  public disconnect() {
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
+    }
+    this.clearNotifications();
   }
 }

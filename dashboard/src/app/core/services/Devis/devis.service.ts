@@ -25,8 +25,15 @@ export class DevisService {
   //   return this.http.post(`${environment.baseUrl}/devis`,devis);
   //  }
 
-  saveDevis(cahierDesChargesId: number, pieceJointe: string): Observable<Devis> {
+  /*saveDevis(cahierDesChargesId: number, pieceJointe: string): Observable<Devis> {
   return this.http.post<Devis>(`${environment.baseUrl}/devis/${cahierDesChargesId}`, { pieceJointe });
+}*/
+
+saveDevis(cahierDesChargesId: number, pieceJointe: string, numdevis: string): Observable<Devis> {
+  return this.http.post<Devis>(
+    `${environment.baseUrl}/devis/${cahierDesChargesId}`,
+    { pieceJointe, numdevis }
+  );
 }
 
  downloadFile(fileName: string): Observable<Blob> {

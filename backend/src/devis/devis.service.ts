@@ -14,22 +14,24 @@ export class DevisService {
     private readonly cdcRepo: Repository<CahierDesCharges>,
   ) {}
 
-  async saveDevis(cdcId: number, pieceJointe: string): Promise<Devis> {
-    const cdc = await this.cdcRepo.findOne({ where: { id: cdcId }, relations: ['user'] });
-    if (!cdc) throw new NotFoundException('Cahier des Charges not found');
+async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
+  const cdc = await this.cdcRepo.findOne({ where: { id: cdcId }, relations: ['user'] });
+  if (!cdc) throw new NotFoundException('Cahier des Charges not found');
 
-    const devis = this.devisRepo.create({
-      pieceJointe,
-      projet: cdc.titre,
-      commentaire: '',
-      user: cdc.user,
-      cahierDesCharges: cdc,
-      dateCreation: new Date(),
-      etat: 'En attente',
-    });
+  const devis = this.devisRepo.create({
+    pieceJointe,
+    numdevis, // Ajout ici
+    projet: cdc.titre,
+    commentaire: '',
+    user: cdc.user,
+    cahierDesCharges: cdc,
+    dateCreation: new Date(),
+    etat: 'En attente',
+  });
 
-    return this.devisRepo.save(devis);
-  }
+  return this.devisRepo.save(devis);
+}
+
 
   findAll(): Promise<Devis[]> {
     return this.devisRepo.find({ relations: ['user', 'cahierDesCharges'] });

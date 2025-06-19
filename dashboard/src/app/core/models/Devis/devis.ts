@@ -3,6 +3,7 @@ import { CahierDesCharges } from "../CahierDesCharges/cahier-des-charges";
 
 export class Devis {
     id: number;
+    numdevis : string;
     projet: string;
     pieceJointe: string;
     etat: string = "En attente";

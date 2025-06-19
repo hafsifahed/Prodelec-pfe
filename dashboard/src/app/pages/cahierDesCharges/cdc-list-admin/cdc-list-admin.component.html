@@ -192,6 +192,10 @@
     <div class="modal-body">
       <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
       <div class="mb-3">
+        <label for="numdevis" class="form-label">Sélectionner une pièce jointe</label>
+        <input type="text" class="form-control" placeholder="Numéro du devis" [(ngModel)]="numdevis">
+      </div>
+      <div class="mb-3">
         <label for="pieceJointe" class="form-label">Sélectionner une pièce jointe</label>
         <input type="file" class="form-control" id="pieceJointe" name="pieceJointe" (change)="onFileSelected($event)" required />
       </div>

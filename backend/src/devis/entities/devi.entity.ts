@@ -1,12 +1,12 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    OneToOne,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { User } from '../../users/entities/users.entity';
@@ -15,6 +15,9 @@ import { User } from '../../users/entities/users.entity';
   export class Devis {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column()
+    numdevis: string;
   
     @Column()
     projet: string;

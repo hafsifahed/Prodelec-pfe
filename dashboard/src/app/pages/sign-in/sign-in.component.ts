@@ -7,6 +7,7 @@ import { UsersService } from 'src/app/core/services/user.service';
 import { catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { IpService } from 'src/app/core/services/ip.service';
+import { WebsocketService } from 'src/app/core/services/websocket.service';
 
 interface SignInData {
   username: string;
@@ -29,7 +30,8 @@ export class SignInComponent implements OnInit {
     private router: Router,
     private usersService: UsersService,
     private userStateService: UserStateService,
-    private ipService: IpService
+    private ipService: IpService,
+    private webSocketService:WebsocketService
   ) {}
 
   ngOnInit() {
@@ -86,6 +88,10 @@ export class SignInComponent implements OnInit {
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('sessionId', sessionId.toString());
     localStorage.setItem('ipAddress', this.signInData.ipAddress);
+    // Dans le composant/login après un login réussi
+this.webSocketService.disconnect();
+this.webSocketService.connect(accessToken);
+
 
     // Charger le profil utilisateur
     this.usersService.getProfile().subscribe({
