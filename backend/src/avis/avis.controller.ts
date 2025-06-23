@@ -36,4 +36,10 @@ export class AvisController {
   findByUser(@Param('userId') userId: string) {
     return this.avisService.findByUser(+userId);
   }
+
+  @Get('partner/:partnerId')
+findByPartner(@Param('partnerId') partnerId: string) {
+  return this.avisService.findByPartner(+partnerId);
+}
+
 }

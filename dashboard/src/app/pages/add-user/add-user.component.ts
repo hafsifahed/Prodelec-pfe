@@ -102,7 +102,7 @@ export class AddUserComponent implements OnInit {
     const formValue = this.addUserForm.value;
 
     const createUserDto = {
-      username: formValue.email,/*email.split('@')[0],*/
+      username: formValue.email.split('@')[0],
       email: formValue.email,
       password: formValue.password,
       firstName: formValue.firstName,

@@ -101,11 +101,16 @@ export class UsersService {
       queryBuilder.andWhere('user.email LIKE :email', { email: `%${dto.email}%` });
     }
     if (dto.accountStatus) {
-      queryBuilder.andWhere('user.accountStatus = :status', { status: dto.accountStatus });
-    }
+  queryBuilder.andWhere('user.accountStatus = :status', { status: dto.accountStatus });
+} else {
+  queryBuilder.andWhere('user.accountStatus != :suspendedStatus', { suspendedStatus: 'suspended' });
+}
+
     if (dto.roleId) {
       queryBuilder.andWhere('role.id = :roleId', { roleId: dto.roleId });
     }
+
+    
   
     queryBuilder.select([
       'user.id',
@@ -327,36 +332,38 @@ export class UsersService {
 
   // Search Users by Keyword
   async searchUsers(keyword: string): Promise<User[]> {
-    if (!keyword || keyword.trim().length < 2) {
-      throw new BadRequestException('Search keyword must be at least 2 characters');
-    }
-
-    const searchTerm = `%${keyword.toLowerCase()}%`;
-
-    return this.usersRepository
-      .createQueryBuilder('user')
-      .where(
-        'LOWER(user.firstName) LIKE :searchTerm OR ' +
-        'LOWER(user.lastName) LIKE :searchTerm OR ' +
-        'LOWER(user.username) LIKE :searchTerm OR ' +
-        'LOWER(user.email) LIKE :searchTerm',
-        { searchTerm }
-      )
-      .leftJoinAndSelect('user.role', 'role')
-      .select([
-        'user.id',
-        'user.username',
-        'user.firstName',
-        'user.lastName',
-        'user.email',
-        'user.accountStatus',
-        'user.createdAt',
-        'user.updatedAt',
-        'role.id',
-        'role.name'
-      ])
-      .getMany();
+  if (!keyword || keyword.trim().length < 2) {
+    throw new BadRequestException('Search keyword must be at least 2 characters');
   }
+
+  const searchTerm = `%${keyword.toLowerCase()}%`;
+
+  return this.usersRepository
+    .createQueryBuilder('user')
+    .where(
+      '(LOWER(user.firstName) LIKE :searchTerm OR ' +
+      'LOWER(user.lastName) LIKE :searchTerm OR ' +
+      'LOWER(user.username) LIKE :searchTerm OR ' +
+      'LOWER(user.email) LIKE :searchTerm) AND ' +
+      'user.accountStatus != :suspendedStatus',
+      { searchTerm, suspendedStatus: 'suspended' }
+    )
+    .leftJoinAndSelect('user.role', 'role')
+    .select([
+      'user.id',
+      'user.username',
+      'user.firstName',
+      'user.lastName',
+      'user.email',
+      'user.accountStatus',
+      'user.createdAt',
+      'user.updatedAt',
+      'role.id',
+      'role.name'
+    ])
+    .getMany();
+}
+
 
   async setPassword(userId: number, dto: SetPasswordDto): Promise<void> {
     const user = await this.usersRepository.findOneBy({ id: userId });
@@ -371,11 +378,15 @@ export class UsersService {
   }
 
   async deleteUser(userId: number): Promise<void> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException(`User with id ${userId} not found`);
-    }
-    await this.usersRepository.remove(user);
+     const user = await this.usersRepository.findOne({ where: { id: userId } });
+  if (!user) {
+    throw new NotFoundException(`User with id ${userId} not found`);
+  }
+
+  // Mettre à jour le statut du compte à SUSPENDED
+  user.accountStatus = AccountStatus.SUSPENDED;
+
+  await this.usersRepository.save(user);
   }
 
    async getUserAndSessionStats(): Promise<{

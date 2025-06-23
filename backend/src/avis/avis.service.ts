@@ -77,4 +77,13 @@ const avis = this.avisRepository.create({
       relations: ['user']
     });
   }
+
+  async findByPartner(partnerId: number): Promise<Avis[]> {
+  return this.avisRepository.createQueryBuilder('avis')
+    .leftJoinAndSelect('avis.user', 'user')
+    .leftJoin('user.partner', 'partner')
+    .where('partner.id = :partnerId', { partnerId })
+    .getMany();
+}
+
 }

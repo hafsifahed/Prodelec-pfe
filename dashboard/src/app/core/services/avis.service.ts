@@ -37,4 +37,8 @@ export class AvisService {
     const url = `${this.apiUrl}/${id}`;
     return this.http.delete<void>(url);
   }
+  getAvisByPartner(partnerId: number): Observable<AvisModels[]> {
+  return this.http.get<AvisModels[]>(`${this.apiUrl}/partner/${partnerId}`);
+}
+
 }
