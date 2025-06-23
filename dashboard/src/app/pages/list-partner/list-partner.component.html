@@ -82,14 +82,32 @@
               Aucun utilisateur
             </div>
           </td>
-          <td >
+          <td>
             <div class="actions-cell text-center d-flex justify-content-center gap-2">
-            <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editPartner(partner)" title="Modifier">
-              <i class="fas fa-edit"></i> Modifier
-            </button>
-            <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="deletePartner(partner.id)" title="Supprimer">
-              <i class="fas fa-trash-alt"></i> Supprimer
-            </button></div>
+              <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editPartner(partner)" title="Modifier">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
+              
+              <button *ngIf="partner.partnerStatus !== 'inactive'" 
+                      class="btn btn-sm btn-warning action-btn inactivate-btn"
+                      (click)="inactivatePartner(partner)"
+                      title="Inactiver">
+                <i class="fas fa-ban"></i> Inactiver
+              </button>
+              
+              <button *ngIf="partner.partnerStatus === 'inactive'" 
+                      class="btn btn-sm btn-info action-btn activate-btn"
+                      (click)="activatePartner(partner)"
+                      title="Activer">
+                <i class="fas fa-check-circle"></i> Activer
+              </button>
+              
+              <button class="btn btn-sm btn-danger action-btn delete-btn" 
+                      (click)="deletePartner(partner.id)" 
+                      title="Supprimer">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>

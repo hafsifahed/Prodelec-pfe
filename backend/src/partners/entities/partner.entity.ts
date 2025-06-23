@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { PartnerStatus } from '../../project/enum/partner-status.enum';
 import { User } from '../../users/entities/users.entity';
 
 @Entity('partners')
@@ -14,6 +15,13 @@ export class Partner {
 
   @Column()
   tel: string;
+
+    @Column({
+      type: 'enum',
+      enum: PartnerStatus,
+      default: PartnerStatus.ACTIVE,
+    })
+    partnerStatus: PartnerStatus;
 
   @CreateDateColumn()
   createdAt: Date;

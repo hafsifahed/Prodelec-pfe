@@ -90,45 +90,47 @@ export class UsersService {
   
 
   async findMany(dto: FindUsersDto): Promise<User[]> {
-    const queryBuilder = this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')      // join role relation
-      .leftJoinAndSelect('user.partner', 'partner'); // join partner relation
-  
-    if (dto.username) {
-      queryBuilder.andWhere('user.username LIKE :username', { username: `%${dto.username}%` });
-    }
-    if (dto.email) {
-      queryBuilder.andWhere('user.email LIKE :email', { email: `%${dto.email}%` });
-    }
-    if (dto.accountStatus) {
-  queryBuilder.andWhere('user.accountStatus = :status', { status: dto.accountStatus });
-} else {
-  queryBuilder.andWhere('user.accountStatus != :suspendedStatus', { suspendedStatus: 'suspended' });
+  const queryBuilder = this.usersRepository.createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')      // join role relation
+    .leftJoinAndSelect('user.partner', 'partner'); // join partner relation
+
+  if (dto.username) {
+    queryBuilder.andWhere('user.username LIKE :username', { username: `%${dto.username}%` });
+  }
+  if (dto.email) {
+    queryBuilder.andWhere('user.email LIKE :email', { email: `%${dto.email}%` });
+  }
+  if (dto.accountStatus) {
+    queryBuilder.andWhere('user.accountStatus = :status', { status: dto.accountStatus });
+  } else {
+    queryBuilder.andWhere('user.accountStatus != :suspendedStatus', { suspendedStatus: 'suspended' });
+  }
+
+  if (dto.roleId) {
+    queryBuilder.andWhere('role.id = :roleId', { roleId: dto.roleId });
+  }
+
+  // Exclure les utilisateurs dont le partenaire est inactif
+  queryBuilder.andWhere('partner.partnerStatus != :inactiveStatus', { inactiveStatus: 'inactive' });
+
+  queryBuilder.select([
+    'user.id',
+    'user.username',
+    'user.firstName',
+    'user.lastName',
+    'user.email',
+    'user.accountStatus',
+    'user.createdAt',
+    'user.updatedAt',
+    'role.id',
+    'role.name',
+    'partner.id',     // include partner id
+    'partner.name',   // include partner name
+  ]);
+
+  return queryBuilder.getMany();
 }
 
-    if (dto.roleId) {
-      queryBuilder.andWhere('role.id = :roleId', { roleId: dto.roleId });
-    }
-
-    
-  
-    queryBuilder.select([
-      'user.id',
-      'user.username',
-      'user.firstName',
-      'user.lastName',
-      'user.email',
-      'user.accountStatus',
-      'user.createdAt',
-      'user.updatedAt',
-      'role.id',
-      'role.name',
-      'partner.id',     // include partner id
-      'partner.name',   // include partner name
-    ]);
-  
-    return queryBuilder.getMany();
-  }
 
   async findAdmins(): Promise<User[]> {
   return this.usersRepository
@@ -340,15 +342,17 @@ export class UsersService {
 
   return this.usersRepository
     .createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .leftJoinAndSelect('user.partner', 'partner') // jointure partenaire
     .where(
       '(LOWER(user.firstName) LIKE :searchTerm OR ' +
       'LOWER(user.lastName) LIKE :searchTerm OR ' +
       'LOWER(user.username) LIKE :searchTerm OR ' +
       'LOWER(user.email) LIKE :searchTerm) AND ' +
-      'user.accountStatus != :suspendedStatus',
-      { searchTerm, suspendedStatus: 'suspended' }
+      'user.accountStatus != :suspendedStatus AND ' +
+      'partner.partnerStatus != :inactiveStatus',
+      { searchTerm, suspendedStatus: 'suspended', inactiveStatus: 'inactive' }
     )
-    .leftJoinAndSelect('user.role', 'role')
     .select([
       'user.id',
       'user.username',
@@ -359,10 +363,13 @@ export class UsersService {
       'user.createdAt',
       'user.updatedAt',
       'role.id',
-      'role.name'
+      'role.name',
+      'partner.id',
+      'partner.name'
     ])
     .getMany();
 }
+
 
 
   async setPassword(userId: number, dto: SetPasswordDto): Promise<void> {

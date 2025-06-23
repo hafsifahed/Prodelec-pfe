@@ -44,4 +44,13 @@ export class PartnersService {
     getUsersByPartnerId(userId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.baseUrl}/${userId}/usersp`);
       }
+
+        inactivatePartner(partnerId: number): Observable<Partner> {
+    return this.http.patch<Partner>(`${this.baseUrl}/${partnerId}/inactivate`, {});
+  }
+
+  activatePartner(partnerId: number): Observable<Partner> {
+  return this.http.patch<Partner>(`${this.baseUrl}/${partnerId}/activate`, {});
+}
+
 }
