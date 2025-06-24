@@ -9,7 +9,7 @@ import {
   Param,
   Post, Put,
   Query, Res,
-  UploadedFile, UseInterceptors
+  UploadedFile, UseGuards, UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -17,6 +17,7 @@ import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/users.entity';
 import { CahierDesChargesService } from './cahier-des-charges.service';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
@@ -24,6 +25,7 @@ import { EmailRequestDto } from './dto/email-request.dto';
 import { CahierDesCharges } from './entities/cahier-des-charge.entity';
 
 @Controller('cdc')
+@UseGuards(JwtAuthGuard)
 export class CahierDesChargesController {
   constructor(
     private readonly service: CahierDesChargesService,

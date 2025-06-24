@@ -5,7 +5,7 @@ import { User } from '../users/entities/users.entity';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
-  @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 

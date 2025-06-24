@@ -6,12 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserSessionDto } from './dto/create-user-session.dto';
 import { UpdateUserSessionDto } from './dto/update-user-session.dto';
 import { UserSessionService } from './user-session.service';
 
 @Controller('user-session')
+@UseGuards(JwtAuthGuard)
 export class UserSessionController {
   constructor(private readonly sessionService: UserSessionService) {}
 

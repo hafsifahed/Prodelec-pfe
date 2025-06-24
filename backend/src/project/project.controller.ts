@@ -7,11 +7,14 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('projects')
 export class ProjectController {
   constructor(private readonly projSrv: ProjectService) {}

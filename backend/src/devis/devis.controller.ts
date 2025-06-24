@@ -10,6 +10,7 @@ import {
   Put,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -17,11 +18,13 @@ import { Response } from 'express';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DevisService } from './devis.service';
 import { Devis } from './entities/devi.entity';
 const BASE_DIRECTORY = join(process.env.HOME || process.env.USERPROFILE || '', 'Downloads', 'uploads', 'Devis');
 
 @Controller('devis')
+@UseGuards(JwtAuthGuard)
 export class DevisController {
   constructor(private readonly devisService: DevisService) {}
 

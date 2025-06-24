@@ -72,7 +72,9 @@ export class PartnersService {
 
     if (partner.users && partner.users.length > 0) {
       for (const user of partner.users) {
-        user.accountStatus = AccountStatus.INACTIVE;
+        if (user.accountStatus !== AccountStatus.SUSPENDED) {
+          user.accountStatus = AccountStatus.INACTIVE;
+        }
       }
       await manager.save(partner.users);
     }
@@ -95,11 +97,14 @@ async activatePartner(partnerId: number): Promise<Partner> {
 
   if (partner.users && partner.users.length > 0) {
     for (const user of partner.users) {
-      user.accountStatus = AccountStatus.ACTIVE;
+      if (user.accountStatus !== AccountStatus.SUSPENDED) {
+        user.accountStatus = AccountStatus.ACTIVE;
+      }
     }
     await this.userRepository.save(partner.users);
   }
 
   return this.partnerRepository.save(partner);
 }
+
 }
