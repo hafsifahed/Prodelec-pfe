@@ -144,8 +144,8 @@ export const MENU: MenuItem[] = [
       { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] }
     ],
     subItems: [
-      { id: 111, label: 'Archive Commandes', link: '/archiveorderadminclient' },
-      { id: 112, label: 'Archive Projets',   link: '/archiveprojectadminclient' }
+      { id: 111, label: 'Archive Commandes', link: '/archiveorderadminclient',parentId: 11 },
+      { id: 112, label: 'Archive Projets',   link: '/archiveprojectadminclient',parentId: 11 }
     ]
   }
 ];

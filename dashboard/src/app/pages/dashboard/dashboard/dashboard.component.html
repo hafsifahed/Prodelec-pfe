@@ -243,7 +243,6 @@
             <th>Utilisateur</th>
             <th>Partenaire</th>
             <th>Score (%)</th>
-            <th>Commentaire</th>
           </tr>
         </thead>
         <tbody>
@@ -251,7 +250,6 @@
             <td>{{ a.user?.username || '-' }}</td>
             <td>{{ a.user.partner?.name || '-' }}</td>
             <td>{{ a.avg ?? 0 | number:'1.0-2' }}%</td>
-            <td>{{ a.comment || '-' }}</td>
           </tr>
         </tbody>
       </table>
