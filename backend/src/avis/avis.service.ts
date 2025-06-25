@@ -86,4 +86,23 @@ const avis = this.avisRepository.create({
     .getMany();
 }
 
+async hasOldAvis(userId: number): Promise<boolean> {
+    // Vérifier que l'utilisateur existe
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Calculer la date limite (3 mois en arrière)
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+
+    // Chercher s'il existe au moins un avis vieux de plus de 3 mois
+    const oldAvis = await this.avisRepository
+      .createQueryBuilder('avis')
+      .where('avis.userId = :userId', { userId })
+      .andWhere('avis.createdAt < :threeMonthsAgo', { threeMonthsAgo })
+      .getOne();
+
+    return !!oldAvis;
+  }
+
 }

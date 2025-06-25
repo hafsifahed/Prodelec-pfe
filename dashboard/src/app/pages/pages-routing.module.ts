@@ -50,6 +50,7 @@ import { ArchiveProjectAdminCComponent } from './projectfo/archive-project-admin
 import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archive-order-admin-c.component';
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
 import { RolesComponent } from './roles/roles.component';
+import { ProjetDetailComponent } from '../projet-detail/projet-detail.component';
 
 
 
@@ -110,6 +111,8 @@ const routes: Routes = [
   { path: 'file/:filename/:ido', component: OrderFileComponent },
   { path: 'listorderclient', component: ListOrderUserComponent,   },
   { path: 'listproject', component: ListProjectComponent  },
+  { path: 'listproject/:id', component: ProjetDetailComponent },
+  { path: '', redirectTo: '/listproject', pathMatch: 'full' },
   { path: 'listprojectclient', component: ListProjectUserComponent ,  },
   { path: 'archiveorderadmin', component: ArchiveOrderAdminComponent  },
   { path: 'archiveorderclient', component: ArchiveOrderUserComponent ,  },

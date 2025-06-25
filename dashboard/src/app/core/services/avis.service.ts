@@ -41,4 +41,8 @@ export class AvisService {
   return this.http.get<AvisModels[]>(`${this.apiUrl}/partner/${partnerId}`);
 }
 
+ hasOldAvis(userId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/has-old-avis/${userId}`);
+  }
+
 }

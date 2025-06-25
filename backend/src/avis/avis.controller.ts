@@ -44,4 +44,9 @@ findByPartner(@Param('partnerId') partnerId: string) {
   return this.avisService.findByPartner(+partnerId);
 }
 
+ @Get('has-old-avis/:userId')
+  async hasOldAvis(@Param('userId') userId: string) {
+    return this.avisService.hasOldAvis(+userId);
+  }
+
 }

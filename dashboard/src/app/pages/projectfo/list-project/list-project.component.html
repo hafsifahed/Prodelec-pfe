@@ -95,7 +95,7 @@
                   {{ project.conceptionprogress.toFixed(2) }}%
                 </div>
               </div>
-              <input *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id == userr.id) || userr.role === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.conceptionprogress"
+              <input *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id == userr.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.conceptionprogress"
                 (input)="updateConceptionProgress(project, $event)" class="slider" />
             </div>
 
@@ -130,7 +130,7 @@
                   {{ project.methodeprogress.toFixed(2) }}%
                 </div>
               </div>
-              <input *ngIf="(userr && project.methodeResponsible && userr.id == project.methodeResponsible.id) || userr.role === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.methodeprogress"
+              <input *ngIf="(userr && project.methodeResponsible && userr.id == project.methodeResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.methodeprogress"
                 (input)="updatemProgress(project, $event)" class="slider" />
             </div>
 
@@ -166,7 +166,7 @@
                   {{ project.productionprogress.toFixed(2) }}%
                 </div>
               </div>
-              <input *ngIf="(userr && project.productionResponsible && userr.id == project.productionResponsible.id) || userr.role === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.productionprogress"
+              <input *ngIf="(userr && project.productionResponsible && userr.id == project.productionResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.productionprogress"
                 (input)="updatepProgress(project, $event)" class="slider" />
             </div>
 
@@ -203,7 +203,7 @@
                   {{ project.fcprogress.toFixed(2) }}%
                 </div>
               </div>
-              <input *ngIf="(userr && project.finalControlResponsible && userr.id == project.finalControlResponsible.id) || userr.role === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.fcprogress"
+              <input *ngIf="(userr && project.finalControlResponsible && userr.id == project.finalControlResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.fcprogress"
                 (input)="updatefcProgress(project, $event)" class="slider" />
             </div>
 
@@ -240,7 +240,7 @@
                   {{ project.deliveryprogress.toFixed(2) }}%
                 </div>
               </div>
-              <input *ngIf="(userr && project.deliveryResponsible && userr.id == project.deliveryResponsible.id) || userr.role === 'SUBADMIN' "  type="range" min="0" max="100" [value]="project.deliveryprogress"
+              <input *ngIf="(userr && project.deliveryResponsible && userr.id == project.deliveryResponsible.id) || userr.role.name === 'SUBADMIN' "  type="range" min="0" max="100" [value]="project.deliveryprogress"
                 (input)="updatedProgress(project, $event)" class="slider" />
             </div>
 
@@ -274,7 +274,7 @@
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.updatedAt | date:'yyyy-MM-dd HH:mm'}}
           </td>
           <td>
-            <div *ngIf="userr.role === 'ADMIN' || userr.role === 'SUBADMIN'" class="d-flex gap-3">
+            <div *ngIf="userr.role.name === 'ADMIN' || userr.role.name === 'SUBADMIN'" class="d-flex gap-3">
               <a href="javascript:void(0);" class="text-success" (click)="editModal(project.idproject)"><i
                   class="mdi mdi-pencil font-size-18"></i></a>
               <a href="javascript:void(0);" class="text-danger" (click)="delete(project.idproject)"><i
@@ -283,6 +283,7 @@
                 (click)="archive(project.idproject)">
                 <i class="mdi mdi-archive font-size-18"></i>
               </a>
+               <a [routerLink]="['/listproject', project.idproject]">Voir détails</a>
               <button type="button" class="btn btn-success btn-rounded mb-2 me-2" (click)="addModal(project)"><i
                   class="mdi mdi-plus mr-1"></i>
                 Dupliquer </button>

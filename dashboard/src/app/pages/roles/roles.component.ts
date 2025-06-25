@@ -70,12 +70,14 @@ export class RolesComponent {
     private fb: FormBuilder
   ) {
     this.addRoleForm = this.fb.group({
+      type: ['employee', Validators.required], // Ajout du type, valeur par défaut "employee"
       name: ['', Validators.required],
       permissions: this.fb.array([])
     });
 
     this.editRoleForm = this.fb.group({
       id: [''],
+      type: ['', Validators.required],
       name: ['', Validators.required],
       permissions: this.fb.array([])
     });
@@ -151,17 +153,32 @@ loadRoles(): void {
   }
 
   openEditModal(role: Role, template: TemplateRef<any>): void {
-    this.editRoleForm.reset();
-    this.editPermissions.clear();
-    this.editRoleForm.patchValue({ id: role.id, name: role.name });
-    role.permissions.forEach(p => {
-      this.editPermissions.push(this.fb.group({
-        resource: [p.resource, Validators.required],
-        actions: [p.actions.join(',')]
-      }));
-    });
-    this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
-  }
+  this.editRoleForm.reset();
+  this.editPermissions.clear();
+
+  // Déterminer le type selon le nom du rôle
+  const isClient = role.name.toUpperCase().startsWith('CLIENT');
+  const type = isClient ? 'client' : 'employee';
+
+  // Si c'est un client, retirer le préfixe CLIENT du nom affiché dans le champ name
+  const name = isClient ? role.name.substring(6).trim() : role.name;
+
+  this.editRoleForm.patchValue({ 
+    id: role.id, 
+    type: type,
+    name: name
+  });
+
+  role.permissions.forEach(p => {
+    this.editPermissions.push(this.fb.group({
+      resource: [p.resource, Validators.required],
+      actions: [p.actions.join(',')]
+    }));
+  });
+
+  this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
+}
+
 
   openShowModal(role: Role, template: TemplateRef<any>): void {
     this.selectedRole = role;
@@ -177,21 +194,28 @@ loadRoles(): void {
 submitAddRole(): void {
   if (this.addRoleForm.invalid) return;
   const formValue = this.addRoleForm.value;
+
+  // Préfixer le nom si type = client
+  let roleName = formValue.name;
+  if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
+    roleName = 'CLIENT ' + roleName;
+  }
+
   const newRole: Role = {
-    name: formValue.name,
+    name: roleName,
     permissions: formValue.permissions.map((p: any) => ({
       resource: p.resource,
       actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
     }))
   };
-  
+
   this.errorMessage = null;
   this.rolesService.create(newRole).subscribe(
     () => {
       Swal.fire('Succès', 'Rôle ajouté avec succès', 'success');
       this.modalRef?.hide();
       this.loadRoles();
-    }, 
+    },
     error => {
       this.errorMessage = 'Erreur lors de l\'ajout du rôle';
       Swal.fire('Erreur', this.errorMessage, 'error');
@@ -200,12 +224,19 @@ submitAddRole(): void {
 }
 
 
+
   submitEditRole(): void {
   if (this.editRoleForm.invalid) return;
   const formValue = this.editRoleForm.value;
+
+  let roleName = formValue.name;
+  if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
+    roleName = 'CLIENT ' + roleName;
+  }
+
   const updatedRole: Role = {
     id: formValue.id,
-    name: formValue.name,
+    name: roleName,
     permissions: formValue.permissions.map((p: any) => ({
       resource: p.resource,
       actions: p.actions.split(',').map((a: string) => a.trim()).filter(Boolean)
@@ -214,7 +245,7 @@ submitAddRole(): void {
 
   this.isLoading = true;
   this.errorMessage = null;
-  
+
   this.rolesService.update(updatedRole.id, updatedRole).subscribe(
     () => {
       Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
@@ -228,6 +259,7 @@ submitAddRole(): void {
     }
   );
 }
+
 
 confirmDelete(): void {
   if (this.rejectId === null) return;
