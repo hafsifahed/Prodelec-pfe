@@ -214,10 +214,19 @@ private async notifyResponsibles(project: Project, title: string, message: strin
   }
 
   async setProgress(id: number, field: keyof Project, value: number) {
-    const proj = await this.findOne(id);
-    (proj as any)[field] = value;
-    return this.projectRepo.save(proj);
-  }
+  const proj = await this.findOne(id);
+  (proj as any)[field] = value;
+
+  // Sauvegarde partielle
+  await this.projectRepo.save(proj);
+
+  // Mise à jour des status selon les progress partiels
+  await this.updateStatusesFromProgress(id);
+
+  // Recalcul du progrès global
+  return this.computeGlobalProgress(id);
+}
+
 
   setConceptionProgress(id: number, p: number) {
     return this.setProgress(id, 'conceptionprogress', p);
@@ -235,20 +244,40 @@ private async notifyResponsibles(project: Project, title: string, message: strin
     return this.setProgress(id, 'deliveryprogress', p);
   }
 
+  async updateStatusesFromProgress(id: number) {
+  const p = await this.findOne(id);
+
+  p.conceptionStatus = (p.conceptionprogress >= 100);
+  p.methodeStatus = (p.methodeprogress >= 100);
+  p.productionStatus = (p.productionprogress >= 100);
+  p.finalControlStatus = (p.fcprogress >= 100);
+  p.deliveryStatus = (p.deliveryprogress >= 100);
+
+  return this.projectRepo.save(p);
+}
+
+
   /* --------------------------------------------------------------------- */
-  async computeGlobalProgress(id: number) {
-    const p = await this.findOne(id);
+async computeGlobalProgress(id: number) {
+  const p = await this.findOne(id);
 
-    const done =
-      (p.conceptionStatus ? p.conceptionDuration : 0) +
-      (p.methodeStatus ? p.methodeDuration : 0) +
-      (p.productionStatus ? p.productionDuration : 0) +
-      (p.finalControlStatus ? p.finalControlDuration : 0) +
-      (p.deliveryStatus ? p.deliveryDuration : 0);
+  const doneRaw =
+    (p.conceptionDuration * (p.conceptionStatus ? 100 : p.conceptionprogress)) +
+    (p.methodeDuration * (p.methodeStatus ? 100 : p.methodeprogress)) +
+    (p.productionDuration * (p.productionStatus ? 100 : p.productionprogress)) +
+    (p.finalControlDuration * (p.finalControlStatus ? 100 : p.fcprogress)) +
+    (p.deliveryDuration * (p.deliveryStatus ? 100 : p.deliveryprogress));
 
-    p.progress = +(done / p.duree) * 100;
-    return this.projectRepo.save(p);
-  }
+  const done = Math.floor(doneRaw / 100);
+
+  p.progress = Math.floor((done / p.duree) * 100);
+
+  return this.projectRepo.save(p);
+}
+
+
+
+
 
   /* --------------------------------------------------------------------- */
   async toggleArchive(id: number, field: 'archivera' | 'archiverc') {

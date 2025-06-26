@@ -29,6 +29,7 @@ export class ProjetDetailComponent implements OnInit {
   project1:any;
   project2:Project;
 
+  
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
   @ViewChild('detailsconModal') detailsconModal?: TemplateRef<any>;
