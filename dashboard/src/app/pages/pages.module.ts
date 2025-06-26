@@ -78,6 +78,7 @@ import { ArchiveProjectAdminCComponent } from './projectfo/archive-project-admin
 import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archive-order-admin-c.component';
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
 import { UserAvisCheckComponent } from './avis/userAvisCheck.component';
+import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
 
 @NgModule({
   declarations: [
@@ -127,7 +128,8 @@ import { UserAvisCheckComponent } from './avis/userAvisCheck.component';
     ArchiveProjectAdminCComponent,
     ArchiveOrderAdminCComponent,
     ListProjetUserAdminComponent,
-    UserAvisCheckComponent
+    UserAvisCheckComponent,
+    ProjetDetailComponent
   ],
   imports: [
     CommonModule,

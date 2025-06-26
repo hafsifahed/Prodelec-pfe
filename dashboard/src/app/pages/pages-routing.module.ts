@@ -50,7 +50,7 @@ import { ArchiveProjectAdminCComponent } from './projectfo/archive-project-admin
 import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archive-order-admin-c.component';
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
 import { RolesComponent } from './roles/roles.component';
-import { ProjetDetailComponent } from '../projet-detail/projet-detail.component';
+import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
 
 
 

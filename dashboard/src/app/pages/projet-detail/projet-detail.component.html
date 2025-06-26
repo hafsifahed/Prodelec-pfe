@@ -1,0 +1,824 @@
+<div class="container py-4">
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div>Chargement du projet...</div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger my-4">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="project" class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Détail du projet : {{ project.refProdelec }}</h2>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item"><strong>Client :</strong> {{ project.order?.user?.username }}</li>
+        <li class="list-group-item"><strong>Date Réception BC :</strong> {{ project.order?.createdAt | date:'yyyy-MM-dd' }}</li>
+        <li class="list-group-item"><strong>N° BC :</strong> {{ project.order?.orderName }}</li>
+        <li class="list-group-item"><strong>Réf. Client :</strong> {{ project.refClient }}</li>
+        <li class="list-group-item"><strong>Quantité :</strong> {{ project.qte }}</li>
+        <li class="list-group-item"><strong>Date de livraison prévue :</strong> 
+          <span [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
+            {{project.dlp | date:'yyyy-MM-dd'}}
+          </span>
+        </li>
+        <li class="list-group-item"><strong>Durée :</strong> {{project.duree}} heures</li>
+        <li class="list-group-item"><strong>Date de création :</strong> {{project.createdAt | date:'yyyy-MM-dd HH:mm'}}</li>
+        <li class="list-group-item"><strong>Date de mise à jour :</strong> {{project.updatedAt | date:'yyyy-MM-dd HH:mm'}}</li>
+      </ul>
+
+      <!-- Progressions -->
+      <div class="row gy-3 mb-4">
+        <!-- Conception -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span>
+              <span class="badge" [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
+                {{ project.conceptionStatus ? 'Conception : Terminé' : 'Conception : En cours' }}
+              </span>
+              <span *ngIf="isDateOverdue1(project.endConception, project.realendConception)" class="badge bg-warning ms-2">En retard</span>
+            </span>
+            <span>{{ project.conceptionprogress }}%</span>
+          </div>
+          <div class="progress mb-1" style="height: 20px;">
+            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.conceptionprogress + '%'"
+              [attr.aria-valuenow]="project.conceptionprogress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.conceptionprogress }}%
+            </div>
+          </div>
+          <!-- *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id == userr.id) || userr.role?.name === 'SUBADMIN'" -->
+          <input 
+            type="range" min="0" max="100" [value]="project.conceptionprogress"
+            (input)="updateConceptionProgress(project, $event)" class="form-range" />
+        </div>
+        <!-- Méthode -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span>
+              <span class="badge" [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
+                {{ project.methodeStatus ? 'Méthode : Terminé' : 'Méthode : En cours' }}
+              </span>
+              <span *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)" class="badge bg-warning ms-2">En retard</span>
+            </span>
+            <span>{{ project.methodeprogress }}%</span>
+          </div>
+          <div class="progress mb-1" style="height: 20px;">
+            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.methodeprogress + '%'"
+              [attr.aria-valuenow]="project.methodeprogress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.methodeprogress }}%
+            </div>
+          </div>
+          <!-- *ngIf="(userr && project.methodeResponsible && userr.id == project.methodeResponsible.id) || userr.role?.name === 'SUBADMIN'" -->
+          <input 
+            type="range" min="0" max="100" [value]="project.methodeprogress"
+            (input)="updatemProgress(project, $event)" class="form-range" />
+        </div>
+        <!-- Production -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span>
+              <span class="badge" [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
+                {{ project.productionStatus ? 'Production : Terminé' : 'Production : En cours' }}
+              </span>
+              <span *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)" class="badge bg-warning ms-2">En retard</span>
+            </span>
+            <span>{{ project.productionprogress }}%</span>
+          </div>
+          <div class="progress mb-1" style="height: 20px;">
+            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.productionprogress + '%'"
+              [attr.aria-valuenow]="project.productionprogress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.productionprogress }}%
+            </div>
+          </div>
+          <!-- *ngIf="(userr && project.productionResponsible && userr.id == project.productionResponsible.id) || userr.role?.name === 'SUBADMIN'" -->
+          <input 
+            type="range" min="0" max="100" [value]="project.productionprogress"
+            (input)="updatepProgress(project, $event)" class="form-range" />
+        </div>
+        <!-- Contrôle final -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span>
+              <span class="badge" [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
+                {{ project.finalControlStatus ? 'Contrôle final : Terminé' : 'Contrôle final : En cours' }}
+              </span>
+              <span *ngIf="isDateOverdue1(project.endFc, project.realendFc)" class="badge bg-warning ms-2">En retard</span>
+            </span>
+            <span>{{ project.fcprogress }}%</span>
+          </div>
+          <div class="progress mb-1" style="height: 20px;">
+            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.fcprogress + '%'"
+              [attr.aria-valuenow]="project.fcprogress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.fcprogress }}%
+            </div>
+          </div>
+          <!-- *ngIf="(userr && project.finalControlResponsible && userr.id == project.finalControlResponsible.id) || userr.role?.name === 'SUBADMIN'" -->
+          <input 
+            type="range" min="0" max="100" [value]="project.fcprogress"
+            (input)="updatefcProgress(project, $event)" class="form-range" />
+        </div>
+        <!-- Livraison -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span>
+              <span class="badge" [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
+                {{ project.deliveryStatus ? 'Livraison : Terminé' : 'Livraison : En cours' }}
+              </span>
+              <span *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)" class="badge bg-warning ms-2">En retard</span>
+            </span>
+            <span>{{ project.deliveryprogress }}%</span>
+          </div>
+          <div class="progress mb-1" style="height: 20px;">
+            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.deliveryprogress + '%'"
+              [attr.aria-valuenow]="project.deliveryprogress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.deliveryprogress }}%
+            </div>
+          </div>
+          <!-- *ngIf="(userr && project.deliveryResponsible && userr.id == project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'" -->
+          <input 
+            type="range" min="0" max="100" [value]="project.deliveryprogress"
+            (input)="updatedProgress(project, $event)" class="form-range" />
+        </div>
+        <!-- Progression totale -->
+        <div class="col-md-6">
+          <div class="mb-2 d-flex align-items-center justify-content-between">
+            <span class="fw-bold">Progression totale</span>
+            <span>{{ project.progress }}%</span>
+          </div>
+          <div class="progress" style="height: 20px;">
+            <div class="progress-bar bg-primary" role="progressbar" [style.width]="project.progress + '%'"
+              [attr.aria-valuenow]="project.progress" aria-valuemin="0" aria-valuemax="100">
+              {{ project.progress }}%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button class="btn btn-primary" (click)="editModal(project.idproject)">
+          <i class="mdi mdi-pencil"></i> Modifier
+        </button>
+        <button class="btn btn-danger" (click)="delete(project.idproject)">
+          <i class="mdi mdi-delete"></i> Supprimer
+        </button>
+        <button class="btn btn-warning" (click)="archive(project.idproject)">
+          <i class="mdi mdi-archive"></i> Archiver
+        </button>
+        <button class="btn btn-success" (click)="addModal(project)">
+          <i class="mdi mdi-plus"></i> Dupliquer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div bsModal #showModala="bs-modal" class="modal fade" id="showModala" tabindex="-1" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Ajouter projet</h5>
+        <button type="button" class="btn-close" id="close-modal" (click)="showModala.hide()"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addproject()" [formGroup]="projectsForm" class="needs-validation createorder-form"
+          id="createorder-form" novalidate>
+          <div class="row">
+            <div class="col-lg-12">
+              <input type="hidden" class="form-control" id="orderid-input">
+              <div class="mb-3">
+                <label for="payamount-input" class="form-label">Quantité</label>
+                <input type="number" id="customername-field" class="form-control" required formControlName="qte" />
+              </div>
+              <div class="mb-3">
+                <label for="orderdate-input" class="form-label">Date de livraison prévue</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp">
+              </div>
+
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card shadow-lg">
+                  <div class="card-header">
+                    Conception
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paystatus-input" class="form-label">Durée</label>
+                          <input type="number" id="customername-field" class="form-control" required
+                            formControlName="drc" />
+                        </div>
+                      </div>
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paymethod-input" class="form-label">Pilote</label>
+                          <select class="form-control" name="payment-method" id="paymethod-input" formControlName="rc">
+                            <option> </option>
+                            <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paystatus-input" class="form-label">Commentaire</label>
+                          <textarea id="customername-field" class="form-control" required
+                            formControlName="cdc"></textarea>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="mb-3">
+                            <label for="orderdate-input" class="form-label">Début</label>
+                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc">
+                          </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+                          <div class="mb-3">
+                            <label for="orderdate-input" class="form-label">Fin</label>
+                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc">
+                          </div>
+
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="card shadow-lg">
+                    <div class="card-header">
+                      Methode
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paystatus-input" class="form-label">Durée</label>
+                            <input type="number" id="customername-field" class="form-control" required
+                              formControlName="drm" />
+                          </div>
+                        </div>
+
+
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paymethod-input" class="form-label">Pilote</label>
+                            <select class="form-control" name="payment-method" id="paymethod-input"
+                              formControlName="rm">
+                              <option> </option>
+                              <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paystatus-input" class="form-label">Commentaire</label>
+                            <textarea id="customername-field" class="form-control" required
+                              formControlName="cdm"></textarea>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-6">
+                            <div class="mb-3">
+                              <label for="orderdate-input" class="form-label">Début</label>
+                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm">
+                            </div>
+
+                          </div>
+
+                          <div class="col-lg-6">
+                            <div class="mb-3">
+                              <label for="orderdate-input" class="form-label">Fin</label>
+                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm">
+                            </div>
+
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card shadow-lg">
+                      <div class="card-header">
+                        Production
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paystatus-input" class="form-label">Durée</label>
+                              <input type="number" id="customername-field" class="form-control" required
+                                formControlName="drp" />
+                            </div>
+                          </div>
+
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paymethod-input" class="form-label">Pilote</label>
+                              <select class="form-control" name="payment-method" id="paymethod-input"
+                                formControlName="rp">
+                                <option> </option>
+                                <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paystatus-input" class="form-label">Commentaire</label>
+                              <textarea id="customername-field" class="form-control" required
+                                formControlName="cdp"></textarea>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label for="orderdate-input" class="form-label">Début</label>
+                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp">
+                              </div>
+
+                            </div>
+
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label for="orderdate-input" class="form-label">Fin</label>
+                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp">
+                              </div>
+
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="card shadow-lg">
+                        <div class="card-header">
+                          Controle finale
+                        </div>
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paystatus-input" class="form-label">Durée</label>
+                                <input type="number" id="customername-field" class="form-control" required
+                                  formControlName="drcf" />
+                              </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paymethod-input" class="form-label">Pilote</label>
+                                <select class="form-control" name="payment-method" id="paymethod-input"
+                                  formControlName="rcf">
+                                  <option> </option>
+                                  <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paystatus-input" class="form-label">Commentaire</label>
+                                <textarea id="customername-field" class="form-control" required
+                                  formControlName="cdcf"></textarea>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Début</label>
+                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
+                                    formControlName="dcf">
+                                </div>
+
+                              </div>
+
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Fin</label>
+                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
+                                    formControlName="fcf">
+                                </div>
+
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="card shadow-lg">
+                          <div class="card-header">
+                            Livraison
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paystatus-input" class="form-label">Durée</label>
+                                  <input type="number" id="customername-field" class="form-control" required
+                                    formControlName="drl" />
+                                </div>
+                              </div>
+
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paymethod-input" class="form-label">Pilote</label>
+                                  <select class="form-control" name="payment-method" id="paymethod-input"
+                                    formControlName="rl">
+                                    <option> </option>
+                                    <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paystatus-input" class="form-label">Commentaire</label>
+                                  <textarea id="customername-field" class="form-control" required
+                                    formControlName="cdl"></textarea>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Début</label>
+                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl">
+                                </div>
+
+                              </div>
+
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Fin</label>
+                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl">
+                                </div>
+
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="text-end">
+                <button type="button" class="btn btn-outline-secondary me-1" (click)="showModala.hide()">Cancel</button>
+                <button type="submit" id="addNewOrder-btn" class="btn btn-success">Ajouter</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- end modal body -->
+    </div>
+  </div>
+</div>
+<!----------------------------------------------------------------->
+<div bsModal #showModal="bs-modal" class="modal fade" id="showModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modifier projet</h5>
+        <button type="button" class="btn-close" id="close-modal" (click)="showModal.hide()"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateproject()" [formGroup]="projectForm" class="needs-validation createorder-form"
+          id="createorder-form" novalidate>
+          <div class="row">
+            <div class="col-lg-12">
+              <input type="hidden" class="form-control" id="orderid-input">
+              <div class="mb-3">
+                <label for="customername-field" class="form-label">Ref Client</label>
+                <input type="text" id="customername-field" class="form-control" required formControlName="refc" />
+              </div>
+              <div class="mb-3">
+                <label for="customername-field" class="form-label">Ref Prodelec</label>
+                <input type="text" id="customername-field" class="form-control" required formControlName="refp" />
+              </div>
+              <div class="mb-3">
+                <label for="payamount-input" class="form-label">Quantité</label>
+                <input type="number" id="customername-field" class="form-control" required formControlName="qte" />
+              </div>
+              <div class="mb-3">
+                <label for="orderdate-input" class="form-label">Date de livraison prévue</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp">
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card shadow-lg">
+                  <div class="card-header">
+                    Conception
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paystatus-input" class="form-label">Durée</label>
+                          <input type="number" id="customername-field" class="form-control" required
+                            formControlName="drc" />
+                        </div>
+                      </div>
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paymethod-input" class="form-label">Pilote</label>
+                          <select class="form-control" name="payment-method" id="paymethod-input" formControlName="rc">
+                            <option> </option>
+                            <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-lg-4">
+                        <div class="mb-3">
+                          <label for="paystatus-input" class="form-label">Commentaire</label>
+                          <textarea id="customername-field" class="form-control" required
+                            formControlName="cdc"></textarea>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="mb-3">
+                            <label for="orderdate-input" class="form-label">Début</label>
+                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc">
+                          </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+                          <div class="mb-3">
+                            <label for="orderdate-input" class="form-label">Fin</label>
+                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc">
+                          </div>
+
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="card shadow-lg">
+                    <div class="card-header">
+                      Methode
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paystatus-input" class="form-label">Durée</label>
+                            <input type="number" id="customername-field" class="form-control" required
+                              formControlName="drm" />
+                          </div>
+                        </div>
+
+
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paymethod-input" class="form-label">Pilote</label>
+                            <select class="form-control" name="payment-method" id="paymethod-input"
+                              formControlName="rm">
+                              <option> </option>
+                              <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                          <div class="mb-3">
+                            <label for="paystatus-input" class="form-label">Commentaire</label>
+                            <textarea id="customername-field" class="form-control" required
+                              formControlName="cdm"></textarea>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-6">
+                            <div class="mb-3">
+                              <label for="orderdate-input" class="form-label">Début</label>
+                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm">
+                            </div>
+
+                          </div>
+
+                          <div class="col-lg-6">
+                            <div class="mb-3">
+                              <label for="orderdate-input" class="form-label">Fin</label>
+                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm">
+                            </div>
+
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="card shadow-lg">
+                      <div class="card-header">
+                        Production
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paystatus-input" class="form-label">Durée</label>
+                              <input type="number" id="customername-field" class="form-control" required
+                                formControlName="drp" />
+                            </div>
+                          </div>
+
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paymethod-input" class="form-label">Pilote</label>
+                              <select class="form-control" name="payment-method" id="paymethod-input"
+                                formControlName="rp">
+                                <option> </option>
+                                <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="col-lg-4">
+                            <div class="mb-3">
+                              <label for="paystatus-input" class="form-label">Commentaire</label>
+                              <textarea id="customername-field" class="form-control" required
+                                formControlName="cdp"></textarea>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label for="orderdate-input" class="form-label">Début</label>
+                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp">
+                              </div>
+
+                            </div>
+
+                            <div class="col-lg-6">
+                              <div class="mb-3">
+                                <label for="orderdate-input" class="form-label">Fin</label>
+                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp">
+                              </div>
+
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="card shadow-lg">
+                        <div class="card-header">
+                          Controle finale
+                        </div>
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paystatus-input" class="form-label">Durée</label>
+                                <input type="number" id="customername-field" class="form-control" required
+                                  formControlName="drcf" />
+                              </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paymethod-input" class="form-label">Pilote</label>
+                                <select class="form-control" name="payment-method" id="paymethod-input"
+                                  formControlName="rcf">
+                                  <option> </option>
+                                  <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-lg-4">
+                              <div class="mb-3">
+                                <label for="paystatus-input" class="form-label">Commentaire</label>
+                                <textarea id="customername-field" class="form-control" required
+                                  formControlName="cdcf"></textarea>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Début</label>
+                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
+                                    formControlName="dcf">
+                                </div>
+
+                              </div>
+
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Fin</label>
+                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
+                                    formControlName="fcf">
+                                </div>
+
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="card shadow-lg">
+                          <div class="card-header">
+                            Livraison
+                          </div>
+                          <div class="card-body">
+                            <div class="row">
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paystatus-input" class="form-label">Durée</label>
+                                  <input type="number" id="customername-field" class="form-control" required
+                                    formControlName="drl" />
+                                </div>
+                              </div>
+
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paymethod-input" class="form-label">Pilote</label>
+                                  <select class="form-control" name="payment-method" id="paymethod-input"
+                                    formControlName="rl">
+                                    <option> </option>
+                                    <option *ngFor="let dt of listr">{{ dt.username }}</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="col-lg-4">
+                                <div class="mb-3">
+                                  <label for="paystatus-input" class="form-label">Commentaire</label>
+                                  <textarea id="customername-field" class="form-control" required
+                                    formControlName="cdl"></textarea>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Début</label>
+                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl">
+                                </div>
+
+                              </div>
+
+                              <div class="col-lg-6">
+                                <div class="mb-3">
+                                  <label for="orderdate-input" class="form-label">Fin</label>
+                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl">
+                                </div>
+
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="text-end">
+                <button type="button" class="btn btn-outline-secondary me-1" (click)="showModal.hide()">Cancel</button>
+                <button type="submit" id="addNewOrder-btn" class="btn btn-success">Modifier</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- end modal body -->
+    </div>
+  </div>
+</div>
