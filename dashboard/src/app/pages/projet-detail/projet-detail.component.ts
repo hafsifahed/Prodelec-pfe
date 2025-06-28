@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Project } from '../../core/models/projectfo/project';
 import { ProjectService } from '../../core/services/projectService/project.service';
@@ -9,13 +9,14 @@ import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms
 import { OrderServiceService } from '../../core/services/orderService/order-service.service';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from '../../core/models/projectfo/project-dto';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-projet-detail',
   templateUrl: './projet-detail.component.html',
   styleUrls: ['./projet-detail.component.scss']
 })
-export class ProjetDetailComponent implements OnInit {
+export class ProjetDetailComponent implements OnInit,OnDestroy {
   projectId!: number;
   project?: any;
   loading = true;
@@ -29,7 +30,15 @@ export class ProjetDetailComponent implements OnInit {
   project1:any;
   project2:Project;
 
-  
+    private progressSubjects = {
+    conception: new Subject<{ project: any, value: number }>(),
+    methode: new Subject<{ project: any, value: number }>(),
+    production: new Subject<{ project: any, value: number }>(),
+    fc: new Subject<{ project: any, value: number }>(),
+    delivery: new Subject<{ project: any, value: number }>()
+  };
+  private progressSubscriptions: Subscription[] = [];
+
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
   @ViewChild('detailsconModal') detailsconModal?: TemplateRef<any>;
@@ -136,6 +145,83 @@ export class ProjetDetailComponent implements OnInit {
         this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
           this.listr=res;
       });
+
+       this.initDebounce('conception');
+    this.initDebounce('methode');
+    this.initDebounce('production');
+    this.initDebounce('fc');
+    this.initDebounce('delivery');
+  }
+
+  ngOnDestroy() {
+    this.progressSubscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+    private initDebounce(step: keyof typeof this.progressSubjects) {
+    const sub = this.progressSubjects[step].pipe(debounceTime(700)).subscribe(({ project, value }) => {
+      this.sendProgress(step, project, value);
+    });
+    this.progressSubscriptions.push(sub);
+  }
+
+  // Méthode générique appelée après le debounce
+  private sendProgress(step: string, project: any, value: number) {
+    // Met à jour la propriété locale pour l'affichage immédiat
+    project[`${step}progress`] = value;
+
+    // Appelle le service adapté selon l'étape
+    let progressApi, realApi, statusApi, statusField;
+    switch (step) {
+      case 'conception':
+        progressApi = this.projectservice.progressc.bind(this.projectservice);
+        realApi = this.projectservice.changeRealc.bind(this.projectservice);
+        statusApi = this.projectservice.changeStatusConception1.bind(this.projectservice);
+        statusField = 'conceptionStatus';
+        break;
+      case 'methode':
+        progressApi = this.projectservice.progressm.bind(this.projectservice);
+        realApi = this.projectservice.changeRealm.bind(this.projectservice);
+        statusApi = this.projectservice.changeStatusMethode1.bind(this.projectservice);
+        statusField = 'methodeStatus';
+        break;
+      case 'production':
+        progressApi = this.projectservice.progressp.bind(this.projectservice);
+        realApi = this.projectservice.changeRealp.bind(this.projectservice);
+        statusApi = this.projectservice.changeStatusProduction1.bind(this.projectservice);
+        statusField = 'productionStatus';
+        break;
+      case 'fc':
+        progressApi = this.projectservice.progressfc.bind(this.projectservice);
+        realApi = this.projectservice.changeRealfc.bind(this.projectservice);
+        statusApi = this.projectservice.changeStatusFC1.bind(this.projectservice);
+        statusField = 'finalControlStatus';
+        break;
+      case 'delivery':
+        progressApi = this.projectservice.progressd.bind(this.projectservice);
+        realApi = this.projectservice.changeReall.bind(this.projectservice);
+        statusApi = this.projectservice.changeStatusDelivery1.bind(this.projectservice);
+        statusField = 'deliveryStatus';
+        break;
+    }
+
+    progressApi(project.idproject, value).subscribe(() => {
+      if (value === 100) {
+        realApi(project.idproject).subscribe(() => {
+          this.toggleTaskStatus(project, statusField);
+        });
+      } else {
+        statusApi(project.idproject).subscribe(() => {
+          project[statusField] = false;
+          this.calculateProgress(project);
+        });
+      }
+    });
+  }
+
+  // Méthode appelée par le HTML
+  onProgressInput(project: any, value: number, step: keyof typeof this.progressSubjects) {
+    project[`${step}progress`] = value;
+    this.progressSubjects[step].next({ project, value });
   }
 
   calculateProgress(project: Project) {

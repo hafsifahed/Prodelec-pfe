@@ -268,9 +268,9 @@ async computeGlobalProgress(id: number) {
     (p.finalControlDuration * (p.finalControlStatus ? 100 : p.fcprogress)) +
     (p.deliveryDuration * (p.deliveryStatus ? 100 : p.deliveryprogress));
 
-  const done = Math.floor(doneRaw / 100);
+  const done = doneRaw / 100;
 
-  p.progress = Math.floor((done / p.duree) * 100);
+  p.progress = (done / p.duree) * 100;
 
   return this.projectRepo.save(p);
 }

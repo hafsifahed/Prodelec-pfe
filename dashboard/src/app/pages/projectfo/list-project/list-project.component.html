@@ -72,199 +72,210 @@
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}}</td>
           
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.qte}}</td>
-          <td>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
-                                            'badge-soft-danger': !project.conceptionStatus,
-                                            'badge-soft-success': project.conceptionStatus
-                                          }">
-                {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
-              </span>
-              <span class="badge badge-pill font-size-11 me-2"
-      [ngClass]="{
-        'badge-soft-danger': isDateOverdue1(project.endConception,project.realendConception)
-      }">
-  {{ isDateOverdue1(project.endConception,project.realendConception) ? 'En retard' : '' }}
-</span>
+         
+<td>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span *ngIf="project.conceptionprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': !project.conceptionStatus,
+      'badge-soft-success': project.conceptionStatus
+    }">
+      {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
+    </span>
+    <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': isDateOverdue1(project.endConception, project.realendConception)
+    }">
+      {{ isDateOverdue1(project.endConception, project.realendConception) ? 'En retard' : '' }}
+    </span>
+  </div>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" [style.width]="project.conceptionprogress + '%'"
+        [attr.aria-valuenow]="project.conceptionprogress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.conceptionprogress.toFixed(2) }}%
+      </div>
+    </div>
+    <input 
+      *ngIf="(userr?.id && project.conceptionResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      aria-label="Progression conception"
+      type="range" min="0" max="100" [value]="project.conceptionprogress"
+      (input)="updateConceptionProgress(project, $event)" class="slider" />
+  </div>
+  <div class="d-flex justify-content-center">
+    <button class="btn detail-custom" (click)="openDetailsconsModal(project)">
+      <i class="bx bxs-detail" style="font-size: medium;"></i>
+    </button>
+  </div>
+</td>
 
-            </div>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.conceptionprogress + '%'"
-                  [attr.aria-valuenow]="project.conceptionprogress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.conceptionprogress.toFixed(2) }}%
-                </div>
-              </div>
-              <input *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id == userr.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.conceptionprogress"
-                (input)="updateConceptionProgress(project, $event)" class="slider" />
-            </div>
-
-            <div class="d-flex justify-content-center">
-              <button class="btn detail-custom" (click)="openDetailsconsModal(project)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-            </div>
-
-          </td>
-          <td>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
-                                            'badge-soft-danger': !project.methodeStatus,
-                                            'badge-soft-success': project.methodeStatus
-                                          }">
-                {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
-              </span>
-
-              <span class="badge badge-pill font-size-11 me-2"
-      [ngClass]="{
-        'badge-soft-danger': isDateOverdue1(project.endMethode,project.realendMethode)
-      }">
-  {{ isDateOverdue1(project.endMethode,project.realendMethode) ? 'En retard' : '' }}
-</span>
-
-            </div>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.methodeprogress + '%'"
-                  [attr.aria-valuenow]="project.methodeprogress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.methodeprogress.toFixed(2) }}%
-                </div>
-              </div>
-              <input *ngIf="(userr && project.methodeResponsible && userr.id == project.methodeResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.methodeprogress"
-                (input)="updatemProgress(project, $event)" class="slider" />
-            </div>
-
-            <div class="d-flex justify-content-center">
-              <button class="btn detail-custom" (click)="openDetailsmetModal(project)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-            </div>
-
-
-          </td>
-          <td>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
-                                            'badge-soft-danger': !project.productionStatus,
-                                            'badge-soft-success': project.productionStatus
-                                          }">
-                {{ project.productionStatus ? 'Terminé' : 'En cours' }}
-              </span>
-
-              <span class="badge badge-pill font-size-11 me-2"
-      [ngClass]="{
-        'badge-soft-danger': isDateOverdue1(project.endProduction,project.realendProduction)
-      }">
-  {{ isDateOverdue1(project.endProduction,project.realendProduction) ? 'En retard' : '' }}
-</span>
-
-            </div>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.productionprogress + '%'"
-                  [attr.aria-valuenow]="project.productionprogress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.productionprogress.toFixed(2) }}%
-                </div>
-              </div>
-              <input *ngIf="(userr && project.productionResponsible && userr.id == project.productionResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.productionprogress"
-                (input)="updatepProgress(project, $event)" class="slider" />
-            </div>
-
-            <div class="d-flex justify-content-center">
-              <button class="btn detail-custom" (click)="openDetailsprodModal(project)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-            </div>
-
-
-            
-          </td>
-          <td>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
-                                            'badge-soft-danger': !project.finalControlStatus,
-                                            'badge-soft-success': project.finalControlStatus
-                                          }">
-                {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
-              </span>
-
-              <span class="badge badge-pill font-size-11 me-2"
-      [ngClass]="{
-        'badge-soft-danger': isDateOverdue1(project.endFc,project.realendFc)
-      }">
-  {{ isDateOverdue1(project.endFc,project.realendFc) ? 'En retard' : '' }}
-</span>
-
-            </div>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.fcprogress + '%'"
-                  [attr.aria-valuenow]="project.fcprogress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.fcprogress.toFixed(2) }}%
-                </div>
-              </div>
-              <input *ngIf="(userr && project.finalControlResponsible && userr.id == project.finalControlResponsible.id) || userr.role.name === 'SUBADMIN'" type="range" min="0" max="100" [value]="project.fcprogress"
-                (input)="updatefcProgress(project, $event)" class="slider" />
-            </div>
-
-
-            <div class="d-flex justify-content-center">
-              <button class="btn detail-custom" (click)="openDetailsfcModal(project)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-            </div>
+<td>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span *ngIf="project.methodeprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': !project.methodeStatus,
+      'badge-soft-success': project.methodeStatus
+    }">
+      {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
+    </span>
+    <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': isDateOverdue1(project.endMethode, project.realendMethode)
+    }">
+      {{ isDateOverdue1(project.endMethode, project.realendMethode) ? 'En retard' : '' }}
+    </span>
+  </div>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" [style.width]="project.methodeprogress + '%'"
+        [attr.aria-valuenow]="project.methodeprogress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.methodeprogress.toFixed(2) }}%
+      </div>
+    </div>
+    <input 
+      *ngIf="(userr?.id && project.methodeResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      aria-label="Progression méthode"
+      type="range" min="0" max="100" [value]="project.methodeprogress"
+      (input)="updatemProgress(project, $event)" class="slider" />
+  </div>
+  <div class="d-flex justify-content-center">
+    <button class="btn detail-custom" (click)="openDetailsmetModal(project)">
+      <i class="bx bxs-detail" style="font-size: medium;"></i>
+    </button>
+  </div>
+</td>
 
 
 
-          </td>
-          <td>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
-                                            'badge-soft-danger': !project.deliveryStatus,
-                                            'badge-soft-success': project.deliveryStatus
-                                          }">
-                {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
-              </span>
-              <span class="badge badge-pill font-size-11 me-2"
-      [ngClass]="{
-        'badge-soft-danger': isDateOverdue1(project.endDelivery, project.realendDelivery)
-      }">
-  {{ isDateOverdue1(project.endDelivery, project.realendDelivery) ? 'En retard' : '' }}
-</span>
-
-            </div>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.deliveryprogress + '%'"
-                  [attr.aria-valuenow]="project.deliveryprogress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.deliveryprogress.toFixed(2) }}%
-                </div>
-              </div>
-              <input *ngIf="(userr && project.deliveryResponsible && userr.id == project.deliveryResponsible.id) || userr.role.name === 'SUBADMIN' "  type="range" min="0" max="100" [value]="project.deliveryprogress"
-                (input)="updatedProgress(project, $event)" class="slider" />
-            </div>
 
 
 
-            <div class="d-flex justify-content-center">
-              <button class="btn detail-custom" (click)="openDetailsdelModal(project)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-            </div>
 
 
 
-          </td>
-          <td>
-            <div class="progress-container">
-              <div class="progress" style="height: 20px;">
-                <div class="progress-bar" role="progressbar" [style.width]="project.progress + '%'"
-                  [attr.aria-valuenow]="project.progress" aria-valuemin="0" aria-valuemax="100">
-                  {{ project.progress.toFixed(2) }}%
-                </div>
-              </div>
-            </div>
-          </td>
+
+    <td>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span *ngIf="project.productionprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': !project.productionStatus,
+      'badge-soft-success': project.productionStatus
+    }">
+      {{ project.productionStatus ? 'Terminé' : 'En cours' }}
+    </span>
+
+    <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': isDateOverdue1(project.endProduction, project.realendProduction)
+    }">
+      {{ isDateOverdue1(project.endProduction, project.realendProduction) ? 'En retard' : '' }}
+    </span>
+  </div>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" [style.width]="project.productionprogress + '%'"
+        [attr.aria-valuenow]="project.productionprogress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.productionprogress.toFixed(2) }}%
+      </div>
+    </div>
+    <input
+      *ngIf="(userr?.id && project.productionResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      aria-label="Progression production"
+      type="range" min="0" max="100" [value]="project.productionprogress"
+      (input)="updatepProgress(project, $event)" class="slider" />
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button class="btn detail-custom" (click)="openDetailsprodModal(project)">
+      <i class="bx bxs-detail" style="font-size: medium;"></i>
+    </button>
+  </div>
+</td>
+
+<td>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span *ngIf="project.fcprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': !project.finalControlStatus,
+      'badge-soft-success': project.finalControlStatus
+    }">
+      {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
+    </span>
+
+    <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': isDateOverdue1(project.endFc, project.realendFc)
+    }">
+      {{ isDateOverdue1(project.endFc, project.realendFc) ? 'En retard' : '' }}
+    </span>
+  </div>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" [style.width]="project.fcprogress + '%'"
+        [attr.aria-valuenow]="project.fcprogress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.fcprogress.toFixed(2) }}%
+      </div>
+    </div>
+    <input
+      *ngIf="(userr?.id && project.finalControlResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      aria-label="Progression contrôle final"
+      type="range" min="0" max="100" [value]="project.fcprogress"
+      (input)="updatefcProgress(project, $event)" class="slider" />
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button class="btn detail-custom" (click)="openDetailsfcModal(project)">
+      <i class="bx bxs-detail" style="font-size: medium;"></i>
+    </button>
+  </div>
+</td>
+
+
+
+
+
+
+
+
+
+         <td>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span *ngIf="project.deliveryprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': !project.deliveryStatus,
+      'badge-soft-success': project.deliveryStatus
+    }">
+      {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
+    </span>
+    <span class="badge badge-pill font-size-11 me-2" [ngClass]="{
+      'badge-soft-danger': isDateOverdue1(project.endDelivery, project.realendDelivery)
+    }">
+      {{ isDateOverdue1(project.endDelivery, project.realendDelivery) ? 'En retard' : '' }}
+    </span>
+  </div>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar" role="progressbar" [style.width]="project.deliveryprogress + '%'"
+        [attr.aria-valuenow]="project.deliveryprogress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.deliveryprogress.toFixed(2) }}%
+      </div>
+    </div>
+    <input
+      *ngIf="(userr?.id && project.finalControlResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      aria-label="Progression livraison"
+      type="range" min="0" max="100" [value]="project.deliveryprogress"
+      (input)="updatedProgress(project, $event)" class="slider" />
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button class="btn detail-custom" (click)="openDetailsdelModal(project)">
+      <i class="bx bxs-detail" style="font-size: medium;"></i>
+    </button>
+  </div>
+</td>
+
+<td>
+  <div class="progress-container">
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar bg-primary" role="progressbar" [style.width]="project.progress + '%'"
+        [attr.aria-valuenow]="project.progress" aria-valuemin="0" aria-valuemax="100">
+        {{ project.progress.toFixed(2) }}%
+      </div>
+    </div>
+  </div>
+</td>
+
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
             {{project.dlp | date:'yyyy-MM-dd'}}
           </td>
