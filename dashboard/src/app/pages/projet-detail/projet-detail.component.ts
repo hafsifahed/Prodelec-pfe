@@ -62,23 +62,29 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
         this.userStateService.user$.subscribe(user => {
           this.userr = user;
         });
-    this.projectId = Number(this.route.snapshot.paramMap.get('id'));
-    if (isNaN(this.projectId)) {
-      this.errorMessage = 'ID de projet invalide';
+    this.route.paramMap.subscribe(params => {
+  const idParam = params.get('id');
+  if (!idParam || isNaN(+idParam)) {
+    this.errorMessage = 'ID de projet invalide';
+    this.loading = false;
+    return;
+  }
+  this.projectId = +idParam;
+  this.loading = true;
+  this.projectService.getProjectById(this.projectId).subscribe({
+    next: (data) => {
+      this.project = data;
       this.loading = false;
-      return;
+      this.errorMessage = '';
+    },
+    error: (err) => {
+      this.errorMessage = 'Erreur lors du chargement du projet';
+      this.loading = false;
+      console.error(err);
     }
-    this.projectService.getProjectById(this.projectId).subscribe({
-      next: (data) => {
-        this.project = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement du projet';
-        this.loading = false;
-        console.error(err);
-      }
-    });
+  });
+});
+
 
         this.projectsForm = this.formBuilder.group({
           dlp: ['', [Validators.required]],
@@ -155,6 +161,7 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
 
   ngOnDestroy() {
     this.progressSubscriptions.forEach(sub => sub.unsubscribe());
+    
   }
 
     private initDebounce(step: keyof typeof this.progressSubjects) {

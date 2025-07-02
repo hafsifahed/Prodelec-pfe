@@ -1,10 +1,15 @@
 // src/app/core/services/statistics.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { catchError, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 /* ──────────────────────────  Interfaces  ────────────────────────── */
+export interface SearchResults {
+  projects: any[];
+  devis: any[];
+  partners: any[];
+}
 
 /** Même structure que le DTO renvoyé par le backend */
 export interface GlobalStats {
@@ -104,4 +109,16 @@ export class StatisticsService {
     });
     return params;
   }
+
+  /*             search                  */
+ search(keyword: string): Observable<SearchResults> {
+    let params = new HttpParams();
+    if (keyword) {
+      params = params.set('keyword', keyword);
+    }
+    return this.http.get<SearchResults>(`${this.baseUrl}/search`, { params });
+  }
+
+
+
 }

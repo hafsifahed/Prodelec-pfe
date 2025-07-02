@@ -36,6 +36,8 @@ import { Order } from './order/entities/order.entity';
 import { OrderModule } from './order/order.module';
 import { Project } from './project/entities/project.entity';
 import { ProjectModule } from './project/project.module';
+import { Setting } from './setting/entities/setting.entity';
+import { SettingModule } from './setting/setting.module';
 import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
@@ -63,10 +65,13 @@ import { StatisticsModule } from './statistics/statistics.module';
         CahierDesCharges,
         Order,
         Project,
-        Notification
+        Notification,
+        Setting
       ],
       synchronize: true, // à désactiver en prod !
       //logging: true,
+        logger: 'advanced-console',
+
     }),
 
     MailerModule.forRoot({
@@ -98,6 +103,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     ProjectModule,
     OrderModule,
     StatisticsModule,
+    SettingModule,
   ],
   controllers: [AppController],
   providers: [

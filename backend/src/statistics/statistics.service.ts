@@ -3,7 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Avis } from '../avis/entities/avis.entity';
+import { Devis } from '../devis/entities/devi.entity';
 import { Order } from '../order/entities/order.entity';
+import { Partner } from '../partners/entities/partner.entity';
 import { Project } from '../project/entities/project.entity';
 import { Reclamation } from '../reclamation/entities/reclamation.entity';
 import { UserSession } from '../user-session/entities/user-session.entity';
@@ -37,6 +39,8 @@ export class StatisticsService {
     @InjectRepository(Avis)         private avisRepo: Repository<Avis>,
     @InjectRepository(UserSession)  private sessionRepo: Repository<UserSession>,
     @InjectRepository(User)         private userRepo: Repository<User>,
+    @InjectRepository(Partner)      private readonly partnerRepo: Repository<Partner>,
+    @InjectRepository(Devis)        private readonly devisRepo: Repository<Devis>,
   ) {}
 
   /** Statistiques agrégées pour le tableau de bord */
@@ -117,4 +121,38 @@ export class StatisticsService {
       },
     };
   }
+
+  /*-----------------search------------*/
+  async searchAll(keyword: string) {
+      console.log('Recherche avec keyword:', keyword); // Ajouté pour debug
+
+  if (!keyword) {
+    console.log("errrr")
+    return { projects: [], devis: [], partners: [] };
+  }
+    const partners = await this.partnerRepo.createQueryBuilder('partner')
+    .where('LOWER(partner.name) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .orWhere('LOWER(partner.address) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .take(10)
+    .getMany();
+
+  const projects = await this.projectRepo.createQueryBuilder('project')
+    .where('LOWER(project.refClient) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .orWhere('LOWER(project.methodeComment) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .take(10)
+    .getMany();
+
+  const devis = await this.devisRepo.createQueryBuilder('devis')
+    .where('LOWER(devis.numdevis) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .orWhere('LOWER(devis.projet) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+    .take(10)
+    .getMany();
+
+  console.log(projects);
+  console.log(partners);
+  console.log(devis);
+
+  return { projects, devis, partners };
+}
+
 }

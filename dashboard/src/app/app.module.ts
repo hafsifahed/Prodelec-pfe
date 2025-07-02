@@ -33,6 +33,7 @@ import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
 import { RolesComponent } from './pages/roles/roles.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SettingComponent } from './pages/setting/setting.component';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -44,6 +45,7 @@ export function createTranslateLoader(http: HttpClient): any {
     AppComponent,
     CyptolandingComponent,
     RolesComponent,
+    SettingComponent,
   ],
   imports: [
     BrowserModule,

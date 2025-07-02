@@ -10,7 +10,7 @@ import { WidgetModule } from './widget/widget.module';
   imports: [
     CommonModule,
     UIModule,
-    WidgetModule
+    WidgetModule,
   ],
 })
 

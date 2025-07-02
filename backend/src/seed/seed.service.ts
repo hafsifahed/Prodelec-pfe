@@ -8,6 +8,7 @@ import { Action } from '../roles/enums/action.enum';
 import { Resource } from '../roles/enums/resource.enum';
 import { Role as RoleEnum } from '../roles/enums/roles.enum';
 
+import { Setting } from '../setting/entities/setting.entity';
 import { User } from '../users/entities/users.entity';
 import { AccountStatus } from '../users/enums/account-status.enum';
 import { UsersService } from '../users/users.service';
@@ -23,6 +24,9 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
 
+    @InjectRepository(Setting)
+    private readonly settingRepo: Repository<Setting>,
+
     private readonly usersService: UsersService,   // ✅  on injecte le service
     private readonly config: ConfigService,
   ) {}
@@ -32,6 +36,7 @@ export class SeedService implements OnApplicationBootstrap {
     await this.seedRoles();
     await this.seedAdminUser();
     await this.seedProcessUsers();
+    await this.seedDefaultSetting();
   }
 
   /* --------------------------- RÔLES -------------------------------- */
@@ -152,4 +157,17 @@ export class SeedService implements OnApplicationBootstrap {
       this.logger.log(`✓ Utilisateur process créé : ${cfg.email}`);
     }
   }
+
+  /*-------------------------Setting-------------------*/
+  private async seedDefaultSetting() {
+  const existing = await this.settingRepo.findOne({ where: { id: 1 } });
+  if (!existing) {
+    const setting = this.settingRepo.create({ reclamationTarget: 3 });
+    await this.settingRepo.save(setting);
+    this.logger.log('✓ Setting par défaut créé (reclamationTarget = 3)');
+  } else {
+    this.logger.log('✓ Setting déjà existant, aucune création');
+  }
+}
+
 }

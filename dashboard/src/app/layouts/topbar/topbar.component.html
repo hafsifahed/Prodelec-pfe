@@ -30,25 +30,115 @@
 
     <div class="d-flex">
       <!-- Search Bar (Mobile Only) -->
-      <div class="dropdown d-inline-block d-lg-none ms-2" dropdown>
-        <button type="button" class="btn header-item noti-icon" id="page-header-search-dropdown" data-toggle="dropdown"
-                aria-haspopup="true" dropdownToggle aria-expanded="false">
-          <i class="mdi mdi-magnify"></i>
-        </button>
-        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" *dropdownMenu
-             aria-labelledby="page-header-search-dropdown">
-          <form class="p-3">
-            <div class="m-0">
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
-                <div class="input-group-append">
-                  <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                </div>
-              </div>
-            </div>
-          </form>
+       <div class="dropdown d-inline-block" dropdown>
+  <!-- Bouton icône recherche -->
+  <button
+    type="button"
+    class="btn header-item noti-icon"
+    id="page-header-search-dropdown"
+    data-toggle="dropdown"
+    aria-haspopup="true"
+    dropdownToggle
+    aria-expanded="false"
+  >
+    <i class="mdi mdi-magnify"></i>
+  </button>
+
+  <!-- Dropdown menu -->
+  <div
+    class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+    *dropdownMenu
+    aria-labelledby="page-header-search-dropdown"
+    (click)="$event.stopPropagation()"
+  >
+    <form class="p-3" (submit)="$event.preventDefault()">
+      <div class="m-0">
+        <!-- Input -->
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Entrez un mot-clé..."
+            aria-label="Search"
+            [(ngModel)]="keyword"
+            name="searchInput"
+            (input)="onSearchChange(keyword)"
+            autocomplete="off"
+          />
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">
+              <i class="mdi mdi-magnify"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chargement / Erreur -->
+        <div *ngIf="loading" class="mt-2">Chargement...</div>
+        <div *ngIf="error" class="text-danger mt-2">{{ error }}</div>
+
+        <!-- Projets -->
+        <div *ngIf="results?.projects?.length > 0" class="mt-3">
+          <h6>Projets</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let p of results.projects"
+              class="list-group-item list-group-item-action"
+              style="cursor: pointer"
+              (click)="selectSearchResult('project', p?.idproject)"
+            >
+              {{ p?.refClient }} - {{ p?.methodeComment }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Devis -->
+        <div *ngIf="results?.devis?.length > 0" class="mt-3">
+          <h6>Devis</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let d of results.devis"
+              class="list-group-item list-group-item-action"
+              style="cursor: pointer"
+              (click)="selectSearchResult('devis', d?.id)"
+            >
+              {{ d?.numdevis }} - {{ d?.projet }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Partenaires -->
+        <div *ngIf="results?.partners?.length > 0" class="mt-3">
+          <h6>Partenaires</h6>
+          <ul class="list-group">
+            <li
+              *ngFor="let partner of results.partners"
+              class="list-group-item list-group-item-action"
+              style="cursor: pointer"
+              (click)="selectSearchResult('partner', partner?.id)"
+            >
+              {{ partner?.name }} - {{ partner?.address }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Aucun résultat -->
+        <div
+          *ngIf="results &&
+                (results.projects?.length === 0 &&
+                 results.devis?.length === 0 &&
+                 results.partners?.length === 0)"
+          class="mt-3 text-muted"
+        >
+          Aucun résultat trouvé.
         </div>
       </div>
+    </form>
+  </div>
+</div>
+
+
+
+
 
       <!-- Language Selector
       <div class="dropdown d-inline-block" dropdown>

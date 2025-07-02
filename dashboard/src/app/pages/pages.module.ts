@@ -157,7 +157,8 @@ import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
     SimplebarAngularModule,
     LightboxModule,
     PickerModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    
   ],
 })
 export class PagesModule { }

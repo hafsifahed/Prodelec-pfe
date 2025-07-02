@@ -8,6 +8,8 @@ import { Reclamation } from '../reclamation/entities/reclamation.entity';
 import { UserSession } from '../user-session/entities/user-session.entity';
 import { User } from '../users/entities/users.entity';
 
+import { Devis } from '../devis/entities/devi.entity';
+import { Partner } from '../partners/entities/partner.entity';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
 
@@ -20,6 +22,8 @@ import { StatisticsService } from './statistics.service';
       Avis,
       UserSession,
       User,
+      Devis,
+      Partner
     ]),
   ],
   providers: [StatisticsService],

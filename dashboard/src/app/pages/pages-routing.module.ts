@@ -51,6 +51,7 @@ import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archi
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
 import { RolesComponent } from './roles/roles.component';
 import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
+import { SettingComponent } from './setting/setting.component';
 
 
 
@@ -122,6 +123,7 @@ const routes: Routes = [
   { path: 'archiveprojectadminclient', component: ArchiveProjectAdminCComponent  },
   { path: 'archiveorderadminclient', component: ArchiveOrderAdminCComponent  },
   { path: 'roles', component: RolesComponent  },
+  { path: 'setting', component: SettingComponent  },
 
 
 

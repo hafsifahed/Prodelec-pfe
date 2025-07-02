@@ -13,12 +13,14 @@ import { UserSessionService } from '../../core/services/user-session.service';
 import { NotificationModels } from '../../core/models/notification.models';
 import { WebsocketService } from '../../core/services/websocket.service';
 import { StompSubscription } from '@stomp/stompjs';
-import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import {NotificationService} from "../../core/services/notification.service";
 import {NotificationrService} from "../../core/services/notificationr.service";
 import { UsersService } from 'src/app/core/services/user.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
+import { SearchResults, StatisticsService } from 'src/app/core/services/statistics.service';
+
 
 @Component({
   selector: 'app-topbar',
@@ -40,6 +42,11 @@ export class TopbarComponent implements OnInit {
   token = localStorage.getItem('token');
   unreadCount : number=0;
 
+  keyword: string = '';
+  results: SearchResults | null = null;
+  loading = false;
+    error: string | null = null;
+
 
   constructor(
       @Inject(DOCUMENT) private document: any,
@@ -56,7 +63,9 @@ export class TopbarComponent implements OnInit {
       private webSocketService: WebsocketService,
       private notificationService :NotificationService,
       private notificationrService :NotificationrService,
-      private userStateService: UserStateService
+      private userStateService: UserStateService,
+      private statisticsService: StatisticsService, // ou autre service qui fera la recherche
+
 
 
   ) { }
@@ -98,7 +107,51 @@ this.userStateService.user$.subscribe(user => {
       this.unreadCount = notifs.filter(n => !n.read).length;
     });
 
+
+
   }
+
+
+ onSearchChange(keyword: string) {
+    this.loading = true;
+    this.statisticsService.search(keyword.trim()).subscribe({
+      next: (res) => {
+        this.results = res;
+        this.loading = false;
+        this.error = null;
+      },
+      error: (err) => {
+        this.error = 'Erreur lors de la recherche';
+        this.loading = false;
+      },
+    });
+  }
+
+
+  selectSearchResult(type: string, id: number | undefined) {
+  if (!id) {
+    console.error('ID invalide pour la navigation:', type, id);
+    return;
+  }
+
+  switch (type) {
+    case 'project':
+      this.router.navigate(['/listproject', id]);
+      break;
+    case 'devis':
+      this.router.navigate(['/devis', id]);
+      break;
+    case 'partner':
+      this.router.navigate(['/edit-partner', id]);
+      break;
+    default:
+      console.warn('Type inconnu:', type);
+  }
+
+  
+}
+
+
  markAsRead(notification: NotificationModels): void {
     if (!notification.read) {
       this.webSocketService.markAsRead(notification.id);
