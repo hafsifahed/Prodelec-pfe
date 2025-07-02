@@ -158,6 +158,16 @@ export class UsersService {
    getWorkerRoles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/roles/worker`);
   }
+
+    // Liste des workers
+  getWorkers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/workers`);
+  }
+
+  // Liste des clients
+  getClients(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/clients`);
+  }
   
   
 }

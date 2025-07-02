@@ -465,8 +465,28 @@ export class UsersService {
   return this.usersRepository
     .createQueryBuilder('user')
     .leftJoinAndSelect('user.role', 'role')
-    .leftJoinAndSelect('user.partner', 'partner') // si tu veux inclure les infos du partenaire
     .where('UPPER(role.name) NOT LIKE :prefix', { prefix: 'CLIENT%' })
+    .select([
+      'user.id',
+      'user.username',
+      'user.firstName',
+      'user.lastName',
+      'user.email',
+      'user.accountStatus',
+      'user.createdAt',
+      'user.updatedAt',
+      'role.id',
+      'role.name'
+    ])
+    .getMany();
+}
+
+  async findClients(): Promise<User[]> {
+  return this.usersRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .leftJoinAndSelect('user.partner', 'partner') // si tu veux inclure les infos du partenaire
+    .where('UPPER(role.name)  LIKE :prefix', { prefix: 'CLIENT%' })
     .select([
       'user.id',
       'user.username',

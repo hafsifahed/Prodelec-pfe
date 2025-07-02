@@ -17,6 +17,7 @@ import { Devis } from 'src/app/core/models/Devis/devis';
 import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
 import { PartnersService } from 'src/app/core/services/partners.service';
+import { Setting, SettingService } from 'src/app/core/services/setting.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +26,12 @@ import { PartnersService } from 'src/app/core/services/partners.service';
 })
 export class DashboardComponent implements OnInit {
   userType: 'user' | 'worker' = 'worker';
+    title = 'Tableau de bord';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Tableau de bord', active: true }
+  ];
 
   stats = {
     totalEmployees: 0,
@@ -75,6 +82,8 @@ export class DashboardComponent implements OnInit {
   projectsCompleted: Project[] = [];
   projectsLate: Project[] = [];
 filteredAvis: AvisModels[] = [];
+  setting: Setting;
+
 
   constructor(
     private statsSrv: StatisticsService,
@@ -86,10 +95,15 @@ filteredAvis: AvisModels[] = [];
     private orderSrv: OrderServiceService,
     private projectSrv: ProjectService,
     private partnerSrv: PartnersService,
+    private settingService: SettingService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
+    this.settingService.getSettings().subscribe((res:any)=>{
+      console.log(res)
+      this.setting=res;
+      });
     this.statsSrv.getGlobalStats().subscribe({
       next: (g: GlobalStats) => {
         this.statData[0].value = g.totalOrders.toString();
@@ -103,7 +117,9 @@ filteredAvis: AvisModels[] = [];
       },
       error: err => console.error('[Dashboard] getGlobalStats KO', err),
     });
+    
 
+    
     await Promise.all([
       this.loadAvis(),
       this.loadReclamations(),
@@ -117,6 +133,8 @@ filteredAvis: AvisModels[] = [];
     this.updateCharts();
     this.updateAvisChart();
   }
+
+
 
   private async loadAvis() {
     this.avisList = await this.avisSrv.getAllAvis().toPromise();
@@ -153,7 +171,7 @@ filteredAvis: AvisModels[] = [];
   }
 
   private loadUsersForDropdowns() {
-    this.usersSrv.getAllUsers().subscribe(list => {
+    this.usersSrv.getClients().subscribe(list => {
       this.users = list.map(u => ({
   id: u.id,
   email: u.email,

@@ -21,6 +21,11 @@ export class DevisAdminlistComponent implements OnInit {
   searchQuery: string = ''; // Search query for client or project
   p: number = 1; // Current page number
   itemsPerPage: number = 5; // Items per page
+  title = 'Devis';
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Devis', active: true }
+  ];
   
   searchSubject = new Subject<string>();
   constructor(

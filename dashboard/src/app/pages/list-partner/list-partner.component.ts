@@ -19,6 +19,12 @@ export class ListPartnerComponent implements OnInit {
   user: any;
   userType: string | null = '';
   usersp: UserModel[] = [];
+    title = 'Partenaires';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Partenaires', active: true }
+  ];
 
   constructor(
     private partnersService: PartnersService,

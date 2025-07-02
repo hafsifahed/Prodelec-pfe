@@ -1,4 +1,9 @@
-<div class="container partner-management">
+<app-page-title
+  [title]="'Partenaires'"
+  [breadcrumbItems]="breadcrumbItems">
+</app-page-title>
+<div class=" partner-management">
+    
   <!-- En-tête et barre de recherche -->
   <div class="management-header d-flex justify-content-between align-items-center flex-wrap mb-4">
     <div class="header-content flex-grow-1 min-w-250">
@@ -47,30 +52,25 @@
     <table class="table partner-table table-hover align-middle">
       <thead class="table-light">
         <tr>
-          <th class="checkbox-column">
+       <!--   <th class="checkbox-column">
             <label class="custom-checkbox">
               <input type="checkbox" id="selectAll" />
               <span class="checkmark"></span>
             </label>
           </th>
-          <th>ID</th>
+          -->
           <th>Nom</th>
           <th>Téléphone</th>
+          <th>Address</th>
           <th>Utilisateurs</th>
           <th class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-          <td class="checkbox-column">
-            <label class="custom-checkbox">
-              <input type="checkbox" id="checkbox{{partner.id}}" />
-              <span class="checkmark"></span>
-            </label>
-          </td>
-          <td>{{ partner.id }}</td>
           <td><a href="#" class="partner-name text-decoration-none">{{ partner.name }}</a></td>
           <td>{{ partner.tel || '-' }}</td>
+          <td>{{ partner.address }}</td>
           <td class="users-cell">
             <div *ngIf="partner.users && partner.users.length > 0" class="users-list d-flex flex-column gap-2">
               <div *ngFor="let user of partner.users" class="user-item d-flex justify-content-between">

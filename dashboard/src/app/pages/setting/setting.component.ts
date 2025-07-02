@@ -7,7 +7,7 @@ import { Setting, SettingService } from 'src/app/core/services/setting.service';
   styleUrls: ['./setting.component.scss']
 })
 export class SettingComponent implements OnInit {
-  settings: Setting[] = [];
+  settings: Setting | null = null; // objet unique ou null
   loading = false;
   error = '';
 
@@ -31,11 +31,11 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  onFieldChange(setting: Setting, field: keyof Setting, event: Event) {
+  onFieldChange(field: keyof Setting, event: Event) {
+    if (!this.settings) return;
     const input = event.target as HTMLInputElement;
     let value: number | null = null;
 
-    // Convertir la valeur en nombre, ou null si vide ou invalide
     if (input.value.trim() === '') {
       value = null;
     } else {
@@ -44,11 +44,11 @@ export class SettingComponent implements OnInit {
     }
 
     // Mise à jour locale immédiate
-    setting[field] = value;
+    this.settings[field] = value;
 
-    if (setting.id) {
-      this.settingService.updateSetting(setting.id, { [field]: value }).subscribe({
-        next: updated => Object.assign(setting, updated),
+    if (this.settings.id) {
+      this.settingService.updateSetting(this.settings.id, { [field]: value }).subscribe({
+        next: updated => Object.assign(this.settings, updated),
         error: () => this.error = 'Erreur lors de la mise à jour'
       });
     }

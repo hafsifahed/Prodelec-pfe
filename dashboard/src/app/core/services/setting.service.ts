@@ -17,8 +17,8 @@ export class SettingService {
     
   constructor(private http: HttpClient) {}
 
-  getSettings(): Observable<Setting[]> {
-    return this.http.get<Setting[]>(this.apiUrl);
+  getSettings(): Observable<Setting> {
+    return this.http.get<Setting>(this.apiUrl);
   }
 
   updateSetting(id: number, changes: Partial<Setting>): Observable<Setting> {

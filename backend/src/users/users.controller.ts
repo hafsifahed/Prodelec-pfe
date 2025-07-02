@@ -169,6 +169,11 @@ async getWorkers(): Promise<User[]> {
   return this.usersService.findWorkers();
 }
 
+  @Get('clients')
+async getClients(): Promise<User[]> {
+  return this.usersService.findClients();
+}
+
 
 
 }

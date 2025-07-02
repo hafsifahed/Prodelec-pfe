@@ -24,7 +24,7 @@ export class SettingService {
     return this.settingRepository.save(setting);
   }
 
-  async getSettings(): Promise<Setting[]> {
-    return this.settingRepository.find();
+  async getSettings(id:number): Promise<Setting> {
+    return this.settingRepository.findOne({ where: { id } });
   }
 }

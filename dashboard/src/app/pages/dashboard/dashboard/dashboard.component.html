@@ -3,58 +3,61 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 <div class="dashboard-container">
-  <h1>Dashboard</h1>
+<app-page-title
+  [title]="'Tableau de bord'"
+  [breadcrumbItems]="breadcrumbItems">
+</app-page-title>
 
-<app-user-avis-check></app-user-avis-check>
+ <app-user-avis-check></app-user-avis-check>
 
-  <!-- Cartes récapitulatives -------------------------------------------------->
-  <div class="container">
+  <!-- Cartes récapitulatives ----------container---------------------------------------->
+  <div class="">
     <div class="row g-3">
 
-      <!-- Clients ----------------------------------------------------------->
+      <!-- Clients -----order-card h-100------------------------------------------------------>
       <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-blue order-card h-100">
+        <div class="card bg-c-blue ">
           <div class="card-block">
             <h6 class="m-b-20">Clients</h6>
             <h2 class="text-right"><span>{{ stats?.totalClients }}</span></h2>
-            <p class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedClients }}</span></p>
+            <h6 class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedClients }}</span></h6>
           </div>
         </div>
       </div>
 
-      <!-- Employés ----------------------------------------------------------->
+      <!-- Employés ----order-card h-100------------------------------------------------------->
       <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-blue order-card h-100">
+        <div class="card bg-c-blue ">
           <div class="card-block">
             <h6 class="m-b-20">Employés</h6>
             <h2 class="text-right"><span>{{ stats?.totalEmployees }}</span></h2>
-            <p class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedEmployees }}</span></p>
+            <h6 class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedEmployees }}</span></h6>
           </div>
         </div>
       </div>
 
-      <!-- Pourcentage réclamations ------------------------------------------>
-      <div class="col-md-4 col-xl-3">
-        <div class="card" [ngClass]="reclamationPercentage > 3 ? 'bg-c-pink' : 'bg-c-green'">
+      <!-- Pourcentage réclamations order-card h-100 ------------------------------------------>
+      <div class="col-md-4 col-xl-3 ">
+        <div class="card " [ngClass]="reclamationPercentage > setting?.reclamationTarget ? 'bg-c-pink' : 'bg-c-green'">
           <div class="card-block">
             <h6 class="m-b-20">Réclamations / Projets</h6>
             <h2 class="text-right">
               <span>{{ reclamationPercentage | number: '1.0-2' }}%</span>
             </h2>
-            <p class="m-b-0">Projets terminés <span class="f-right">{{ projectsCompleted.length }}</span></p>
+            <h6 class="m-b-0">Projets terminés <span class="f-right">{{ projectsCompleted.length }}</span></h6>
           </div>
         </div>
       </div>
 
-      <!-- Satisfaction ------------------------------------------------------->
+      <!-- Satisfaction ---order-card h-100---------------------------------------------------->
       <div class="col-md-4 col-xl-3">
-        <div class="card bg-c-yellow order-card h-100">
+        <div class="card bg-c-yellow ">
           <div class="card-block">
             <h6 class="m-b-20">Satisfaction</h6>
             <h2 class="text-right">
               <span>{{ avgTotal | number:'1.2-2' }}</span>
             </h2>
-            <p class="m-b-0">Avis <span class="f-right">{{ avisList.length }}</span></p>
+            <h6 class="m-b-0">Avis <span class="f-right">{{ avisList.length }}</span></h6>
           </div>
         </div>
       </div>

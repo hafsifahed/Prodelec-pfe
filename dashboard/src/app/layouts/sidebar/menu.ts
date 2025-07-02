@@ -147,5 +147,12 @@ export const MENU: MenuItem[] = [
       { id: 111, label: 'Archive Commandes', link: '/archiveorderadminclient',parentId: 11 },
       { id: 112, label: 'Archive Projets',   link: '/archiveprojectadminclient',parentId: 11 }
     ]
-  }
+  },
+  /* --- Stting --- */
+  {
+    id: 10, label: 'Settings', icon: 'bx-cog', link: '/setting',
+    rolePermissions: [
+      { resource: Resource.SETTINGS, actions: [], roles: [RoleName.ADMIN] }
+    ]
+  },
 ];

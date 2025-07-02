@@ -1,13 +1,13 @@
 <div *ngIf="loading">Chargement...</div>
 <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
-<div *ngFor="let setting of settings" class="card mb-3 p-3">
-  <label for="reclamationTarget-{{setting.id}}" class="form-label">Cible de réclamation (nombre)</label>
+<div *ngIf="settings" class="card mb-3 p-3">
+  <label for="reclamationTarget-{{settings.id}}" class="form-label">Cible de réclamation (nombre)</label>
   <input
-    id="reclamationTarget-{{setting.id}}"
+    id="reclamationTarget-{{settings.id}}"
     type="number"
     class="form-control"
-    [value]="setting.reclamationTarget"
-    (input)="onFieldChange(setting, 'reclamationTarget', $event)"
+    [value]="settings.reclamationTarget"
+    (input)="onFieldChange('reclamationTarget', $event)"
   />
 </div>

@@ -8,8 +8,8 @@ export class SettingController {
   constructor(private readonly settingService: SettingService) {}
 
   @Get()
-  async getAllSettings(): Promise<Setting[]> {
-    return this.settingService.getSettings();
+  async getAllSettings(): Promise<Setting> {
+    return this.settingService.getSettings(1);
   }
 
   @Patch(':id')

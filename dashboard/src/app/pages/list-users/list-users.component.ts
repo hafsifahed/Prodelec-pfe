@@ -16,6 +16,12 @@ export class ListUsersComponent implements OnInit {
   p: number = 1; // Current page number (for pagination)
   itemsPerPage: number = 5; // Number of items per page
 
+  title = 'Utilisateurs';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Utilisateurs', active: true }
+  ];
   constructor(
     private usersService: UsersService,
     private router: Router
