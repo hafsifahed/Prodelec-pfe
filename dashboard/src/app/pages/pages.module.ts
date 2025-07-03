@@ -79,6 +79,10 @@ import { ArchiveOrderAdminCComponent } from './order/archive-order-admin-c/archi
 import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin/list-projet-user-admin.component';
 import { UserAvisCheckComponent } from './avis/userAvisCheck.component';
 import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
+import { SettingComponent } from './setting/setting.component';
+import { UserDetailComponent } from './user-detail/user-detail.component';
+import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
+import { RolesComponent } from './roles/roles.component';
 
 @NgModule({
   declarations: [
@@ -129,7 +133,12 @@ import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
     ArchiveOrderAdminCComponent,
     ListProjetUserAdminComponent,
     UserAvisCheckComponent,
-    ProjetDetailComponent
+    ProjetDetailComponent,
+    SettingComponent,
+    UserDetailComponent,
+    PartnerDetailComponent,
+    RolesComponent
+
   ],
   imports: [
     CommonModule,
@@ -158,6 +167,7 @@ import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
     LightboxModule,
     PickerModule,
     NgxPaginationModule,
+    CommonModule
     
   ],
 })

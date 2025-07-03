@@ -1,0 +1,71 @@
+
+<app-page-title
+  [title]="title"
+  [breadcrumbItems]="breadcrumbItems">
+</app-page-title>
+<div *ngIf="loading" class="text-center my-5">
+  <i class="fas fa-spinner fa-spin fa-2x"></i>
+  <div>Chargement...</div>
+</div>
+
+<div *ngIf="user" class="card user-detail-card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h3><i class="fas fa-user"></i> Détails de <span *ngIf="user.role?.isSystemRole" class="fw-semibold username-color">{{ user?.username }}</span></h3>
+    <button class="btn btn-secondary btn-sm" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Retour
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Nom d'utilisateur :</strong></div>
+      <div class="col-md-6">{{ user?.username }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Prénom :</strong></div>
+      <div class="col-md-6">{{ user?.firstName }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Nom :</strong></div>
+      <div class="col-md-6">{{ user?.lastName }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Email :</strong></div>
+      <div class="col-md-6">{{ user?.email }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Rôle :</strong></div>
+      <div class="col-md-6">
+        {{ user.role?.name }}
+        <span *ngIf="user.role?.isSystemRole" class="badge bg-info ms-2">Système</span>
+      </div>
+    </div>
+    <div class="row mb-2" *ngIf="user.partner">
+      <div class="col-md-6"><strong>Partenaire :</strong></div>
+      <div class="col-md-6">{{ user.partner?.name }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Statut du compte :</strong></div>
+      <div class="col-md-6">
+        <span class="p-2" [ngClass]="{
+          'badge bg-success': user.accountStatus === 'active',
+          'badge bg-secondary': user.accountStatus === 'inactive',
+          'badge bg-danger': user.accountStatus === 'suspended'
+        }">
+          {{ getAccountStatusLabel(user?.accountStatus) }}
+        </span>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Créé le :</strong></div>
+      <div class="col-md-6">{{ user?.createdAt | date }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Mis à jour le :</strong></div>
+      <div class="col-md-6">{{ user?.updatedAt | date }}</div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loading && error" class="alert alert-danger mt-4">
+  {{ error }}
+</div>

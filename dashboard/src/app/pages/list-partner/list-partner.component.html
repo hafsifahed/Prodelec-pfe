@@ -1,5 +1,5 @@
 <app-page-title
-  [title]="'Partenaires'"
+  [title]="title"
   [breadcrumbItems]="breadcrumbItems">
 </app-page-title>
 <div class=" partner-management">
@@ -52,13 +52,6 @@
     <table class="table partner-table table-hover align-middle">
       <thead class="table-light">
         <tr>
-       <!--   <th class="checkbox-column">
-            <label class="custom-checkbox">
-              <input type="checkbox" id="selectAll" />
-              <span class="checkmark"></span>
-            </label>
-          </th>
-          -->
           <th>Nom</th>
           <th>Téléphone</th>
           <th>Address</th>
@@ -67,8 +60,14 @@
         </tr>
       </thead>
       <tbody>
+
+
+        
+
         <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-          <td><a href="#" class="partner-name text-decoration-none">{{ partner.name }}</a></td>
+          <td><a [routerLink]="['/partner', partner.id]" class="partner-name text-decoration-none" title="Détails">
+    {{ partner.name }}
+  </a></td>
           <td>{{ partner.tel || '-' }}</td>
           <td>{{ partner.address }}</td>
           <td class="users-cell">

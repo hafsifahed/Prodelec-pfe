@@ -1,3 +1,7 @@
+<app-page-title
+  [title]="title"
+  [breadcrumbItems]="breadcrumbItems">
+</app-page-title>
 <div *ngIf="loading">Chargement...</div>
 <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 

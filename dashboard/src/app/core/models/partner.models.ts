@@ -1,5 +1,4 @@
 import { User } from "./auth.models";
-import {UserModel} from "./user.models";
 
 export class Partner {
     id: number;

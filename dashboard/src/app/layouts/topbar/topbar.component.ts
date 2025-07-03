@@ -142,7 +142,7 @@ this.userStateService.user$.subscribe(user => {
       this.router.navigate(['/devis', id]);
       break;
     case 'partner':
-      this.router.navigate(['/edit-partner', id]);
+      this.router.navigate(['/partner', id]);
       break;
     default:
       console.warn('Type inconnu:', type);

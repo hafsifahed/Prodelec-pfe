@@ -10,6 +10,12 @@ export class SettingComponent implements OnInit {
   settings: Setting | null = null; // objet unique ou null
   loading = false;
   error = '';
+    title = 'Settings'; // Ajouté pour le breadcrumb si tu en utilises un
+
+  breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
+    { label: 'Accueil', active: false },
+    { label: 'Settings', active: true }
+  ];
 
   constructor(private settingService: SettingService) {}
 

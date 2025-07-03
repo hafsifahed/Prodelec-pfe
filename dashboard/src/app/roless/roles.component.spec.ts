@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RolesComponent } from './roles.component';
+import { RolesComponent } from './roless.component';
 
 describe('RolesComponent', () => {
   let component: RolesComponent;

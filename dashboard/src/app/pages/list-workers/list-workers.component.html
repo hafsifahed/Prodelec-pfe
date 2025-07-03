@@ -1,11 +1,15 @@
-<div class="container">
-    <h1>Liste des Employee</h1>
+<app-page-title
+  [title]="title"
+  [breadcrumbItems]="breadcrumbItems">
+</app-page-title>
 
+<div class="">
     <div class="mb-3">
-        <div class="d-flex justify-content-between">
-            <input type="text" class="form-control" placeholder="Rechercher par Nom, ID, Email de l'utilisateur ou Rôle de l'utilisateur..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
-            <button class="btn btn-secondary" (click)="clearSearch()">Effacer</button>
-            <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-success" (click)="navigateToAddWorker()">Ajouter un Employee</button>
+        <div class="d-flex justify-content-between align-items-center">
+            <input type="text" class="form-control me-2" placeholder="Rechercher par Nom, Email ou Rôle..." [(ngModel)]="searchKeyword" (input)="onSearchInputChange()">
+            <button class="btn btn-secondary me-2" (click)="clearSearch()">Effacer</button>
+            <!-- Utilisez loggedInUserRole pour la permission -->
+            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-success" (click)="navigateToAddWorker()">Ajouter un Employé</button>
         </div>
     </div>
 
@@ -18,18 +22,46 @@
                 <th>Nom</th>
                 <th>Rôle</th>
                 <th>Email</th>
+                <th>Statut</th> <!-- Ajout du statut -->
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody>
+            <!-- S'assurer que le pipe `paginate` est correctement importé dans le module -->
             <tr *ngFor="let worker of workers | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-                <td>{{ worker.firstName }} {{ worker.lastName }}</td>
-                <td>{{ worker.role }}</td>
-                <td>{{ worker.email }}</td>
                 <td>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-success" (click)="editWorker(worker)">Modifier</button>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-primary" (click)="deleteWorker(worker)">Supprimer</button>
-                    <button *ngIf="user.role === 'ADMIN' || user.role === 'SUBADMIN'" type="button" class="btn btn-warning" (click)="editWorkerPassword(worker)">Modifier le Mot de Passe</button>
+                    <span class="user-name fw-semibold"><a title="Détails" [routerLink]="['/user', worker.id]" >
+ {{ worker?.firstName }} {{ worker?.lastName }}</a></span>
+                </td>
+                <!-- Accéder au nom du rôle via worker.role.name -->
+                <td>{{ worker.role?.name || 'N/A' }}</td>
+                <td>{{ worker.email }}</td>
+
+                <td class="text-center">
+    <div 
+    class="status-toggle" 
+    [class.active]="worker.accountStatus === 'active'" 
+    (click)="toggleWorkerStatus(worker)" 
+    title="Cliquez pour changer le statut">
+    <span class="toggle-text">
+      {{ worker.accountStatus === 'active' ? 'Active' : 'Inactive' }}
+    </span>
+  </div>
+</td>
+                <td>
+                    <!-- Utilisez loggedInUserRole pour la permission -->
+                    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-success me-1" (click)="editWorker(worker)" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-warning me-1" (click)="editWorkerPassword(worker)" title="Modifier le Mot de Passe">
+                      <i class="fas fa-key"></i>
+                    </button>
+                    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-primary me-1" (click)="toggleWorkerStatus(worker)" title="Changer le statut">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-danger" (click)="deleteWorker(worker)" title="Supprimer">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
                 </td>
             </tr>
             </tbody>
@@ -41,6 +73,6 @@
     </div>
 
     <div *ngIf="workers.length === 0 && !errorMessage">
-        <p>Aucun ouvrier trouvé.</p>
+        <p>Aucun employé trouvé.</p>
     </div>
 </div>

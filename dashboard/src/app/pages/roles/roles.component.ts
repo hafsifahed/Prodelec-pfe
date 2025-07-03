@@ -24,6 +24,13 @@ export class RolesComponent {
   rejectId: number | null = null;
   isLoading: boolean = false;
 
+    title = 'Rôles'; // Ajouté pour le breadcrumb si tu en utilises un
+
+  breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
+    { label: 'Accueil', active: false },
+    { label: 'Rôles', active: true }
+  ];
+
   addRoleForm: FormGroup;
   editRoleForm: FormGroup;
  errorMessage: string | null = null;

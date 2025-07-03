@@ -30,10 +30,16 @@ export const MENU: MenuItem[] = [
       { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ],
   },
+    {
+    id: 13, label: 'Employés', icon: 'bx-user', link: '/list-worker',
+    rolePermissions: [
+      { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
+    ],
+  },
 
-  /* --- Rôles --- */
+  /* --- Partenaires --- */
   {
-    id: 390, label: 'Liste Partenaires', icon: 'bx-user', link: '/list-partner',
+    id: 390, label: 'Liste Partenaires', icon: 'bx-building', link: '/list-partner',
     rolePermissions: [
       { resource: Resource.ROLES, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
     ]

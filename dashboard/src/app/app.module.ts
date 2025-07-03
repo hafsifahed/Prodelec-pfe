@@ -31,9 +31,8 @@ import {SignInComponent} from "./pages/sign-in/sign-in.component";
 import {AuthService} from "./core/services/auth.service";
 import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
-import { RolesComponent } from './pages/roles/roles.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { SettingComponent } from './pages/setting/setting.component';
+
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -44,8 +43,7 @@ export function createTranslateLoader(http: HttpClient): any {
   declarations: [
     AppComponent,
     CyptolandingComponent,
-    RolesComponent,
-    SettingComponent,
+
   ],
   imports: [
     BrowserModule,

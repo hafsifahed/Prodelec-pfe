@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-
-
-import { UserComponent } from './users/user/user.component';
 import { DashboardComponent } from './dashboard/dashboard/dashboard.component';
 import {ProfileComponent} from "./profile/profile.component";
 import {EditProfileComponent} from "./edit-profile/edit-profile.component";
@@ -52,6 +49,8 @@ import { ListProjetUserAdminComponent } from './projectfo/list-projet-user-admin
 import { RolesComponent } from './roles/roles.component';
 import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
 import { SettingComponent } from './setting/setting.component';
+import { UserDetailComponent } from './user-detail/user-detail.component';
+import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 
 
 
@@ -92,8 +91,6 @@ const routes: Routes = [
   { path: 'list-avis', component: ListAvisComponent   },
 
 
-  { path: 'user', component: UserComponent },
-
   { path: 'cdc', component: CDCListAdminComponent  },
   { path: 'cdcUser', component: CDCListUserComponent,   },
   {path: 'cdcUser/cdcAdd', component: AddCdCComponent,   },
@@ -124,6 +121,9 @@ const routes: Routes = [
   { path: 'archiveorderadminclient', component: ArchiveOrderAdminCComponent  },
   { path: 'roles', component: RolesComponent  },
   { path: 'setting', component: SettingComponent  },
+  { path: 'user/:id', component: UserDetailComponent  },
+  { path: 'partner/:id', component: PartnerDetailComponent  },
+
 
 
 

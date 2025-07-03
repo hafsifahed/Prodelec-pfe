@@ -1,6 +1,6 @@
 <div class=" user-management">
   <app-page-title
-  [title]="'Utilisateurs'"
+  [title]="title"
   [breadcrumbItems]="breadcrumbItems">
 </app-page-title>
   <!-- En-tête et barre de recherche combinés -->
@@ -63,19 +63,21 @@
 </thead>
 <tbody>
   <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-    <td><span class="user-name fw-semibold">{{ user.firstName }} {{ user.lastName }}</span></td>
+    <td>
+      <span class="user-name fw-semibold"><a title="Détails" [routerLink]="['/user', user.id]" >
+ {{ user.firstName }} {{ user.lastName }}</a></span>
+</td>
     <td>{{ user.username }}</td>
     <td><span class="user-role-badge badge bg-primary text-white">{{ user.role?.name || user.role }}</span></td>
     <td>{{ user.partner?.name || '-' }}</td>
 
     <!-- Status column with colored rectangle -->
     <td class="text-center">
-  <div 
+    <div 
     class="status-toggle" 
     [class.active]="user.accountStatus === 'active'" 
     (click)="toggleUserStatus(user)" 
-    title="Cliquez pour changer le statut"
-  >
+    title="Cliquez pour changer le statut">
     <span class="toggle-text">
       {{ user.accountStatus === 'active' ? 'Active' : 'Inactive' }}
     </span>
