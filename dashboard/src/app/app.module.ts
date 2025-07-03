@@ -32,7 +32,7 @@ import {AuthService} from "./core/services/auth.service";
 import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
 import { ReactiveFormsModule } from '@angular/forms';
-
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -50,6 +50,8 @@ export function createTranslateLoader(http: HttpClient): any {
     BrowserAnimationsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    RecaptchaModule,
+    RecaptchaFormsModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

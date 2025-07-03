@@ -24,6 +24,7 @@ export class SignInComponent implements OnInit {
   signInData: SignInData = { username: '', password: '', ipAddress: '' };
   error = '';
   isSubmitting = false;
+  captchaResponse: string | null = null; // Stocke la réponse reCAPTCHA
 
   constructor(
     private authService: AuthService,
@@ -31,7 +32,7 @@ export class SignInComponent implements OnInit {
     private usersService: UsersService,
     private userStateService: UserStateService,
     private ipService: IpService,
-    private webSocketService:WebsocketService
+    private webSocketService: WebsocketService
   ) {}
 
   ngOnInit() {
@@ -48,20 +49,38 @@ export class SignInComponent implements OnInit {
     });
   }
 
+  // Méthode appelée quand reCAPTCHA est résolu
+  onCaptchaResolved(captchaResponse: string): void {
+    this.captchaResponse = captchaResponse;
+    console.log('reCAPTCHA résolu avec la réponse :', captchaResponse);
+  }
+
   onSubmit(): void {
     if (this.isSubmitting) return;
+
+    if (!this.captchaResponse) {
+      Swal.fire('Erreur', 'Veuillez valider le reCAPTCHA.', 'error');
+      return;
+    }
 
     this.isSubmitting = true;
     this.error = '';
 
-    this.authService.logIn(this.signInData).subscribe({
+    // Ajout du token reCAPTCHA dans les données envoyées
+    const loginPayload = {
+      ...this.signInData,
+      recaptchaToken: this.captchaResponse
+    };
+
+    this.authService.logIn(loginPayload).subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.handleLoginSuccess(response);
       },
       error: (err) => {
-         console.log('Erreur HTTP reçue:', err);
+        console.log('Erreur HTTP reçue:', err);
         this.isSubmitting = false;
+        this.captchaResponse = null; // Reset reCAPTCHA en cas d'erreur
         if (err.status === 401) {
           Swal.fire('Erreur', 'Identifiants invalides', 'error');
         } else if (err.status === 0) {
@@ -88,10 +107,10 @@ export class SignInComponent implements OnInit {
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('sessionId', sessionId.toString());
     localStorage.setItem('ipAddress', this.signInData.ipAddress);
-    // Dans le composant/login après un login réussi
-this.webSocketService.disconnect();
-this.webSocketService.connect(accessToken);
 
+    // Reconnecter WebSocket avec le nouveau token
+    this.webSocketService.disconnect();
+    this.webSocketService.connect(accessToken);
 
     // Charger le profil utilisateur
     this.usersService.getProfile().subscribe({
@@ -104,7 +123,6 @@ this.webSocketService.connect(accessToken);
           confirmButtonText: 'OK'
         }).then(() => {
           this.router.navigate(['/profile']);
-          
         });
       },
       error: () => {

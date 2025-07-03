@@ -83,6 +83,8 @@ import { SettingComponent } from './setting/setting.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 import { RolesComponent } from './roles/roles.component';
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
+
 
 @NgModule({
   declarations: [
@@ -154,6 +156,9 @@ import { RolesComponent } from './roles/roles.component';
     HttpClientModule,
     CdkStepperModule,
     UIModule,
+
+    RecaptchaModule,
+    RecaptchaFormsModule,
 
     NgxExtendedPdfViewerModule,
     BsDatepickerModule,
