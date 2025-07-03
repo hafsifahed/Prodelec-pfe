@@ -167,7 +167,8 @@ import { RolesComponent } from './roles/roles.component';
     LightboxModule,
     PickerModule,
     NgxPaginationModule,
-    CommonModule
+    CommonModule,
+    FormsModule
     
   ],
 })
