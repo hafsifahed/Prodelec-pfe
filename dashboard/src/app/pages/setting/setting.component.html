@@ -1,54 +1,69 @@
 <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
 
-<div *ngIf="loading" class="mb-3">Chargement...</div>
+<div *ngIf="loading" class="alert alert-info mb-3 d-flex align-items-center gap-2">
+  <span class="spinner-border spinner-border-sm"></span> Chargement...
+</div>
+
 <div *ngIf="error" class="alert alert-danger mb-3">{{ error }}</div>
 
-<div *ngIf="settings" class="card p-3 mb-3">
+<div *ngIf="settings" class="card shadow-sm border-0 p-4 mb-4">
+  <h5 class="mb-4 text-primary fw-semibold">
+    Paramètres de Réclamation
+  </h5>
 
-  <!-- Cible de réclamation (nombre) -->
-  <label for="reclamationTarget-{{ settings.id }}" class="form-label">Cible de réclamation par projet</label>
-  <input
-    id="reclamationTarget-{{ settings.id }}"
-    type="number"
-    class="form-control mb-4"
-    [value]="settings.reclamationTarget"
-    (input)="onNumberFieldChange('reclamationTarget', $event)"
-  />
+  <!-- Cible de réclamation -->
+  <div class="mb-4">
+    <label for="reclamationTarget-{{ settings.id }}" class="form-label fw-medium">
+      🎯 Cible de réclamation par projet
+    </label>
+    <input
+      id="reclamationTarget-{{ settings.id }}"
+      type="number"
+      class="form-control"
+      [value]="settings.reclamationTarget"
+      (input)="onNumberFieldChange('reclamationTarget', $event)"
+    />
+  </div>
 
   <!-- Boucle sur les listes d'emails -->
   <ng-container *ngFor="let field of emailFields">
-    <div class="mb-4">
-      <label class="form-label text-capitalize">
-        {{ formatFieldLabel(field) }}
+    <div class="mb-5">
+      <label class="form-label text-capitalize fw-medium">
+        📧 {{ formatFieldLabel(field) }}
       </label>
 
-      <ul class="list-group mb-2">
+      <ul class="list-group mb-3">
         <li
           *ngFor="let email of settings[field]"
           class="list-group-item d-flex justify-content-between align-items-center"
         >
-          {{ email }}
+          <span class="text-muted">{{ email }}</span>
           <button
             type="button"
-            class="btn btn-sm btn-danger"
+            class="btn btn-sm btn-outline-danger"
             (click)="removeEmail(field, email)"
           >
-            Supprimer
+            <i class="bi bi-x-circle me-1"></i> Supprimer
           </button>
         </li>
-        <li *ngIf="!settings[field] || settings[field].length === 0" class="list-group-item text-muted">
+        <li
+          *ngIf="!settings[field] || settings[field].length === 0"
+          class="list-group-item text-muted fst-italic"
+        >
           Aucun email dans cette liste.
         </li>
       </ul>
 
-      <button
-        *ngIf="addingEmailField !== field"
-        type="button"
-        class="btn btn-outline-primary btn-sm"
-        (click)="startAddingEmail(field)"
-      >
-        Ajouter un email
-      </button>
+      <!-- Ajouter un email -->
+      <div *ngIf="addingEmailField !== field">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          (click)="startAddingEmail(field)"
+        >
+          <i class="bi bi-plus-circle me-1"></i> Ajouter un email
+        </button>
+      </div>
 
       <div *ngIf="addingEmailField === field" class="input-group mt-2">
         <input
@@ -59,8 +74,12 @@
           [(ngModel)]="newEmailValue"
           required
         />
-        <button class="btn btn-success" type="button" (click)="addEmail(field, emailInput)">Envoyer</button>
-        <button class="btn btn-secondary" type="button" (click)="cancelAddingEmail()">Annuler</button>
+        <button class="btn btn-success" type="button" (click)="addEmail(field, emailInput)">
+          Envoyer
+        </button>
+        <button class="btn btn-outline-secondary" type="button" (click)="cancelAddingEmail()">
+          Annuler
+        </button>
       </div>
     </div>
   </ng-container>
