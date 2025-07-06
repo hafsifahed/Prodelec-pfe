@@ -83,6 +83,8 @@ import { SettingComponent } from './setting/setting.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 import { RolesComponent } from './roles/roles.component';
+import { ChartsSectionComponent } from './dashboard/charts-section/charts-section.component';
+import { CardsSectionComponent } from './dashboard/cards-section/cards-section.component';
 
 
 @NgModule({
@@ -138,7 +140,9 @@ import { RolesComponent } from './roles/roles.component';
     SettingComponent,
     UserDetailComponent,
     PartnerDetailComponent,
-    RolesComponent
+    RolesComponent,
+    ChartsSectionComponent,
+    CardsSectionComponent
 
   ],
   imports: [
