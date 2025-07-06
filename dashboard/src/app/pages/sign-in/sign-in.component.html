@@ -35,15 +35,10 @@
         Le mot de passe est requis.
       </div>
 
-      <!-- Intégration reCAPTCHA -->
-      <re-captcha
-  siteKey="6LeO-6LeO-HUrAAAAAKQGZcCoyk_iK0Hl8lIRH86lxBbL"
-  (resolved)="onCaptchaResolved($event)"
-  #captcha="reCaptcha"
-></re-captcha>
 
 
-      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting || loginForm.invalid || !captchaResponse">
+
+      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting || loginForm.invalid ">
         {{ isSubmitting ? 'Connexion en cours...' : 'Se connecter' }}
       </button>
     </form>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../core/services/auth.service';
@@ -49,19 +49,10 @@ export class SignInComponent implements OnInit {
     });
   }
 
-  // Méthode appelée quand reCAPTCHA est résolu
-  onCaptchaResolved(captchaResponse: string): void {
-    this.captchaResponse = captchaResponse;
-    console.log('reCAPTCHA résolu avec la réponse :', captchaResponse);
-  }
 
   onSubmit(): void {
     if (this.isSubmitting) return;
 
-    if (!this.captchaResponse) {
-      Swal.fire('Erreur', 'Veuillez valider le reCAPTCHA.', 'error');
-      return;
-    }
 
     this.isSubmitting = true;
     this.error = '';
@@ -69,7 +60,6 @@ export class SignInComponent implements OnInit {
     // Ajout du token reCAPTCHA dans les données envoyées
     const loginPayload = {
       ...this.signInData,
-      recaptchaToken: this.captchaResponse
     };
 
     this.authService.logIn(loginPayload).subscribe({

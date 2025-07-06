@@ -201,6 +201,7 @@
   </div>
 
   <input 
+    *ngIf="(userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'"
     aria-label="Progression livraison"
     type="range" min="0" max="100" [value]="project.deliveryprogress"
     (input)="updatedProgress(project, $event)" class="form-range" />
