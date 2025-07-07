@@ -1,33 +1,20 @@
 <div class="global-filters mb-4">
-  <!-- (tes filtres Partner, User, Year + bouton reset inchangés) -->
   <div class="row g-3 align-items-end">
-    <div class="col-md-4">
-      <label class="form-label">Partenaire</label>
-      <select class="form-select" (change)="onPartnerChange($event)" [value]="selectedPartner || ''">
-        <option value="">Tous les partenaires</option>
-        <option *ngFor="let p of partners" [value]="p.id">{{ p.name }}</option>
-      </select>
-    </div>
-    
-    <div class="col-md-4">
-      <label class="form-label">Utilisateur</label>
-      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && users.length === 0">
+    <!-- Filtre utilisateur visible seulement pour CLIENTADMIN -->
+    <div class="col-md-6" *ngIf="roleName === 'CLIENT ADMIN'">
+      <label class="form-label">Utilisateur user</label>
+      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''">
         <option value="">Tous les utilisateurs</option>
         <option *ngFor="let u of users" [value]="u.id">{{ u.username }}</option>
       </select>
-      <small *ngIf="selectedPartner && users.length === 0" class="text-muted d-block mt-1">
-        <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
-      </small>
     </div>
-    
-    <div class="col-md-4">
+    <div class="col-md-6">
       <label class="form-label">Année</label>
       <select class="form-select" (change)="onYearChange($event)" [value]="selectedYear || ''">
         <option value="">Toutes les années</option>
         <option *ngFor="let y of years" [value]="y">{{ y }}</option>
       </select>
     </div>
-    
     <div class="col-md-12 text-end mt-2">
       <button class="btn btn-secondary btn-sm" (click)="resetFilters()">
         <i class="bx bx-reset"></i> Réinitialiser

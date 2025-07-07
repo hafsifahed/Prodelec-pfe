@@ -1,3 +1,6 @@
+import { User } from "../auth.models";
+import { Order } from "../order/order";
+
 export class Project {
     idproject!: number;
     refClient!: string;
@@ -45,4 +48,5 @@ export class Project {
     realendConception!: Date;
     createdAt: Date;
     updatedAt: Date;
+    order:Order;
 }

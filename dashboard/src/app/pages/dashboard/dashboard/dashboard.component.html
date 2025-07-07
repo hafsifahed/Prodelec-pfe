@@ -1,4 +1,3 @@
-<!-- dashboard.component.html -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 <div class="dashboard-container">
@@ -11,5 +10,12 @@
 
   <app-cards-section></app-cards-section>
 
+  <!-- Affiche ChartsUseradminSection si CLIENTADMIN, sinon ChartsSection -->
+  <ng-container *ngIf="isClientRole(); else normalCharts">
+  <app-charts-useradmin-section></app-charts-useradmin-section>
+</ng-container>
+
+<ng-template #normalCharts>
   <app-charts-section></app-charts-section>
+</ng-template>
 </div>

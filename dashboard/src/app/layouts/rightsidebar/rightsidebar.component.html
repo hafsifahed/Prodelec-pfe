@@ -9,6 +9,13 @@
       </a>
       <h5 class="m-0">Settings</h5>
 
+      <!-- Layout switch vertical/horizontal -->
+      <h6 class="mt-4 mb-3">Layout</h6>
+      <hr />
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="is-layout" (click)="changeLayout($event)" [checked]="attribute === 'vertical'">
+        <label class="form-check-label" for="is-layout">{{ attribute === 'vertical' ? 'Vertical' : 'Horizontal' }}</label>
+      </div>
 
       <h6 class="mt-4 mb-3">Width</h6>
       <hr />

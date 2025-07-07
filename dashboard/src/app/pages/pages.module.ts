@@ -85,6 +85,7 @@ import { PartnerDetailComponent } from './partner-detail/partner-detail.componen
 import { RolesComponent } from './roles/roles.component';
 import { ChartsSectionComponent } from './dashboard/charts-section/charts-section.component';
 import { CardsSectionComponent } from './dashboard/cards-section/cards-section.component';
+import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-section/charts-useradmin-section.component';
 
 
 @NgModule({
@@ -142,7 +143,8 @@ import { CardsSectionComponent } from './dashboard/cards-section/cards-section.c
     PartnerDetailComponent,
     RolesComponent,
     ChartsSectionComponent,
-    CardsSectionComponent
+    CardsSectionComponent,
+    ChartsUseradminSectionComponent
 
   ],
   imports: [

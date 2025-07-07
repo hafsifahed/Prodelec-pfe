@@ -44,7 +44,7 @@ export enum RoleName {
   PROCESS_LOGISTICS = 'Processus Logistique ET Commerciale',
   PROCESS_DAF = 'Processus DAF',
   PROCESS_RH = 'Processus Rh',
-  CLIENT_ADMIN = 'CLIENTADMIN',
+  CLIENT_ADMIN = 'CLIENT ADMIN',
   CLIENT_USER = 'CLIENTUSER'
 }
 

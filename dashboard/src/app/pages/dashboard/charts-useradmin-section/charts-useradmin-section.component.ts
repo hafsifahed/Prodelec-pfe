@@ -8,7 +8,7 @@ import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.
 import { DevisService } from 'src/app/core/services/Devis/devis.service';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
-import { PartnersService } from 'src/app/core/services/partners.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 import { AvisModels } from 'src/app/core/models/avis.models';
 import { Reclamation } from 'src/app/core/models/reclamation';
@@ -18,23 +18,19 @@ import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
 
 @Component({
-  selector: 'app-charts-section',
-  templateUrl: './charts-section.component.html',
-  styleUrls: ['./charts-section.component.scss']
+  selector: 'app-charts-useradmin-section',
+  templateUrl: './charts-useradmin-section.component.html',
+  styleUrls: ['./charts-useradmin-section.component.scss']
 })
-export class ChartsSectionComponent implements OnInit {
+export class ChartsUseradminSectionComponent implements OnInit {
+  user: any;
+  partnerId: number | null = null;
+  roleName: string | null = null;
+
   selectedUser: number | null = null;
-  selectedPartner: number | null = null;
   selectedYear: number | null = null;
 
-  users: {
-    id: number;
-    email: string;
-    username: string;
-    partner?: { id: number; name: string };
-  }[] = [];
-
-  partners: { id: number; name: string }[] = [];
+  users: any[] = [];
   years: number[] = [];
 
   chartOptionsReclamations: Partial<ApexOptions> | null = null;
@@ -69,13 +65,31 @@ export class ChartsSectionComponent implements OnInit {
     private devisSrv: DevisService,
     private orderSrv: OrderServiceService,
     private projectSrv: ProjectService,
-    private partnerSrv: PartnersService,
+    private userStateService: UserStateService,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  async ngOnInit() {
-    await this.loadPartners();
-    await this.loadUsersForDropdowns();
+  ngOnInit() {
+    this.userStateService.user$.subscribe(async user => {
+      this.user = user;
+      this.partnerId = user?.partner?.id ?? null;
+      this.roleName = user?.role?.name ?? null;
+      await this.initData();
+      this.cdr.detectChanges();
+    });
+  }
+
+  private async initData() {
+    if (this.roleName === 'CLIENT ADMIN') {
+      // Charger tous les utilisateurs du partenaire
+      const allUsers = await this.usersSrv.getClients().toPromise();
+      this.users = allUsers.filter(u => u.partner?.id === this.partnerId);
+    } else {
+      // Uniquement l'utilisateur connecté
+      this.users = [this.user];
+      this.selectedUser = this.user?.id;
+    }
+
     await Promise.all([
       this.loadAvis(),
       this.loadReclamations(),
@@ -97,7 +111,8 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private async loadAvis() {
-    this.avisList = await this.avisSrv.getAllAvis().toPromise();
+    this.avisList = (await this.avisSrv.getAllAvis().toPromise())
+      .filter(a => a.user?.partner?.id === this.partnerId);
     this.avgTotal = this.avisList.length
       ? +(this.avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / this.avisList.length).toFixed(2)
       : 0;
@@ -105,16 +120,18 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private async loadReclamations() {
-    this.reclamations = await this.reclamSrv.getAllreclamation().toPromise();
-    this.generateYears();
+    this.reclamations = (await this.reclamSrv.getAllreclamation().toPromise())
+      .filter(r => r.user?.partner?.id === this.partnerId);
   }
 
   private async loadCdc() {
-    this.cahiersDesCharges = await this.cdcSrv.getAllCdc().toPromise();
+    this.cahiersDesCharges = (await this.cdcSrv.getAllCdc().toPromise())
+      .filter(c => c.user?.partner?.id === this.partnerId);
   }
 
   private async loadDevis() {
-    this.devis = await this.devisSrv.getAlldevis().toPromise();
+    this.devis = (await this.devisSrv.getAlldevis().toPromise())
+      .filter(d => d.user?.partner?.id === this.partnerId);
   }
 
   private async loadOrdersAndProjects() {
@@ -122,52 +139,13 @@ export class ChartsSectionComponent implements OnInit {
       this.orderSrv.getAllOrders().toPromise(),
       this.projectSrv.getAllProjects().toPromise(),
     ]);
+    this.projects = this.projects.filter(p => p.order?.user?.partner?.id === this.partnerId);
     this.projectsCompleted = this.projects.filter(p => p.progress === 100);
     this.projectsLate = this.projects.filter(p => this.isLate(p));
   }
 
-  private async loadPartners() {
-    try {
-      this.partners = await this.partnerSrv.getAllPartners().toPromise();
-    } catch (error) {
-      console.error('Error loading partners', error);
-      this.partners = [];
-    }
-  }
-
-  private async loadUsersForDropdowns(partnerId?: number) {
-    try {
-      const users = await this.usersSrv.getClients().toPromise();
-      this.users = partnerId ? users.filter(u => u.partner?.id === partnerId) : users;
-      this.updatePartnersList();
-    } catch (error) {
-      console.error('Error loading users', error);
-      this.users = [];
-    }
-  }
-
-  private updatePartnersList() {
-    if (this.selectedPartner) {
-      const partnerExists = this.partners.some(p => p.id === this.selectedPartner);
-      if (!partnerExists) {
-        this.selectedPartner = null;
-      }
-      return;
-    }
-    this.partners = this.partners.filter(p =>
-      this.users.some(u => u.partner?.id === p.id)
-    );
-  }
-
   onUserChange(e: Event) {
     this.selectedUser = this.parseValue(e);
-    this.updateAllCharts();
-  }
-
-  async onPartnerChange(e: Event) {
-    this.selectedPartner = this.parseValue(e);
-    this.selectedUser = null;
-    await this.loadUsersForDropdowns(this.selectedPartner || undefined);
     this.updateAllCharts();
   }
 
@@ -177,10 +155,8 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   resetFilters() {
-    this.selectedUser = null;
-    this.selectedPartner = null;
+    this.selectedUser = this.roleName === 'CLIENT ADMIN' ? null : this.user?.id;
     this.selectedYear = null;
-    this.loadUsersForDropdowns();
     this.updateAllCharts();
   }
 
@@ -201,9 +177,7 @@ export class ChartsSectionComponent implements OnInit {
     const filtered = this.reclamations.filter(r => {
       const userMatch = this.selectedUser
         ? r.user.id === this.selectedUser
-        : this.selectedPartner
-          ? this.users.some(u => u.id === r.user.id)
-          : true;
+        : true;
       return (
         (this.selectedYear ? new Date(r.dateDeCreation).getFullYear() === this.selectedYear : true) &&
         userMatch
@@ -229,9 +203,7 @@ export class ChartsSectionComponent implements OnInit {
     const filtered = this.cahiersDesCharges.filter(c => {
       const userMatch = this.selectedUser
         ? c.user.id === this.selectedUser
-        : this.selectedPartner
-          ? this.users.some(u => u.id === c.user.id)
-          : true;
+        : true;
       return (
         (this.selectedYear ? new Date(c.createdAt).getFullYear() === this.selectedYear : true) &&
         userMatch
@@ -259,9 +231,7 @@ export class ChartsSectionComponent implements OnInit {
     const filtered = this.devis.filter(d => {
       const userMatch = this.selectedUser
         ? d.user.id === this.selectedUser
-        : this.selectedPartner
-          ? this.users.some(u => u.id === d.user.id)
-          : true;
+        : true;
       return (
         (this.selectedYear ? new Date(d.dateCreation).getFullYear() === this.selectedYear : true) &&
         userMatch
@@ -286,14 +256,11 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private updateProjectChart() {
-
     const deliveredCount = this.projectsCompleted.filter(p => {
       const userId = p.order?.user?.id;
       const userMatch = this.selectedUser
         ? userId === this.selectedUser
-        : this.selectedPartner
-          ? this.users.some(u => u.id === userId)
-          : true;
+        : true;
       return (
         (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
         userMatch
@@ -304,9 +271,7 @@ export class ChartsSectionComponent implements OnInit {
       const userId = p.order?.user?.id;
       const userMatch = this.selectedUser
         ? userId === this.selectedUser
-        : this.selectedPartner
-          ? this.users.some(u => u.id === userId)
-          : true;
+        : true;
       return (
         (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
         userMatch
@@ -330,9 +295,7 @@ export class ChartsSectionComponent implements OnInit {
     this.filteredAvis = this.avisList.filter(a => {
       const userMatch = this.selectedUser
         ? a.user?.id === this.selectedUser
-        : this.selectedPartner
-          ? a.user?.partner?.id === this.selectedPartner
-          : true;
+        : true;
       return userMatch;
     });
 
