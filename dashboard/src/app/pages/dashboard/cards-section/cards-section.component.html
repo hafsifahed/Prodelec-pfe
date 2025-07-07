@@ -1,69 +1,139 @@
-<!-- cards.component.html -->
-<div class="mb-4">
-  <div class="row g-3">
+<div class="dashboard-cards">
+  <div class="row g-4">
     <!-- Clients -->
-    <div class="col-md-4 col-xl-3">
-      <div class="card bg-c-blue ">
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-c-blue">
         <div class="card-block">
           <h6 class="m-b-20">Clients</h6>
           <h2 class="text-right"><span>{{ stats?.totalClients }}</span></h2>
-          <h6 class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedClients }}</span></h6>
+          <div class="sub-metric">
+            Connectés <span class="f-right">{{ stats?.connectedClients }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Employés -->
-    <div class="col-md-4 col-xl-3">
-      <div class="card bg-c-blue ">
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-c-blue">
         <div class="card-block">
           <h6 class="m-b-20">Employés</h6>
           <h2 class="text-right"><span>{{ stats?.totalEmployees }}</span></h2>
-          <h6 class="m-b-0">Connectés <span class="f-right">{{ stats?.connectedEmployees }}</span></h6>
+          <div class="sub-metric">
+            Connectés <span class="f-right">{{ stats?.connectedEmployees }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Pourcentage réclamations -->
-    <div class="col-md-4 col-xl-3">
-      <div class="card " [ngClass]="reclamationPercentage > setting?.reclamationTarget ? 'bg-c-pink' : 'bg-c-green'">
+    <div class="col-md-6 col-xl-3">
+      <div class="card" [ngClass]="reclamationPercentage > setting?.reclamationTarget ? 'bg-c-pink' : 'bg-c-green'">
         <div class="card-block">
           <h6 class="m-b-20">Réclamations / Projets</h6>
           <h2 class="text-right">
             <span>{{ reclamationPercentage | number: '1.0-2' }}%</span>
           </h2>
-          <h6 class="m-b-0">Projets terminés <span class="f-right">{{ projectsCompleted.length }}</span></h6>
+          <div class="sub-metric">
+            Projets terminés <span class="f-right">{{ projectsCompleted.length }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Satisfaction -->
-    <div class="col-md-4 col-xl-3">
-      <div class="card bg-c-yellow ">
+    <div class="col-md-6 col-xl-3">
+      <div class="card bg-c-yellow">
         <div class="card-block">
           <h6 class="m-b-20">Satisfaction</h6>
           <h2 class="text-right">
             <span>{{ avgTotal | number:'1.2-2' }}</span>
           </h2>
-          <h6 class="m-b-0">Avis <span class="f-right">{{ avisList.length }}</span></h6>
+          <div class="sub-metric">
+            Avis <span class="f-right">{{ avisList.length }}</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Cartes dynamiques -->
-    <div class="col-md-4 col-xl-3" *ngFor="let stat of statData">
-      <div class="card h-100" [ngClass]="{
-            'card-orders'   : stat.title === 'Commandes',
-            'card-projects' : stat.title === 'Projets',
-            'card-cancelled': stat.title === 'Commandes annulées',
-            'card-completed': stat.title === 'Projets terminés',
-            'card-delayed'  : stat.title === 'Projet retards'
-          }">
-        <div class="card-body d-flex flex-column justify-content-center">
-          <div class="d-flex align-items-center mb-1">
-            <i [class]="stat.icon" class="bx font-size-24 me-2"></i>
-            <h5 class="card-title mb-0">{{ stat.title }}</h5>
+    <!-- Section combinée pour Commandes -->
+    <div class="col-12 col-xl-6">
+      <div class="card combined-card">
+        <div class="card-block">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="m-0">Statistiques des Commandes</h6>
+            <i class="bx bxs-shopping-bags"></i>
           </div>
-          <p class="card-text display-6 text-center mb-0">{{ stat.value }}</p>
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="metric-card card-orders h-100">
+                <div class="card-block">
+                  <h6>Commandes</h6>
+                  <h2>{{ getStatValue('Commandes') }}</h2>
+                  <div class="progress mt-2">
+                    <div class="progress-bar bg-info" [style.width.%]="getOrderProgress()"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="metric-card card-cancelled h-100">
+                <div class="card-block">
+                  <h6>Annulées</h6>
+                  <h2>{{ getStatValue('Commandes annulées') }}</h2>
+                  <div class="sub-metric">
+                    Taux: {{ getCancellationRate() | number:'1.1-1' }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section combinée pour Projets -->
+    <div class="col-12 col-xl-6">
+      <div class="card combined-card">
+        <div class="card-block">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="m-0">Statistiques des Projets</h6>
+            <i class="bx bxs-briefcase"></i>
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="metric-card card-projects h-100">
+                <div class="card-block">
+                  <h6>En cours</h6>
+                  <h2>{{ getStatValue('Projets') }}</h2>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="metric-card card-completed h-100">
+                <div class="card-block">
+                  <h6>Terminés</h6>
+                  <h2>{{ getStatValue('Projets terminés') }}</h2>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="metric-card card-delayed h-100">
+                <div class="card-block">
+                  <h6>Retards</h6>
+                  <h2>{{ getStatValue('Projet retards') }}</h2>
+                  <div class="sub-metric">
+                    {{ getDelayedPercentage() | number:'1.1-1' }}% des projets
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

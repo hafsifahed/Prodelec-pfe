@@ -29,8 +29,15 @@ export class ChartsSectionComponent implements OnInit {
   selectedYear: number | null = null;
   
   // Données pour les filtres
-  users: { id: number; email: string, username: string }[] = [];
-  partners: { id: number; name: string }[] = [];
+users: {
+  id: number;
+  email: string;
+  username: string;
+  partner?: { // Ajoutez cette propriété optionnelle
+    id: number;
+    name: string;
+  };
+}[] = [];  partners: { id: number; name: string }[] = [];
   years: number[] = [];
 
   // Options des graphiques
@@ -50,8 +57,8 @@ export class ChartsSectionComponent implements OnInit {
   
   // Données filtrées
   filteredAvis: AvisModels[] = [];
-  projectsCompleted: Project[] = [];
-  projectsLate: Project[] = [];
+  projectsCompleted: any[] = [];
+  projectsLate: any[] = [];
   avgTotal = 0;
 
   constructor(
@@ -67,17 +74,28 @@ export class ChartsSectionComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+       await this.loadUsersForDropdowns();
+    await this.loadPartners();
+    
     await Promise.all([
       this.loadAvis(),
       this.loadReclamations(),
       this.loadCdc(),
       this.loadDevis(),
       this.loadOrdersAndProjects(),
-      this.loadUsersForDropdowns(),
-      this.loadPartners(),
     ]);
 
+    this.generateYears();
     this.updateAllCharts();
+  }
+
+  private generateYears() {
+    const allYears = [
+      ...this.reclamations.map(r => new Date(r.dateDeCreation).getFullYear()),
+      ...this.cahiersDesCharges.map(c => new Date(c.createdAt).getFullYear()),
+      ...this.devis.map(d => new Date(d.dateCreation).getFullYear())
+    ];
+    this.years = [...new Set(allYears)].sort((a, b) => b - a);
   }
 
   private async loadAvis() {
@@ -115,18 +133,22 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private async loadPartners() {
-    this.partners = await this.partnerSrv.getAllPartners().toPromise();
-  }
+  this.partners = await this.partnerSrv.getAllPartners().toPromise();
+  
+  // Filtrer les partenaires qui ont des utilisateurs dans la liste chargée
+  this.partners = this.partners.filter(p => 
+    this.users.some(u => u.partner?.id === p.id)
+  );
+}
 
-  private loadUsersForDropdowns() {
-    this.usersSrv.getClients().subscribe(list => {
-      this.users = list.map(u => ({
-        id: u.id,
-        email: u.email,
-        username: u.username,
-        partnerId: u.partner?.id || null,
-      }));
-    });
+  private async loadUsersForDropdowns(partnerId?: number) {
+    const users = await this.usersSrv.getClients().toPromise();
+    
+    if (partnerId) {
+      this.users = users.filter(u => u.partner?.id === partnerId);
+    } else {
+      this.users = users;
+    }
   }
 
   // Gestion des changements de filtres globaux
@@ -137,6 +159,8 @@ export class ChartsSectionComponent implements OnInit {
   
   onPartnerChange(e: Event) { 
     this.selectedPartner = this.parseValue(e); 
+    this.selectedUser = null; // Reset user selection
+    this.loadUsersForDropdowns(this.selectedPartner);
     this.updateAllCharts(); 
   }
   
@@ -149,6 +173,7 @@ export class ChartsSectionComponent implements OnInit {
     this.selectedUser = null;
     this.selectedPartner = null;
     this.selectedYear = null;
+    this.loadUsersForDropdowns();
     this.updateAllCharts();
   }
 
@@ -168,20 +193,36 @@ export class ChartsSectionComponent implements OnInit {
 
   // Méthodes de mise à jour des graphiques avec filtres globaux
   private updateReclamationChart() {
-    const filtered = this.reclamations.filter(r =>
+    const filtered = this.reclamations.filter(r => {
+    const userMatch = this.selectedUser 
+      ? r.user.id === this.selectedUser
+      : this.selectedPartner
+        ? this.users.some(u => u.id === r.user.id)
+        : true;
+    
+    return (
       (this.selectedYear ? new Date(r.dateDeCreation).getFullYear() === this.selectedYear : true) &&
-      (this.selectedUser ? r.user.id === this.selectedUser : true)
+      userMatch
     );
+  });
     const treated = filtered.filter(r => r.status === 'Traité').length;
     const ongoing = filtered.filter(r => r.status === 'En cours').length;
     this.chartOptionsReclamations = this.buildPie([treated, ongoing], ['Traité', 'En cours'], ['#00E396', '#FFCC00']);
   }
 
   private updateCahierChart() {
-    const filtered = this.cahiersDesCharges.filter(c =>
+    const filtered = this.cahiersDesCharges.filter(c => {
+    const userMatch = this.selectedUser 
+      ? c.user.id === this.selectedUser
+      : this.selectedPartner
+        ? this.users.some(u => u.id === c.user.id)
+        : true;
+    
+    return (
       (this.selectedYear ? new Date(c.createdAt).getFullYear() === this.selectedYear : true) &&
-      (this.selectedUser ? c.user.id === this.selectedUser : true)
+      userMatch
     );
+  });
     const accepted = filtered.filter(c => c.etat === 'Accepté').length;
     const refused = filtered.filter(c => c.etat === 'Refusé').length;
     const pending = filtered.filter(c => c.etat === 'en_attente').length;
@@ -189,10 +230,18 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private updateDevisChart() {
-    const filtered = this.devis.filter(d =>
+    const filtered = this.devis.filter(d => {
+    const userMatch = this.selectedUser 
+      ? d.user.id === this.selectedUser
+      : this.selectedPartner
+        ? this.users.some(u => u.id === d.user.id)
+        : true;
+    
+    return (
       (this.selectedYear ? new Date(d.dateCreation).getFullYear() === this.selectedYear : true) &&
-      (this.selectedUser ? d.user.id === this.selectedUser : true)
+      userMatch
     );
+  });
     const accepted = filtered.filter(d => d.etat === 'Accepté').length;
     const refused = filtered.filter(d => d.etat === 'Refusé').length;
     const pending = filtered.filter(d => d.etat === 'En attente').length;
@@ -200,16 +249,47 @@ export class ChartsSectionComponent implements OnInit {
   }
 
   private updateProjectChart() {
-    const delivered = this.projectsCompleted.length;
-    const late = this.projectsLate.length;
-    this.chartOptionsProjet = this.buildPie([delivered, late], ['Livré', 'Retard'], ['#00E396', '#FF4560']);
-  }
+  const delivered = this.projectsCompleted.filter(p => {
+    const userId = p.order?.user?.id;
+    const userMatch = this.selectedUser 
+      ? userId === this.selectedUser
+      : this.selectedPartner
+        ? this.users.some(u => u.id === userId)
+        : true;
+    
+    return (
+      (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
+      userMatch
+    );
+  }).length;
+
+  const late = this.projectsLate.filter(p => {
+    const userId = p.order?.user?.id;
+    const userMatch = this.selectedUser 
+      ? userId === this.selectedUser
+      : this.selectedPartner
+        ? this.users.some(u => u.id === userId)
+        : true;
+    
+    return (
+      (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
+      userMatch
+    );
+  }).length;
+
+  this.chartOptionsProjet = this.buildPie([delivered, late], ['Livré', 'Retard'], ['#00E396', '#FF4560']);
+}
 
   private updateAvisChart() {
-    this.filteredAvis = this.avisList.filter(a =>
-      (!this.selectedUser || a.user?.id === this.selectedUser) &&
-      (!this.selectedPartner || a.user?.partner?.id === this.selectedPartner)
-    );
+    this.filteredAvis = this.avisList.filter(a => {
+    const userMatch = this.selectedUser 
+      ? a.user?.id === this.selectedUser
+      : this.selectedPartner
+        ? a.user?.partner?.id === this.selectedPartner
+        : true;
+    
+    return userMatch;
+  });
 
     const nbPositifs = this.filteredAvis.filter(a => (a.avg ?? 0) >= 70).length;
     const nbMoyens   = this.filteredAvis.filter(a => (a.avg ?? 0) >= 50 && (a.avg ?? 0) < 70).length;

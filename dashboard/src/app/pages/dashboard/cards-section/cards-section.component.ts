@@ -3,6 +3,7 @@ import { StatisticsService, GlobalStats } from 'src/app/core/services/statistics
 import { AvisService } from 'src/app/core/services/avis.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { SettingService } from 'src/app/core/services/setting.service';
+
 @Component({
   selector: 'app-cards-section',
   templateUrl: './cards-section.component.html',
@@ -69,5 +70,29 @@ export class CardsSectionComponent implements OnInit {
   private async loadProjectsCompleted() {
     const projects = await this.projectSrv.getAllProjects().toPromise();
     this.projectsCompleted = projects.filter(p => p.progress === 100);
+  }
+
+  // Nouvelles méthodes pour les cartes combinées
+  getStatValue(title: string): number {
+    const stat = this.statData.find(s => s.title === title);
+    return stat ? +stat.value : 0;
+  }
+
+  getOrderProgress(): number {
+    const total = this.getStatValue('Commandes');
+    const cancelled = this.getStatValue('Commandes annulées');
+    return total > 0 ? ((total - cancelled) / total) * 100 : 0;
+  }
+
+  getCancellationRate(): number {
+    const total = this.getStatValue('Commandes');
+    const cancelled = this.getStatValue('Commandes annulées');
+    return total > 0 ? (cancelled / total) * 100 : 0;
+  }
+
+  getDelayedPercentage(): number {
+    const total = this.getStatValue('Projets terminés') + this.getStatValue('Projets');
+    const delayed = this.getStatValue('Projet retards');
+    return total > 0 ? (delayed / total) * 100 : 0;
   }
 }

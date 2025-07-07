@@ -1,27 +1,35 @@
-<!-- charts-section.component.html -->
 <div class="global-filters mb-4">
-  <div class="row g-3">
+  <div class="row g-3 align-items-end">
     <div class="col-md-4">
-      <select class="form-select" (change)="onPartnerChange($event)">
+      <label class="form-label">Partenaire</label>
+      <select class="form-select" (change)="onPartnerChange($event)" [value]="selectedPartner || ''">
         <option value="">Tous les partenaires</option>
         <option *ngFor="let p of partners" [value]="p.id">{{ p.name }}</option>
       </select>
     </div>
+    
     <div class="col-md-4">
-      <select class="form-select" (change)="onUserChange($event)">
+      <label class="form-label">Utilisateur</label>
+      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && users.length === 0">
         <option value="">Tous les utilisateurs</option>
         <option *ngFor="let u of users" [value]="u.id">{{ u.username }}</option>
       </select>
+      <small *ngIf="selectedPartner && users.length === 0" class="text-muted d-block mt-1">
+        <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
+      </small>
     </div>
+    
     <div class="col-md-4">
-      <select class="form-select" (change)="onYearChange($event)">
+      <label class="form-label">Année</label>
+      <select class="form-select" (change)="onYearChange($event)" [value]="selectedYear || ''">
         <option value="">Toutes les années</option>
         <option *ngFor="let y of years" [value]="y">{{ y }}</option>
       </select>
     </div>
+    
     <div class="col-md-12 text-end mt-2">
       <button class="btn btn-secondary btn-sm" (click)="resetFilters()">
-        Réinitialiser les filtres
+        <i class="bx bx-reset"></i> Réinitialiser
       </button>
     </div>
   </div>
@@ -33,13 +41,15 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Réclamations</h4>
-        <apx-chart class="apex-charts w-100" dir="ltr"
-                  [series]="chartOptionsReclamations.series"
-                  [chart]="chartOptionsReclamations.chart"
-                  [labels]="chartOptionsReclamations.labels"
-                  [legend]="chartOptionsReclamations.legend"
-                  [colors]="chartOptionsReclamations.colors"
-                  [responsive]="chartOptionsReclamations.responsive"></apx-chart>
+        <div class="chart-container">
+          <apx-chart class="apex-charts w-100" dir="ltr"
+                    [series]="chartOptionsReclamations.series"
+                    [chart]="chartOptionsReclamations.chart"
+                    [labels]="chartOptionsReclamations.labels"
+                    [legend]="chartOptionsReclamations.legend"
+                    [colors]="chartOptionsReclamations.colors"
+                    [responsive]="chartOptionsReclamations.responsive"></apx-chart>
+        </div>
       </div>
     </div>
   </div>
@@ -49,13 +59,15 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Cahier des charges</h4>
-        <apx-chart class="apex-charts w-100" dir="ltr"
-                  [series]="chartOptionsCahiersDesCharges.series"
-                  [chart]="chartOptionsCahiersDesCharges.chart"
-                  [labels]="chartOptionsCahiersDesCharges.labels"
-                  [legend]="chartOptionsCahiersDesCharges.legend"
-                  [colors]="chartOptionsCahiersDesCharges.colors"
-                  [responsive]="chartOptionsCahiersDesCharges.responsive"></apx-chart>
+        <div class="chart-container">
+          <apx-chart class="apex-charts w-100" dir="ltr"
+                    [series]="chartOptionsCahiersDesCharges.series"
+                    [chart]="chartOptionsCahiersDesCharges.chart"
+                    [labels]="chartOptionsCahiersDesCharges.labels"
+                    [legend]="chartOptionsCahiersDesCharges.legend"
+                    [colors]="chartOptionsCahiersDesCharges.colors"
+                    [responsive]="chartOptionsCahiersDesCharges.responsive"></apx-chart>
+        </div>
       </div>
     </div>
   </div>
@@ -65,13 +77,15 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Devis</h4>
-        <apx-chart class="apex-charts w-100" dir="ltr"
-                  [series]="chartOptionsDevis.series"
-                  [chart]="chartOptionsDevis.chart"
-                  [labels]="chartOptionsDevis.labels"
-                  [legend]="chartOptionsDevis.legend"
-                  [colors]="chartOptionsDevis.colors"
-                  [responsive]="chartOptionsDevis.responsive"></apx-chart>
+        <div class="chart-container">
+          <apx-chart class="apex-charts w-100" dir="ltr"
+                    [series]="chartOptionsDevis.series"
+                    [chart]="chartOptionsDevis.chart"
+                    [labels]="chartOptionsDevis.labels"
+                    [legend]="chartOptionsDevis.legend"
+                    [colors]="chartOptionsDevis.colors"
+                    [responsive]="chartOptionsDevis.responsive"></apx-chart>
+        </div>
       </div>
     </div>
   </div>
@@ -81,13 +95,15 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Projets</h4>
-        <apx-chart class="apex-charts w-100" dir="ltr"
-                  [series]="chartOptionsProjet.series"
-                  [chart]="chartOptionsProjet.chart"
-                  [labels]="chartOptionsProjet.labels"
-                  [legend]="chartOptionsProjet.legend"
-                  [colors]="chartOptionsProjet.colors"
-                  [responsive]="chartOptionsProjet.responsive"></apx-chart>
+        <div class="chart-container">
+          <apx-chart class="apex-charts w-100" dir="ltr"
+                    [series]="chartOptionsProjet.series"
+                    [chart]="chartOptionsProjet.chart"
+                    [labels]="chartOptionsProjet.labels"
+                    [legend]="chartOptionsProjet.legend"
+                    [colors]="chartOptionsProjet.colors"
+                    [responsive]="chartOptionsProjet.responsive"></apx-chart>
+        </div>
       </div>
     </div>
   </div>
@@ -97,43 +113,56 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Avis</h4>
-        <apx-chart class="apex-charts w-100" dir="ltr"
-          [series]="chartOptionsAvis.series"
-          [chart]="chartOptionsAvis.chart"
-          [labels]="chartOptionsAvis.labels"
-          [legend]="chartOptionsAvis.legend"
-          [colors]="chartOptionsAvis.colors"
-          [responsive]="chartOptionsAvis.responsive">
-        </apx-chart>
+        <div class="chart-container">
+          <apx-chart class="apex-charts w-100" dir="ltr"
+            [series]="chartOptionsAvis.series"
+            [chart]="chartOptionsAvis.chart"
+            [labels]="chartOptionsAvis.labels"
+            [legend]="chartOptionsAvis.legend"
+            [colors]="chartOptionsAvis.colors"
+            [responsive]="chartOptionsAvis.responsive">
+          </apx-chart>
+        </div>
+        
+        <div class="avg-display mt-4" *ngIf="avisList.length > 0">
+          <p class="mb-0"><strong>{{ avgTotal }}%</strong> moyenne de satisfaction sur {{ avisList.length }} avis.</p>
+        </div>
       </div>
       
-      <div class="text-center mt-2" *ngIf="avisList.length > 0">
-        <p><strong>{{ avgTotal }}%</strong> moyenne de satisfaction sur {{ avisList.length }} avis.</p>
-      </div>
-      
-      <div class="card mt-4">
+      <div class="card mt-4 border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Détail des avis</h5>
+          <h5 class="card-title d-flex align-items-center">
+            <i class="bx bx-detail me-2"></i> Détail des avis
+          </h5>
           <div *ngIf="filteredAvis.length > 0; else noAvis">
-            <table class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th>Utilisateur</th>
-                  <th>Partenaire</th>
-                  <th>Score (%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let a of filteredAvis">
-                  <td>{{ a.user?.username || '-' }}</td>
-                  <td>{{ a.user?.partner?.name || '-' }}</td>
-                  <td>{{ a.avg ?? 0 | number:'1.0-2' }}%</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Utilisateur</th>
+                    <th>Partenaire</th>
+                    <th class="text-end">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let a of filteredAvis">
+                    <td>{{ a.user?.username || '-' }}</td>
+                    <td>{{ a.user?.partner?.name || '-' }}</td>
+                    <td class="text-end">
+                      <span class="badge bg-primary bg-opacity-10 text-primary">
+                        {{ a.avg ?? 0 | number:'1.0-2' }}%
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           <ng-template #noAvis>
-            <p class="text-muted">Aucun avis trouvé pour cette sélection.</p>
+            <div class="text-center py-4">
+              <i class="bx bx-info-circle text-muted" style="font-size: 2rem;"></i>
+              <p class="text-muted mt-2 mb-0">Aucun avis trouvé pour cette sélection</p>
+            </div>
           </ng-template>
         </div>
       </div>

@@ -1,80 +1,210 @@
-body{
-  margin-top:20px;
-  background:#FAFAFA;
-}
-.order-card {
-  color: #fff;
+// Variables
+$card-radius: 10px;
+$card-padding: 1.5rem;
+$transition-speed: 0.3s;
+
+// Base styles
+:host {
+  display: block;
+  padding: 1rem;
 }
 
+// Card styles
+.card {
+  border-radius: $card-radius;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all $transition-speed ease;
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  color: white;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+
+  &-block {
+    padding: $card-padding;
+    position: relative;
+    z-index: 2;
+  }
+
+  h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  h2 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  .sub-metric {
+    font-size: 0.95rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    
+    .f-right {
+      float: right;
+    }
+  }
+
+  // Background patterns
+  &::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -40%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: 1;
+    opacity: 0.7;
+  }
+}
+
+// Gradient backgrounds
 .bg-c-blue {
-  background: linear-gradient(45deg,#4099ff,#73b4ff);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
 
 .bg-c-green {
-  background: linear-gradient(45deg,#2ed8b6,#59e0c5);
+  background: linear-gradient(135deg, #10b981, #047857);
 }
 
 .bg-c-yellow {
-  background: linear-gradient(45deg,#FFB64D,#ffcb80);
+  background: linear-gradient(135deg, #f59e0b, #b45309);
 }
 
 .bg-c-pink {
-  background: linear-gradient(45deg,#FF5370,#ff869a);
+  background: linear-gradient(135deg, #ec4899, #be185d);
 }
 
-
-.card {
-  border-radius: 5px;
-  -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
-  box-shadow: 0 1px 2.94px 0.06px rgba(4,26,55,0.16);
-  border: none;
-  margin-bottom: 30px;
-  -webkit-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
+/* Styles pour les nouvelles cartes combinées */
+.combined-card {
+  background: #2a3042;
+  
+  .card-block {
+    padding: 1.5rem;
+  }
+  
+  h6 {
+    font-size: 1rem;
+  }
 }
 
-.card .card-block {
-  padding: 25px;
+.metric-card {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+  
+  .card-block {
+    padding: 1.25rem;
+    
+    h2 {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    h6 {
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+  }
 }
 
-.order-card i {
-  font-size: 26px;
+.progress {
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  
+  &-bar {
+    border-radius: 3px;
+  }
 }
 
-.f-left {
-  float: left;
+/* Adaptation des couleurs pour le mode clair */
+.combined-card {
+  .card-orders {
+    background: linear-gradient(135deg, #93bbe6, #3b82f6);
+  }
+  
+  .card-cancelled {
+    background: linear-gradient(135deg, #e29fa9, #ef4444);
+  }
+  
+  .card-projects {
+    background: linear-gradient(135deg, #e2d099, #f59e0b);
+  }
+  
+  .card-completed {
+    background: linear-gradient(135deg, #a5e4aa, #22c55e);
+  }
+  
+  .card-delayed {
+    background: linear-gradient(135deg, #e9c893, #f59e0b);
+  }
 }
 
-.f-right {
-  float: right;
-}
-
+// Status cards
 .card-orders {
-  background-color: #add8e6; /* Couleur d'arrière-plan personnalisée */
-  border: 1px solid #add8e6; /* Couleur de bordure personnalisée */
+  background: linear-gradient(135deg, #93c5fd, #3b82f6);
+  color: #1e3a8a;
 }
 
 .card-projects {
-  background-color: #f0e68c; /* Couleur d'arrière-plan personnalisée */
-  border: 1px solid #f0e68c; /* Couleur de bordure personnalisée */
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  color: #7c2d12;
 }
 
 .card-cancelled {
-  background-color: #f5c6cb; /* Couleur d'arrière-plan personnalisée */
-  border: 1px solid #f5c6cb; /* Couleur de bordure personnalisée */
+  background: linear-gradient(135deg, #fca5a5, #ef4444);
+  color: #7f1d1d;
 }
 
 .card-completed {
-  background-color:solid #c3e6cb; /* Couleur d'arrière-plan personnalisée */
-  border: 1px solid #c3e6cb; /* Couleur de bordure personnalisée */
+  background: linear-gradient(135deg, #86efac, #22c55e);
+  color: #14532d;
 }
 
 .card-delayed {
-  background-color: #ffeeba; /* Couleur d'arrière-plan personnalisée */
-  border: 1px solid #ffeeba; /* Couleur de bordure personnalisée */
+  background: linear-gradient(135deg, #fcd34d, #f59e0b);
+  color: #7c2d12;
 }
 
-.chart-container {
-  height: 300px; /* Hauteur fixe pour les graphiques */
+// Status card specific styles
+.card[class*="card-"] {
+  h5, .card-text {
+    color: inherit;
+  }
+  
+  .bx {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 8px;
+  }
 }
 
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card {
+    h2 {
+      font-size: 1.75rem;
+    }
+    
+    &-block {
+      padding: 1.25rem;
+    }
+  }
+}
