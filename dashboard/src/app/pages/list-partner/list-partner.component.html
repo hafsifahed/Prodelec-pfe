@@ -1,11 +1,10 @@
-<app-page-title
-  [title]="title"
-  [breadcrumbItems]="breadcrumbItems">
-</app-page-title>
-<div class=" partner-management">
-    
+<app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
+<div class="partner-management container-fluid">
+
   <!-- En-tête et barre de recherche -->
   <div class="management-header d-flex justify-content-between align-items-center flex-wrap mb-4">
+
     <div class="header-content flex-grow-1 min-w-250">
       <div class="header-title d-flex align-items-center gap-3">
         <h1 class="m-0 fw-semibold text-dark">
@@ -39,6 +38,16 @@
       <button class="btn btn-primary add-partner-btn d-flex align-items-center gap-2" (click)="navigateToAddPartner()">
         <i class="fas fa-plus"></i> Ajouter un partenaire
       </button>
+
+      <!-- Switch tableau / grille -->
+      <div class="btn-group ms-3" role="group" aria-label="Mode d'affichage">
+        <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'table'" (click)="setDisplayMode('table')">
+          <i class="mdi mdi-table"></i> Tableau
+        </button>
+        <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'grid'" (click)="setDisplayMode('grid')">
+          <i class="mdi mdi-view-grid"></i> Grille
+        </button>
+      </div>
     </div>
   </div>
 
@@ -47,31 +56,25 @@
     <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
   </div>
 
-  <!-- Tableau des partenaires -->
-  <div class="table-responsive partner-table-wrapper mb-4">
+  <!-- Mode TABLEAU -->
+  <div *ngIf="displayMode === 'table'" class="table-responsive partner-table-wrapper mb-4">
     <table class="table partner-table table-hover align-middle">
       <thead class="table-light">
         <tr>
           <th>Nom</th>
           <th>Téléphone</th>
-          <th>Address</th>
+          <th>Adresse</th>
           <th>Utilisateurs</th>
           <th class="text-center">Actions</th>
         </tr>
       </thead>
       <tbody>
-
-
-        
-
         <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-          <td><a [routerLink]="['/partner', partner.id]" class="partner-name text-decoration-none" title="Détails">
-    {{ partner.name }}
-  </a></td>
+          <td><a [routerLink]="['/partner', partner.id]" class="partner-name text-decoration-none" title="Détails">{{ partner.name }}</a></td>
           <td>{{ partner.tel || '-' }}</td>
           <td>{{ partner.address }}</td>
           <td class="users-cell">
-            <div *ngIf="partner.users && partner.users.length > 0" class="users-list d-flex flex-column gap-2">
+            <div *ngIf="partner.users?.length > 0" class="users-list d-flex flex-column gap-2">
               <div *ngFor="let user of partner.users" class="user-item d-flex justify-content-between">
                 <span class="user-email text-dark fw-medium">{{ user.email }}</span>
                 <span class="user-role text-muted fst-italic">{{ user?.role?.name || 'Aucun rôle' }}</span>
@@ -86,24 +89,13 @@
               <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editPartner(partner)" title="Modifier">
                 <i class="fas fa-edit"></i> Modifier
               </button>
-              
-              <button *ngIf="partner.partnerStatus !== 'inactive'" 
-                      class="btn btn-sm btn-warning action-btn inactivate-btn"
-                      (click)="inactivatePartner(partner)"
-                      title="Inactiver">
+              <button *ngIf="partner.partnerStatus !== 'inactive'" class="btn btn-sm btn-warning action-btn inactivate-btn" (click)="inactivatePartner(partner)" title="Inactiver">
                 <i class="fas fa-ban"></i> Inactiver
               </button>
-              
-              <button *ngIf="partner.partnerStatus === 'inactive'" 
-                      class="btn btn-sm btn-info action-btn activate-btn"
-                      (click)="activatePartner(partner)"
-                      title="Activer">
+              <button *ngIf="partner.partnerStatus === 'inactive'" class="btn btn-sm btn-info action-btn activate-btn" (click)="activatePartner(partner)" title="Activer">
                 <i class="fas fa-check-circle"></i> Activer
               </button>
-              
-              <button class="btn btn-sm btn-danger action-btn delete-btn" 
-                      (click)="deletePartner(partner.id)" 
-                      title="Supprimer">
+              <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="deletePartner(partner.id)" title="Supprimer">
                 <i class="fas fa-trash-alt"></i> Supprimer
               </button>
             </div>
@@ -113,8 +105,63 @@
     </table>
   </div>
 
-  <!-- Pagination -->
-  <div class="pagination-wrapper d-flex justify-content-center">
+  <!-- Mode GRILLE -->
+  <div *ngIf="displayMode === 'grid'" class="row g-4">
+    <div class="col-xl-3 col-md-6" *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+      <div class="card h-100 shadow-sm d-flex flex-column">
+        <!-- Image partenaire ou image par défaut 
+        <img 
+          [src]="partner.image ? partner.image : 'assets/images/companies/adobe.svg'" 
+          alt="Image partenaire" 
+          class="img-fluid rounded mb-3"
+          style="max-height: 150px; object-fit: cover; width: 100%;" 
+        />-->
+        <div class="avatar-sm mx-auto mb-4 mt-4" *ngIf="!partner.image">
+            <span class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-16">
+              {{ partner.name.charAt(0) }}{{ partner.name.charAt(1) }}
+            </span>
+          </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title mb-3">
+            <a [routerLink]="['/partner', partner.id]" class="text-decoration-none text-dark" title="Détails">
+              {{ partner.name }}
+            </a>
+          </h5>
+          <p class="mb-1"><strong>Téléphone :</strong> {{ partner.tel || '-' }}</p>
+          <p class="mb-1"><strong>Adresse :</strong> {{ partner.address }}</p>
+          <div class="mb-3 flex-grow-1">
+            <strong>Utilisateurs :</strong>
+            <div *ngIf="partner.users?.length > 0" class="users-list mt-1">
+              <div *ngFor="let user of partner.users" class="d-flex justify-content-between small mb-1">
+                <span>{{ user.email }}</span>
+                <span class="text-muted fst-italic">{{ user?.role?.name || 'Aucun rôle' }}</span>
+              </div>
+            </div>
+            <div *ngIf="!partner.users || partner.users.length === 0" class="text-muted fst-italic mt-1">
+              Aucun utilisateur
+            </div>
+          </div>
+          <div class="mt-auto d-flex flex-wrap gap-2 justify-content-center">
+            <button class="btn btn-sm btn-success" (click)="editPartner(partner)" title="Modifier">
+              <i class="fas fa-edit"></i> Modifier
+            </button>
+            <button *ngIf="partner.partnerStatus !== 'inactive'" class="btn btn-sm btn-warning" (click)="inactivatePartner(partner)" title="Inactiver">
+              <i class="fas fa-ban"></i> Inactiver
+            </button>
+            <button *ngIf="partner.partnerStatus === 'inactive'" class="btn btn-sm btn-info" (click)="activatePartner(partner)" title="Activer">
+              <i class="fas fa-check-circle"></i> Activer
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deletePartner(partner.id)" title="Supprimer">
+              <i class="fas fa-trash-alt"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination commune -->
+  <div class="pagination-wrapper d-flex justify-content-center mt-4">
     <pagination-controls
       (pageChange)="p = $event"
       previousLabel="Précédent"
@@ -123,4 +170,5 @@
     >
     </pagination-controls>
   </div>
+
 </div>

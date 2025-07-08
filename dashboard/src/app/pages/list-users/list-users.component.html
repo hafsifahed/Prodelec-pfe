@@ -1,11 +1,10 @@
-<div class=" user-management">
-  <app-page-title
-  [title]="title"
-  [breadcrumbItems]="breadcrumbItems">
-</app-page-title>
-  <!-- En-tête et barre de recherche combinés -->
+<div class="user-management container-fluid">
+
+  <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
+  <!-- Barre de recherche et ajout utilisateur -->
   <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
-    
+
     <div class="flex-grow-1 min-w-250 header-title-container">
       <div class="header-title d-flex align-items-center gap-3 mb-2">
         <h1 class="m-0 fw-semibold text-dark">
@@ -40,71 +39,135 @@
         <i class="fas fa-user-plus"></i>
         <span class="btn-text">Ajouter</span>
       </button>
+
+      <div class="btn-group" role="group" aria-label="Mode d'affichage">
+          <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'table'" (click)="setDisplayMode('table')">
+            <i class="mdi mdi-table"></i> Tableau
+          </button>
+          <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'grid'" (click)="setDisplayMode('grid')">
+            <i class="mdi mdi-view-grid"></i> Grille
+          </button>
+        </div>
     </div>
   </div>
+
+  <!-- Boutons de bascule mode tableau / grille -->
+
+
+  
+
+  
 
   <!-- Message d'erreur -->
   <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
     <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
   </div>
 
-  <!-- Tableau des utilisateurs -->
-  <div class="table-responsive user-table-wrapper mb-4">
+  <!-- Mode TABLEAU -->
+  <div *ngIf="displayMode === 'table'" class="table-responsive user-table-wrapper mb-4">
     <table class="table user-table table-hover align-middle">
       <thead class="table-light">
-  <tr>
-    <th>Nom</th>
-    <th>Username</th>
-    <th>Rôle</th>
-    <th>Partenaire</th>
-    <th>Status</th> <!-- New Status column -->
-    <th class="text-center">Actions</th>
-  </tr>
-</thead>
-<tbody>
-  <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-    <td>
-      <span class="user-name fw-semibold"><a title="Détails" [routerLink]="['/user', user.id]" >
- {{ user.firstName }} {{ user.lastName }}</a></span>
-</td>
-    <td>{{ user.username }}</td>
-    <td><span class="user-role-badge badge bg-primary text-white">{{ user.role?.name || user.role }}</span></td>
-    <td>{{ user.partner?.name || '-' }}</td>
-
-    <!-- Status column with colored rectangle -->
-    <td class="text-center">
-    <div 
-    class="status-toggle" 
-    [class.active]="user.accountStatus === 'active'" 
-    (click)="toggleUserStatus(user)" 
-    title="Cliquez pour changer le statut">
-    <span class="toggle-text">
-      {{ user.accountStatus === 'active' ? 'Active' : 'Inactive' }}
-    </span>
-  </div>
-</td>
-
-
-
-    <td class="actions-cell text-center flex justify-content-center gap-2">
-      <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editUser(user)" title="Modifier">
-        <i class="fas fa-edit"></i>
-      </button>
-      <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="deleteUser(user)" title="Supprimer">
-        <i class="fas fa-trash-alt"></i>
-      </button>
-      <button class="btn btn-sm btn-warning action-btn password-btn" (click)="editUserPassword(user)" title="Mot de passe">
-        <i class="fas fa-key"></i>
-      </button>
-    </td>
-  </tr>
-</tbody>
-
+        <tr>
+          <th>Nom</th>
+          <th>Username</th>
+          <th>Rôle</th>
+          <th>Partenaire</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+          <td>
+            <span class="user-name fw-semibold">
+              <a title="Détails" [routerLink]="['/user', user.id]">
+                {{ user.firstName }} {{ user.lastName }}
+              </a>
+            </span>
+          </td>
+          <td>{{ user.username }}</td>
+          <td><span class="user-role-badge badge bg-primary text-white">{{ user.role?.name || user.role }}</span></td>
+          <td>{{ user.partner?.name || '-' }}</td>
+          <td class="text-center">
+            <div 
+              class="status-toggle" 
+              [class.active]="user.accountStatus === 'active'" 
+              (click)="toggleUserStatus(user)" 
+              title="Cliquez pour changer le statut"
+              style="cursor:pointer; user-select:none; width: 80px; border-radius: 12px; padding: 4px; background-color: #eee; margin: auto;"
+            >
+              <span class="toggle-text">
+                {{ user.accountStatus === 'active' ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </td>
+          <td class="actions-cell text-center d-flex justify-content-center gap-2">
+            <button class="btn btn-sm btn-success action-btn edit-btn" (click)="editUser(user)" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger action-btn delete-btn" (click)="deleteUser(user)" title="Supprimer">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-warning action-btn password-btn" (click)="editUserPassword(user)" title="Mot de passe">
+              <i class="fas fa-key"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
-  <!-- Pagination -->
-  <div class="pagination-wrapper d-flex justify-content-center">
+  <!-- Mode GRILLE -->
+  <div *ngIf="displayMode === 'grid'" class="row g-3">
+    <div class="col-xl-3 col-sm-6" *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="avatar-sm mx-auto mb-4" *ngIf="!user.image">
+            <span class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-16">
+              {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+            </span>
+          </div>
+          <div *ngIf="user.image" class="mb-4">
+            <img class="rounded-circle avatar-sm" [src]="user.image" alt="User Image" />
+          </div>
+          <h5 class="font-size-15 mb-1">
+            <a [routerLink]="['/user', user.id]" class="text-dark" title="Détails">
+              {{ user.firstName }} {{ user.lastName }}
+            </a>
+          </h5>
+          <p class="text-muted">{{ user.role?.name || user.role }}</p>
+          <p class="text-muted"><small>{{ user.partner?.name || '-' }}</small></p>
+
+          <div class="mb-3">
+            <div 
+              class="status-toggle mx-auto" 
+              [class.active]="user.accountStatus === 'active'" 
+              (click)="toggleUserStatus(user)" 
+              title="Cliquez pour changer le statut" 
+              style="cursor:pointer; width: 80px; border-radius: 12px; padding: 4px; user-select:none; background-color: #eee;"
+            >
+              <span class="toggle-text">{{ user.accountStatus === 'active' ? 'Active' : 'Inactive' }}</span>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-sm btn-success" (click)="editUser(user)" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteUser(user)" title="Supprimer">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-warning" (click)="editUserPassword(user)" title="Mot de passe">
+              <i class="fas fa-key"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination commune -->
+  <div class="pagination-wrapper d-flex justify-content-center mt-3">
     <pagination-controls
       (pageChange)="p = $event"
       previousLabel="Précédent"

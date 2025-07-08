@@ -25,6 +25,8 @@ export class ListPartnerComponent implements OnInit {
     { label: 'Accueil', active: false },
     { label: 'Partenaires', active: true }
   ];
+  displayMode: 'table' | 'grid' = 'grid';
+
 
   constructor(
     private partnersService: PartnersService,
@@ -176,4 +178,8 @@ export class ListPartnerComponent implements OnInit {
   navigateToAddPartner(): void {
     this.router.navigate(['/add-partner']);
   }
+
+  setDisplayMode(mode: 'table' | 'grid') {
+  this.displayMode = mode;
+}
 }

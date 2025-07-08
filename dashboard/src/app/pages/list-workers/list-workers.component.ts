@@ -24,6 +24,7 @@ export class ListWorkersComponent implements OnInit {
     { label: 'Accueil', active: false },
     { label: 'Employés', active: true }
   ];
+displayMode: 'table' | 'grid' = 'grid';
 
 
   constructor(
@@ -198,4 +199,7 @@ export class ListWorkersComponent implements OnInit {
       }
     });
   }
+  setDisplayMode(mode: 'table' | 'grid') {
+  this.displayMode = mode;
+}
 }
