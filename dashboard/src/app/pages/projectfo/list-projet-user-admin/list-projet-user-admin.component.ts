@@ -30,6 +30,8 @@ export class ListProjetUserAdminComponent {
   itemsPerPage: number = 3;
   user: User | null = null;
   errorMessage: string;
+  displayMode: 'table' | 'grid' = 'grid'; // par défaut en mode tableau
+
   constructor(private router: Router, private orderservice: OrderServiceService,
         private userStateService: UserStateService, 
     private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
@@ -202,4 +204,8 @@ this.userStateService.user$.subscribe(user => {
     const drfWithoutTime = new Date(new Date(drf).getFullYear(), new Date(drf).getMonth(), new Date(drf).getDate());
     return dfWithoutTime < drfWithoutTime;
   }
+
+  setDisplayMode(mode: 'table' | 'grid') {
+  this.displayMode = mode;
+}
 }

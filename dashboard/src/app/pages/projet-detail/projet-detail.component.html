@@ -1,692 +1,203 @@
-<div class="container py-4">
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <div>Chargement du projet...</div>
-  </div>
+<div class="container py-4" *ngIf="project">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Détail du projet : {{ project.refProdelec }}</h2>
+        </div>
+        <div class="card-body">
 
-  <div *ngIf="errorMessage" class="alert alert-danger my-4">
-    {{ errorMessage }}
-  </div>
+          <!-- Informations générales -->
+          <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item"><strong>Client :</strong> {{ project.order?.user?.username }}</li>
+            <li class="list-group-item"><strong>Date Réception BC :</strong> {{ project.order?.createdAt | date:'yyyy-MM-dd' }}</li>
+            <li class="list-group-item"><strong>N° BC :</strong> {{ project.order?.orderName }}</li>
+            <li class="list-group-item"><strong>Réf. Client :</strong> {{ project.refClient }}</li>
+            <li class="list-group-item"><strong>Quantité :</strong> {{ project.qte }}</li>
+            <li class="list-group-item">
+              <strong>Date de livraison prévue :</strong> 
+              <span [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
+                {{ project.dlp | date:'yyyy-MM-dd' }}
+              </span>
+            </li>
+            <li class="list-group-item"><strong>Durée :</strong> {{ project.duree }} heures</li>
+            <li class="list-group-item"><strong>Date de création :</strong> {{ project.createdAt | date:'yyyy-MM-dd HH:mm' }}</li>
+            <li class="list-group-item"><strong>Date de mise à jour :</strong> {{ project.updatedAt | date:'yyyy-MM-dd HH:mm' }}</li>
+          </ul>
 
-  <div *ngIf="project" class="card shadow-lg">
-    <div class="card-header bg-primary text-white">
-      <h2 class="mb-0">Détail du projet : {{ project.refProdelec }}</h2>
-    </div>
-    <div class="card-body">
-      <ul class="list-group list-group-flush mb-4">
-        <li class="list-group-item"><strong>Client :</strong> {{ project.order?.user?.username }}</li>
-        <li class="list-group-item"><strong>Date Réception BC :</strong> {{ project.order?.createdAt | date:'yyyy-MM-dd' }}</li>
-        <li class="list-group-item"><strong>N° BC :</strong> {{ project.order?.orderName }}</li>
-        <li class="list-group-item"><strong>Réf. Client :</strong> {{ project.refClient }}</li>
-        <li class="list-group-item"><strong>Quantité :</strong> {{ project.qte }}</li>
-        <li class="list-group-item"><strong>Date de livraison prévue :</strong> 
-          <span [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
-            {{project.dlp | date:'yyyy-MM-dd'}}
-          </span>
-        </li>
-        <li class="list-group-item"><strong>Durée :</strong> {{project.duree}} heures</li>
-        <li class="list-group-item"><strong>Date de création :</strong> {{project.createdAt | date:'yyyy-MM-dd HH:mm'}}</li>
-        <li class="list-group-item"><strong>Date de mise à jour :</strong> {{project.updatedAt | date:'yyyy-MM-dd HH:mm'}}</li>
-      </ul>
+          <!-- Progressions détaillées -->
+          <div class="row gy-3 mb-4">
 
-      <!-- Progressions -->
-      <div class="row gy-3 mb-4">
-  <!-- Conception -->
-  <div class="col-md-6">
-  <div class="mb-2 d-flex align-items-center justify-content-between">
-    <span>
-      <!-- Affiche le badge seulement si conceptionprogress > 0 -->
-      <span *ngIf="project.conceptionprogress > 0" class="badge" [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
-        {{ project.conceptionStatus ? 'Conception : Terminé' : 'Conception : En cours' }}
-      </span>
-      <!-- Badge "En retard" -->
-      <span *ngIf="isDateOverdue1(project.endConception, project.realendConception)" class="badge bg-warning ms-2">En retard</span>
-    </span>
-    <span>{{ project.conceptionprogress }}%</span>
-  </div>
+            <!-- Fonction pour afficher chaque étape -->
+            <ng-container *ngFor="let step of ['conception', 'methode', 'production', 'finalControl', 'delivery']">
+              <div class="col-md-6" [ngSwitch]="step">
 
-  <div class="progress mb-1" style="height: 20px;">
-    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.conceptionprogress + '%'"
-      [attr.aria-valuenow]="project.conceptionprogress" aria-valuemin="0" aria-valuemax="100">
-      {{ project.conceptionprogress.toFixed(2) }}%
-    </div>
-  </div>
-
-  <input 
-    *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id === userr.id) || userr.role?.name === 'SUBADMIN'"
-    aria-label="Progression conception"
-    type="range" min="0" max="100" [value]="project.conceptionprogress"
-    (input)="updateConceptionProgress(project, $event)" class="form-range" />
-
-  <div class="d-flex justify-content-center">
-    <button class="btn detail-custom" (click)="openDetailsconsModal(project)">
-      <i class="bx bxs-detail" style="font-size: medium;"></i>
-    </button>
-  </div>
-</div>
-
-
-  <!-- Méthode -->
-  <div class="col-md-6">
-  <div class="mb-2 d-flex align-items-center justify-content-between">
-    <span>
-      <!-- Affiche le badge seulement si methodeprogress > 0 -->
-      <span *ngIf="project.methodeprogress > 0" class="badge" [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
-        {{ project.methodeStatus ? 'Méthode : Terminé' : 'Méthode : En cours' }}
-      </span>
-      <!-- Badge "En retard" -->
-      <span *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)" class="badge bg-warning ms-2">En retard</span>
-    </span>
-    <span>{{ project.methodeprogress.toFixed(2) }}%</span>
-  </div>
-
-  <div class="progress mb-1" style="height: 20px;">
-    <div class="progress-bar bg-info" role="progressbar" 
-         [style.width]="project.methodeprogress + '%'"
-         [attr.aria-valuenow]="project.methodeprogress" 
-         aria-valuemin="0" aria-valuemax="100">
-      {{ project.methodeprogress.toFixed(2) }}%
-    </div>
-  </div>
-
-  <input 
-    *ngIf="(userr && project.methodeResponsible && userr.id === project.methodeResponsible.id) || userr.role?.name === 'SUBADMIN'"
-    aria-label="Progression méthode"
-    type="range" min="0" max="100" [value]="project.methodeprogress"
-    (input)="updatemProgress(project, $event)" class="form-range" />
-
-  <div class="d-flex justify-content-center">
-    <button class="btn detail-custom" (click)="openDetailsmetModal(project)">
-      <i class="bx bxs-detail" style="font-size: medium;"></i>
-    </button>
-  </div>
-</div>
-
-
-  <!-- Production -->
-  <div class="col-md-6">
-  <div class="mb-2 d-flex align-items-center justify-content-between">
-    <span>
-      <!-- Affiche le badge seulement si productionprogress > 0 -->
-      <span *ngIf="project.productionprogress > 0" class="badge" [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
-        {{ project.productionStatus ? 'Production : Terminé' : 'Production : En cours' }}
-      </span>
-      <!-- Badge "En retard" -->
-      <span *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)" class="badge bg-warning ms-2">En retard</span>
-    </span>
-    <span>{{ project.productionprogress.toFixed(2) }}%</span>
-  </div>
-
-  <div class="progress mb-1" style="height: 20px;">
-    <div class="progress-bar bg-info" role="progressbar" 
-         [style.width]="project.productionprogress + '%'" 
-         [attr.aria-valuenow]="project.productionprogress" 
-         aria-valuemin="0" aria-valuemax="100">
-      {{ project.productionprogress.toFixed(2) }}%
-    </div>
-  </div>
-
-  <input 
-    *ngIf="(userr && project.productionResponsible && userr.id === project.productionResponsible.id) || userr.role?.name === 'SUBADMIN'"
-    aria-label="Progression production"
-    type="range" min="0" max="100" [value]="project.productionprogress"
-    (input)="updatepProgress(project, $event)" class="form-range" />
-
-  <div class="d-flex justify-content-center">
-    <button class="btn detail-custom" (click)="openDetailsprodModal(project)">
-      <i class="bx bxs-detail" style="font-size: medium;"></i>
-    </button>
-  </div>
-</div>
-
-
-  <!-- Contrôle final -->
-  <div class="col-md-6">
-  <div class="mb-2 d-flex align-items-center justify-content-between">
-    <span>
-      <!-- Affiche le badge seulement si fcprogress > 0 -->
-      <span *ngIf="project.fcprogress > 0" class="badge" [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
-        {{ project.finalControlStatus ? 'Contrôle final : Terminé' : 'Contrôle final : En cours' }}
-      </span>
-      <!-- Badge "En retard" -->
-      <span *ngIf="isDateOverdue1(project.endFc, project.realendFc)" class="badge bg-warning ms-2">En retard</span>
-    </span>
-    <span>{{ project.fcprogress.toFixed(2) }}%</span>
-  </div>
-
-  <div class="progress mb-1" style="height: 20px;">
-    <div class="progress-bar bg-info" role="progressbar" 
-         [style.width]="project.fcprogress + '%'" 
-         [attr.aria-valuenow]="project.fcprogress" 
-         aria-valuemin="0" aria-valuemax="100">
-      {{ project.fcprogress.toFixed(2) }}%
-    </div>
-  </div>
-
-  <input 
-    *ngIf="(userr && project.finalControlResponsible && userr.id === project.finalControlResponsible.id) || userr.role?.name === 'SUBADMIN'"
-    aria-label="Progression contrôle final"
-    type="range" min="0" max="100" [value]="project.fcprogress"
-    (input)="updatefcProgress(project, $event)" class="form-range" />
-
-  <div class="d-flex justify-content-center">
-    <button class="btn detail-custom" (click)="openDetailsfcModal(project)">
-      <i class="bx bxs-detail" style="font-size: medium;"></i>
-    </button>
-  </div>
-</div>
-
-
-  <!-- Livraison -->
-  <div class="col-md-6">
-  <div class="mb-2 d-flex align-items-center justify-content-between">
-    <span>
-      <!-- Affiche le badge seulement si deliveryprogress > 0 -->
-      <span *ngIf="project.deliveryprogress > 0" class="badge" [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
-        {{ project.deliveryStatus ? 'Livraison : Terminé' : 'Livraison : En cours' }}
-      </span>
-      <!-- Badge "En retard" -->
-      <span *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)" class="badge bg-warning ms-2">En retard</span>
-    </span>
-    <span>{{ project.deliveryprogress.toFixed(2) }}%</span>
-  </div>
-
-  <div class="progress mb-1" style="height: 20px;">
-    <div class="progress-bar bg-info" role="progressbar" 
-         [style.width]="project.deliveryprogress + '%'" 
-         [attr.aria-valuenow]="project.deliveryprogress" 
-         aria-valuemin="0" aria-valuemax="100">
-      {{ project.deliveryprogress.toFixed(2) }}%
-    </div>
-  </div>
-
-  <input 
-    *ngIf="(userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'"
-    aria-label="Progression livraison"
-    type="range" min="0" max="100" [value]="project.deliveryprogress"
-    (input)="updatedProgress(project, $event)" class="form-range" />
-
-  <div class="d-flex justify-content-center">
-    <button class="btn detail-custom" (click)="openDetailsdelModal(project)">
-      <i class="bx bxs-detail" style="font-size: medium;"></i>
-    </button>
-  </div>
-</div>
-
-
-  <!-- Progression totale -->
-  <div class="col-md-6">
-    <div class="mb-2 d-flex align-items-center justify-content-between">
-      <span class="fw-bold">Progression totale</span>
-      <span>{{ project.progress.toFixed(2) }}%</span>
-    </div>
-    <div class="progress" style="height: 20px;">
-      <div class="progress-bar bg-primary" role="progressbar" [style.width]="project.progress + '%'"
-        [attr.aria-valuenow]="project.progress" aria-valuemin="0" aria-valuemax="100">
-        {{ project.progress.toFixed(2) }}%
-      </div>
-    </div>
-  </div>
-</div>
-
-
-      <!-- Actions -->
-      <div class="d-flex flex-wrap gap-2 mt-4">
-        <button class="btn btn-primary" (click)="editModal(project.idproject)">
-          <i class="mdi mdi-pencil"></i> Modifier
-        </button>
-        <button class="btn btn-danger" (click)="delete(project.idproject)">
-          <i class="mdi mdi-delete"></i> Supprimer
-        </button>
-        <button class="btn btn-warning" (click)="archive(project.idproject)">
-          <i class="mdi mdi-archive"></i> Archiver
-        </button>
-        <button class="btn btn-success" (click)="addModal(project)">
-          <i class="mdi mdi-plus"></i> Dupliquer
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div bsModal #showModala="bs-modal" class="modal fade" id="showModala" tabindex="-1" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Ajouter projet</h5>
-        <button type="button" class="btn-close" id="close-modal" (click)="showModala.hide()"></button>
-      </div>
-      <div class="modal-body">
-        <form (ngSubmit)="addproject()" [formGroup]="projectsForm" class="needs-validation createorder-form"
-          id="createorder-form" novalidate>
-          <div class="row">
-            <div class="col-lg-12">
-              <input type="hidden" class="form-control" id="orderid-input">
-              <div class="mb-3">
-                <label for="payamount-input" class="form-label">Quantité</label>
-                <input type="number" id="customername-field" class="form-control" required formControlName="qte" />
-              </div>
-              <div class="mb-3">
-                <label for="orderdate-input" class="form-label">Date de livraison prévue</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp">
-              </div>
-
-            </div>
-            <div class="row">
-              <div class="col-lg-12">
-                <div class="card shadow-lg">
-                  <div class="card-header">
-                    Conception
+                <!-- Conception -->
+                <div *ngSwitchCase="'conception'">
+                  <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <span>
+                      <span *ngIf="project.conceptionprogress > 0" class="badge" [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
+                        {{ project.conceptionStatus ? 'Conception : Terminé' : 'Conception : En cours' }}
+                      </span>
+                      <span *ngIf="isDateOverdue1(project.endConception, project.realendConception)" class="badge bg-warning ms-2">En retard</span>
+                    </span>
+                    <span>{{ project.conceptionprogress.toFixed(2) }}%</span>
                   </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-lg-4">
-                        <div class="mb-3">
-                          <label for="paystatus-input" class="form-label">Durée</label>
-                          <input type="number" id="customername-field" class="form-control" required
-                            formControlName="drc" />
-                        </div>
-                      </div>
-                      <div class="col-lg-4">
-                        <div class="mb-3">
-                          <label for="paymethod-input" class="form-label">Pilote</label>
-                          <select class="form-control" name="payment-method" id="paymethod-input" formControlName="rc">
-                            <option> </option>
-                            <option *ngFor="let dt of listr">{{ dt.username }}</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-lg-4">
-                        <div class="mb-3">
-                          <label for="paystatus-input" class="form-label">Commentaire</label>
-                          <textarea id="customername-field" class="form-control" required
-                            formControlName="cdc"></textarea>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-lg-6">
-                          <div class="mb-3">
-                            <label for="orderdate-input" class="form-label">Début</label>
-                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc">
-                          </div>
-
-                        </div>
-
-                        <div class="col-lg-6">
-                          <div class="mb-3">
-                            <label for="orderdate-input" class="form-label">Fin</label>
-                            <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc">
-                          </div>
-
-                        </div>
-
-                      </div>
+                  <div class="progress mb-1" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.conceptionprogress + '%'" aria-valuenow="{{project.conceptionprogress}}" aria-valuemin="0" aria-valuemax="100">
+                      {{ project.conceptionprogress.toFixed(2) }}%
                     </div>
+                  </div>
+                  <input *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id === userr.id) || userr.role?.name === 'SUBADMIN'"
+                         type="range" min="0" max="100" [value]="project.conceptionprogress"
+                         (input)="updateConceptionProgress(project, $event)" class="form-range" aria-label="Progression conception" />
+                  <div class="d-flex justify-content-center">
+                    <button class="btn detail-custom" (click)="openDetailsconsModal(project)">
+                      <i class="bx bxs-detail" style="font-size: medium;"></i>
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-12">
-                  <div class="card shadow-lg">
-                    <div class="card-header">
-                      Methode
+
+                <!-- Méthode -->
+                <div *ngSwitchCase="'methode'">
+                  <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <span>
+                      <span *ngIf="project.methodeprogress > 0" class="badge" [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
+                        {{ project.methodeStatus ? 'Méthode : Terminé' : 'Méthode : En cours' }}
+                      </span>
+                      <span *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)" class="badge bg-warning ms-2">En retard</span>
+                    </span>
+                    <span>{{ project.methodeprogress.toFixed(2) }}%</span>
+                  </div>
+                  <div class="progress mb-1" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.methodeprogress + '%'" aria-valuenow="{{project.methodeprogress}}" aria-valuemin="0" aria-valuemax="100">
+                      {{ project.methodeprogress.toFixed(2) }}%
                     </div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-lg-4">
-                          <div class="mb-3">
-                            <label for="paystatus-input" class="form-label">Durée</label>
-                            <input type="number" id="customername-field" class="form-control" required
-                              formControlName="drm" />
-                          </div>
-                        </div>
-
-
-                        <div class="col-lg-4">
-                          <div class="mb-3">
-                            <label for="paymethod-input" class="form-label">Pilote</label>
-                            <select class="form-control" name="payment-method" id="paymethod-input"
-                              formControlName="rm">
-                              <option> </option>
-                              <option *ngFor="let dt of listr">{{ dt.username }}</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-lg-4">
-                          <div class="mb-3">
-                            <label for="paystatus-input" class="form-label">Commentaire</label>
-                            <textarea id="customername-field" class="form-control" required
-                              formControlName="cdm"></textarea>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-lg-6">
-                            <div class="mb-3">
-                              <label for="orderdate-input" class="form-label">Début</label>
-                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm">
-                            </div>
-
-                          </div>
-
-                          <div class="col-lg-6">
-                            <div class="mb-3">
-                              <label for="orderdate-input" class="form-label">Fin</label>
-                              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm">
-                            </div>
-
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
+                  </div>
+                  <input *ngIf="(userr && project.methodeResponsible && userr.id === project.methodeResponsible.id) || userr.role?.name === 'SUBADMIN'"
+                         type="range" min="0" max="100" [value]="project.methodeprogress"
+                         (input)="updatemProgress(project, $event)" class="form-range" aria-label="Progression méthode" />
+                  <div class="d-flex justify-content-center">
+                    <button class="btn detail-custom" (click)="openDetailsmetModal(project)">
+                      <i class="bx bxs-detail" style="font-size: medium;"></i>
+                    </button>
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <div class="card shadow-lg">
-                      <div class="card-header">
-                        Production
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="col-lg-4">
-                            <div class="mb-3">
-                              <label for="paystatus-input" class="form-label">Durée</label>
-                              <input type="number" id="customername-field" class="form-control" required
-                                formControlName="drp" />
-                            </div>
-                          </div>
 
-                          <div class="col-lg-4">
-                            <div class="mb-3">
-                              <label for="paymethod-input" class="form-label">Pilote</label>
-                              <select class="form-control" name="payment-method" id="paymethod-input"
-                                formControlName="rp">
-                                <option> </option>
-                                <option *ngFor="let dt of listr">{{ dt.username }}</option>
-                              </select>
-                            </div>
-                          </div>
-                          <div class="col-lg-4">
-                            <div class="mb-3">
-                              <label for="paystatus-input" class="form-label">Commentaire</label>
-                              <textarea id="customername-field" class="form-control" required
-                                formControlName="cdp"></textarea>
-                            </div>
-                          </div>
-                          <div class="row">
-                            <div class="col-lg-6">
-                              <div class="mb-3">
-                                <label for="orderdate-input" class="form-label">Début</label>
-                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp">
-                              </div>
-
-                            </div>
-
-                            <div class="col-lg-6">
-                              <div class="mb-3">
-                                <label for="orderdate-input" class="form-label">Fin</label>
-                                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp">
-                              </div>
-
-                            </div>
-
-                          </div>
-                        </div>
-                      </div>
+                <!-- Production -->
+                <div *ngSwitchCase="'production'">
+                  <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <span>
+                      <span *ngIf="project.productionprogress > 0" class="badge" [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
+                        {{ project.productionStatus ? 'Production : Terminé' : 'Production : En cours' }}
+                      </span>
+                      <span *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)" class="badge bg-warning ms-2">En retard</span>
+                    </span>
+                    <span>{{ project.productionprogress.toFixed(2) }}%</span>
+                  </div>
+                  <div class="progress mb-1" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.productionprogress + '%'" aria-valuenow="{{project.productionprogress}}" aria-valuemin="0" aria-valuemax="100">
+                      {{ project.productionprogress.toFixed(2) }}%
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <div class="card shadow-lg">
-                        <div class="card-header">
-                          Controle finale
-                        </div>
-                        <div class="card-body">
-                          <div class="row">
-                            <div class="col-lg-4">
-                              <div class="mb-3">
-                                <label for="paystatus-input" class="form-label">Durée</label>
-                                <input type="number" id="customername-field" class="form-control" required
-                                  formControlName="drcf" />
-                              </div>
-                            </div>
+                  <input *ngIf="(userr && project.productionResponsible && userr.id === project.productionResponsible.id) || userr.role?.name === 'SUBADMIN'"
+                         type="range" min="0" max="100" [value]="project.productionprogress"
+                         (input)="updatepProgress(project, $event)" class="form-range" aria-label="Progression production" />
+                  <div class="d-flex justify-content-center">
+                    <button class="btn detail-custom" (click)="openDetailsprodModal(project)">
+                      <i class="bx bxs-detail" style="font-size: medium;"></i>
+                    </button>
+                  </div>
+                </div>
 
-                            <div class="col-lg-4">
-                              <div class="mb-3">
-                                <label for="paymethod-input" class="form-label">Pilote</label>
-                                <select class="form-control" name="payment-method" id="paymethod-input"
-                                  formControlName="rcf">
-                                  <option> </option>
-                                  <option *ngFor="let dt of listr">{{ dt.username }}</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="col-lg-4">
-                              <div class="mb-3">
-                                <label for="paystatus-input" class="form-label">Commentaire</label>
-                                <textarea id="customername-field" class="form-control" required
-                                  formControlName="cdcf"></textarea>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-6">
-                                <div class="mb-3">
-                                  <label for="orderdate-input" class="form-label">Début</label>
-                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
-                                    formControlName="dcf">
-                                </div>
-
-                              </div>
-
-                              <div class="col-lg-6">
-                                <div class="mb-3">
-                                  <label for="orderdate-input" class="form-label">Fin</label>
-                                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd"
-                                    formControlName="fcf">
-                                </div>
-
-                              </div>
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-lg-12">
-                        <div class="card shadow-lg">
-                          <div class="card-header">
-                            Livraison
-                          </div>
-                          <div class="card-body">
-                            <div class="row">
-                              <div class="col-lg-4">
-                                <div class="mb-3">
-                                  <label for="paystatus-input" class="form-label">Durée</label>
-                                  <input type="number" id="customername-field" class="form-control" required
-                                    formControlName="drl" />
-                                </div>
-                              </div>
-
-                              <div class="col-lg-4">
-                                <div class="mb-3">
-                                  <label for="paymethod-input" class="form-label">Pilote</label>
-                                  <select class="form-control" name="payment-method" id="paymethod-input"
-                                    formControlName="rl">
-                                    <option> </option>
-                                    <option *ngFor="let dt of listr">{{ dt.username }}</option>
-                                  </select>
-                                </div>
-                              </div>
-                              <div class="col-lg-4">
-                                <div class="mb-3">
-                                  <label for="paystatus-input" class="form-label">Commentaire</label>
-                                  <textarea id="customername-field" class="form-control" required
-                                    formControlName="cdl"></textarea>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col-lg-6">
-                                <div class="mb-3">
-                                  <label for="orderdate-input" class="form-label">Début</label>
-                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl">
-                                </div>
-
-                              </div>
-
-                              <div class="col-lg-6">
-                                <div class="mb-3">
-                                  <label for="orderdate-input" class="form-label">Fin</label>
-                                  <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl">
-                                </div>
-
-                              </div>
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                <!-- Contrôle final -->
+                <div *ngSwitchCase="'finalControl'">
+                  <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <span>
+                      <span *ngIf="project.fcprogress > 0" class="badge" [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
+                        {{ project.finalControlStatus ? 'Contrôle final : Terminé' : 'Contrôle final : En cours' }}
+                      </span>
+                      <span *ngIf="isDateOverdue1(project.endFc, project.realendFc)" class="badge bg-warning ms-2">En retard</span>
+                    </span>
+                    <span>{{ project.fcprogress.toFixed(2) }}%</span>
+                  </div>
+                  <div class="progress mb-1" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.fcprogress + '%'" aria-valuenow="{{project.fcprogress}}" aria-valuemin="0" aria-valuemax="100">
+                      {{ project.fcprogress.toFixed(2) }}%
                     </div>
                   </div>
+                  <input *ngIf="(userr && project.finalControlResponsible && userr.id === project.finalControlResponsible.id) || userr.role?.name === 'SUBADMIN'"
+                         type="range" min="0" max="100" [value]="project.fcprogress"
+                         (input)="updatefcProgress(project, $event)" class="form-range" aria-label="Progression contrôle final" />
+                  <div class="d-flex justify-content-center">
+                    <button class="btn detail-custom" (click)="openDetailsfcModal(project)">
+                      <i class="bx bxs-detail" style="font-size: medium;"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Livraison -->
+                <div *ngSwitchCase="'delivery'">
+                  <div class="mb-2 d-flex align-items-center justify-content-between">
+                    <span>
+                      <span *ngIf="project.deliveryprogress > 0" class="badge" [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
+                        {{ project.deliveryStatus ? 'Livraison : Terminé' : 'Livraison : En cours' }}
+                      </span>
+                      <span *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)" class="badge bg-warning ms-2">En retard</span>
+                    </span>
+                    <span>{{ project.deliveryprogress.toFixed(2) }}%</span>
+                  </div>
+                  <div class="progress mb-1" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" [style.width]="project.deliveryprogress + '%'" aria-valuenow="{{project.deliveryprogress}}" aria-valuemin="0" aria-valuemax="100">
+                      {{ project.deliveryprogress.toFixed(2) }}%
+                    </div>
+                  </div>
+                  <input *ngIf="(userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'"
+                         type="range" min="0" max="100" [value]="project.deliveryprogress"
+                         (input)="updatedProgress(project, $event)" class="form-range" aria-label="Progression livraison" />
+                  <div class="d-flex justify-content-center">
+                    <button class="btn detail-custom" (click)="openDetailsdelModal(project)">
+                      <i class="bx bxs-detail" style="font-size: medium;"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </ng-container>
+
+            <!-- Progression totale -->
+            <div class="col-md-6">
+              <div class="mb-2 d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Progression totale</span>
+                <span>{{ project.progress.toFixed(2) }}%</span>
+              </div>
+              <div class="progress" style="height: 20px;">
+                <div class="progress-bar bg-primary" role="progressbar" [style.width]="project.progress + '%'" aria-valuenow="{{project.progress}}" aria-valuemin="0" aria-valuemax="100">
+                  {{ project.progress.toFixed(2) }}%
                 </div>
               </div>
             </div>
-            <div class="col-lg-12">
-              <div class="text-end">
-                <button type="button" class="btn btn-outline-secondary me-1" (click)="showModala.hide()">Cancel</button>
-                <button type="submit" id="addNewOrder-btn" class="btn btn-success">Ajouter</button>
-              </div>
-            </div>
+
           </div>
-        </form>
+
+          <!-- Actions -->
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-primary" (click)="editModal(project.idproject)">
+              <i class="mdi mdi-pencil"></i> Modifier
+            </button>
+            <button class="btn btn-danger" (click)="delete(project.idproject)">
+              <i class="mdi mdi-delete"></i> Supprimer
+            </button>
+            <button class="btn btn-warning" (click)="archive(project.idproject)">
+              <i class="mdi mdi-archive"></i> Archiver
+            </button>
+            <button class="btn btn-success" (click)="addModal(project)">
+              <i class="mdi mdi-plus"></i> Dupliquer
+            </button>
+          </div>
+
+        </div>
       </div>
-      <!-- end modal body -->
     </div>
   </div>
 </div>
-<!----------------------------------------------------------------->
-
-
-<ng-template #detailsconModal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">Détails</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <p class="mb-1" 
-              *ngIf="project2?.conceptionResponsible?.username">{{ project2.conceptionComment }}</p>
-            <p class="mb-1">Durée: {{project2.conceptionDuration }} heures</p>
-            <p class="mb-0" *ngIf="project2?.conceptionResponsible?.username">Pilote: {{ project2?.conceptionResponsible?.username }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Début: {{ project2.startConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Fin: {{ project2.endConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project2?.conceptionResponsible?.username">Fin réelle: {{ project2.realendConception| date:'yyyy-MM-dd'}}</p>
-      </div>
-    
-
-</ng-template>
-<!---------------------------------------------------------------------------------------------------------->
-<ng-template #detailsmetModal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">Détails</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.username">{{ project2.methodeComment }}</p>
-  <p class="mb-1" >
-    Durée: {{ project2.methodeDuration }} heures</p>
-  <p class="mb-0" 
-    *ngIf="project2?.methodeResponsible?.username">Pilote: {{ project2.methodeResponsible.username }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.username">Début: {{ project2.startMethode| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.username">Fin: {{ project2.endMethode| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.methodeResponsible?.username">Fin réelle: {{ project2.realendMethode| date:'yyyy-MM-dd' }}</p>
-      </div>
-    
-
-</ng-template>
-<!---------------------------------------------------------------------------------------------->
-<ng-template #detailsprodModal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">Détails</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.username">{{ project2.productionComment }}</p>
-            <p class="mb-1"
-              >Durée: {{
-              project2.productionDuration }} heures</p>
-            <p class="mb-0" 
-              *ngIf="project2?.productionResponsible?.username">Pilote: {{ project2.productionResponsible.username }}</p>
-            <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.username">Début: {{ project2.startProduction| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.username">Fin: {{ project2.endProduction| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" 
-              *ngIf="project2?.productionResponsible?.username">Fin réelle: {{ project2.realendProduction| date:'yyyy-MM-dd'
-              }}</p>
-      </div>
-    
-
-</ng-template>
-<!------------------------------------------------------------------------------------------------------->
-<ng-template #detailsfcModal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">Détails</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.username">{{ project2.finalControlComment }}</p>
-  <p class="mb-1" >Durée: {{
-    project2.finalControlDuration }} heures</p>
-  <p class="mb-0" 
-    *ngIf="project2?.finalControlResponsible?.username">Pilote: {{ project2.finalControlResponsible.username }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.username">Début: {{ project2.startFc| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.username">Fin: {{ project2.endFc| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.finalControlResponsible?.username">Fin réelle: {{ project2.realendFc| date:'yyyy-MM-dd' }}</p>
-      </div>
-    
-
-</ng-template>
-
-<!----------------------------------------------------------------------------------------------->
-<ng-template #detailsdelModal>
-
-  <div class="modal-header">
-    <h5 class="modal-title">Détails</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.username">{{ project2.deliveryComment }}</p>
-  <p class="mb-1" >
-    Durée: {{ project2.deliveryDuration }} heures</p>
-  <p class="mb-0" 
-    *ngIf="project2?.deliveryResponsible?.username">Pilote: {{ project2.deliveryResponsible.username }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.username">Début: {{ project2.startDelivery| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.username">Fin: {{ project2.endDelivery| date:'yyyy-MM-dd' }}</p>
-  <p class="mb-1" 
-    *ngIf="project2?.deliveryResponsible?.username">Fin réelle: {{ project2.realendDelivery| date:'yyyy-MM-dd' }}
-  </p>
-      </div>
-    
-
-</ng-template>

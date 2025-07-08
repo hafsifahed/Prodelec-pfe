@@ -1,8 +1,6 @@
 <div class="container-fluid">
   <app-page-title title="Projets"></app-page-title>
 
-
-
   <div class="row mb-4">
     <div class="d-flex justify-content-between align-items-end w-100">
       <div class="d-flex flex-column col-sm-12 col-md-2">
@@ -12,7 +10,6 @@
         </select>
       </div>
       <div class="d-flex flex-column col-sm-12 col-md-4">
-
         <div class="search-box me-2 mb-2 d-inline-block">
           <div class="position-relative">
             <input type="text" class="form-control" autocomplete="off" id="searchTableList"
@@ -21,17 +18,24 @@
           </div>
         </div>
       </div>
-      <div class="d-flex justify-content-end col-sm-12 col-md-4">
-
-        <button class="btn btn-success" routerLink="/archiveprojectadmin">Voir l'archive</button>
-
+      <div class="d-flex justify-content-end col-sm-12 col-md-4 align-items-center">
+        <button class="btn btn-success me-3" routerLink="/archiveprojectadmin">Voir l'archive</button>
+        <!-- Boutons de mode d'affichage -->
+        <div class="btn-group" role="group" aria-label="Mode d'affichage">
+          <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'table'" (click)="setDisplayMode('table')">
+            <i class="mdi mdi-table"></i> Tableau
+          </button>
+          <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'grid'" (click)="setDisplayMode('grid')">
+            <i class="mdi mdi-view-grid"></i> Grille
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
 
   <!-- Table data -->
-  <div class="table-responsive mb-0">
+  <div *ngIf="displayMode === 'table'" class="table-responsive mb-0">
     <table class="table align-middle table-nowrap dt-responsive nowrap w-100 table-check" id="project-list">
       <thead class="table-light">
         <tr>
@@ -306,7 +310,141 @@
   </div>
 
 
-  <div class="pagination-container">
+   <!-- Affichage GRILLE -->
+  <div *ngIf="displayMode === 'grid'" class="row g-3">
+  <div class="col-md-4" *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+    <div class="card h-100 shadow-sm position-relative">
+      <div class="card-body">
+        <h5 class="card-title mb-2">{{ project.refProdelec }}</h5>
+        <p><strong>Client :</strong> {{ project.order.user.username }}</p>
+        <p><strong>Date Réception BC :</strong> {{ project.order.createdAt | date:'yyyy-MM-dd' }}</p>
+        <p><strong>N° BC :</strong> {{ project.order.orderName }}</p>
+        <p><strong>Réf. Client :</strong> {{ project.refClient }}</p>
+        <p><strong>Quantité :</strong> {{ project.qte }}</p>
+        <p><strong>Date de livraison prévue :</strong> 
+          <span [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
+            {{project.dlp | date:'yyyy-MM-dd'}}
+          </span>
+        </p>
+        <p><strong>Durée :</strong> {{project.duree}} heures</p>
+        <p><strong>Date de création :</strong> {{project.createdAt | date:'yyyy-MM-dd HH:mm'}}</p>
+        <p><strong>Date de mise à jour :</strong> {{project.updatedAt | date:'yyyy-MM-dd HH:mm'}}</p>
+
+        <!-- Progressions et sliders (conception, méthode, production, contrôle final, livraison) -->
+        <!-- Conception -->
+        <p>
+          <strong>Conception :</strong>
+          <span *ngIf="project.conceptionprogress > 0" class="badge" [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
+            {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
+          </span>
+          <span class="badge bg-warning ms-2" *ngIf="isDateOverdue1(project.endConception, project.realendConception)">En retard</span>
+        </p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar" role="progressbar" [style.width]="project.conceptionprogress + '%'" aria-valuenow="{{project.conceptionprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <input 
+          *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id === userr.id) || userr.role?.name === 'SUBADMIN'"
+          type="range" min="0" max="100" [value]="project.conceptionprogress"
+          (input)="updateConceptionProgress(project, $event)" class="form-range" aria-label="Progression conception" />
+
+        <!-- Méthode -->
+        <p>
+          <strong>Méthode :</strong>
+          <span *ngIf="project.methodeprogress > 0" class="badge" [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
+            {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
+          </span>
+          <span class="badge bg-warning ms-2" *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)">En retard</span>
+        </p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar" role="progressbar" [style.width]="project.methodeprogress + '%'" aria-valuenow="{{project.methodeprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <input 
+          *ngIf="(userr && project.methodeResponsible && userr.id === project.methodeResponsible.id) || userr.role?.name === 'SUBADMIN'"
+          type="range" min="0" max="100" [value]="project.methodeprogress"
+          (input)="updatemProgress(project, $event)" class="form-range" aria-label="Progression méthode" />
+
+        <!-- Production -->
+        <p>
+          <strong>Production :</strong>
+          <span *ngIf="project.productionprogress > 0" class="badge" [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
+            {{ project.productionStatus ? 'Terminé' : 'En cours' }}
+          </span>
+          <span class="badge bg-warning ms-2" *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)">En retard</span>
+        </p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar" role="progressbar" [style.width]="project.productionprogress + '%'" aria-valuenow="{{project.productionprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <input 
+          *ngIf="(userr && project.productionResponsible && userr.id === project.productionResponsible.id) || userr.role?.name === 'SUBADMIN'"
+          type="range" min="0" max="100" [value]="project.productionprogress"
+          (input)="updatepProgress(project, $event)" class="form-range" aria-label="Progression production" />
+
+        <!-- Contrôle final -->
+        <p>
+          <strong>Contrôle final :</strong>
+          <span *ngIf="project.fcprogress > 0" class="badge" [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
+            {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
+          </span>
+          <span class="badge bg-warning ms-2" *ngIf="isDateOverdue1(project.endFc, project.realendFc)">En retard</span>
+        </p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar" role="progressbar" [style.width]="project.fcprogress + '%'" aria-valuenow="{{project.fcprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <input 
+          *ngIf="(userr && project.finalControlResponsible && userr.id === project.finalControlResponsible.id) || userr.role?.name === 'SUBADMIN'"
+          type="range" min="0" max="100" [value]="project.fcprogress"
+          (input)="updatefcProgress(project, $event)" class="form-range" aria-label="Progression contrôle final" />
+
+        <!-- Livraison -->
+        <p>
+          <strong>Livraison :</strong>
+          <span *ngIf="project.deliveryprogress > 0" class="badge" [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
+            {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
+          </span>
+          <span class="badge bg-warning ms-2" *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)">En retard</span>
+        </p>
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar" role="progressbar" [style.width]="project.deliveryprogress + '%'" aria-valuenow="{{project.deliveryprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <input 
+          *ngIf="(userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'"
+          type="range" min="0" max="100" [value]="project.deliveryprogress"
+          (input)="updatedProgress(project, $event)" class="form-range" aria-label="Progression livraison" />
+
+        <!-- Progression totale -->
+        <p><strong>Progression totale :</strong> {{ project.progress.toFixed(2) }}%</p>
+        <div class="progress mb-3" style="height: 12px;">
+          <div class="progress-bar bg-info" role="progressbar" [style.width]="project.progress + '%'" aria-valuenow="{{project.progress}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        <!-- Actions affichées directement -->
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <a href="javascript:void(0);" class="text-success" *ngIf="(userr && (project.conceptionResponsible?.id === userr.id || project.methodeResponsible?.id === userr.id || project.productionResponsible?.id === userr.id || project.finalControlResponsible?.id === userr.id || project.deliveryResponsible?.id === userr.id)) || userr.role?.name === 'SUBADMIN'" (click)="editModal(project.idproject)">
+            <i class="mdi mdi-pencil font-size-18"></i>
+          </a>
+          <a href="javascript:void(0);" class="text-danger" (click)="delete(project.idproject)">
+            <i class="mdi mdi-delete font-size-18"></i>
+          </a>
+          <a *ngIf="project.progress==100" href="javascript:void(0);" class="text-primary" (click)="archive(project.idproject)">
+            <i class="mdi mdi-archive font-size-18"></i>
+          </a>
+          <a [routerLink]="['/listproject', project.idproject]">
+            <i class="mdi mdi-information-outline font-size-18"></i> Voir détails
+          </a>
+          <button type="button" class="btn btn-success btn-rounded mb-2 me-2" (click)="addModal(project)">
+            <i class="mdi mdi-plus mr-1"></i> Dupliquer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  
+
+  <div class="pagination-container mt-3">
     <pagination-controls (pageChange)="p = $event"></pagination-controls>
   </div>
 </div>

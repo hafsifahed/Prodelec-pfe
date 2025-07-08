@@ -38,6 +38,7 @@ export class ListProjectComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 3;
   modalRef?: BsModalRef;
   userr: any;
+displayMode: 'table' | 'grid' = 'table';
 
     private progressSubjects = {
     conception: new Subject<{ project: any, value: number }>(),
@@ -776,6 +777,8 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
     const years = this.list.map(project => new Date(project.createdAt).getFullYear().toString());
     return ['Tous', ...Array.from(new Set(years))];
   }
+
+  setDisplayMode(mode: 'table' | 'grid') { this.displayMode = mode; }
 
 
 }
