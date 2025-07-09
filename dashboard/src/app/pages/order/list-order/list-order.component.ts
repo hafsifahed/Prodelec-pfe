@@ -39,6 +39,12 @@ export class ListOrderComponent {
   p: number = 1; // Current page number
   itemsPerPage: number = 5;
     user: User | null = null;
+    showConceptionAdd = false;
+showMethodeAdd = false;
+showProductionAdd = false;
+showControleAdd = false;
+showLivraisonAdd = false;
+
 
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
@@ -228,6 +234,11 @@ export class ListOrderComponent {
   }
 
   addModal(order: any) {
+     this.showConceptionAdd = false;
+    this.showMethodeAdd = false;
+    this.showProductionAdd = false;
+    this.showControleAdd = false;
+    this.showLivraisonAdd = false;
     this.submitted = false;
     this.idorder=order.idOrder;
     this.showModala?.show()
@@ -464,4 +475,15 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
     return ['Tous', ...Array.from(new Set(years))];
   }
 
+  toggleSection(modal: 'add' | 'edit', section: string) {
+  if (modal === 'add') {
+    switch (section) {
+      case 'conception': this.showConceptionAdd = !this.showConceptionAdd; break;
+      case 'methode': this.showMethodeAdd = !this.showMethodeAdd; break;
+      case 'production': this.showProductionAdd = !this.showProductionAdd; break;
+      case 'controle': this.showControleAdd = !this.showControleAdd; break;
+      case 'livraison': this.showLivraisonAdd = !this.showLivraisonAdd; break;
+    }
+  }
+}
 }
