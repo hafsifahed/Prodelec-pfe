@@ -55,7 +55,7 @@ async login(user: User, ipAddress: string): Promise<LoginResponse> {
 
   const accessToken = this.jwtService.sign(payload, {
     secret: process.env.JWT_ACCESS_SECRET,
-    expiresIn: '15m',
+    expiresIn: '2h',
   });
 
   const refreshToken = this.jwtService.sign(payload, {
@@ -92,7 +92,7 @@ async login(user: User, ipAddress: string): Promise<LoginResponse> {
 
       const newAccessToken = this.jwtService.sign(
         { username: user.username, sub: user.id, sessionId: session.id },
-        { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '15m' },
+        { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '2h' },
       );
 
       return {

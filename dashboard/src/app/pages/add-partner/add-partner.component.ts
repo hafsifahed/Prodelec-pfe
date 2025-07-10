@@ -17,6 +17,12 @@ export class AddPartnerComponent implements OnInit{
   errorMessage = '';
   userMail = localStorage.getItem('userMail');
   user: any;
+   title = 'Ajouter un Partenaire';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Ajouter un Partenaire', active: true }
+  ];
 
   constructor(
       private fb: FormBuilder,

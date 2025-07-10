@@ -1,5 +1,6 @@
 <div class="container-fluid">
-  <app-page-title title="Projets"></app-page-title>
+    <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
 
   <div class="row mb-4">
     <div class="d-flex justify-content-between align-items-end w-100">
@@ -448,6 +449,7 @@
     <pagination-controls (pageChange)="p = $event"></pagination-controls>
   </div>
 </div>
+
 
 <!------------------------------ajouter dup----------------------------------------------------------------------->
 

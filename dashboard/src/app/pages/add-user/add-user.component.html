@@ -1,91 +1,105 @@
-<div class="user-form-container">
-  <!-- En-tête -->
-  <div class="form-header">
-    <h1><i class="fas fa-user-plus"></i> Ajouter un Utilisateur</h1>
-    <p class="form-subtitle">Créez un nouveau compte utilisateur</p>
+<div class="container-fluid">
+  <!-- start page title -->
+  <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+  <!-- end page title -->
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-body">
+
+          <!-- En-tête -->
+          <h4 class="card-title mb-4">
+            <i class="fas fa-user-plus icon-indigo"></i> Ajouter un Utilisateur
+          </h4>
+          <p class="text-muted mb-4">Créez un nouveau compte utilisateur</p>
+
+          <!-- Sélecteur client / employé -->
+          <div class="mb-4 d-flex gap-2 justify-content-center">
+            <button type="button" class="btn btn-outline-primary" [class.active]="selectedUserType === 'client'" (click)="selectUserType('client')">
+              <i class="fas fa-user"></i> Client
+            </button>
+            <button type="button" class="btn btn-outline-primary" [class.active]="selectedUserType === 'worker'" (click)="selectUserType('worker')">
+              <i class="fas fa-briefcase"></i> Employé
+            </button>
+          </div>
+
+          <!-- Formulaire -->
+          <form [formGroup]="addUserForm" (ngSubmit)="submit()" novalidate>
+
+            <!-- Email -->
+            <div class="form-floating mb-3">
+              <input id="email" type="email" class="form-control" formControlName="email" placeholder="Entrez l'adresse email">
+              <label for="email"><i class="fas fa-envelope"></i> Email</label>
+              <div *ngIf="addUserForm.get('email').invalid && addUserForm.get('email').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> Un email valide est requis
+              </div>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="form-floating mb-3">
+              <input id="password" type="password" class="form-control" formControlName="password" placeholder="Mot de passe (min 8 caractères)">
+              <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+              <div *ngIf="addUserForm.get('password').invalid && addUserForm.get('password').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> 8 caractères minimum requis
+              </div>
+            </div>
+
+            <!-- Prénom -->
+            <div class="form-floating mb-3">
+              <input id="firstName" type="text" class="form-control" formControlName="firstName" placeholder="Entrez le prénom">
+              <label for="firstName"><i class="fas fa-user"></i> Prénom</label>
+              <div *ngIf="addUserForm.get('firstName').invalid && addUserForm.get('firstName').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> Le prénom est requis
+              </div>
+            </div>
+
+            <!-- Nom -->
+            <div class="form-floating mb-3">
+              <input id="lastName" type="text" class="form-control" formControlName="lastName" placeholder="Entrez le nom">
+              <label for="lastName"><i class="fas fa-user"></i> Nom</label>
+              <div *ngIf="addUserForm.get('lastName').invalid && addUserForm.get('lastName').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> Le nom est requis
+              </div>
+            </div>
+
+            <!-- Rôle (pour les selects, la structure est légèrement différente) -->
+            <div class="form-floating mb-3">
+              <select id="roleId" class="form-select" formControlName="roleId" aria-label="Sélectionnez un rôle">
+                <option value="" disabled selected>Sélectionnez un rôle</option>
+                <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+              </select>
+              <label for="roleId"><i class="fas fa-user-tag"></i> Rôle</label>
+              <div *ngIf="addUserForm.get('roleId').invalid && addUserForm.get('roleId').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> Un rôle doit être sélectionné
+              </div>
+            </div>
+
+            <!-- Partenaire (visible uniquement pour client) -->
+            <div *ngIf="selectedUserType === 'client'" class="form-floating mb-3">
+              <select id="partnerId" class="form-select" formControlName="partnerId" aria-label="Sélectionnez un partenaire">
+                <option value="" disabled selected>Sélectionnez un partenaire</option>
+                <option *ngFor="let partner of partners" [value]="partner.id">{{ partner.name }}</option>
+              </select>
+              <label for="partnerId"><i class="fas fa-handshake"></i> Partenaire</label>
+              <div *ngIf="addUserForm.get('partnerId').invalid && addUserForm.get('partnerId').touched" class="text-danger mt-1">
+                <i class="fas fa-exclamation-circle"></i> Un partenaire doit être sélectionné
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-4 d-flex gap-2 justify-content-center">
+              <button type="submit" class="btn btn-primary" [disabled]="addUserForm.invalid || isSubmitting">
+                <i class="fas fa-save"></i> {{ isSubmitting ? 'Création en cours...' : 'Créer l\'utilisateur' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancel()">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <!-- Sélecteur client / employé -->
-<div class="user-type-selector">
-  <button type="button" [class.active]="selectedUserType === 'client'" (click)="selectUserType('client')">
-    <i class="fas fa-user"></i> Client
-  </button>
-  <button type="button" [class.active]="selectedUserType === 'worker'" (click)="selectUserType('worker')">
-    <i class="fas fa-briefcase"></i> Employé
-  </button>
-</div>
-
-
-  <!-- Formulaire -->
-  <form [formGroup]="addUserForm" (ngSubmit)="submit()" novalidate class="user-form">
-    <!-- Email -->
-    <div class="form-field">
-      <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email</label>
-      <input id="email" type="email" class="form-input" formControlName="email" placeholder="Entrez l'adresse email">
-      <div *ngIf="addUserForm.get('email').invalid && addUserForm.get('email').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> Un email valide est requis
-      </div>
-    </div>
-
-    <!-- Mot de passe -->
-    <div class="form-field">
-      <label for="password" class="form-label"><i class="fas fa-lock"></i> Mot de passe</label>
-      <input id="password" type="password" class="form-input" formControlName="password" placeholder="Mot de passe (min 8 caractères)">
-      <div *ngIf="addUserForm.get('password').invalid && addUserForm.get('password').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> 8 caractères minimum requis
-      </div>
-    </div>
-
-    <!-- Prénom -->
-    <div class="form-field">
-      <label for="firstName" class="form-label"><i class="fas fa-user"></i> Prénom</label>
-      <input id="firstName" type="text" class="form-input" formControlName="firstName" placeholder="Entrez le prénom">
-      <div *ngIf="addUserForm.get('firstName').invalid && addUserForm.get('firstName').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> Le prénom est requis
-      </div>
-    </div>
-
-    <!-- Nom -->
-    <div class="form-field">
-      <label for="lastName" class="form-label"><i class="fas fa-user"></i> Nom</label>
-      <input id="lastName" type="text" class="form-input" formControlName="lastName" placeholder="Entrez le nom">
-      <div *ngIf="addUserForm.get('lastName').invalid && addUserForm.get('lastName').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> Le nom est requis
-      </div>
-    </div>
-
-    <!-- Rôle -->
-    <div class="form-field">
-      <label for="roleId" class="form-label"><i class="fas fa-user-tag"></i> Rôle</label>
-      <select id="roleId" class="form-select" formControlName="roleId">
-        <option value="" disabled selected>Sélectionnez un rôle</option>
-        <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
-      </select>
-      <div *ngIf="addUserForm.get('roleId').invalid && addUserForm.get('roleId').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> Un rôle doit être sélectionné
-      </div>
-    </div>
-
-    <!-- Partenaire (visible uniquement pour client) -->
-    <div *ngIf="selectedUserType === 'client'" class="form-field">
-      <label for="partnerId" class="form-label"><i class="fas fa-handshake"></i> Partenaire</label>
-      <select id="partnerId" class="form-select" formControlName="partnerId">
-        <option value="" disabled selected>Sélectionnez un partenaire</option>
-        <option *ngFor="let partner of partners" [value]="partner.id">{{ partner.name }}</option>
-      </select>
-      <div *ngIf="addUserForm.get('partnerId').invalid && addUserForm.get('partnerId').touched" class="error-message">
-        <i class="fas fa-exclamation-circle"></i> Un partenaire doit être sélectionné
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="form-actions">
-      <button type="submit" class="submit-btn" [disabled]="addUserForm.invalid || isSubmitting">
-        <i class="fas fa-save"></i> {{ isSubmitting ? 'Création en cours...' : 'Créer l\'utilisateur' }}
-      </button>
-      <button type="button" class="cancel-btn" (click)="cancel()">
-        <i class="fas fa-times"></i> Annuler
-      </button>
-    </div>
-  </form>
 </div>

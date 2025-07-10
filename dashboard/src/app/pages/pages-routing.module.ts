@@ -51,6 +51,7 @@ import { ProjetDetailComponent } from './projet-detail/projet-detail.component';
 import { SettingComponent } from './setting/setting.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
+import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
 
 
 
@@ -123,6 +124,8 @@ const routes: Routes = [
   { path: 'setting', component: SettingComponent  },
   { path: 'user/:id', component: UserDetailComponent  },
   { path: 'partner/:id', component: PartnerDetailComponent  },
+    { path: 'calendrier', component: ProjectCalendarComponent  },
+
 
 
 

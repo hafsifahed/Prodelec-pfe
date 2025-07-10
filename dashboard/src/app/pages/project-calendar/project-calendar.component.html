@@ -1,0 +1,28 @@
+    <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
+<full-calendar [options]="calendarOptions"></full-calendar>
+
+<ng-template #detailsModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Détails {{ capitalizeFirstLetter(selectedStep) }} - Projet {{ selectedProject?.refClient }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body" *ngIf="selectedProject">
+    <p><strong>Commentaire:</strong> {{ stepComment }}</p>
+    <p><strong>Durée:</strong> {{ stepDuration }} heures</p>
+    <p><strong>Pilote:</strong> {{ stepResponsible?.username || 'Non assigné' }}</p>
+    <p><strong>Début:</strong> {{ stepStartDate | date:'yyyy-MM-dd' }}</p>
+    <p><strong>Fin:</strong> {{ stepEndDate | date:'yyyy-MM-dd' }}</p>
+    <p><strong>Progression:</strong> {{ stepProgress }}%</p>
+
+    <div *ngIf="canEditProgress()">
+      <label for="progressRange" class="form-label">Modifier la progression ({{ stepProgress }}%)</label>
+      <input type="range" id="progressRange" min="0" max="100" [value]="stepProgress"
+        (input)="onProgressInput(selectedProject, selectedStep, $event)" class="form-range" />
+    </div>
+
+    <div *ngIf="!canEditProgress()" class="alert alert-info mt-3">
+      Vous n'avez pas la permission de modifier la progression de cette étape.
+    </div>
+  </div>
+</ng-template>

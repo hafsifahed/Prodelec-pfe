@@ -15,23 +15,30 @@ export interface MenuItem {
   subItems?: MenuItem[];
   parentId?: number;
 }
-
+const purl=""
 /* ---- Menu Configuration ---- */
 export const MENU: MenuItem[] = [
   { id: 1, label: 'MENUITEMS.MENU.TEXT', isTitle: true },
 
-  { id: 2, label: 'Tableau de bord', icon: 'bx-home-circle', link: '/dashboard' },
+  { id: 2, label: 'Tableau de bord', icon: 'bx-home-circle', link: purl+'/dashboard' },
 
   /* --- Utilisateurs --- */
   {
-    id: 3, label: 'Utilisateurs', icon: 'bx-user', link: '/list-user',
+    id: 3, label: 'Utilisateurs', icon: 'bx-user', link: purl+'/list-user',
     rolePermissions: [
       { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
       { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ],
   },
+  {
+    id: 3, label: 'Calendrier', icon: 'bx-calendar-alt', link: purl+'/calendrier',
+    /*rolePermissions: [
+      { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
+      { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
+    ],*/
+  },
     {
-    id: 13, label: 'Employés', icon: 'bx-user', link: '/list-worker',
+    id: 13, label: 'Employés', icon: 'bx-user', link: purl+'/list-worker',
     rolePermissions: [
       { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
     ],
@@ -39,7 +46,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Partenaires --- */
   {
-    id: 390, label: 'Liste Partenaires', icon: 'bx-building', link: '/list-partner',
+    id: 390, label: 'Liste Partenaires', icon: 'bx-building', link: purl+'/list-partner',
     rolePermissions: [
       { resource: Resource.ROLES, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
     ]
@@ -47,7 +54,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Rôles --- */
   {
-    id: 39, label: 'Roles', icon: 'bx-lock', link: '/roles',
+    id: 39, label: 'Roles', icon: 'bx-lock', link: purl+'/roles',
     rolePermissions: [
       { resource: Resource.ROLES, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
     ]
@@ -55,13 +62,13 @@ export const MENU: MenuItem[] = [
 
   /* --- Cahier des charges --- */
   {
-    id: 4, label: 'Cahier des charges (Admin)', icon: 'bx-file', link: '/cdc',
+    id: 4, label: 'Cahier des charges (Admin)', icon: 'bx-file', link: purl+'/cdc',
     rolePermissions: [
       { resource: Resource.PRODUCTS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
     ]
   },
   {
-    id: 40, label: 'Cahier des charges (Client)', icon: 'bx-file', link: '/cdcUser',
+    id: 40, label: 'Cahier des charges (Client)', icon: 'bx-file', link: purl+'/cdcUser',
     rolePermissions: [
       { resource: Resource.PRODUCTS, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
@@ -69,14 +76,14 @@ export const MENU: MenuItem[] = [
 
   /* --- Devis --- */
   {
-    id: 5, label: 'Devis (Admin)', icon: 'bx-money', link: '/devis',
+    id: 5, label: 'Devis (Admin)', icon: 'bx-money', link: purl+'/devis',
     rolePermissions: [
       { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
       
     ]
   },
   {
-    id: 50, label: 'Devis (Client)', icon: 'bx-money', link: '/devisUser',
+    id: 50, label: 'Devis (Client)', icon: 'bx-money', link: purl+'/devisUser',
     rolePermissions: [
       { resource: Resource.ORDERS, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
@@ -84,13 +91,13 @@ export const MENU: MenuItem[] = [
 
   /* --- Commandes --- */
   {
-    id: 6, label: 'Commandes (Admin)', icon: 'bx-cart', link: '/listorder',
+    id: 6, label: 'Commandes (Admin)', icon: 'bx-cart', link: purl+'/listorder',
     rolePermissions: [
       { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
     ]
   },
   {
-    id: 60, label: 'Commandes (Client)', icon: 'bx-cart', link: '/listorderclient',
+    id: 60, label: 'Commandes (Client)', icon: 'bx-cart', link: purl+'/listorderclient',
     rolePermissions: [
       { resource: Resource.ORDERS, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
@@ -98,7 +105,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Projets --- */
   {
-    id: 7, label: 'Projets (Admin)', icon: 'bx-briefcase', link: '/listproject',
+    id: 7, label: 'Projets (Admin)', icon: 'bx-briefcase', link: purl+'/listproject',
     rolePermissions: [
       { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.SUBADMIN,RoleName.PROCESS_METHOD] },
       { resource: Resource.PROJECT, actions: [Action.READ,Action.UPDATE], roles: [RoleName.PROCESS_DESIGN,RoleName.PROCESS_LOGISTICS,RoleName.PROCESS_PRODUCTION,RoleName.PROCESS_QUALITY,RoleName.PROCESS_DAF] }
@@ -106,13 +113,13 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    id: 70, label: 'Projets (Client)', icon: 'bx-briefcase', link: '/listprojectclient',
+    id: 70, label: 'Projets (Client)', icon: 'bx-briefcase', link: purl+'/listprojectclient',
     rolePermissions: [
       { resource: Resource.PROJECT, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
   },
   {
-    id: 70, label: 'Projets (Admin Client)', icon: 'bx-briefcase', link: '/listprojetclientadmin',
+    id: 70, label: 'Projets (Admin Client)', icon: 'bx-briefcase', link: purl+'/listprojetclientadmin',
     rolePermissions: [
       { resource: Resource.PROJECT, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN] }
     ]
@@ -120,7 +127,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Réclamation --- */
   {
-    id: 8, label: 'Réclamation', icon: 'bx-error', link: '/reclamation',
+    id: 8, label: 'Réclamation', icon: 'bx-error', link: purl+'/reclamation',
     rolePermissions: [
       { resource: Resource.QUALITY, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
       { resource: Resource.QUALITY, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
@@ -129,7 +136,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Notifications --- */
   {
-    id: 9, label: 'Notifications', icon: 'bx-bell', link: '/list-notifications',
+    id: 9, label: 'Notifications', icon: 'bx-bell', link: purl+'/list-notifications',
     rolePermissions: [
       { resource: Resource.AUDIT_LOGS, actions: [Action.READ] }
     ]
@@ -137,7 +144,7 @@ export const MENU: MenuItem[] = [
 
   /* --- Sessions --- */
   {
-    id: 10, label: 'Sessions', icon: 'bx-time', link: '/list-user-session',
+    id: 10, label: 'Sessions', icon: 'bx-time', link: purl+'/list-user-session',
     rolePermissions: [
       { resource: Resource.SESSIONS, actions: [Action.READ], roles: [RoleName.ADMIN] }
     ]
@@ -150,13 +157,13 @@ export const MENU: MenuItem[] = [
       { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] }
     ],
     subItems: [
-      { id: 111, label: 'Archive Commandes', link: '/archiveorderadminclient',parentId: 11 },
-      { id: 112, label: 'Archive Projets',   link: '/archiveprojectadminclient',parentId: 11 }
+      { id: 111, label: 'Archive Commandes', link: purl+'/archiveorderadminclient',parentId: 11 },
+      { id: 112, label: 'Archive Projets',   link: purl+'/archiveprojectadminclient',parentId: 11 }
     ]
   },
   /* --- Stting --- */
   {
-    id: 10, label: 'Settings', icon: 'bx-cog', link: '/setting',
+    id: 10, label: 'Settings', icon: 'bx-cog', link: purl+'/setting',
     rolePermissions: [
       { resource: Resource.SETTINGS, actions: [], roles: [RoleName.ADMIN] }
     ]

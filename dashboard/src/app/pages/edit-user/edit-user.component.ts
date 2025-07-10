@@ -23,6 +23,12 @@ export class EditUserComponent implements OnInit {
   roles: Role[] = [];
   partners: Partner[] = [];
   isSubmitting = false;
+   title = "Édition d'utilisateur";
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: "Édition d'utilisateur", active: true }
+  ];
 
   constructor(
     private fb: FormBuilder,

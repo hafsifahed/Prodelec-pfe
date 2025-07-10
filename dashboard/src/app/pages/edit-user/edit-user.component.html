@@ -1,138 +1,117 @@
-<form [formGroup]="editUserForm" (ngSubmit)="submit()" novalidate class="user-form">
-    <!-- En-tête du formulaire -->
-    <div class="form-header">
-        <h2><i class="fas fa-user-edit"></i> Édition d'utilisateur</h2>
-        <p class="form-subtitle">Modifiez les informations de l'utilisateur</p>
-        <p class="form-subtitle">{{ username }}</p>
-    </div>
+<div class="container-fluid">
+  <!-- start page title -->
+  <app-page-title title="Édition d'utilisateur" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+  <!-- end page title -->
 
-    <!-- Sélection du type d'utilisateur -->
-    <div class="form-group">
-        <label class="form-label"><i class="fas fa-users"></i> Type d'utilisateur</label>
-        <div class="input-container">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="clientRadio" name="userType"
-                       [checked]="selectedUserType === 'client'"
-                       (change)="selectUserType('client')">
-                <label class="form-check-label" for="clientRadio">Client</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" id="workerRadio" name="userType"
-                       [checked]="selectedUserType === 'worker'"
-                       (change)="selectUserType('worker')">
-                <label class="form-check-label" for="workerRadio">Employé</label>
-            </div>
-        </div>
-    </div>
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-body">
 
-    <!-- Champ Prénom -->
-    <div class="form-group">
-        <label for="firstName" class="form-label">
-            <i class="fas fa-user"></i> Prénom
-        </label>
-        <div class="input-container">
-            <input id="firstName" type="text" class="form-input" 
-                   formControlName="firstName"
-                   placeholder="Entrez le prénom">
-            <div *ngIf="editUserForm.get('firstName').invalid && editUserForm.get('firstName').touched" 
-                 class="error-message">
+          <!-- En-tête -->
+          <h4 class="card-title mb-4">
+            <i class="fas fa-user-edit icon-indigo"></i> Édition d'utilisateur
+          </h4>
+          <p class="text-muted mb-4">{{ username }}</p>
+
+          <!-- Sélection du type d'utilisateur -->
+          <div class="mb-4">
+            <label class="form-label d-block mb-2">
+              <i class="fas fa-users"></i> Type d'utilisateur
+            </label>
+            <div class="btn-group" role="group" aria-label="Type d'utilisateur">
+              <input type="radio" class="btn-check" id="clientRadio" name="userType" autocomplete="off"
+                     [checked]="selectedUserType === 'client'" (change)="selectUserType('client')">
+              <label class="btn btn-outline-primary" for="clientRadio">Client</label>
+
+              <input type="radio" class="btn-check" id="workerRadio" name="userType" autocomplete="off"
+                     [checked]="selectedUserType === 'worker'" (change)="selectUserType('worker')">
+              <label class="btn btn-outline-primary" for="workerRadio">Employé</label>
+            </div>
+          </div>
+
+          <!-- Formulaire -->
+          <form [formGroup]="editUserForm" (ngSubmit)="submit()" novalidate>
+
+            <!-- Prénom -->
+            <div class="form-floating mb-3">
+              <input id="firstName" type="text" class="form-control" formControlName="firstName" placeholder="Entrez le prénom">
+              <label for="firstName"><i class="fas fa-user"></i> Prénom</label>
+              <div *ngIf="editUserForm.get('firstName').invalid && editUserForm.get('firstName').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le prénom est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Champ Nom -->
-    <div class="form-group">
-        <label for="lastName" class="form-label">
-            <i class="fas fa-user"></i> Nom
-        </label>
-        <div class="input-container">
-            <input id="lastName" type="text" class="form-input" 
-                   formControlName="lastName"
-                   placeholder="Entrez le nom">
-            <div *ngIf="editUserForm.get('lastName').invalid && editUserForm.get('lastName').touched" 
-                 class="error-message">
+            <!-- Nom -->
+            <div class="form-floating mb-3">
+              <input id="lastName" type="text" class="form-control" formControlName="lastName" placeholder="Entrez le nom">
+              <label for="lastName"><i class="fas fa-user"></i> Nom</label>
+              <div *ngIf="editUserForm.get('lastName').invalid && editUserForm.get('lastName').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le nom est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Champ Email -->
-    <div class="form-group">
-        <label for="email" class="form-label">
-            <i class="fas fa-envelope"></i> Email
-        </label>
-        <div class="input-container">
-            <input id="email" type="email" class="form-input" 
-                   formControlName="email"
-                   placeholder="Entrez l'email">
-            <div *ngIf="editUserForm.get('email').invalid && editUserForm.get('email').touched" 
-                 class="error-message">
+            <!-- Email -->
+            <div class="form-floating mb-3">
+              <input id="email" type="email" class="form-control" formControlName="email" placeholder="Entrez l'email">
+              <label for="email"><i class="fas fa-envelope"></i> Email</label>
+              <div *ngIf="editUserForm.get('email').invalid && editUserForm.get('email').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Un email valide est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Champ Rôle -->
-    <div class="form-group">
-        <label for="roleId" class="form-label">
-            <i class="fas fa-user-tag"></i> Rôle
-        </label>
-        <div class="input-container">
-            <select id="roleId" class="form-select" formControlName="roleId">
+            <!-- Rôle -->
+            <div class="form-floating mb-3">
+              <select id="roleId" class="form-select" formControlName="roleId" aria-label="Sélectionnez un rôle">
                 <option [ngValue]="null" disabled>Sélectionnez un rôle</option>
                 <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
-            </select>
-            <div *ngIf="editUserForm.get('roleId').invalid && editUserForm.get('roleId').touched" 
-                 class="error-message">
+              </select>
+              <label for="roleId"><i class="fas fa-user-tag"></i> Rôle</label>
+              <div *ngIf="editUserForm.get('roleId').invalid && editUserForm.get('roleId').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le rôle est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Champ Partenaire (affiché seulement pour client) -->
-    <div class="form-group" *ngIf="selectedUserType === 'client'">
-        <label for="partnerId" class="form-label">
-            <i class="fas fa-handshake"></i> Partenaire
-        </label>
-        <div class="input-container">
-            <select id="partnerId" class="form-select" formControlName="partnerId">
+            <!-- Partenaire (visible uniquement pour client) -->
+            <div class="form-floating mb-3" *ngIf="selectedUserType === 'client'">
+              <select id="partnerId" class="form-select" formControlName="partnerId" aria-label="Sélectionnez un partenaire">
                 <option [ngValue]="null" disabled>Sélectionnez un partenaire</option>
                 <option *ngFor="let partner of partners" [value]="partner.id">{{ partner.name }}</option>
-            </select>
-            <div *ngIf="editUserForm.get('partnerId').invalid && editUserForm.get('partnerId').touched" 
-                 class="error-message">
+              </select>
+              <label for="partnerId"><i class="fas fa-handshake"></i> Partenaire</label>
+              <div *ngIf="editUserForm.get('partnerId').invalid && editUserForm.get('partnerId').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le partenaire est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Champ Statut du compte -->
-    <div class="form-group">
-        <label for="accountStatus" class="form-label">
-            <i class="fas fa-user-lock"></i> Statut du compte
-        </label>
-        <div class="input-container">
-            <select id="accountStatus" class="form-select" formControlName="accountStatus">
+            <!-- Statut du compte -->
+            <div class="form-floating mb-3">
+              <select id="accountStatus" class="form-select" formControlName="accountStatus" aria-label="Sélectionnez un statut">
                 <option [ngValue]="null" disabled>Sélectionnez un statut</option>
                 <option value="active">Actif</option>
                 <option value="inactive">Inactif</option>
                 <option value="suspended">Suspendu</option>
-            </select>
-            <div *ngIf="editUserForm.get('accountStatus').invalid && editUserForm.get('accountStatus').touched" 
-                 class="error-message">
+              </select>
+              <label for="accountStatus"><i class="fas fa-user-lock"></i> Statut du compte</label>
+              <div *ngIf="editUserForm.get('accountStatus').invalid && editUserForm.get('accountStatus').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le statut est requis
+              </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Actions du formulaire -->
-    <div class="form-actions">
-        <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-            <i class="fas fa-save"></i> {{ isSubmitting ? 'Enregistrement...' : 'Mettre à jour' }}
-        </button>
-        <button type="button" class="cancel-btn" (click)="cancel()">
-            <i class="fas fa-times"></i> Annuler
-        </button>
+            <!-- Actions -->
+            <div class="mt-4 d-flex gap-2 justify-content-center">
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                <i class="fas fa-save"></i> {{ isSubmitting ? 'Enregistrement...' : 'Mettre à jour' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancel()">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
     </div>
-</form>
+  </div>
+</div>

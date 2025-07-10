@@ -38,6 +38,13 @@ export class ListProjectComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 3;
   modalRef?: BsModalRef;
   userr: any;
+    title = 'Projets'; // Ajouté pour le breadcrumb si tu en utilises un
+
+  breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
+    { label: 'Accueil', active: false },
+    { label: 'Projets', active: true }
+  ];
+  
 displayMode: 'table' | 'grid' = 'table';
 
         // Pour modal Ajout

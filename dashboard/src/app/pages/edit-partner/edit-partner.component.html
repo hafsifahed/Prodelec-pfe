@@ -1,49 +1,56 @@
-<div class="partner-edit-container">
-    <!-- En-tête -->
-    <div class="edit-header">
-        <h2><i class="fas fa-building"></i> Modifier un Partenaire</h2>
-        <p class="edit-subtitle">Mettez à jour les informations du partenaire</p>
-    </div>
+<div class="container-fluid">
+  <!-- start page title -->
+  <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+  <!-- end page title -->
 
-    <!-- Message d'erreur -->
-    <div *ngIf="errorMessage" class="error-alert">
-        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-    </div>
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-body">
 
-    <!-- Formulaire -->
-    <form (ngSubmit)="updatePartner()" #partnerForm="ngForm" class="partner-form">
-        <!-- Champ Nom -->
-        <div class="form-field">
-            <label for="name" class="form-label">
-                <i class="fas fa-signature"></i> Nom du partenaire
-            </label>
-            <input type="text" class="form-input" id="name" name="name" 
-                   [(ngModel)]="partner.name" required
-                   placeholder="Entrez le nom du partenaire">
-        </div>
+          <!-- En-tête -->
+          <h4 class="card-title mb-4">
+            <i class="fas fa-building icon-indigo"></i> Modifier un Partenaire
+          </h4>
+          <p class="text-muted mb-4">Mettez à jour les informations du partenaire</p>
 
-        <!-- Champ Adresse -->
-        <div class="form-field">
-            <label for="address" class="form-label">
-                <i class="fas fa-map-marker-alt"></i> Adresse
-            </label>
-            <input type="text" class="form-input" id="address" name="address" 
-                   [(ngModel)]="partner.address" required
-                   placeholder="Entrez l'adresse complète">
-        </div>
+          <!-- Message d'erreur -->
+          <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
+          </div>
 
-        <!-- Champ Téléphone -->
-        <div class="form-field">
-            <label for="tel" class="form-label">
-                <i class="fas fa-phone"></i> Téléphone
-            </label>
-            <input type="tel" class="form-input" id="tel" name="tel" 
-                   [(ngModel)]="partner.tel" required
-                   placeholder="Entrez le numéro de téléphone">
-        </div>
+          <!-- Formulaire -->
+          <form (ngSubmit)="updatePartner()" #partnerForm="ngForm" novalidate>
 
-        <!-- Champ Utilisateurs -->
-        <div class="form-field">
+            <!-- Champ Nom -->
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="name" name="name" [(ngModel)]="partner.name" required placeholder="Entrez le nom du partenaire" #name="ngModel" [ngClass]="{'is-invalid': name.invalid && name.touched}">
+              <label for="name"><i class="fas fa-signature"></i> Nom du partenaire</label>
+              <div *ngIf="name.invalid && name.touched" class="invalid-feedback">
+                Le nom est requis
+              </div>
+            </div>
+
+            <!-- Champ Adresse -->
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="address" name="address" [(ngModel)]="partner.address" required placeholder="Entrez l'adresse complète" #address="ngModel" [ngClass]="{'is-invalid': address.invalid && address.touched}">
+              <label for="address"><i class="fas fa-map-marker-alt"></i> Adresse</label>
+              <div *ngIf="address.invalid && address.touched" class="invalid-feedback">
+                L'adresse est requise
+              </div>
+            </div>
+
+            <!-- Champ Téléphone -->
+            <div class="form-floating mb-3">
+              <input type="tel" class="form-control" id="tel" name="tel" [(ngModel)]="partner.tel" required placeholder="Entrez le numéro de téléphone" #tel="ngModel" [ngClass]="{'is-invalid': tel.invalid && tel.touched}">
+              <label for="tel"><i class="fas fa-phone"></i> Téléphone</label>
+              <div *ngIf="tel.invalid && tel.touched" class="invalid-feedback">
+                Le téléphone est requis
+              </div>
+            </div>
+
+            <!-- Champ Utilisateurs -->
+            <div class="form-field">
             <label for="users" class="form-label">
                 <i class="fas fa-users"></i> Utilisateurs associés
             </label>
@@ -58,14 +65,20 @@
             </div>
         </div>
 
-        <!-- Actions du formulaire -->
-        <div class="form-actions">
-            <button type="submit" class="submit-btn" [disabled]="partnerForm.invalid">
+            <!-- Actions du formulaire -->
+            <div class="d-flex gap-2 justify-content-center">
+              <button type="submit" class="btn btn-primary" [disabled]="partnerForm.invalid">
                 <i class="fas fa-save"></i> Mettre à jour
-            </button>
-            <button type="button" class="cancel-btn" (click)="goBack()">
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="goBack()">
                 <i class="fas fa-times"></i> Annuler
-            </button>
+              </button>
+            </div>
+
+          </form>
+
         </div>
-    </form>
+      </div>
+    </div>
+  </div>
 </div>

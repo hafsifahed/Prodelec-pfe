@@ -1,64 +1,67 @@
-<div class="partner-form-container">
-    <!-- En-tête -->
-    <div class="form-header">
-        <h1><i class="fas fa-plus-circle"></i> Ajouter un Partenaire</h1>
-        <p class="form-subtitle">Renseignez les informations du nouveau partenaire</p>
-    </div>
+<div class="container-fluid">
+  <!-- start page title -->
+  <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+  <!-- end page title -->
 
-    <!-- Formulaire -->
-    <form [formGroup]="addPartnerForm" (ngSubmit)="addPartner()" class="partner-form">
-        <!-- Champ Nom -->
-        <div class="form-field">
-            <label for="name" class="form-label">
-                <i class="fas fa-building"></i> Nom du partenaire
-            </label>
-            <input id="name" formControlName="name" type="text" class="form-input" 
-                   placeholder="Entrez le nom du partenaire">
-            <div *ngIf="addPartnerForm.get('name').invalid && addPartnerForm.get('name').touched" 
-                 class="error-message">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card">
+        <div class="card-body">
+
+          <!-- En-tête -->
+          <h4 class="card-title mb-4">
+            <i class="fas fa-plus-circle icon-indigo"></i> Ajouter un Partenaire
+          </h4>
+          <p class="text-muted mb-4">Renseignez les informations du nouveau partenaire</p>
+
+          <!-- Formulaire -->
+          <form [formGroup]="addPartnerForm" (ngSubmit)="addPartner()" novalidate>
+
+            <!-- Champ Nom -->
+            <div class="form-floating mb-3">
+              <input id="name" formControlName="name" type="text" class="form-control" placeholder="Entrez le nom du partenaire" />
+              <label for="name"><i class="fas fa-building"></i> Nom du partenaire</label>
+              <div *ngIf="addPartnerForm.get('name').invalid && addPartnerForm.get('name').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le nom est requis
+              </div>
             </div>
-        </div>
 
-        <!-- Champ Adresse -->
-        <div class="form-field">
-            <label for="address" class="form-label">
-                <i class="fas fa-map-marker-alt"></i> Adresse
-            </label>
-            <input id="address" formControlName="address" type="text" class="form-input" 
-                   placeholder="Entrez l'adresse complète">
-            <div *ngIf="addPartnerForm.get('address').invalid && addPartnerForm.get('address').touched" 
-                 class="error-message">
+            <!-- Champ Adresse -->
+            <div class="form-floating mb-3">
+              <input id="address" formControlName="address" type="text" class="form-control" placeholder="Entrez l'adresse complète" />
+              <label for="address"><i class="fas fa-map-marker-alt"></i> Adresse</label>
+              <div *ngIf="addPartnerForm.get('address').invalid && addPartnerForm.get('address').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> L'adresse est requise
+              </div>
             </div>
-        </div>
 
-        <!-- Champ Téléphone -->
-        <div class="form-field">
-            <label for="tel" class="form-label">
-                <i class="fas fa-phone"></i> Téléphone
-            </label>
-            <input id="tel" formControlName="tel" type="text" class="form-input" 
-                   placeholder="Entrez le numéro de téléphone">
-            <div *ngIf="addPartnerForm.get('tel').invalid && addPartnerForm.get('tel').touched" 
-                 class="error-message">
+            <!-- Champ Téléphone -->
+            <div class="form-floating mb-3">
+              <input id="tel" formControlName="tel" type="text" class="form-control" placeholder="Entrez le numéro de téléphone" />
+              <label for="tel"><i class="fas fa-phone"></i> Téléphone</label>
+              <div *ngIf="addPartnerForm.get('tel').invalid && addPartnerForm.get('tel').touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le téléphone est requis
+              </div>
             </div>
-        </div>
 
-        <!-- Actions du formulaire -->
-        <div class="form-actions">
-            <button type="submit" class="submit-btn" [disabled]="addPartnerForm.invalid">
+            <!-- Actions du formulaire -->
+            <div class="mt-4 d-flex gap-2 justify-content-center">
+              <button type="submit" class="btn btn-primary" [disabled]="addPartnerForm.invalid">
                 <i class="fas fa-save"></i> Enregistrer le partenaire
-            </button>
-            <button type="button" class="cancel-btn" (click)="goBack()">
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="goBack()">
                 <i class="fas fa-times"></i> Annuler
-            </button>
-        </div>
-    </form>
+              </button>
+            </div>
+          </form>
 
-    <!-- Message d'erreur -->
-    <div *ngIf="errorMessage" class="error-alert">
-        <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+          <!-- Message d'erreur -->
+          <div *ngIf="errorMessage" class="alert alert-danger mt-3 d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i> {{ errorMessage }}
+          </div>
+
+        </div>
+      </div>
     </div>
+  </div>
 </div>

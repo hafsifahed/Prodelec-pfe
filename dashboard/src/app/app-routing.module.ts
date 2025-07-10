@@ -12,6 +12,7 @@ const routes: Routes = [
 
   // tslint:disable-next-line: max-line-length
   { 
+    // account
     path: '', 
     component: LayoutComponent, 
     loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule),
@@ -19,8 +20,8 @@ const routes: Routes = [
 
   }
   ,
-  { path: 'pages', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule) },
-  //{ path: 'crypto-ico-landing', component: CyptolandingComponent },
+  { path: '', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule) },
+  { path: 'home', component: CyptolandingComponent },
   { path: 'signin', component: SignInComponent,canActivate:[NoAuthGuard] },
 
   { path: '**', component: Page404Component },

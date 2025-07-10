@@ -66,6 +66,7 @@ export function createTranslateLoader(http: HttpClient): any {
     SharedModule,
     ScrollToModule.forRoot(),
     ToastrModule.forRoot(),
+    HttpClientModule
   ],
   bootstrap: [AppComponent],
   providers: [

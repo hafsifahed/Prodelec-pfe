@@ -21,6 +21,12 @@ export class EditPartnerComponent implements OnInit {
   };
   selectedUsers: User[] = [];
   errorMessage = '';
+   title = 'Modifier un Partenaire';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Modifier un Partenaire', active: true }
+  ];
 
   constructor(
       private route: ActivatedRoute,

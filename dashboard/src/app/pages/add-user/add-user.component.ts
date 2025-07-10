@@ -23,6 +23,13 @@ export class AddUserComponent implements OnInit {
 
   isSubmitting = false;
 
+  title = 'Ajouter un Utilisateur';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Ajouter un Utilisateur', active: true }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private usersService: UsersService,

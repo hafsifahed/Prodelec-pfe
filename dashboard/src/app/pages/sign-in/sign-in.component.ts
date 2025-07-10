@@ -112,7 +112,7 @@ export class SignInComponent implements OnInit {
           icon: 'success',
           confirmButtonText: 'OK'
         }).then(() => {
-          this.router.navigate(['/profile']);
+          this.router.navigate(['/dashboard']);
         });
       },
       error: () => {

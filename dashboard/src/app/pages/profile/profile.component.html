@@ -1,5 +1,7 @@
+<app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
 <div class="profile-container" *ngIf="user; else loadingOrError">
-  <div class="profile-header">
+  <header class="profile-header">
     <h1 class="profile-title">Profil Utilisateur</h1>
     <div class="profile-meta">
       <span class="status-badge" [ngClass]="{
@@ -10,10 +12,10 @@
       </span>
       <span class="member-since">Membre depuis {{ user.createdAt | date:'mediumDate' }}</span>
     </div>
-  </div>
+  </header>
 
-  <div class="profile-grid">
-    <div class="profile-card personal-info">
+  <section class="profile-grid">
+    <article class="profile-card personal-info">
       <div class="card-header">
         <h2><i class="fas fa-user"></i> Informations Personnelles</h2>
       </div>
@@ -35,9 +37,9 @@
           <span class="value">{{ user.partner.name }}</span>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="profile-card role-info">
+    <article class="profile-card role-info">
       <div class="card-header">
         <h2><i class="fas fa-shield-alt"></i> Rôle & Permissions</h2>
       </div>
@@ -65,13 +67,12 @@
           <p>Aucune permission attribuée</p>
         </div>
       </div>
-    </div>
-  </div>
+    </article>
+  </section>
 
-  <!-- Décommenter si l'édition de profil est implémentée -->
-  <!-- <button class="edit-button">
+  <button class="edit-button">
     <i class="fas fa-edit"></i> Modifier le profil
-  </button> -->
+  </button> 
 </div>
 
 <ng-template #loadingOrError>

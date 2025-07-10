@@ -86,6 +86,8 @@ import { RolesComponent } from './roles/roles.component';
 import { ChartsSectionComponent } from './dashboard/charts-section/charts-section.component';
 import { CardsSectionComponent } from './dashboard/cards-section/cards-section.component';
 import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-section/charts-useradmin-section.component';
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
 
 
 @NgModule({
@@ -144,7 +146,8 @@ import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-se
     RolesComponent,
     ChartsSectionComponent,
     CardsSectionComponent,
-    ChartsUseradminSectionComponent
+    ChartsUseradminSectionComponent,
+    ProjectCalendarComponent
 
   ],
   imports: [
@@ -161,6 +164,7 @@ import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-se
     HttpClientModule,
     CdkStepperModule,
     UIModule,
+    FullCalendarModule,
 
 
     NgxExtendedPdfViewerModule,
@@ -176,7 +180,8 @@ import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-se
     PickerModule,
     NgxPaginationModule,
     CommonModule,
-    FormsModule
+    FormsModule,
+    NgxDropzoneModule
     
   ],
 })

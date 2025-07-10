@@ -12,6 +12,13 @@ export class ProfileComponent implements OnInit {
   user: User | null = null;
   errorMessage = '';
 
+  title = 'Profile';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Profile', active: true }
+  ];
+
   constructor(private usersService: UsersService,
     private userStateService: UserStateService
   ) {}
