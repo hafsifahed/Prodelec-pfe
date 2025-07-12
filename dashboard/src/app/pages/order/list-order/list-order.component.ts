@@ -90,31 +90,31 @@ showLivraisonAdd = false;
       refc: ['', [Validators.required]],
       refp: ['', [Validators.required]],
       dlp: ['', [Validators.required]],
-      dc: ['', [Validators.required]],
-      fc: ['', [Validators.required]],
-      dm: ['', [Validators.required]],
-      fm: ['', [Validators.required]],
-      dp: ['', [Validators.required]],
-      fp: ['', [Validators.required]],
-      dcf: ['', [Validators.required]],
-      fcf: ['', [Validators.required]],
-      dl: ['', [Validators.required]],
-      fl: ['', [Validators.required]],
-      drc: [0, [Validators.required]],
-      cdc: ['', [Validators.required]],
-      rc: ['', [Validators.required]],
-      drm: [0, [Validators.required]],
-      cdm: ['', [Validators.required]],
-      rm: ['', [Validators.required]],
-      drp: [0, [Validators.required]],
-      cdp: ['', [Validators.required]],
-      rp: ['', [Validators.required]],
-      drcf: [0, [Validators.required]],
-      cdcf: ['', [Validators.required]],
-      rcf: ['', [Validators.required]],
-      drl: [0, [Validators.required]],
-      cdl: ['', [Validators.required]],
-      rl: ['', [Validators.required]],
+      dc: ['', ],
+      fc: ['', ],
+      dm: ['', ],
+      fm: ['', ],
+      dp: ['', ],
+      fp: ['', ],
+      dcf: ['', ],
+      fcf: ['', ],
+      dl: ['', ],
+      fl: ['', ],
+      drc: [0, ],
+      cdc: ['', ],
+      rc: ['', ],
+      drm: [0, ],
+      cdm: ['', ],
+      rm: ['', ],
+      drp: [0, ],
+      cdp: ['', ],
+      rp: ['', ],
+      drcf: [0, ],
+      cdcf: ['', ],
+      rcf: ['', ],
+      drl: [0, ],
+      cdl: ['', ],
+      rl: ['', ],
       qte: [0, [Validators.required]]
     });
 
@@ -349,45 +349,61 @@ showLivraisonAdd = false;
   }
 
   addproject() {
-    const refclient = this.projectForm.get('refc')?.value;
-    const refProdelec = this.projectForm.get('refp')?.value;
-    const qte = this.projectForm.get('qte')?.value;
-    const datelivprev = this.projectForm.get('dlp')?.value;
-    const debcon = this.projectForm.get('dc')?.value;
-    const fincon = this.projectForm.get('fc')?.value;
-    const debmeth = this.projectForm.get('dm')?.value;
-    const finmeth = this.projectForm.get('fm')?.value;
-    const debprod = this.projectForm.get('dp')?.value;
-    const finprod = this.projectForm.get('fp')?.value;
-    const debcf = this.projectForm.get('dcf')?.value;
-    const fincf = this.projectForm.get('fcf')?.value;
-    const dlValue = this.projectForm.get('dl')?.value;
-const flValue = this.projectForm.get('fl')?.value;
+  if (this.projectForm.invalid) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Formulaire invalide',
+      text: 'Veuillez remplir tous les champs obligatoires.',
+    });
+    return;
+  }
 
-const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const durecons = this.projectForm.get('drc')?.value;
-    const respcons = this.projectForm.get('rc')?.value || '';
-    const comcons = this.projectForm.get('cdc')?.value;
-    const duremeth = this.projectForm.get('drm')?.value;
-    const resmeth = this.projectForm.get('rm')?.value || '';
-    const commeth = this.projectForm.get('cdm')?.value;
-    const durepro = this.projectForm.get('drp')?.value;
-    const resprod = this.projectForm.get('rp')?.value || '';
-    const comprod = this.projectForm.get('cdp')?.value;
-    const durecf = this.projectForm.get('drcf')?.value;
-    const rescf = this.projectForm.get('rcf')?.value || '';
-    const comcf = this.projectForm.get('cdcf')?.value;
-    const dureliv = this.projectForm.get('drl')?.value;
-    const resliv = this.projectForm.get('rl')?.value || '';
-    const comliv = this.projectForm.get('cdl')?.value;
-  
-    const project: ProjectDto = {
-      refClient: refclient,
+  // Récupération des valeurs du formulaire
+  const refclient = this.projectForm.get('refc')?.value;
+  const refProdelec = this.projectForm.get('refp')?.value;
+  const qte = this.projectForm.get('qte')?.value;
+  const datelivprev = this.projectForm.get('dlp')?.value;
+
+  // Conversion des dates en objets Date ou null
+  const debcon = this.projectForm.get('dc')?.value ? new Date(formatDate(this.projectForm.get('dc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const fincon = this.projectForm.get('fc')?.value ? new Date(formatDate(this.projectForm.get('fc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debmeth = this.projectForm.get('dm')?.value ? new Date(formatDate(this.projectForm.get('dm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finmeth = this.projectForm.get('fm')?.value ? new Date(formatDate(this.projectForm.get('fm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debprod = this.projectForm.get('dp')?.value ? new Date(formatDate(this.projectForm.get('dp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finprod = this.projectForm.get('fp')?.value ? new Date(formatDate(this.projectForm.get('fp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debcf = this.projectForm.get('dcf')?.value ? new Date(formatDate(this.projectForm.get('dcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const fincf = this.projectForm.get('fcf')?.value ? new Date(formatDate(this.projectForm.get('fcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debliv = this.projectForm.get('dl')?.value ? new Date(formatDate(this.projectForm.get('dl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finliv = this.projectForm.get('fl')?.value ? new Date(formatDate(this.projectForm.get('fl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+
+  // Récupération des durées (assurez-vous qu'elles sont des nombres ou 0)
+  const durecons = Number(this.projectForm.get('drc')?.value) || 0;
+  const duremeth = Number(this.projectForm.get('drm')?.value) || 0;
+  const durepro = Number(this.projectForm.get('drp')?.value) || 0;
+  const durecf = Number(this.projectForm.get('drcf')?.value) || 0;
+  const dureliv = Number(this.projectForm.get('drl')?.value) || 0;
+
+  // Récupération des commentaires
+  const comcons = this.projectForm.get('cdc')?.value || '';
+  const commeth = this.projectForm.get('cdm')?.value || '';
+  const comprod = this.projectForm.get('cdp')?.value || '';
+  const comcf = this.projectForm.get('cdcf')?.value || '';
+  const comliv = this.projectForm.get('cdl')?.value || '';
+
+  // Récupération des responsables (trim et undefined si vide)
+  const respcons = (this.projectForm.get('rc')?.value || '').trim() || undefined;
+  const resmeth = (this.projectForm.get('rm')?.value || '').trim() || undefined;
+  const resprod = (this.projectForm.get('rp')?.value || '').trim() || undefined;
+  const rescf = (this.projectForm.get('rcf')?.value || '').trim() || undefined;
+  const resliv = (this.projectForm.get('rl')?.value || '').trim() || undefined;
+
+  // Construction de l'objet ProjectDto
+  const project: ProjectDto = {
+    refClient: refclient,
     refProdelec: refProdelec,
     qte: qte,
     dlp: datelivprev,
-    duree: durecons+duremeth+durepro+durecf+dureliv,
+    duree: durecons + duremeth + durepro + durecf + dureliv,
     conceptionComment: comcons,
     conceptionDuration: durecons,
     methodeComment: commeth,
@@ -408,12 +424,13 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
     endFc: fincf,
     startDelivery: debliv,
     endDelivery: finliv
-    };
-    console.log("projet dto = ",project);
-        console.log(" resprod = ",resprod);
+  };
 
-  
-    this.projectservice.createProject(project,this.idorder,respcons,resmeth,resprod,rescf,resliv).subscribe(() => {
+  console.log("Projet DTO = ", project);
+  console.log("Responsable production = ", resprod);
+
+  this.projectservice.createProject(project, this.idorder, respcons, resmeth, resprod, rescf, resliv).subscribe({
+    next: () => {
       Swal.fire({
         icon: 'success',
         title: 'Projet ajouté',
@@ -422,22 +439,24 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
       });
       this.router.navigate(['/listproject']);
     },
-    () => {
+    error: (error) => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'An error occurred while editing',
-        footer: 'Try again'
+        text: error.error?.message || 'Une erreur est survenue lors de la création du projet.',
+        footer: 'Veuillez réessayer'
       });
-    });
-  
-    this.showModala?.hide();
-    setTimeout(() => {
-      this.projectForm.reset();
-    }, 2000);
+    }
+  });
+
+  this.showModala?.hide();
+  setTimeout(() => {
     this.projectForm.reset();
-    this.submitted = true;
-  }
+  }, 2000);
+  this.projectForm.reset();
+  this.submitted = true;
+}
+
   
   getFileNameFromPath(path: string): string {
     if (!path) return '';

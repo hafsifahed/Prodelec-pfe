@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { ProjectDto } from '../../models/projectfo/project-dto';
@@ -11,15 +11,69 @@ export class ProjectService {
 
   constructor(private http: HttpClient) { }
 
-  createProject(project: ProjectDto, idOrder: number, conceptionResponsible?: string, methodeResponsible?: string, productionResponsible?: string, finalControlResponsible?: string, deliveryResponsible?: string) {
-    const url = `${environment.baseUrl}/projects?idOrder=${idOrder}&conceptionResponsible=${conceptionResponsible}&methodeResponsible=${methodeResponsible}&productionResponsible=${productionResponsible}&finalControlResponsible=${finalControlResponsible}&deliveryResponsible=${deliveryResponsible}`;
-    return this.http.post(url, project);
+
+createProject(
+  project: ProjectDto,
+  idOrder: number,
+  conceptionResponsible?: string,
+  methodeResponsible?: string,
+  productionResponsible?: string,
+  finalControlResponsible?: string,
+  deliveryResponsible?: string
+) {
+  let params = new HttpParams().set('idOrder', idOrder.toString());
+
+  if (conceptionResponsible?.trim()) {
+    params = params.set('conceptionResponsible', conceptionResponsible.trim());
+  }
+  if (methodeResponsible?.trim()) {
+    params = params.set('methodeResponsible', methodeResponsible.trim());
+  }
+  if (productionResponsible?.trim()) {
+    params = params.set('productionResponsible', productionResponsible.trim());
+  }
+  if (finalControlResponsible?.trim()) {
+    params = params.set('finalControlResponsible', finalControlResponsible.trim());
+  }
+  if (deliveryResponsible?.trim()) {
+    params = params.set('deliveryResponsible', deliveryResponsible.trim());
   }
 
-  updateProject(projectId: number, updatedProject: ProjectDto, conceptionResponsible?: string, methodeResponsible?: string, productionResponsible?: string, finalControlResponsible?: string, deliveryResponsible?: string) {
-    const url = `${environment.baseUrl}/projects/${projectId}?conceptionResponsible=${conceptionResponsible}&methodeResponsible=${methodeResponsible}&productionResponsible=${productionResponsible}&finalControlResponsible=${finalControlResponsible}&deliveryResponsible=${deliveryResponsible}`;
-    return this.http.put(url, updatedProject);
+  const url = `${environment.baseUrl}/projects`;
+  return this.http.post(url, project, { params });
+}
+
+updateProject(
+  projectId: number,
+  updatedProject: ProjectDto,
+  conceptionResponsible?: string,
+  methodeResponsible?: string,
+  productionResponsible?: string,
+  finalControlResponsible?: string,
+  deliveryResponsible?: string
+) {
+  let params = new HttpParams();
+
+  if (conceptionResponsible?.trim()) {
+    params = params.set('conceptionResponsible', conceptionResponsible.trim());
   }
+  if (methodeResponsible?.trim()) {
+    params = params.set('methodeResponsible', methodeResponsible.trim());
+  }
+  if (productionResponsible?.trim()) {
+    params = params.set('productionResponsible', productionResponsible.trim());
+  }
+  if (finalControlResponsible?.trim()) {
+    params = params.set('finalControlResponsible', finalControlResponsible.trim());
+  }
+  if (deliveryResponsible?.trim()) {
+    params = params.set('deliveryResponsible', deliveryResponsible.trim());
+  }
+
+  const url = `${environment.baseUrl}/projects/${projectId}`;
+  return this.http.put(url, updatedProject, { params });
+}
+
 
   getAllProjects() {
     return this.http.get<Project[]>(`${environment.baseUrl}/projects`);

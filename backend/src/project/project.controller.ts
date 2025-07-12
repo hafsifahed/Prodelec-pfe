@@ -30,22 +30,52 @@ create(
   @Query('finalControlResponsible') fcr?: string,
   @Query('deliveryResponsible') dr?: string,
 ) {
-  return this.projSrv.addProject(dto, +idOrder, cr, mr, pr, fcr, dr);
+  // Nettoyage des paramètres : passer undefined si vide ou espaces
+  const conceptionResponsible = cr?.trim() || undefined;
+  const methodeResponsible = mr?.trim() || undefined;
+  const productionResponsible = pr?.trim() || undefined;
+  const finalControlResponsible = fcr?.trim() || undefined;
+  const deliveryResponsible = dr?.trim() || undefined;
+
+  return this.projSrv.addProject(
+    dto,
+    +idOrder,
+    conceptionResponsible,
+    methodeResponsible,
+    productionResponsible,
+    finalControlResponsible,
+    deliveryResponsible,
+  );
 }
 
+@Put(':id')
+update(
+  @Param('id') id: number,
+  @Body() body: Partial<Project>,
+  @Query('conceptionResponsible') cr?: string,
+  @Query('methodeResponsible') mr?: string,
+  @Query('productionResponsible') pr?: string,
+  @Query('finalControlResponsible') fcr?: string,
+  @Query('deliveryResponsible') dr?: string,
+) {
+  // Même nettoyage côté update
+  const conceptionResponsible = cr?.trim() || undefined;
+  const methodeResponsible = mr?.trim() || undefined;
+  const productionResponsible = pr?.trim() || undefined;
+  const finalControlResponsible = fcr?.trim() || undefined;
+  const deliveryResponsible = dr?.trim() || undefined;
 
-  @Put(':id')
-  update(
-    @Param('id') id: number,
-    @Body() body: Partial<Project>,
-    @Query('conceptionResponsible') cr?: string,
-    @Query('methodeResponsible') mr?: string,
-    @Query('productionResponsible') pr?: string,
-    @Query('finalControlResponsible') fcr?: string,
-    @Query('deliveryResponsible') dr?: string,
-  ) {
-    return this.projSrv.updateProject(+id, body, cr, mr, pr, fcr, dr);
-  }
+  return this.projSrv.updateProject(
+    +id,
+    body,
+    conceptionResponsible,
+    methodeResponsible,
+    productionResponsible,
+    finalControlResponsible,
+    deliveryResponsible,
+  );
+}
+
 
   @Get()        findAll()        { return this.projSrv.findAll(); }
   @Get(':id')   findOne(@Param('id') id: number) { return this.projSrv.findOne(+id); }

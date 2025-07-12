@@ -114,31 +114,31 @@ this.userStateService.user$.subscribe(user => {
 
     this.projectsForm = this.formBuilder.group({
       dlp: ['', [Validators.required]],
-      drc: [0, [Validators.required]],
-      cdc: ['', [Validators.required]],
-      rc: ['', [Validators.required]],
-      drm: [0, [Validators.required]],
-      cdm: ['', [Validators.required]],
-      rm: ['', [Validators.required]],
-      drp: [0, [Validators.required]],
-      cdp: ['', [Validators.required]],
-      rp: ['', [Validators.required]],
-      drcf: [0, [Validators.required]],
-      cdcf: ['', [Validators.required]],
-      rcf: ['', [Validators.required]],
-      drl: [0, [Validators.required]],
-      cdl: ['', [Validators.required]],
-      rl: ['', [Validators.required]],
-      dc: ['', [Validators.required]],
-      fc: ['', [Validators.required]],
-      dm: ['', [Validators.required]],
-      fm: ['', [Validators.required]],
-      dp: ['', [Validators.required]],
-      fp: ['', [Validators.required]],
-      dcf: ['', [Validators.required]],
-      fcf: ['', [Validators.required]],
-      dl: ['', [Validators.required]],
-      fl: ['', [Validators.required]],
+      drc: [0, ],
+      cdc: ['', ],
+      rc: ['', ],
+      drm: [0, ],
+      cdm: ['', ],
+      rm: ['', ],
+      drp: [0, ],
+      cdp: ['', ],
+      rp: ['', ],
+      drcf: [0, ],
+      cdcf: ['', ],
+      rcf: ['', ],
+      drl: [0, ],
+      cdl: ['', ],
+      rl: ['', ],
+      dc: ['', ],
+      fc: ['', ],
+      dm: ['', ],
+      fm: ['', ],
+      dp: ['', ],
+      fp: ['', ],
+      dcf: ['', ],
+      fcf: ['', ],
+      dl: ['', ],
+      fl: ['', ],
       qte: ['', [Validators.required]]
     });
 
@@ -146,31 +146,31 @@ this.userStateService.user$.subscribe(user => {
       refc: ['', [Validators.required]],
       refp: ['', [Validators.required]],
       dlp: ['', [Validators.required]],
-      drc: [0, [Validators.required]],
-      cdc: ['', [Validators.required]],
-      rc: ['', [Validators.required]],
-      drm: [0, [Validators.required]],
-      cdm: ['', [Validators.required]],
-      rm: ['', [Validators.required]],
-      drp: [0, [Validators.required]],
-      cdp: ['', [Validators.required]],
-      rp: ['', [Validators.required]],
-      drcf: [0, [Validators.required]],
-      cdcf: ['', [Validators.required]],
-      rcf: ['', [Validators.required]],
-      drl: [0, [Validators.required]],
-      cdl: ['', [Validators.required]],
-      rl: ['', [Validators.required]],
-      dc: ['', [Validators.required]],
-      fc: ['', [Validators.required]],
-      dm: ['', [Validators.required]],
-      fm: ['', [Validators.required]],
-      dp: ['', [Validators.required]],
-      fp: ['', [Validators.required]],
-      dcf: ['', [Validators.required]],
-      fcf: ['', [Validators.required]],
-      dl: ['', [Validators.required]],
-      fl: ['', [Validators.required]],
+      drc: [0, ],
+      cdc: ['', ],
+      rc: ['', ],
+      drm: [0, ],
+      cdm: ['', ],
+      rm: ['', ],
+      drp: [0, ],
+      cdp: ['', ],
+      rp: ['', ],
+      drcf: [0, ],
+      cdcf: ['', ],
+      rcf: ['', ],
+      drl: [0, ],
+      cdl: ['', ],
+      rl: ['', ],
+      dc: ['', ],
+      fc: ['', ],
+      dm: ['', ],
+      fm: ['', ],
+      dp: ['', ],
+      fp: ['', ],
+      dcf: ['', ],
+      fcf: ['', ],
+      dl: ['', ],
+      fl: ['', ],
       qte: [0, [Validators.required]]
     });
 
@@ -622,43 +622,60 @@ this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(
   }
 
   addproject() {
-    const qte = this.projectsForm.get('qte')?.value;
-    const datelivprev = this.projectsForm.get('dlp')?.value;
-    const debcon = this.projectsForm.get('dc')?.value;
-    const fincon = this.projectsForm.get('fc')?.value;
-    const debmeth = this.projectsForm.get('dm')?.value;
-    const finmeth = this.projectsForm.get('fm')?.value;
-    const debprod = this.projectsForm.get('dp')?.value;
-    const finprod = this.projectsForm.get('fp')?.value;
-    const debcf = this.projectsForm.get('dcf')?.value;
-    const fincf = this.projectsForm.get('fcf')?.value;
-    const dlValue = this.projectsForm.get('dl')?.value;
-const flValue = this.projectsForm.get('fl')?.value;
+  // Validation simple du formulaire
+  if (this.projectsForm.invalid) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Formulaire invalide',
+      text: 'Veuillez remplir tous les champs obligatoires correctement.',
+    });
+    return;
+  }
 
-const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const durecons = this.projectsForm.get('drc')?.value;
-    const respcons = this.projectsForm.get('rc')?.value || '';
-    const comcons = this.projectsForm.get('cdc')?.value;
-    const duremeth = this.projectsForm.get('drm')?.value;
-    const resmeth = this.projectsForm.get('rm')?.value || '';
-    const commeth = this.projectsForm.get('cdm')?.value;
-    const durepro = this.projectsForm.get('drp')?.value;
-    const resprod = this.projectsForm.get('rp')?.value || '';
-    const comprod = this.projectsForm.get('cdp')?.value;
-    const durecf = this.projectsForm.get('drcf')?.value;
-    const rescf = this.projectsForm.get('rcf')?.value || '';
-    const comcf = this.projectsForm.get('cdcf')?.value;
-    const dureliv = this.projectsForm.get('drl')?.value;
-    const resliv = this.projectsForm.get('rl')?.value || '';
-    const comliv = this.projectsForm.get('cdl')?.value;
-  
-    const project: ProjectDto = {
-      refClient: this.project.refClient,
+  // Récupération des valeurs du formulaire
+  const qte = this.projectsForm.get('qte')?.value;
+  const datelivprev = this.projectsForm.get('dlp')?.value;
+
+  // Conversion des dates en objets Date ou null
+  const debcon = this.projectsForm.get('dc')?.value ? new Date(formatDate(this.projectsForm.get('dc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const fincon = this.projectsForm.get('fc')?.value ? new Date(formatDate(this.projectsForm.get('fc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debmeth = this.projectsForm.get('dm')?.value ? new Date(formatDate(this.projectsForm.get('dm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finmeth = this.projectsForm.get('fm')?.value ? new Date(formatDate(this.projectsForm.get('fm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debprod = this.projectsForm.get('dp')?.value ? new Date(formatDate(this.projectsForm.get('dp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finprod = this.projectsForm.get('fp')?.value ? new Date(formatDate(this.projectsForm.get('fp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debcf = this.projectsForm.get('dcf')?.value ? new Date(formatDate(this.projectsForm.get('dcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const fincf = this.projectsForm.get('fcf')?.value ? new Date(formatDate(this.projectsForm.get('fcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const debliv = this.projectsForm.get('dl')?.value ? new Date(formatDate(this.projectsForm.get('dl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+  const finliv = this.projectsForm.get('fl')?.value ? new Date(formatDate(this.projectsForm.get('fl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
+
+  // Récupération des durées, en s'assurant qu'elles sont des nombres valides (sinon 0)
+  const durecons = Number(this.projectsForm.get('drc')?.value) || 0;
+  const duremeth = Number(this.projectsForm.get('drm')?.value) || 0;
+  const durepro = Number(this.projectsForm.get('drp')?.value) || 0;
+  const durecf = Number(this.projectsForm.get('drcf')?.value) || 0;
+  const dureliv = Number(this.projectsForm.get('drl')?.value) || 0;
+
+  // Récupération des commentaires
+  const comcons = this.projectsForm.get('cdc')?.value || '';
+  const commeth = this.projectsForm.get('cdm')?.value || '';
+  const comprod = this.projectsForm.get('cdp')?.value || '';
+  const comcf = this.projectsForm.get('cdcf')?.value || '';
+  const comliv = this.projectsForm.get('cdl')?.value || '';
+
+  // Récupération des responsables, en nettoyant les valeurs vides
+  const respcons = (this.projectsForm.get('rc')?.value || '').trim() || undefined;
+  const resmeth = (this.projectsForm.get('rm')?.value || '').trim() || undefined;
+  const resprod = (this.projectsForm.get('rp')?.value || '').trim() || undefined;
+  const rescf = (this.projectsForm.get('rcf')?.value || '').trim() || undefined;
+  const resliv = (this.projectsForm.get('rl')?.value || '').trim() || undefined;
+
+  // Construction de l'objet ProjectDto
+  const project: ProjectDto = {
+    refClient: this.project.refClient,
     refProdelec: this.project.refProdelec,
     qte: qte,
     dlp: datelivprev,
-    duree: durecons+duremeth+durepro+durecf+dureliv,
+    duree: durecons + duremeth + durepro + durecf + dureliv,
     conceptionComment: comcons,
     conceptionDuration: durecons,
     methodeComment: commeth,
@@ -678,35 +695,39 @@ const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : 
     startFc: debcf,
     endFc: fincf,
     startDelivery: debliv,
-    endDelivery: finliv 
-    };
-    console.log(respcons);
-  
-    this.projectservice.createProject(project,this.project.order.idOrder,respcons,resmeth,resprod,rescf,resliv).subscribe(() => {
+    endDelivery: finliv
+  };
+
+  // Appel du service pour créer le projet
+  this.projectservice.createProject(project, this.project.order.idOrder, respcons, resmeth, resprod, rescf, resliv).subscribe({
+    next: () => {
       Swal.fire({
         icon: 'success',
         title: 'Projet ajouté',
         showConfirmButton: false,
         timer: 1500
       });
-      location.reload()
+      location.reload();
     },
-    () => {
+    error: (error) => {
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: 'An error occurred while editing',
-        footer: 'Try again'
+        text: error.error?.message || 'Une erreur est survenue lors de la création du projet.',
+        footer: 'Veuillez réessayer'
       });
-    });
-  
-    this.showModala?.hide();
-    setTimeout(() => {
-      this.projectsForm.reset();
-    }, 2000);
+    }
+  });
+
+  // Fermeture de la modale et reset du formulaire
+  this.showModala?.hide();
+  setTimeout(() => {
     this.projectsForm.reset();
-    this.submitted = true;
-  }
+  }, 2000);
+  this.projectsForm.reset();
+  this.submitted = true;
+}
+
 
   isDateOverdue(dlp: Date,p:Project): boolean {
     const today = new Date();
