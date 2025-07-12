@@ -13,9 +13,14 @@ export enum Role {
     PROCESS_DAF = 'Processus DAF',
     PROCESS_RH = 'Processus Rh',
 
-    
+    // New responsible roles
+    RESPONSABLE_CONCEPTION = 'Responsable Conception',
+    RESPONSABLE_QUALITE = 'Responsable Qualité',
+    RESPONSABLE_METHODE = 'Responsable Méthode',
+    RESPONSABLE_PRODUCTION = 'Responsable Production',
+    RESPONSABLE_LOGISTIQUE = 'Responsable Logistique',
+
     // Client roles
     CLIENT_ADMIN = 'CLIENTADMIN',
     CLIENT_USER = 'CLIENTUSER'
-  }
-  
+}

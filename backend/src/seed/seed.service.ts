@@ -54,6 +54,11 @@ export class SeedService implements OnApplicationBootstrap {
       [RoleEnum.PROCESS_RH,         this.rhProc()],
       [RoleEnum.CLIENT_ADMIN,       this.clientAdmin()],
       [RoleEnum.CLIENT_USER,        this.clientUser()],
+      [RoleEnum.RESPONSABLE_CONCEPTION, this.responsableConceptionProc()],
+      [RoleEnum.RESPONSABLE_QUALITE, this.responsableQualiteProc()],
+      [RoleEnum.RESPONSABLE_METHODE, this.responsableMethodeProc()],
+      [RoleEnum.RESPONSABLE_PRODUCTION, this.responsableProductionProc()],
+      [RoleEnum.RESPONSABLE_LOGISTIQUE, this.responsableLogistiqueProc()],
     ]);
 
     for (const [name, permissions] of roleDefinitions) {
@@ -95,6 +100,36 @@ export class SeedService implements OnApplicationBootstrap {
                                          { resource: Resource.ORDERS,  actions: [Action.MANAGE] } ]; }
   private clientUser()        { return [ { resource: Resource.PRODUCTS,actions: [Action.READ] },
                                          { resource: Resource.ORDERS,  actions: [Action.CREATE, Action.READ] } ]; }
+  private responsableConceptionProc() {
+  return [
+    { resource: Resource.PRODUCTS, actions: [Action.MANAGE] },
+    { resource: Resource.DESIGN, actions: [Action.READ] },
+  ];
+}
+
+private responsableQualiteProc() {
+  return [
+    { resource: Resource.QUALITY, actions: [Action.MANAGE] },
+  ];
+}
+
+private responsableMethodeProc() {
+  return [
+    { resource: Resource.METHOD, actions: [Action.MANAGE] },
+  ];
+}
+
+private responsableProductionProc() {
+  return [
+    { resource: Resource.PRODUCTION, actions: [Action.MANAGE] },
+  ];
+}
+
+private responsableLogistiqueProc() {
+  return [
+    { resource: Resource.LOGISTICS, actions: [Action.MANAGE] },
+  ];
+}
 
   /* ---------------------------- ADMIN -------------------------------- */
 
@@ -126,37 +161,48 @@ export class SeedService implements OnApplicationBootstrap {
   /* ----------------------- UTILISATEURS PROCESS ---------------------- */
 
   private async seedProcessUsers() {
-    const configs: Array<{ role: RoleEnum; email: string; first: string }> = [
-      { role: RoleEnum.PROCESS_RH,         email: 'rh.process@example.com',         first: 'HR'         },
-      { role: RoleEnum.PROCESS_METHOD,     email: 'method.process@example.com',     first: 'Method'     },
-      { role: RoleEnum.PROCESS_PRODUCTION, email: 'production.process@example.com', first: 'Production' },
-      { role: RoleEnum.PROCESS_LOGISTICS,  email: 'logistics.process@example.com',  first: 'Logistics'  },
-      { role: RoleEnum.PROCESS_DAF,        email: 'daf.process@example.com',        first: 'DAF'        },
-      { role: RoleEnum.PROCESS_QUALITY,    email: 'quality.process@example.com',    first: 'Quality'    },
-      { role: RoleEnum.PROCESS_DESIGN,     email: 'design.process@example.com',     first: 'Design'     },
-    ];
+  const configs: Array<{ role: RoleEnum; email: string; first: string }> = [
+    { role: RoleEnum.PROCESS_RH,         email: 'rh.process@example.com',         first: 'HR'         },
+    { role: RoleEnum.PROCESS_METHOD,     email: 'method.process@example.com',     first: 'Method'     },
+    { role: RoleEnum.PROCESS_PRODUCTION, email: 'production.process@example.com', first: 'Production' },
+    { role: RoleEnum.PROCESS_LOGISTICS,  email: 'logistics.process@example.com',  first: 'Logistics'  },
+    { role: RoleEnum.PROCESS_DAF,        email: 'daf.process@example.com',        first: 'DAF'        },
+    { role: RoleEnum.PROCESS_QUALITY,    email: 'quality.process@example.com',    first: 'Quality'    },
+    { role: RoleEnum.PROCESS_DESIGN,     email: 'design.process@example.com',     first: 'Design'     },
 
-    for (const cfg of configs) {
-      if (await this.userRepo.findOne({ where: { email: cfg.email } })) continue;
+    // Nouveaux responsables
+    { role: RoleEnum.RESPONSABLE_CONCEPTION, email: 'responsable.conception@example.com', first: 'Responsable Conception' },
+    { role: RoleEnum.RESPONSABLE_QUALITE,    email: 'responsable.qualite@example.com',    first: 'Responsable Qualité'    },
+    { role: RoleEnum.RESPONSABLE_METHODE,    email: 'responsable.methode@example.com',    first: 'Responsable Méthode'    },
+    { role: RoleEnum.RESPONSABLE_PRODUCTION, email: 'responsable.production@example.com', first: 'Responsable Production' },
+    { role: RoleEnum.RESPONSABLE_LOGISTIQUE, email: 'responsable.logistique@example.com', first: 'Responsable Logistique' },
+  ];
 
-      const role = await this.roleRepo.findOne({ where: { name: cfg.role } });
-      if (!role) { this.logger.warn(`Role ${cfg.role} not found`); continue; }
+  for (const cfg of configs) {
+    if (await this.userRepo.findOne({ where: { email: cfg.email } })) continue;
 
-      const dto: any = {
-        username: cfg.email.split('@')[0],
-        email: cfg.email,
-        firstName: cfg.first,
-        lastName: 'Process',
-        password: 'aaaaaaaaa',       // sera haché par UsersService
-        roleId: role.id,
-      };
-
-      await this.usersService.create(dto);
-      await this.userRepo.update({ email: cfg.email }, { accountStatus: AccountStatus.ACTIVE });
-
-      this.logger.log(`✓ Utilisateur process créé : ${cfg.email}`);
+    const role = await this.roleRepo.findOne({ where: { name: cfg.role } });
+    if (!role) {
+      this.logger.warn(`Role ${cfg.role} not found`);
+      continue;
     }
+
+    const dto: any = {
+      username: cfg.email.split('@')[0],
+      email: cfg.email,
+      firstName: cfg.first,
+      lastName: 'Process',
+      password: 'aaaaaaaaa', // sera haché par UsersService
+      roleId: role.id,
+    };
+
+    await this.usersService.create(dto);
+    await this.userRepo.update({ email: cfg.email }, { accountStatus: AccountStatus.ACTIVE });
+
+    this.logger.log(`✓ Utilisateur process créé : ${cfg.email}`);
   }
+}
+
 
   /*-------------------------Setting-------------------*/
   private async seedDefaultSetting() {

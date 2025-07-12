@@ -1,7 +1,7 @@
 <div class="global-filters mb-4">
   <div class="row g-3 align-items-end">
     <!-- Filtre utilisateur visible seulement pour CLIENTADMIN -->
-    <div class="col-md-6" *ngIf="roleName === 'CLIENT ADMIN'">
+    <div class="col-md-6" *ngIf="roleName === 'CLIENTADMIN'">
       <label class="form-label">Utilisateur user</label>
       <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''">
         <option value="">Tous les utilisateurs</option>

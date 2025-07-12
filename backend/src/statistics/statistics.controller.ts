@@ -1,6 +1,8 @@
 // src/statistics/statistics.controller.ts
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../users/entities/users.entity';
 import { SearchDto } from './dto/search.dto';
 import { GlobalStats, StatisticsService } from './statistics.service';
 
@@ -11,7 +13,8 @@ export class StatisticsController {
   ) {}
 
   @Get('global')
-  getGlobal(): Promise<GlobalStats> {
+  getGlobal(   @CurrentUser() user: User,
+): Promise<GlobalStats> {
     return this.statsService.getGlobalStats();
   }
 

@@ -11,6 +11,7 @@ export enum Resource {
   INVENTORY = 'inventory',
   QUALITY = 'quality',
   PRODUCTION = 'production',
+  DESIGN='conception',
   PROJECT='project',
   LOGISTICS = 'logistics',
   HR = 'hr',
