@@ -165,6 +165,7 @@ import { ProjectCalendarComponent } from './project-calendar/project-calendar.co
     CdkStepperModule,
     UIModule,
     FullCalendarModule,
+    BsDropdownModule,
 
 
     NgxExtendedPdfViewerModule,

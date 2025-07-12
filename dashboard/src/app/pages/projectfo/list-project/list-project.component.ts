@@ -45,7 +45,7 @@ export class ListProjectComponent implements OnInit, OnDestroy {
     { label: 'Projets', active: true }
   ];
   
-displayMode: 'table' | 'grid' = 'table';
+displayMode: 'table' | 'grid' = 'grid';
 
         // Pour modal Ajout
     showConceptionAdd = false;
@@ -855,4 +855,20 @@ this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(
   }
 }
 
+
+hasEditPermission(project: any): boolean {
+  return (this.userr && 
+         (project.conceptionResponsible?.id === this.userr.id || 
+          project.methodeResponsible?.id === this.userr.id || 
+          project.productionResponsible?.id === this.userr.id || 
+          project.finalControlResponsible?.id === this.userr.id || 
+          project.deliveryResponsible?.id === this.userr.id)) || 
+         this.userr.role?.name === 'SUBADMIN';
+}
+
+hasPhasePermission(phase: string, project: any): boolean {
+  const responsibleField = `${phase}Responsible`;
+  return (this.userr && project[responsibleField]?.id === this.userr.id) || 
+         this.userr?.role?.name === 'SUBADMIN';
+}
 }
