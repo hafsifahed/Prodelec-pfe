@@ -5,3 +5,4 @@ export class AccountStatusDto {
   @IsEnum(AccountStatus)
   status: AccountStatus;
 }
+

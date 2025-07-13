@@ -39,6 +39,9 @@ export class User {
   @Column({ select: false })
   password: string;
 
+  @Column({ nullable: true })
+  image?: string;
+
   @ManyToOne(() => Role, { eager: true, nullable: false })
   @JoinColumn({ name: 'roleId' }) // Optional: specify FK column name
   role: Role;

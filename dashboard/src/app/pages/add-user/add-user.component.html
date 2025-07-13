@@ -86,6 +86,16 @@
                 <i class="fas fa-exclamation-circle"></i> Un partenaire doit être sélectionné
               </div>
             </div>
+            <!-- Upload image -->
+              <div class="mb-3">
+                <label for="fileInput" class="form-label"><i class="fas fa-image"></i> Photo de profil (optionnel)</label>
+                <input id="fileInput" type="file" (change)="onFileSelected($event)" accept="image/*" class="form-control" />
+              </div>
+
+              <!-- Aperçu image -->
+              <div *ngIf="previewUrl" class="mb-3 text-center">
+                <img [src]="previewUrl" alt="Aperçu image" style="max-width: 150px; max-height: 150px; border-radius: 8px; object-fit: cover;" />
+              </div>
 
             <!-- Actions -->
             <div class="mt-4 d-flex gap-2 justify-content-center">

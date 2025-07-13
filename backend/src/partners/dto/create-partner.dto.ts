@@ -10,6 +10,7 @@ export class CreatePartnerDto {
   @IsString()
   tel: string;
 
+  @IsString()
   @IsOptional()
   image?: string;
 }

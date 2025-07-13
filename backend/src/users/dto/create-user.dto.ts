@@ -32,6 +32,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   email: string;
 
+  @IsOptional()
+  image: string;
+
   @IsInt()
   @IsPositive()
   roleId: number;
@@ -40,6 +43,7 @@ export class CreateUserDto {
   @IsPositive()
   @IsOptional()
   partnerId: number;
+
 
   @IsOptional()
   @ArrayUnique()

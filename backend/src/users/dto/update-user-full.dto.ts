@@ -15,6 +15,9 @@ export class UpdateUserFullDto {
   @IsOptional()
   email?: string;
 
+  @IsOptional()
+  image: string;
+
   @IsInt()
   @IsPositive()
   @IsOptional()

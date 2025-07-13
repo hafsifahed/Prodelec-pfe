@@ -1,6 +1,6 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/auth.models';
 import { UpdateUserFullDto } from '../models/update-user-full.dto';
 import { environment } from 'src/environments/environment';
@@ -11,6 +11,7 @@ export interface CreateUserDto {
   firstName: string;
   lastName: string;
   email: string;
+  image?:string;
   roleId: number;
   partnerId:number;
 }
@@ -26,6 +27,7 @@ export interface UserSessionStats {
 export interface FindUsersDto {
   username?: string;
   email?: string;
+    image?:string;
   accountStatus?: string;
   roleId?: number;
 }
@@ -42,6 +44,7 @@ export interface SetPasswordDto {
 export interface UpdateUserDto {
   firstName?: string;
   lastName?: string;
+  image?:string;
   email?: string;
 }
 
@@ -168,6 +171,35 @@ export class UsersService {
   getClients(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/clients`);
   }
+
+     uploadImage(file: File): Observable<{ progress: number; body?: any }> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http.post(`${this.apiUrl}/upload-image`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    }).pipe(
+      map(event => {
+        switch (event.type) {
+          case HttpEventType.UploadProgress:
+            return { progress: event.total ? Math.round((event.loaded / event.total) * 100) : 0 };
+          case HttpEventType.Response:
+            return { progress: 100, body: event.body };
+          default:
+            return { progress: 0 };
+        }
+      })
+    );
+  }
   
+
+getUserImageUrl(user: User): string {
+console.log('sddsd',user.image)
+  return user.image
+    ? `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`
+    : 'assets/images/companies/img-6.png'; // image par défaut locale
+}
+
   
 }

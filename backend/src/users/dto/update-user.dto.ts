@@ -13,13 +13,9 @@ export class UpdateUserDto {
   @IsEmail()
   @IsOptional()
   email?: string;
+
+    @IsOptional()
+    image: string;
 }
 
-// src/users/dto/account-status.dto.ts
-import { IsEnum } from 'class-validator';
-import { AccountStatus } from '../enums/account-status.enum';
 
-export class AccountStatusDto {
-  @IsEnum(AccountStatus)
-  status: AccountStatus;
-}

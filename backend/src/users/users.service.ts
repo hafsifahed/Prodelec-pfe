@@ -27,7 +27,7 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
-    const { username, password, firstName, lastName, email, roleId } = dto;
+    const { username, password, firstName, lastName, email, roleId,image } = dto;
 
     // Find the Role entity by roleId
     const role = await this.rolesRepository.findOne({ where: { id: roleId } });
@@ -44,6 +44,7 @@ export class UsersService {
       firstName,
       lastName,
       email,
+      image,
       role, // assign Role entity here
       accountStatus: AccountStatus.INACTIVE,
     });
@@ -54,7 +55,7 @@ export class UsersService {
   }
 
   async createBy(dto: CreateUserDto & { partnerId?: number }): Promise<User> {
-    const { username, password, firstName, lastName, email, roleId, partnerId } = dto;
+    const { username, password, firstName, lastName, email, roleId, partnerId,image } = dto;
   
     const role = await this.rolesRepository.findOne({ where: { id: roleId } });
     if (!role) {
@@ -78,6 +79,7 @@ export class UsersService {
       firstName,
       lastName,
       email,
+      image,
       role,
       partner, // assign partner entity if exists
       accountStatus: AccountStatus.INACTIVE,
@@ -119,6 +121,7 @@ export class UsersService {
     'user.firstName',
     'user.lastName',
     'user.email',
+    'user.image',
     'user.accountStatus',
     'user.createdAt',
     'user.updatedAt',
@@ -157,6 +160,7 @@ export class UsersService {
       'user.email',
       'user.accountStatus',
       'user.createdAt',
+      'user.image',
       'user.updatedAt',
       'role.id',
       'role.name',
@@ -243,6 +247,7 @@ export class UsersService {
         'firstName',
         'lastName',
         'email',
+        'image',
         'accountStatus',
         'createdAt',
         'updatedAt',
@@ -263,6 +268,7 @@ export class UsersService {
       select: [
         'id',
         'username',
+        'image',
         'accountStatus',
 
       ],
@@ -285,6 +291,7 @@ export class UsersService {
     if (dto.firstName) user.firstName = dto.firstName;
     if (dto.lastName) user.lastName = dto.lastName;
     if (dto.email) user.email = dto.email;
+    if (dto.image) user.email = dto.image;
 
     return this.usersRepository.save(user);
   }
@@ -302,6 +309,7 @@ export class UsersService {
     if (dto.firstName !== undefined) user.firstName = dto.firstName;
     if (dto.lastName !== undefined) user.lastName = dto.lastName;
     if (dto.email !== undefined) user.email = dto.email;
+    if (dto.image !== undefined) user.image = dto.image;
     if (dto.accountStatus !== undefined) user.accountStatus = dto.accountStatus;
   
     // Update role if provided
@@ -365,6 +373,7 @@ export class UsersService {
       'user.lastName',
       'user.email',
       'user.accountStatus',
+      'user.image',
       'user.createdAt',
       'user.updatedAt',
       'role.id',
@@ -477,6 +486,7 @@ export class UsersService {
       'user.firstName',
       'user.lastName',
       'user.email',
+      'user.image',
       'user.accountStatus',
       'user.createdAt',
       'user.updatedAt',
@@ -498,6 +508,7 @@ export class UsersService {
       'user.firstName',
       'user.lastName',
       'user.email',
+      'user.image',
       'user.accountStatus',
       'user.createdAt',
       'user.updatedAt',

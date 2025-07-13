@@ -13,6 +13,7 @@ export enum AccountStatus {
     firstName: string;
     lastName: string;
     email: string;
+    image?:string;
     accountStatus: string;
     createdAt: string;
     updatedAt: string;

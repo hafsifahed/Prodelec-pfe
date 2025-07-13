@@ -217,6 +217,7 @@
       <!-- User Profile Dropdown -->
       <div class="dropdown d-inline-block" dropdown>
         <button type="button" class="btn header-item" dropdownToggle id="page-header-user-dropdown">
+          <img class="rounded-circle header-profile-user" *ngIf="user.image" [src]="getImageUrl(user)"  alt="Header Avatar">
           <span class="d-none d-xl-inline-block ms-1">
             {{ user?.role?.name }} : {{ user?.username }}
             <span 

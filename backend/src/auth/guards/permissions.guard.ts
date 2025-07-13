@@ -31,13 +31,12 @@ export class PermissionsGuard implements CanActivate {
     // Extract permissions from user role
     const rolePermissions = user.role.permissions || [];
 
-      console.log('Required permissions:', requiredPermissions);
-    console.log('User role permissions:', rolePermissions);
-    console.log('User:', user);
     
     // Check if user role has all required permissions for each resource
     const hasPermission = requiredPermissions.every(({ resource, actions }) => {
       const perm = rolePermissions.find(p => p.resource === resource);
+          console.log('User:', perm);
+
       if (!perm) return false;
       // User must have at least one of the required actions
       return actions.some(action => perm.actions.includes(action));

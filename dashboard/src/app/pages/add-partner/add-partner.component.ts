@@ -58,13 +58,36 @@ export class AddPartnerComponent implements OnInit {
 
     const formValue = this.addPartnerForm.value;
 
-    const partnerData: Partial<Partner> = {
+    const partnerData: any = {
       name: formValue.name,
       address: formValue.address,
       tel: formValue.tel
     };
 
-    this.partnersService.addPartner(partnerData, this.imageFile).subscribe({
+    if (this.imageFile) {
+      // Upload séparé de l'image
+      const formData = new FormData();
+      formData.append('file', this.imageFile);
+
+      this.partnersService.uploadImage(formData).subscribe({
+        next: (uploadResp) => {
+          // Ajouter le nom ou url de l'image dans les données du partenaire
+          partnerData.image = uploadResp.filename || uploadResp.url;
+          this.createPartner(partnerData);
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'upload de l\'image', error);
+          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+        }
+      });
+    } else {
+      // Pas d'image, création directe
+      this.createPartner(partnerData);
+    }
+  }
+
+  private createPartner(partnerData: Partner): void {
+    this.partnersService.addPartner(partnerData).subscribe({
       next: () => {
         Swal.fire({
           title: 'Succès!',
@@ -83,7 +106,6 @@ export class AddPartnerComponent implements OnInit {
       }
     });
   }
-  
 
   goBack(): void {
     this.router.navigate(['/list-partner']);

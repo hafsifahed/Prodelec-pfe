@@ -1,32 +1,44 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as express from 'express';
+import * as os from 'os';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for your Angular frontend
+  // Activer CORS pour votre frontend Angular (adapter l'origine selon besoin)
   app.enableCors({
-    origin: true, // ou mettez l'URL exacte de votre frontend Angular
+    origin: true, // ou 'http://localhost:4200' pour restreindre l'accès
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
-    credentials: true, // si vous utilisez cookies ou headers d'auth
+    credentials: true,
   });
 
-  app.use(express.json()); // indispensable pour parser les bodies JSON
+  // Parsing JSON et URL-encoded (Nest le fait par défaut, mais c'est ok de le préciser)
+  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Validation globale des DTOs avec whitelist pour supprimer les propriétés non définies
+  // Validation globale avec whitelist pour retirer les propriétés non définies dans les DTOs
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  // Servir le dossier uploads comme statique accessible via /uploads
-  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
+  // Servir les images statiques partenaires
+  app.use(
+    '/uploads/partners',
+    express.static(join(os.homedir(), 'Downloads', 'uploads', 'partners','ProfileImages')),
+  );
 
-  // Démarrage de l'application sur le port défini dans la variable d'environnement PORT
-  //   await app.listen(parseInt(process.env.PORT));
-  await app.listen(parseInt(process.env.PORT, 10) || 3000);
+  // Servir les images statiques utilisateurs (attention au chemin correct)
+  app.use(
+    '/uploads/users/ProfileImages',
+    express.static(join(os.homedir(), 'Downloads', 'uploads', 'users', 'ProfileImages')),
+  );
+
+  // Démarrage de l'application
+  const port = parseInt(process.env.PORT, 10) || 3000;
+  await app.listen(port);
+  console.log(`Application démarrée sur le port ${port}`);
 }
 
 bootstrap();

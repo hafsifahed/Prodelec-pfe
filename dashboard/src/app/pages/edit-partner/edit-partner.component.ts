@@ -18,7 +18,7 @@ export class EditPartnerComponent implements OnInit {
     address: '',
     tel: '',
     users: [],
-    imageUrl: ''
+    image: ''
   };
 
   selectedUsers: User[] = [];
@@ -54,9 +54,10 @@ export class EditPartnerComponent implements OnInit {
           address: partner.address,
           tel: partner.tel,
           users: partner.users || [],
-          imageUrl: partner.image || ''
+          image: partner.image || ''
         };
-        this.previewUrl = this.partner.imageUrl || null;
+        this.selectedUsers = partner.users || [];
+        this.previewUrl = partner.image ? this.getImageUrl(partner) : null;
       },
       error: (error: any) => {
         console.error('Erreur lors de la récupération du partenaire', error);
@@ -81,7 +82,28 @@ export class EditPartnerComponent implements OnInit {
   updatePartner(): void {
     this.partner.users = this.selectedUsers;
 
-    this.partnersService.updatePartner(this.partner.id, this.partner, this.imageFile).subscribe({
+    if (this.imageFile) {
+      // Upload de l'image avant mise à jour
+      const formData = new FormData();
+      formData.append('file', this.imageFile);
+
+      this.partnersService.uploadImage(formData).subscribe({
+        next: (uploadResp) => {
+          this.partner.image = uploadResp.filename || uploadResp.url;
+          this.sendUpdateRequest();
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'upload de l\'image', error);
+          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+        }
+      });
+    } else {
+      this.sendUpdateRequest();
+    }
+  }
+
+  private sendUpdateRequest(): void {
+    this.partnersService.updatePartner(this.partner.id, this.partner).subscribe({
       next: () => {
         Swal.fire({
           title: 'Succès!',
@@ -106,8 +128,8 @@ export class EditPartnerComponent implements OnInit {
   }
 
   getImageUrl(partner: Partner): string {
-  return this.partnersService.getPartnerImageUrl(partner);
-}
+    return this.partnersService.getPartnerImageUrl(partner);
+  }
 
   goBack(): void {
     this.router.navigate(['/list-partner']);

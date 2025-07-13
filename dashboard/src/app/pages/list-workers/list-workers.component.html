@@ -101,7 +101,7 @@
                       <span *ngIf="!worker.image" class="avatar-title rounded-circle bg-primary-subtle text-primary">
                         {{ worker.firstName.charAt(0) }}{{ worker.lastName.charAt(0) }}
                       </span>
-                      <img *ngIf="worker.image" [src]="worker.image" class="avatar-title rounded-circle" alt="Employee image">
+              <img *ngIf="worker.image" [src]="getImageUrl(worker)" class="avatar-title rounded-circle" alt="Employee image">
                     </div>
                     <div>
                       <a [routerLink]="['/user', worker.id]" class="text-dark fw-semibold text-decoration-none">
@@ -162,7 +162,7 @@
               <span *ngIf="!worker.image" class="avatar-title rounded-circle bg-primary-subtle text-primary display-5">
                 {{ worker.firstName.charAt(0) }}{{ worker.lastName.charAt(0) }}
               </span>
-              <img *ngIf="worker.image" [src]="worker.image" class="avatar-title rounded-circle" alt="Employee image">
+              <img *ngIf="worker.image" [src]="getImageUrl(worker)" class="avatar-title rounded-circle" alt="Employee image">
             </div>
             <h5 class="card-title mb-1">
               <a [routerLink]="['/user', worker.id]" class="text-dark text-decoration-none">
@@ -171,6 +171,7 @@
             </h5>
             <p class="text-muted mb-2">{{ worker.email }}</p>
           </div>
+          
 
           <!-- Employee Details -->
           <div class="employee-details mb-3">

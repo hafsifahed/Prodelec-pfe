@@ -20,6 +20,7 @@ import { UsersService } from 'src/app/core/services/user.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
 import { SearchResults, StatisticsService } from 'src/app/core/services/statistics.service';
+import { User } from 'src/app/core/models/auth.models';
 
 
 @Component({
@@ -291,8 +292,14 @@ getNotificationIcon(title?: string): string {
     }
   }
 
+
+
   navigateToListNotifications(): void {
     this.router.navigate(['/list-notifications']);
+  }
+
+  getImageUrl(user: User): string {
+    return this.usersService.getUserImageUrl(user);
   }
 
 }

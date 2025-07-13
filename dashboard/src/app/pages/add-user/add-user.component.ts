@@ -5,7 +5,7 @@ import { Partner } from '../../core/models/partner.models';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { UsersService } from 'src/app/core/services/user.service';
-import { Role } from 'src/app/core/models/role.model'; // adapte selon ton modèle
+import { Role } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-add-user',
@@ -18,8 +18,10 @@ export class AddUserComponent implements OnInit {
   clientRoles: Role[] = [];
   workerRoles: Role[] = [];
   roles: Role[] = [];
+  previewUrl: string | ArrayBuffer | null = null;
 
   selectedUserType: 'client' | 'worker' = 'client';
+  selectedFile?: File;
 
   isSubmitting = false;
 
@@ -50,6 +52,17 @@ export class AddUserComponent implements OnInit {
     this.loadPartners();
     this.loadRoles();
     this.setRolesForSelectedType();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+
+      const reader = new FileReader();
+      reader.onload = () => (this.previewUrl = reader.result);
+      reader.readAsDataURL(this.selectedFile);
+    }
   }
 
   loadPartners(): void {
@@ -100,35 +113,57 @@ export class AddUserComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.addUserForm.invalid) {
-      this.addUserForm.markAllAsTouched();
-      return;
-    }
+  if (this.addUserForm.invalid) {
+    this.addUserForm.markAllAsTouched();
+    return;
+  }
 
-    this.isSubmitting = true;
-    const formValue = this.addUserForm.value;
+  this.isSubmitting = true;
+  const formValue = this.addUserForm.value;
 
-    const createUserDto = {
-      username: formValue.email.split('@')[0],
-      email: formValue.email,
-      password: formValue.password,
-      firstName: formValue.firstName,
-      lastName: formValue.lastName,
-      roleId: Number(formValue.roleId),
-      partnerId: this.selectedUserType === 'client' ? Number(formValue.partnerId) : null
-    };
+  const createUserDto = {
+    username: formValue.email.split('@')[0],
+    email: formValue.email,
+    password: formValue.password,
+    firstName: formValue.firstName,
+    lastName: formValue.lastName,
+    roleId: Number(formValue.roleId),
+    partnerId: this.selectedUserType === 'client' ? Number(formValue.partnerId) : null,
+    image: undefined as string | undefined,
+  };
 
-    this.usersService.createUserBy(createUserDto).subscribe(
-      () => {
+  if (this.selectedFile) {
+    this.usersService.uploadImage(this.selectedFile).subscribe({
+      next: (event) => {
+        if (event.body) {
+          createUserDto.image = event.body.filename;
+          console.log('DTO avec image:', createUserDto); // Vérifiez ici
+          this.createUser(createUserDto);
+        }
+      },
+      error: () => {
+        Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+        this.isSubmitting = false;
+      }
+    });
+  } else {
+    this.createUser(createUserDto);
+  }
+}
+
+
+  private createUser(dto: any): void {
+    this.usersService.createUserBy(dto).subscribe({
+      next: () => {
         Swal.fire('Succès', 'Utilisateur ajouté avec succès', 'success');
         this.router.navigate(['/list-user']);
       },
-      error => {
-        console.error('Erreur ajout utilisateur', error);
+      error: (err) => {
+        console.error('Erreur ajout utilisateur', err);
         Swal.fire('Erreur', 'Échec de l\'ajout de l\'utilisateur', 'error');
         this.isSubmitting = false;
       }
-    );
+    });
   }
 
   cancel(): void {

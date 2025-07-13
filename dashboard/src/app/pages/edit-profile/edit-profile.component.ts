@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UsersService } from '../../core/services/users.service';
-import { WorkersService } from '../../core/services/workers.service';
 import { Router } from "@angular/router";
+import { UsersService } from 'src/app/core/services/user.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -15,45 +14,52 @@ export class EditProfileComponent implements OnInit {
   user: any;
   userType: string | null = '';
   errorMessage = '';
+  isSubmitting = false;  // <-- Ajoutez cette ligne
+  selectedFile?: File;
+  previewUrl: string | ArrayBuffer | null = null;
 
   constructor(
       private fb: FormBuilder,
       private usersService: UsersService,
-      private workersService: WorkersService,
       private router: Router
   ) {
     this.profileForm = this.fb.group({
-      email: [{ value: '', disabled: false }, Validators.required],
-      password: ['', Validators.required],
+      email: [{ value: '', disabled: true }, Validators.required],
+      password: [''], // facultatif, gérez la validation selon besoin
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      role: [{ value: '', disabled: false }, Validators.required]
+      role: [{ value: '', disabled: true }],
+      image: [''] // champ image optionnel
     });
   }
 
   ngOnInit(): void {
-    this.userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userMail');
 
-    if (!this.userType || !userEmail) {
-      this.errorMessage = 'Informations utilisateur non trouvées dans le stockage local.';
-      return;
-    }
 
-    if (this.userType === 'user') {
-      this.fetchUserProfile(userEmail);
-    } else if (this.userType === 'worker') {
-      this.fetchWorkerProfile(userEmail);
-    } else {
-      this.errorMessage = 'Type d\'utilisateur invalide.';
+
+      this.fetchUserProfile();
+
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+
+      const reader = new FileReader();
+      reader.onload = () => this.previewUrl = reader.result;
+      reader.readAsDataURL(this.selectedFile);
     }
   }
 
-  private fetchUserProfile(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
+  private fetchUserProfile(): void {
+    this.usersService.getProfile().subscribe(
         (data) => {
           this.user = data;
           this.profileForm.patchValue(this.user);
+          if (this.user.image) {
+            this.previewUrl = this.usersService.getUserImageUrl(this.user);
+          }
         },
         (error) => {
           console.error('Erreur lors de la récupération des données de l\'utilisateur', error);
@@ -62,70 +68,47 @@ export class EditProfileComponent implements OnInit {
     );
   }
 
-  private fetchWorkerProfile(email: string): void {
-    this.workersService.getWorkerByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.profileForm.patchValue(this.user);
-        },
-        (error) => {
-          console.error('Erreur lors de la récupération des données du travailleur', error);
-          this.errorMessage = 'Erreur lors de la récupération des données du travailleur. Veuillez réessayer plus tard.';
-        }
-    );
-  }
-
   onSave(): void {
-    if (this.profileForm.valid) {
-      const updatedProfile = this.profileForm.value;
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
 
-      if (this.userType === 'user') {
-        this.updateUserProfile(updatedProfile);
-      } else if (this.userType === 'worker') {
-        this.updateWorkerProfile(updatedProfile);
-      }
+    const updatedProfile = this.profileForm.getRawValue();
+
+    this.isSubmitting = true;
+
+    if (this.selectedFile) {
+      // Upload image avant mise à jour
+      this.usersService.uploadImage(this.selectedFile).subscribe({
+        next: (event) => {
+          if (event.body) {
+            updatedProfile.image = event.body.filename;
+            this.updateProfile(updatedProfile);
+          }
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      this.updateProfile(updatedProfile);
     }
   }
 
-  private updateUserProfile(profile: any): void {
-    this.usersService.updateUser(this.user.id, profile).subscribe(
-        () => {
-          this.showSuccessMessage('Profil mis à jour avec succès.');
-        },
-        (error) => {
-          console.error('Erreur lors de la mise à jour du profil utilisateur', error);
-          this.showErrorMessage('Erreur lors de la mise à jour du profil utilisateur. Veuillez réessayer plus tard.');
-        }
-    );
-  }
-
-  private updateWorkerProfile(profile: any): void {
-    this.workersService.updateWorker(this.user.id, profile).subscribe(
-        () => {
-          this.showSuccessMessage('Profil mis à jour avec succès.');
-        },
-        (error) => {
-          console.error('Erreur lors de la mise à jour du profil du travailleur', error);
-          this.showErrorMessage('Erreur lors de la mise à jour du profil du travailleur. Veuillez réessayer plus tard.');
-        }
-    );
-  }
-
-  private showSuccessMessage(message: string): void {
-    Swal.fire({
-      title: 'Succès!',
-      text: message,
-      icon: 'success'
-    });
-  }
-
-  private showErrorMessage(message: string): void {
-    this.errorMessage = message;
-    Swal.fire({
-      title: 'Erreur!',
-      text: message,
-      icon: 'error'
-    });
+  private updateProfile(profile: any): void {
+      this.usersService.updateUserFull(this.user.id, profile).subscribe({
+            next: () => {
+              Swal.fire('Succès', 'Utilisateur mis à jour avec succès', 'success');
+              this.router.navigate(['/list-user']);
+            },
+            error: () => {
+              Swal.fire('Erreur', 'Échec de la mise à jour', 'error');
+              this.isSubmitting = false;
+            }
+          });
+    
   }
 
   goBack() {

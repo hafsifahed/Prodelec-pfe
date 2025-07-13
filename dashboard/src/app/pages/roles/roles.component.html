@@ -170,9 +170,10 @@
             <div class="mb-3">
               <label class="form-label">Ressource</label>
               <select formControlName="resource" class="form-select" 
-                     [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
+                      [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
                 <option value="">Sélectionner une ressource</option>
-                <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
+                <option *ngFor="let res of getAvailableResources(i, 'add')" 
+                        [value]="res.value">{{ res.label }}</option>
               </select>
               <div *ngIf="perm.get('resource')?.invalid && perm.get('resource')?.touched" 
                    class="invalid-feedback">
@@ -186,7 +187,7 @@
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" 
                          [value]="act.value" 
-                         [checked]="perm.get('actions')?.value?.split(',').includes(act.value)"
+                         [checked]="perm.get('actions')?.value?.includes(act.value)"
                          (change)="onActionToggle(i, act.value, 'add')"
                          id="add-action-{{i}}-{{act.value}}">
                   <label class="form-check-label" [for]="'add-action-' + i + '-' + act.value">
@@ -204,7 +205,7 @@
         </div>
 
         <button type="button" class="btn btn-outline-primary btn-sm" 
-                (click)="addPermission('add')">
+                (click)="addPermission('add')" [disabled]="addPermissions.length === resources.length">
           <i class="fas fa-plus me-1"></i> Ajouter permission
         </button>
       </div>
@@ -260,9 +261,10 @@
             <div class="mb-3">
               <label class="form-label">Ressource</label>
               <select formControlName="resource" class="form-select" 
-                     [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
+                      [class.is-invalid]="perm.get('resource')?.invalid && perm.get('resource')?.touched">
                 <option value="">Sélectionner une ressource</option>
-                <option *ngFor="let res of resources" [value]="res.value">{{ res.label }}</option>
+                <option *ngFor="let res of getAvailableResources(i, 'edit')" 
+                        [value]="res.value">{{ res.label }}</option>
               </select>
               <div *ngIf="perm.get('resource')?.invalid && perm.get('resource')?.touched" 
                    class="invalid-feedback">
@@ -276,7 +278,7 @@
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" 
                          [value]="act.value" 
-                         [checked]="perm.get('actions')?.value?.split(',').includes(act.value)"
+                         [checked]="perm.get('actions')?.value?.includes(act.value)"
                          (change)="onActionToggle(i, act.value, 'edit')"
                          id="edit-action-{{i}}-{{act.value}}">
                   <label class="form-check-label" [for]="'edit-action-' + i + '-' + act.value">
@@ -294,7 +296,7 @@
         </div>
 
         <button type="button" class="btn btn-outline-primary btn-sm" 
-                (click)="addPermission('edit')">
+                (click)="addPermission('edit')" [disabled]="editPermissions.length === resources.length">
           <i class="fas fa-plus me-1"></i> Ajouter permission
         </button>
       </div>
@@ -330,10 +332,10 @@
       <label class="form-label fw-medium text-muted">Type</label>
       <p>
         <span class="badge" [ngClass]="{
-          'bg-primary': selectedRole?.type === 'employee',
-          'bg-success': selectedRole?.type === 'client'
+          'bg-primary': !selectedRole?.name.toLowerCase().includes('client'),
+          'bg-success': selectedRole?.name.toLowerCase().includes('client')
         }">
-          {{ selectedRole?.type === 'employee' ? 'Employé' : 'Client' }}
+          {{ selectedRole?.name.toLowerCase().includes('client') ? 'Client' : 'Employé' }}
         </span>
       </p>
     </div>
@@ -388,4 +390,3 @@
     </button>
   </div>
 </ng-template>
-

@@ -7,6 +7,6 @@ export class PartnerEditDto {
     name: string;
     tel: string;
     users:User[];
-    imageUrl?: string; // <-- pour stocker l'image actuelle
+    image?: string; // <-- pour stocker l'image actuelle
 
 }

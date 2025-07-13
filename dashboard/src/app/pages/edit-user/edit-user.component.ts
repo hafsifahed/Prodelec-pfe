@@ -17,13 +17,17 @@ export class EditUserComponent implements OnInit {
   userId: number;
   username: string;
   selectedUserType: 'client' | 'worker' = 'client';
-  
+
   clientRoles: Role[] = [];
   workerRoles: Role[] = [];
   roles: Role[] = [];
   partners: Partner[] = [];
   isSubmitting = false;
-   title = "Édition d'utilisateur";
+
+  previewUrl: string | ArrayBuffer | null = null;
+  selectedFile?: File;
+
+  title = "Édition d'utilisateur";
 
   breadcrumbItems = [
     { label: 'Accueil', active: false },
@@ -54,13 +58,23 @@ export class EditUserComponent implements OnInit {
     this.loadUser();
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+
+      const reader = new FileReader();
+      reader.onload = () => (this.previewUrl = reader.result);
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+
   loadUser(): void {
     this.usersService.getUserById(this.userId).subscribe(
       (user) => {
-        // Determine user type based on role
         const isClient = this.clientRoles.some(r => r.id === user.role.id);
         this.selectedUserType = isClient ? 'client' : 'worker';
-        
+
         this.setRolesForSelectedType();
         this.updatePartnerValidators();
 
@@ -73,6 +87,11 @@ export class EditUserComponent implements OnInit {
           accountStatus: user.accountStatus,
         });
         this.username = user.username;
+
+        // Si utilisateur a une image, afficher aperçu
+        if (user.image) {
+          this.previewUrl = this.usersService.getUserImageUrl(user);
+        }
       },
       (error) => {
         Swal.fire('Error', 'Failed to load user data', 'error');
@@ -102,7 +121,6 @@ export class EditUserComponent implements OnInit {
     this.partnersService.getAllPartners().subscribe(
       (partners) => (this.partners = partners),
       (error) => {
-        console.error('Error loading partners', error);
         Swal.fire('Error', 'Failed to load partners', 'error');
       }
     );
@@ -149,19 +167,41 @@ export class EditUserComponent implements OnInit {
       partnerId: this.selectedUserType === 'client' 
         ? Number(formValue.partnerId) 
         : null,
-      accountStatus: formValue.accountStatus
+      accountStatus: formValue.accountStatus,
+      image: undefined as string | undefined,
     };
 
-    this.usersService.updateUserFull(this.userId, updateUserDto).subscribe(
-      () => {
-        Swal.fire('Success', 'User updated successfully', 'success');
+    if (this.selectedFile) {
+      // Upload image avant mise à jour
+      this.usersService.uploadImage(this.selectedFile).subscribe({
+        next: (event) => {
+          if (event.body) {
+            updateUserDto.image = event.body.filename;
+            this.updateUser(updateUserDto);
+          }
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      // Pas d'image, mise à jour directe
+      this.updateUser(updateUserDto);
+    }
+  }
+
+  private updateUser(dto: any): void {
+    this.usersService.updateUserFull(this.userId, dto).subscribe({
+      next: () => {
+        Swal.fire('Succès', 'Utilisateur mis à jour avec succès', 'success');
         this.router.navigate(['/list-user']);
       },
-      (error) => {
-        Swal.fire('Error', 'Failed to update user', 'error');
+      error: () => {
+        Swal.fire('Erreur', 'Échec de la mise à jour', 'error');
         this.isSubmitting = false;
       }
-    );
+    });
   }
 
   cancel(): void {

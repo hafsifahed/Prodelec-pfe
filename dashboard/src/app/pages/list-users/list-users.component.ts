@@ -179,6 +179,11 @@ displayMode: 'table' | 'grid' = 'grid';
     });
   }
 
+  getImageUrl(user: User): string {
+    console.log('ts',user.image)
+    return this.usersService.getUserImageUrl(user);
+  }
+
   setDisplayMode(mode: 'table' | 'grid') {
   this.displayMode = mode;
 }
