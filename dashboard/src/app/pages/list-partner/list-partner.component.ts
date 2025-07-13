@@ -182,4 +182,8 @@ export class ListPartnerComponent implements OnInit {
   setDisplayMode(mode: 'table' | 'grid') {
   this.displayMode = mode;
 }
+
+getImageUrl(partner: Partner): string {
+  return this.partnersService.getPartnerImageUrl(partner);
+}
 }

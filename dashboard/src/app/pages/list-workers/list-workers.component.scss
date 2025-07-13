@@ -1,0 +1,67 @@
+ .status-toggle {
+    cursor: pointer;
+    width: 80px;
+    border-radius: 12px;
+    padding: 4px;
+    user-select: none;
+    background-color: #f1f1f1;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .status-toggle.active {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-toggle:not(.active) {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .avatar-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .avatar-sm {
+    width: 36px;
+    height: 36px;
+  }
+
+  .avatar-lg {
+    width: 72px;
+    height: 72px;
+  }
+
+  .empty-state {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .search-container input {
+    transition: all 0.3s ease;
+  }
+
+  .search-container input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+  }
+
+  .employee-details .detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }

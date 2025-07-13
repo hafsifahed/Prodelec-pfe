@@ -5,6 +5,7 @@ export class Partner {
     address: string;
     name: string;
     tel: string;
+    image?: string;
     users:User[];
     createdAt: string;
     updatedAt: string;

@@ -1,301 +1,32 @@
-// Variables
-$primary: #4f46e5;
-$primary-hover: #4338ca;
-$danger: #dc2626;
-$danger-light: #fee2e2;
-$success: #059669;
-$success-light: #ecfdf5;
-$text-dark: #1e293b;
-$text-medium: #6e63e6;
-$text-light: #64748b;
-$border: #caced4;
-$bg: #fff;
-$bg-secondary: #f8fafc;
-$radius: 12px;
-$radius-sm: 8px;
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-$transition: all 0.3s ease;
-$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-$font-size-base: 14px;
-$font-size-lg: 16px;
-$font-size-xl: 28px;
-$gap-base: 12px;
-$gap-lg: 16px;
-$gap-xl: 24px;
-
-// Styles généraux
 .session-management {
-  border-radius: $radius;
-  box-shadow: $shadow;
-  padding: $gap-xl;
-  margin: 20px auto;
-  max-width: 1200px;
-  font-family: $font-family;
-
-  .management-header {
-    margin-bottom: 28px;
-
-    .header-title {
-      h1 {
-        font-size: $font-size-xl;
-        font-weight: 600;
-        color: $text-dark;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: $gap-base;
-
-        i {
-          color: $primary;
-        }
-      }
-
-      .header-subtitle {
-        color: $text-light;
-        font-size: $font-size-base;
-        margin-top: 4px;
-      }
-    }
+    margin: 0 auto;
   }
 
-  .search-section {
-    margin-bottom: 24px;
-
-    .search-container {
-      display: flex;
-      gap: $gap-lg;
-      align-items: center;
-
-      .search-input-container {
-        position: relative;
-        flex-grow: 1;
-
-        .search-input {
-          width: 100%;
-          padding: 12px 16px 12px 42px;
-          border: 1px solid $border;
-          border-radius: $radius-sm;
-          font-size: $font-size-base;
-          transition: $transition;
-          background-color: $bg-secondary;
-
-          &:focus {
-            outline: none;
-            border-color: $primary;
-            box-shadow: 0 0 0 2px rgba($primary, 0.1);
-            background-color: $bg;
-          }
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 14px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: $text-light;
-          font-size: 1rem;
-        }
-
-        .clear-search {
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: $text-light;
-          cursor: pointer;
-          padding: 4px;
-          font-size: 1rem;
-
-          &:hover {
-            color: $text-medium;
-          }
-        }
-      }
-    }
-  }
-
-  .error-alert {
-    background-color: $danger-light;
-    color: $danger;
-    padding: 12px 16px;
-    border-radius: $radius-sm;
-    margin-bottom: 20px;
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
-    gap: $gap-base;
-    font-size: $font-size-base;
-  }
-
-  .session-table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 24px;
-    border-radius: $radius-sm;
-    border: 1px solid $border;
-
-    .session-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 800px;
-
-      thead {
-        background-color: $bg-secondary;
-
-        th {
-          padding: 16px;
-          text-align: left;
-          color: $text-medium;
-          font-weight: 600;
-          font-size: $font-size-base;
-          border-bottom: 1px solid $border;
-        }
-      }
-
-      tbody {
-        tr {
-          td {
-            padding: 16px;
-            border-bottom: 1px solid $border;
-            font-size: $font-size-base;
-            vertical-align: middle;
-
-            .user-email {
-              font-weight: 500;
-            }
-
-            .session-status {
-              padding: 4px 8px;
-              border-radius: 12px;
-              font-size: 13px;
-              font-weight: 500;
-
-              &.status-active {
-                background-color: $success-light;
-                color: $success;
-              }
-
-              &.status-ended {
-                background-color: $bg-secondary;
-                color: $text-light;
-              }
-            }
-          }
-
-          &:last-child td {
-            border-bottom: none;
-          }
-
-          &:hover {
-            background-color: $bg-secondary;
-          }
-        }
-      }
-    }
-  }
-
-  .actions-cell {
-    display: flex;
-    gap: 8px;
-
-    .action-btn {
-      border: none;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      width: 36px;
-      height: 36px;
-
-      &.end-btn {
-        background-color: $danger-light;
-        color: $danger;
-
-        &:hover {
-          background-color: lighten($danger-light, 10%);
-        }
-      }
-    }
-
-    .no-action {
-      color: $text-light;
-      font-style: italic;
-    }
-  }
-
-  .pagination-wrapper {
-    display: flex;
     justify-content: center;
-
-    .ngx-pagination {
-      display: flex;
-      gap: 8px;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-        min-width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        font-size: $font-size-base;
-        cursor: pointer;
-
-        a {
-          text-decoration: none;
-          color: $text-medium;
-          padding: 0 8px;
-        }
-
-        &.current {
-          background-color: $primary;
-          color: white;
-        }
-
-        &.disabled a {
-          color: lighten($text-light, 15%);
-          cursor: not-allowed;
-        }
-      }
-    }
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: $text-light;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+  .search-container input {
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    padding-left: 2.5rem;
+  }
 
-    i {
-      font-size: 48px;
-      opacity: 0.5;
-    }
-
-    p {
-      font-size: $font-size-base;
-      margin: 0;
-    }
+  .search-container input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
   }
 
   @media (max-width: 768px) {
-    .search-container {
-      flex-direction: column;
+    .card-body {
+      padding: 1.5rem;
     }
-
-    .session-table {
-      td, th {
-        padding: 12px 8px;
-      }
+    
+    .search-container input {
+      margin-top: 1rem;
     }
   }
-}

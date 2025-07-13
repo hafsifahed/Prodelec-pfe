@@ -50,20 +50,33 @@
             </div>
 
             <!-- Champ Utilisateurs -->
-            <div class="form-field">
-            <label for="users" class="form-label">
+            <div class="form-field mb-3">
+              <label for="users" class="form-label">
                 <i class="fas fa-users"></i> Utilisateurs associés
-            </label>
-            <div class="users-display">
-                <div *ngFor="let user of partner.users" class="user-chip">
-                    <span class="user-email">{{ user.email }}</span>
-                    <span class="user-role">{{ user.role?.name || 'Aucun rôle' }}</span>
+              </label>
+              <div class="users-display">
+                <div *ngFor="let user of partner.users" class="user-chip mb-2">
+                  <span class="user-email fw-bold me-2">{{ user.email }}</span>
+                  <span class="user-role ">{{ user.role?.name || 'Aucun rôle' }}</span>
                 </div>
-                <div *ngIf="partner.users.length === 0" class="no-users">
-                    Aucun utilisateur associé
+                <div *ngIf="partner.users.length === 0" class="text-muted">
+                  Aucun utilisateur associé
                 </div>
+              </div>
             </div>
-        </div>
+
+            <!-- Aperçu image 
+            <div class="mb-3 text-center" *ngIf="previewUrl">
+<img [src]="getImageUrl(partner)" alt="{{ partner.name }}" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;" />
+            </div>-->
+
+            <!-- Champ Image -->
+            <div class="form-group mb-4">
+              <label for="image" class="form-label">
+                <i class="fas fa-image"></i> Image du partenaire
+              </label>
+              <input type="file" id="image" name="image" (change)="onImageSelected($event)" accept="image/*" class="form-control">
+            </div>
 
             <!-- Actions du formulaire -->
             <div class="d-flex gap-2 justify-content-center">

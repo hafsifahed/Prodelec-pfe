@@ -15,6 +15,13 @@ export class ListNotificationsComponent implements OnInit {
   user: any;
   searchNotification: string = '';
   errorMessage: string;
+title = 'Notifications';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Notifications', active: true }
+  ];
+  
 
   constructor(
     private notificationService: NotificationService,

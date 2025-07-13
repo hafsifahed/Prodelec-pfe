@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as express from 'express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -19,6 +20,9 @@ async function bootstrap() {
 
   // Validation globale des DTOs avec whitelist pour supprimer les propriétés non définies
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  // Servir le dossier uploads comme statique accessible via /uploads
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   // Démarrage de l'application sur le port défini dans la variable d'environnement PORT
   //   await app.listen(parseInt(process.env.PORT));

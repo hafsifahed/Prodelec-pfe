@@ -1,317 +1,50 @@
-// Variables (à adapter selon ton thème)
-$primary: #4f46e5;
-$primary-hover: #4338ca;
-$danger: #dc2626;
-$danger-light: #fee2e2;
-$success: #059669;
-$success-light: #ecfdf5;
-$text: #1e293b;
-$text-light: #6e63e6;
-$border: #e2e8f0;
-$bg: #fff;
-$bg-secondary: #f8fafc;
-$radius: 8px;
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-$transition: all 0.2s ease;
+ .notification-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
 
-// Mixins
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin card-style {
-  border-radius: $radius;
-  box-shadow: $shadow;
-  padding: 1.5rem;
-}
-
-// Styles généraux
-.notification-container {
-  @include card-style;
-  max-width: 1200px;
-  margin: 1.25rem auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  // En-tête et recherche
-  .header-search-container {
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-
-    .header-title-container {
-      flex: 1;
-      min-width: 250px;
-
-      .header-title {
-        h1 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin: 0 0 0.25rem 0;
-          @include flex-center;
-          gap: 0.75rem;
-
-          i {
-            color: $primary;
-            font-size: 1.5rem;
-          }
-        }
-
-        .header-subtitle {
-          color: $text-light;
-          font-size: 0.875rem;
-        }
-      }
-    }
-
-    .search-section {
-      @include flex-center;
-      gap: 1rem;
-      flex: 2;
-      min-width: min(100%, 600px);
-
-      .search-input-container {
-        position: relative;
-        flex-grow: 1;
-
-        .search-input {
-          width: 100%;
-          padding: 0.625rem 1rem 0.625rem 2.5rem;
-          border: 1px solid $border;
-          border-radius: $radius;
-          font-size: 0.875rem;
-          transition: $transition;
-          background-color: $bg-secondary;
-
-          &:focus {
-            outline: none;
-            border-color: $primary;
-            box-shadow: 0 0 0 2px rgba($primary, 0.1);
-          }
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: $text-light;
-          font-size: 1rem;
-        }
-
-        .clear-search {
-          position: absolute;
-          right: 1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: $text-light;
-          cursor: pointer;
-          padding: 0.25rem;
-          font-size: 1rem;
-
-          &:hover {
-            color: darken($text-light, 10%);
-          }
-        }
-      }
-    }
-  }
-
-  // Message d'erreur
-  .error-alert {
-    background-color: lighten($danger, 42%);
-    color: $danger;
-    padding: 0.75rem 1rem;
-    border-radius: $radius;
-    margin-bottom: 1.5rem;
-    @include flex-center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-  }
-
-  // Tableau
-  .notification-table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    border-radius: $radius;
-    border: 1px solid $border;
-    -webkit-overflow-scrolling: touch;
-
-    .notification-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 800px;
-
-      thead {
-        background-color: $bg-secondary;
-
-        th {
-          padding: 1rem;
-          text-align: left;
-          color: $text-light;
-          font-weight: 600;
-          font-size: 0.875rem;
-          border-bottom: 1px solid $border;
-        }
-      }
-
-      tbody {
-        tr {
-          td {
-            padding: 1rem;
-            border-bottom: 1px solid $border;
-            font-size: 0.875rem;
-            vertical-align: middle;
-
-            &:first-child {
-              font-weight: 500;
-              color: $primary;
-            }
-          }
-
-          &:last-child td {
-            border-bottom: none;
-          }
-
-          &:hover {
-            background-color: $bg-secondary;
-          }
-        }
-      }
-    }
-  }
-
-  // Boutons d'action
-  .actions-cell {
-    @include flex-center;
-    gap: 0.5rem;
-
-    .action-btn {
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      font-size: 0.8125rem;
-      @include flex-center;
-      justify-content: center;
-      cursor: pointer;
-      transition: $transition;
-
-      &.btn-danger {
-        background-color: lighten($danger, 40%);
-        color: $danger;
-
-        &:hover {
-          background-color: lighten($danger, 30%);
-        }
-      }
-
-      &.btn-primary {
-        background-color: lighten($primary, 40%);
-        color: $primary;
-
-        &:hover {
-          background-color: lighten($primary, 30%);
-        }
-      }
-    }
-  }
-
-  // Pagination
-  .pagination-wrapper {
-    display: flex;
     justify-content: center;
-
-    .ngx-pagination {
-      @include flex-center;
-      gap: 0.5rem;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-        min-width: 2rem;
-        height: 2rem;
-        @include flex-center;
-        justify-content: center;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        cursor: pointer;
-
-        a {
-          text-decoration: none;
-          color: $text-light;
-          padding: 0 0.5rem;
-        }
-
-        &.current {
-          background-color: $primary;
-          color: white;
-        }
-
-        &.disabled a {
-          color: lighten($text-light, 15%);
-          cursor: not-allowed;
-        }
-      }
-    }
   }
 
-  // État vide
+  .search-container input {
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    padding-left: 2.5rem;
+  }
+
+  .search-container input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+  }
+
+  .table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+  }
+
   .empty-state {
-    text-align: center;
-    padding: 2.5rem 1.25rem;
-    color: $text-light;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-
-    i {
-      font-size: 3rem;
-      opacity: 0.5;
-    }
-
-    p {
-      font-size: 1rem;
-      margin: 0;
-    }
+    background-color: #f8f9fa;
+    border-radius: 8px;
   }
 
-  // Responsive
-  @media (max-width: 768px) {
-    .header-search-container {
-      flex-direction: column;
-      gap: 1rem;
-      align-items: flex-start;
+  @media (max-width: 992px) {
+    .card-body {
+      padding: 1.5rem;
     }
-
-    .search-section {
-      width: 100%;
-
-      .btn-text {
-        display: none;
-      }
-
-      .add-user-btn {
-        padding: 0.625rem;
-      }
+    
+    .search-container input {
+      margin-top: 1rem;
     }
-
-    .notification-table {
-      th, td {
-        padding: 0.75rem;
-      }
-    }
-
-    .actions-cell {
-      flex-wrap: wrap;
-      justify-content: center;
+    
+    .btn span {
+      display: none;
     }
   }
-}

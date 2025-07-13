@@ -22,6 +22,10 @@ export class Partner {
       default: PartnerStatus.ACTIVE,
     })
     partnerStatus: PartnerStatus;
+  
+  @Column({ nullable: true })
+  image?: string;
+
 
   @CreateDateColumn()
   createdAt: Date;

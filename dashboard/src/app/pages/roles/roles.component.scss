@@ -1,321 +1,52 @@
-// Variables
-$primary: #4f46e5;
-$primary-hover: #4338ca;
-$info: #3b82f6;
-$danger: #dc2626;
-$danger-light: #fee2e2;
-$warning: #f59e0b;
-$success: #059669;
-$text: #6e63e6;
-$text-light: #6e63e6;
-$border: #e2e8f0;
-$bg: #fff;
-$bg-secondary: #f8fafc;
-$radius: 8px;
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-$transition: all 0.2s ease;
+ .role-management {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
 
-// Mixins
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-}
-
-
-// Styles généraux
-.role-management {
-  border-radius: $radius;
-  box-shadow: $shadow;
-  padding: 1.5rem;
-  margin: 1.25rem auto;
-  max-width: 1200px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  // Conteneur en-tête + action
-  .header-search-container {
+  .icon-wrapper {
+    width: 50px;
+    height: 50px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-
-    .header-title-container {
-      flex: 1;
-      min-width: 250px;
-
-      .header-title {
-        h1 {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: $text;
-          margin: 0 0 0.25rem 0;
-          @include flex-center;
-          gap: 0.75rem;
-
-          i {
-            color: $primary;
-            font-size: 1.5rem;
-          }
-        }
-
-        .header-subtitle {
-          color: $text-light;
-          font-size: 0.875rem;
-        }
-      }
-    }
-
-    .action-section {
-      @include flex-center;
-      gap: 1rem;
-
-      .add-role-btn {
-        background-color: $primary;
-        color: white;
-        border: none;
-        border-radius: $radius;
-        padding: 0.625rem 1rem;
-        font-weight: 500;
-        @include flex-center;
-        gap: 0.5rem;
-        cursor: pointer;
-        transition: $transition;
-        white-space: nowrap;
-
-        &:hover {
-          background-color: $primary-hover;
-        }
-      }
-    }
-  }
-
-  // Message d'erreur
-  .error-alert {
-    background-color: lighten($danger, 42%);
-    color: $danger;
-    padding: 0.75rem 1rem;
-    border-radius: $radius;
-    margin-bottom: 1.5rem;
-    @include flex-center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-  }
-
-  // Tableau
-  .role-table-wrapper {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    border-radius: $radius;
-    border: 1px solid $border;
-    -webkit-overflow-scrolling: touch;
-
-    .role-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 800px;
-
-      thead {
-        background-color: $bg-secondary;
-
-        th {
-          padding: 1rem;
-          text-align: left;
-          color: $text-light;
-          font-weight: 600;
-          font-size: 0.875rem;
-          border-bottom: 1px solid $border;
-        }
-      }
-
-      tbody {
-        tr {
-          td {
-            padding: 1rem;
-            border-bottom: 1px solid $border;
-            color: $text;
-            font-size: 0.875rem;
-            vertical-align: top;
-
-            .role-name {
-              font-weight: 500;
-              color: $text;
-            }
-          }
-
-          &:last-child td {
-            border-bottom: none;
-          }
-
-          &:hover {
-            background-color: $bg-secondary;
-          }
-        }
-      }
-    }
-  }
-
-  // Permissions
-  .permissions-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    justify-content: center;
   }
 
   .permission-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    transition: all 0.2s ease;
   }
 
-  .permission-resource {
-    font-weight: 600;
-    color: $text;
-    font-size: 0.8125rem;
+  .permission-item:hover {
+    background-color: #f0f0f0 !important;
   }
 
-  .permission-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
+  .modal-header {
+    border-bottom: 1px solid #e9ecef;
   }
 
-  .action-badge {
-    background-color: lighten($primary, 40%);
-    color: $primary;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 500;
+  .modal-footer {
+    border-top: 1px solid #e9ecef;
   }
 
-  // Boutons d'action
-  .actions-cell {
-    @include flex-center;
-    gap: 0.5rem;
-
-    .action-btn {
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem;
-      font-size: 0.8125rem;
-      @include flex-center;
-      justify-content: center;
-      cursor: pointer;
-      transition: $transition;
-      width: 2.25rem;
-      height: 2.25rem;
-
-      &.view-btn {
-        background-color: lighten($info, 40%);
-        color: $info;
-
-        &:hover {
-          background-color: lighten($info, 30%);
-        }
-      }
-
-      &.edit-btn {
-        background-color: lighten($warning, 40%);
-        color: darken($warning, 10%);
-
-        &:hover {
-          background-color: lighten($warning, 30%);
-        }
-      }
-
-      &.delete-btn {
-        background-color: lighten($danger, 40%);
-        color: $danger;
-
-        &:hover {
-          background-color: lighten($danger, 30%);
-        }
-      }
-    }
+  .form-check-input:checked {
+    background-color: #6366f1;
+    border-color: #6366f1;
   }
 
-  // État vide
   .empty-state {
-    text-align: center;
-    padding: 2.5rem 1.25rem;
-    color: $text-light;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-
-    i {
-      font-size: 3rem;
-      opacity: 0.5;
-      color: $primary;
-    }
-
-    p {
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .add-role-btn.outline {
-      background: transparent;
-      border: 1px solid $primary;
-      color: $primary;
-      margin-top: 1rem;
-
-      &:hover {
-        background: rgba($primary, 0.05);
-      }
-    }
+    background-color: #f8f9fa;
+    border-radius: 8px;
   }
 
-  // Responsive
   @media (max-width: 768px) {
-    .header-search-container {
-      flex-direction: column;
-      gap: 1rem;
-      align-items: flex-start;
+    .modal-body {
+      padding: 1.5rem;
     }
-
-    .action-section {
+    
+    .btn span {
+      display: none;
+    }
+    
+    .permissions-section .form-check {
       width: 100%;
-
-      .btn-text {
-        display: none;
-      }
-
-      .add-role-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    .role-table {
-      th, td {
-        padding: 0.75rem;
-      }
-    }
-
-    .actions-cell {
-      flex-wrap: wrap;
-      justify-content: center;
     }
   }
-}
-
-.loading-state {
-  text-align: center;
-  padding: 2rem;
-  color: $text-light;
-  @include flex-center;
-  flex-direction: column;
-  gap: 1rem;
-
-  i {
-    font-size: 2rem;
-    color: $primary;
-  }
-
-  p {
-    margin: 0;
-  }
-}

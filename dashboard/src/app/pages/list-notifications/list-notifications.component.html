@@ -1,102 +1,123 @@
+<app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
 <div class="container notification-container">
-  <!-- En-tête et barre de recherche combinés -->
-  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
-    
-    <div class="flex-grow-1 min-w-250 header-title-container">
-      <div class="header-title d-flex align-items-center gap-3 mb-2">
-        <h1 class="m-0 fw-semibold text-dark">
-          <i class="fas fa-bell text-primary fs-4"></i> Liste des notifications
-        </h1>
-      </div>
-      <p class="header-subtitle text-secondary fs-7 m-0">Gestion des notifications</p>
-    </div>
-
-    <div class="d-flex align-items-center gap-3 flex-grow-2 min-w-600 search-section">
-      <div class="position-relative flex-grow-1 search-input-container">
-        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y text-secondary ps-3 search-icon"></i>
-        <input
-          type="text"
-          class="form-control ps-5 search-input"
-          placeholder="Recherche par utilisateur, titre, message"
-          [(ngModel)]="searchNotification"
-          (input)="searchNotificationBy()"
-        />
-        <button
-          *ngIf="searchNotification"
-          class="btn btn-link position-absolute top-50 end-0 translate-middle-y pe-3 clear-search"
-          (click)="searchNotification = ''; searchNotificationBy()"
-          type="button"
-          aria-label="Effacer la recherche"
-        >
-          <i class="fas fa-times text-secondary"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message d'erreur -->
-  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
-    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-  </div>
-
-  <!-- Tableau des notifications -->
-  <div class="table-responsive notification-table-wrapper mb-4">
-    <table class="table notification-table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>Titre</th>
-          <th>Message</th>
-          <th>Créé par</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let notification of notifications | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-          <td>{{ notification.id }}</td>
-          <td>{{ notification.title }}</td>
-          <td>{{ notification.message }}</td>
-          <td>{{ notification.createdBy || 'Système' }}</td>
-          <td >
-            <div class="actions-cell text-center d-flex justify-content-center gap-2">
-            <button
-              *ngIf="user?.role.name === 'ADMIN' || user?.role.name === 'SUBADMIN'"
-              class="btn btn-sm btn-danger action-btn"
-              (click)="deleteNotification(notification.id)"
-              title="Supprimer"
-            >
-              Supprimer
-            </button>
-            <button
-              *ngIf="!notification.read"
-              class="btn btn-sm btn-primary action-btn"
-              (click)="markNotificationAsRead(notification.id)"
-              title="Marquer comme lu"
-            >
-              Marquer comme lu
-            </button>
+  <!-- Combined Header and Search -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body p-4">
+      <div class="row align-items-center">
+        <!-- Title Section -->
+        <div class="col-lg-5 mb-3 mb-lg-0">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-wrapper bg-primary bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-bell text-primary fs-4"></i>
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <div>
+              <h1 class="m-0 fw-semibold text-dark">Liste des notifications</h1>
+              <p class="text-muted mb-0">Gestion des notifications système</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="col-lg-7">
+          <div class="search-container position-relative">
+            <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+            <input
+              type="text"
+              class="form-control ps-5"
+              placeholder="Rechercher par utilisateur, titre, message..."
+              [(ngModel)]="searchNotification"
+              (input)="searchNotificationBy()"
+            />
+            <button
+              *ngIf="searchNotification"
+              class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 text-muted"
+              (click)="searchNotification = ''; searchNotificationBy()"
+              aria-label="Effacer la recherche"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+    <i class="fas fa-exclamation-circle"></i>
+    <div>{{ errorMessage }}</div>
+  </div>
+
+  <!-- Notifications Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">ID</th>
+              <th>Titre</th>
+              <th>Message</th>
+              <th>Créé par</th>
+              <th class="text-center pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let notification of notifications | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+              <td class="ps-4">{{ notification.id }}</td>
+              <td class="fw-medium">{{ notification.title }}</td>
+              <td class="text-muted">{{ notification.message }}</td>
+              <td>{{ notification.createdBy || 'Système' }}</td>
+              <td class="pe-4">
+                <div class="d-flex justify-content-center gap-2">
+                  <button
+                    *ngIf="user?.role.name === 'ADMIN' || user?.role.name === 'SUBADMIN'"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="deleteNotification(notification.id)"
+                    title="Supprimer"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                    <span class="d-none d-lg-inline ms-1">Supprimer</span>
+                  </button>
+                  <button
+                    *ngIf="!notification.read"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="markNotificationAsRead(notification.id)"
+                    title="Marquer comme lu"
+                  >
+                    <i class="fas fa-check"></i>
+                    <span class="d-none d-lg-inline ms-1">Marquer lu</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Pagination -->
-  <div class="pagination-wrapper d-flex justify-content-center">
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+      Affichage de {{ (p - 1) * itemsPerPage + 1 }} à {{ p * itemsPerPage > notifications.length ? notifications.length : p * itemsPerPage }} sur {{ notifications.length }} notifications
+    </div>
     <pagination-controls
       (pageChange)="p = $event"
       previousLabel="Précédent"
       nextLabel="Suivant"
-      maxSize="7"
-      autoHide="true"
-    >
-    </pagination-controls>
+      maxSize="5"
+      class="pagination"
+    ></pagination-controls>
   </div>
 
-  <!-- Message vide -->
-  <div *ngIf="notifications.length === 0 && !errorMessage" class="empty-state text-center text-secondary mt-5 d-flex flex-column align-items-center gap-3">
-    <i class="fas fa-bell-slash fs-1 opacity-50"></i>
-    <p class="fs-5 m-0">Aucune notification trouvée</p>
+  <!-- Empty State -->
+  <div *ngIf="notifications.length === 0 && !errorMessage" class="empty-state text-center py-5">
+    <div class="empty-icon mb-3">
+      <i class="fas fa-bell-slash fs-1 text-muted opacity-50"></i>
+    </div>
+    <h5 class="text-muted">Aucune notification trouvée</h5>
+    <p class="text-muted mb-4">Aucune notification n'a été enregistrée</p>
   </div>
 </div>

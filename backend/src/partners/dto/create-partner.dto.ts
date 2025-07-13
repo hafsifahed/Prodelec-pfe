@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreatePartnerDto {
   @IsString()
@@ -9,4 +9,7 @@ export class CreatePartnerDto {
 
   @IsString()
   tel: string;
+
+  @IsOptional()
+  image?: string;
 }

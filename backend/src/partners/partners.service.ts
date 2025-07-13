@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import * as path from 'path';
 import { DataSource, Repository } from 'typeorm';
 import { PartnerStatus } from '../project/enum/partner-status.enum';
 import { User } from '../users/entities/users.entity';
@@ -35,6 +37,14 @@ export class PartnersService {
   async update(id: number, updatePartnerDto: UpdatePartnerDto): Promise<Partner> {
     const partner = await this.partnerRepository.findOneBy({ id });
     if (!partner) throw new NotFoundException();
+
+  // Supprimer l’ancienne image si une nouvelle est fournie
+     if (updatePartnerDto.image && partner.image) {
+    const oldImagePath = path.join(__dirname, '..', '..', 'uploads', 'partners', partner.image);
+    if (fs.existsSync(oldImagePath)) {
+      fs.unlinkSync(oldImagePath); // suppression du fichier
+    }
+  }
     Object.assign(partner, updatePartnerDto);
     return this.partnerRepository.save(partner);
   }

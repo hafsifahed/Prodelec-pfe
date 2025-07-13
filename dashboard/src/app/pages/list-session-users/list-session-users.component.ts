@@ -17,6 +17,12 @@ export class ListSessionUsersComponent implements OnInit {
   searchUsermail: string = '';
   user: any;
   userType: string | null = '';
+  title = 'Sessions';
+
+  breadcrumbItems = [
+    { label: 'Accueil', active: false },
+    { label: 'Sessions', active: true }
+  ];
 
   p: number = 1; // Current page number
     itemsPerPage: number = 5; // Number of items per page

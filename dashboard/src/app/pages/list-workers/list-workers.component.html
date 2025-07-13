@@ -1,158 +1,70 @@
-<div class="user-management container-fluid">
+<app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
 
-  <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
-
-  <!-- Barre de recherche, ajout et bascule mode -->
-  <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 header-search-container">
-
-    <div class="flex-grow-1 min-w-250 header-title-container">
-      <div class="header-title d-flex align-items-center gap-3 mb-2">
-        <h1 class="m-0 fw-semibold text-dark">
-          <i class="fas fa-users text-primary fs-4"></i> Liste des Employés
-        </h1>
-      </div>
-      <p class="header-subtitle text-secondary fs-7 m-0">Gestion des accès employés</p>
-    </div>
-
-    <div class="d-flex align-items-center gap-3 flex-grow-2 min-w-600 search-section">
-      <div class="position-relative flex-grow-1 search-input-container">
-        <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y text-secondary ps-3 search-icon"></i>
-        <input
-          type="text"
-          class="form-control ps-5"
-          placeholder="Rechercher par nom, email, rôle..."
-          [(ngModel)]="searchKeyword"
-          (input)="onSearchInputChange()"
-        />
-        <button
-          *ngIf="searchKeyword"
-          class="btn btn-link position-absolute top-50 end-0 translate-middle-y pe-3 clear-search"
-          (click)="clearSearch()"
-          type="button"
-          aria-label="Effacer la recherche"
-        >
-          <i class="fas fa-times text-secondary"></i>
-        </button>
-      </div>
-
-      <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" class="btn btn-primary add-user-btn d-flex align-items-center gap-2" (click)="navigateToAddWorker()">
-        <i class="fas fa-user-plus"></i>
-        <span class="btn-text">Ajouter</span>
-      </button>
-
-      <div class="btn-group" role="group" aria-label="Mode d'affichage">
-        <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'table'" (click)="setDisplayMode('table')">
-          <i class="mdi mdi-table"></i> Tableau
-        </button>
-        <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'grid'" (click)="setDisplayMode('grid')">
-          <i class="mdi mdi-view-grid"></i> Grille
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Message d'erreur -->
-  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center gap-2 error-alert">
-    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
-  </div>
-
-  <!-- Mode TABLEAU -->
-  <div *ngIf="displayMode === 'table'" class="table-responsive user-table-wrapper mb-4">
-    <table class="table user-table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>Nom</th>
-          <th>Rôle</th>
-          <th>Email</th>
-          <th>Statut</th>
-          <th class="text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let worker of workers | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-          <td>
-            <span class="user-name fw-semibold">
-              <a title="Détails" [routerLink]="['/user', worker.id]">
-                {{ worker?.firstName }} {{ worker?.lastName }}
-              </a>
-            </span>
-          </td>
-          <td>{{ worker.role?.name || 'N/A' }}</td>
-          <td>{{ worker.email }}</td>
-          <td class="text-center">
-            <div 
-              class="status-toggle" 
-              [class.active]="worker.accountStatus === 'active'" 
-              (click)="toggleWorkerStatus(worker)" 
-              title="Cliquez pour changer le statut"
-              style="cursor:pointer; user-select:none; width: 80px; border-radius: 12px; padding: 4px; background-color: #eee; margin: auto;"
-            >
-              <span class="toggle-text">
-                {{ worker.accountStatus === 'active' ? 'Active' : 'Inactive' }}
-              </span>
+<div class="employee-management container-fluid">
+  <!-- Header Section -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body p-4">
+      <div class="row align-items-center">
+        <!-- Title Section -->
+        <div class="col-md-5 mb-3 mb-md-0">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-wrapper bg-primary bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-users text-primary fs-4"></i>
             </div>
-          </td>
-          <td class="actions-cell text-center d-flex justify-content-center gap-2">
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-success me-1" (click)="editWorker(worker)" title="Modifier">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-warning me-1" (click)="editWorkerPassword(worker)" title="Modifier le Mot de Passe">
-              <i class="fas fa-key"></i>
-            </button>
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-primary me-1" (click)="toggleWorkerStatus(worker)" title="Changer le statut">
-              <i class="fas fa-sync-alt"></i>
-            </button>
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" type="button" class="btn btn-danger" (click)="deleteWorker(worker)" title="Supprimer">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Mode GRILLE -->
-  <div *ngIf="displayMode === 'grid'" class="row g-3">
-    <div class="col-xl-3 col-sm-6" *ngFor="let worker of workers | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-      <div class="card text-center h-100">
-        <div class="card-body">
-          <div class="avatar-sm mx-auto mb-4" *ngIf="!worker.image">
-            <span class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-16">
-              {{ worker.firstName.charAt(0) }}{{ worker.lastName.charAt(0) }}
-            </span>
-          </div>
-          <div *ngIf="worker.image" class="mb-4">
-            <img class="rounded-circle avatar-sm" [src]="worker.image" alt="User Image" />
-          </div>
-          <h5 class="font-size-15 mb-1">
-            <a [routerLink]="['/user', worker.id]" class="text-dark" title="Détails">
-              {{ worker.firstName }} {{ worker.lastName }}
-            </a>
-          </h5>
-          <p class="text-muted">{{ worker.role?.name || 'N/A' }}</p>
-          <p class="text-muted"><small>{{ worker.partner?.name || '-' }}</small></p>
-
-          <div class="mb-3">
-            <div 
-              class="status-toggle mx-auto" 
-              [class.active]="worker.accountStatus === 'active'" 
-              (click)="toggleWorkerStatus(worker)" 
-              title="Cliquez pour changer le statut" 
-              style="cursor:pointer; width: 80px; border-radius: 12px; padding: 4px; user-select:none; background-color: #eee;"
-            >
-              <span class="toggle-text">{{ worker.accountStatus === 'active' ? 'Active' : 'Inactive' }}</span>
+            <div>
+              <h1 class="m-0 fw-semibold text-dark">Gestion des Employés</h1>
+              <p class="text-muted mb-0">Administration des accès employés</p>
             </div>
           </div>
+        </div>
 
-          <div class="d-flex justify-content-center gap-2">
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" class="btn btn-sm btn-success" (click)="editWorker(worker)" title="Modifier">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" class="btn btn-sm btn-danger" (click)="deleteWorker(worker)" title="Supprimer">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" class="btn btn-sm btn-warning" (click)="editWorkerPassword(worker)" title="Mot de passe">
-              <i class="fas fa-key"></i>
+        <!-- Search and Actions Section -->
+        <div class="col-md-7">
+          <div class="d-flex flex-column flex-md-row gap-3">
+            <!-- Search Input -->
+            <div class="search-container flex-grow-1 position-relative">
+              <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+              <input 
+                type="text" 
+                class="form-control ps-5" 
+                placeholder="Rechercher employé..."
+                [(ngModel)]="searchKeyword"
+                (input)="onSearchInputChange()"
+              >
+              <button 
+                *ngIf="searchKeyword" 
+                class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 text-muted"
+                (click)="clearSearch()"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <!-- Display Mode Toggle -->
+            <div class="btn-group" role="group">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary" 
+                [class.active]="displayMode === 'table'" 
+                (click)="setDisplayMode('table')"
+              >
+                <i class="mdi mdi-table"></i>
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-primary" 
+                [class.active]="displayMode === 'grid'" 
+                (click)="setDisplayMode('grid')"
+              >
+                <i class="mdi mdi-view-grid"></i>
+              </button>
+            </div>
+
+            <!-- Add Employee Button -->
+            <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" 
+                    class="btn btn-primary d-flex align-items-center gap-2" 
+                    (click)="navigateToAddWorker()">
+              <i class="fas fa-user-plus"></i> <span class="d-none d-md-inline">Ajouter</span>
             </button>
           </div>
         </div>
@@ -160,21 +72,176 @@
     </div>
   </div>
 
-  <!-- Pagination commune -->
-  <div class="pagination-wrapper d-flex justify-content-center mt-3">
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mb-4">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <div>{{ errorMessage }}</div>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="displayMode === 'table'">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Employé</th>
+                <th>Rôle</th>
+                <th>Email</th>
+                <th>Statut</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let worker of workers | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td class="ps-4">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-3">
+                      <span *ngIf="!worker.image" class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                        {{ worker.firstName.charAt(0) }}{{ worker.lastName.charAt(0) }}
+                      </span>
+                      <img *ngIf="worker.image" [src]="worker.image" class="avatar-title rounded-circle" alt="Employee image">
+                    </div>
+                    <div>
+                      <a [routerLink]="['/user', worker.id]" class="text-dark fw-semibold text-decoration-none">
+                        {{ worker.firstName }} {{ worker.lastName }}
+                      </a>
+                      <div class="text-muted small mt-1">{{ worker.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-primary': worker.role?.name === 'ADMIN',
+                    'bg-success': worker.role?.name === 'SUBADMIN',
+                    'bg-info': worker.role?.name === 'USER'
+                  }">
+                    {{ worker.role?.name || 'N/A' }}
+                  </span>
+                </td>
+                <td>{{ worker.email }}</td>
+                <td>
+                  <div class="status-toggle" 
+                       [class.active]="worker.accountStatus === 'active'" 
+                       (click)="toggleWorkerStatus(worker)">
+                    <span class="toggle-text">
+                      {{ worker.accountStatus === 'active' ? 'Actif' : 'Inactif' }}
+                    </span>
+                  </div>
+                </td>
+                <td class="pe-4">
+                  <div class="d-flex justify-content-end gap-2" *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editWorker(worker)" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" (click)="editWorkerPassword(worker)" title="Réinitialiser mot de passe">
+                      <i class="fas fa-key"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteWorker(worker)" title="Supprimer">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="displayMode === 'grid'" class="row g-4">
+    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let worker of workers | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <!-- Employee Header -->
+          <div class="text-center mb-3">
+            <div class="avatar-lg mx-auto mb-3">
+              <span *ngIf="!worker.image" class="avatar-title rounded-circle bg-primary-subtle text-primary display-5">
+                {{ worker.firstName.charAt(0) }}{{ worker.lastName.charAt(0) }}
+              </span>
+              <img *ngIf="worker.image" [src]="worker.image" class="avatar-title rounded-circle" alt="Employee image">
+            </div>
+            <h5 class="card-title mb-1">
+              <a [routerLink]="['/user', worker.id]" class="text-dark text-decoration-none">
+                {{ worker.firstName }} {{ worker.lastName }}
+              </a>
+            </h5>
+            <p class="text-muted mb-2">{{ worker.email }}</p>
+          </div>
+
+          <!-- Employee Details -->
+          <div class="employee-details mb-3">
+            <div class="detail-item mb-2">
+              <i class="fas fa-user-tag me-2 text-muted"></i>
+              <span class="badge" [ngClass]="{
+                'bg-primary': worker.role?.name === 'ADMIN',
+                'bg-success': worker.role?.name === 'SUBADMIN',
+                'bg-info': worker.role?.name === 'USER'
+              }">
+                {{ worker.role?.name || 'N/A' }}
+              </span>
+            </div>
+            <div class="detail-item mb-2">
+              <i class="fas fa-id-card me-2 text-muted"></i>
+              <span>{{ worker.username }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="mb-3">
+            <div class="status-toggle mx-auto" 
+                 [class.active]="worker.accountStatus === 'active'" 
+                 (click)="toggleWorkerStatus(worker)">
+              <span class="toggle-text">{{ worker.accountStatus === 'active' ? 'Actif' : 'Inactif' }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-auto d-flex flex-wrap gap-2" *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'">
+            <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editWorker(worker)">
+              <i class="fas fa-edit me-1"></i> Modifier
+            </button>
+            <button class="btn btn-sm btn-outline-warning flex-grow-1" (click)="editWorkerPassword(worker)">
+              <i class="fas fa-key me-1"></i> MDP
+            </button>
+            <button class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deleteWorker(worker)">
+              <i class="fas fa-trash-alt me-1"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+      Affichage de {{ (p - 1) * itemsPerPage + 1 }} à {{ p * itemsPerPage > workers.length ? workers.length : p * itemsPerPage }} sur {{ workers.length }} employés
+    </div>
     <pagination-controls
       (pageChange)="p = $event"
       previousLabel="Précédent"
       nextLabel="Suivant"
-      maxSize="7"
-      autoHide="true"
-    >
-    </pagination-controls>
+      maxSize="5"
+      class="pagination"
+    ></pagination-controls>
   </div>
 
-  <!-- Message vide -->
-  <div *ngIf="workers.length === 0 && !errorMessage" class="empty-state text-center text-secondary mt-5 d-flex flex-column align-items-center gap-3">
-    <i class="fas fa-user-slash fs-1 opacity-50"></i>
-    <p class="fs-5 m-0">Aucun employé trouvé</p>
+  <!-- Empty State -->
+  <div *ngIf="workers.length === 0 && !errorMessage" class="empty-state text-center py-5">
+    <div class="empty-icon mb-3">
+      <i class="fas fa-user-slash fs-1 text-muted opacity-50"></i>
+    </div>
+    <h5 class="text-muted">Aucun employé trouvé</h5>
+    <p class="text-muted mb-4">Commencez par ajouter un nouvel employé</p>
+    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" 
+            class="btn btn-primary" 
+            (click)="navigateToAddWorker()">
+      <i class="fas fa-user-plus me-2"></i>Ajouter un employé
+    </button>
   </div>
 </div>
+
