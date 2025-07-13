@@ -9,18 +9,23 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Permissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Action } from '../roles/enums/action.enum';
+import { Resource } from '../roles/enums/resource.enum';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard,PermissionsGuard)
 @Controller('projects')
 export class ProjectController {
   constructor(private readonly projSrv: ProjectService) {}
 
   /* ------------------- CRUD de base ------------------- */
 @Post()
+@Permissions({ resource: Resource.PROJECT, actions: [Action.CREATE,Action.MANAGE] })
 create(
   @Body() dto: CreateProjectDto,
   @Query('idOrder') idOrder: number,
@@ -49,6 +54,7 @@ create(
 }
 
 @Put(':id')
+@Permissions({ resource: Resource.PROJECT, actions: [Action.UPDATE,Action.MANAGE] })
 update(
   @Param('id') id: number,
   @Body() body: Partial<Project>,

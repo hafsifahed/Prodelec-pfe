@@ -172,3 +172,293 @@
   </div>
 
 </div>
+
+
+<!-- ---- new ---------->
+
+<app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
+
+<div class="partner-management container-fluid">
+  <!-- Header Section -->
+  <div class="management-header card mb-4 border-0 shadow-sm">
+    <div class="card-body p-4">
+      <div class="row align-items-center">
+        <!-- Title Section -->
+        <div class="col-md-5 mb-3 mb-md-0">
+          <div class="d-flex align-items-center gap-3">
+            <div class="icon-wrapper bg-primary bg-opacity-10 p-3 rounded-circle">
+              <i class="fas fa-handshake text-primary fs-4"></i>
+            </div>
+            <div>
+              <h1 class="m-0 fw-semibold text-dark">Liste des Partenaires</h1>
+              <p class="text-muted mb-0">Gestion des partenaires commerciaux</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Actions Section -->
+        <div class="col-md-7">
+          <div class="d-flex flex-column flex-md-row gap-3">
+            <!-- Search Input -->
+            <div class="search-container flex-grow-1 position-relative">
+              <i class="fas fa-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+              <input 
+                type="text" 
+                class="form-control ps-5" 
+                placeholder="Rechercher partenaire..."
+                [(ngModel)]="searchKeyword"
+                (input)="onSearchInputChange()"
+              >
+              <button 
+                *ngIf="searchKeyword" 
+                class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 text-muted"
+                (click)="clearSearch()"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <!-- Display Mode Toggle -->
+            <div class="btn-group" role="group">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary" 
+                [class.active]="displayMode === 'table'" 
+                (click)="setDisplayMode('table')"
+              >
+                <i class="mdi mdi-table"></i>
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-outline-primary" 
+                [class.active]="displayMode === 'grid'" 
+                (click)="setDisplayMode('grid')"
+              >
+                <i class="mdi mdi-view-grid"></i>
+              </button>
+            </div>
+
+            <!-- Add Partner Button -->
+            <button class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAddPartner()">
+              <i class="fas fa-plus"></i> <span class="d-none d-md-inline">Ajouter</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mb-4">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    <div>{{ errorMessage }}</div>
+  </div>
+
+  <!-- Table View -->
+  <div *ngIf="displayMode === 'table'">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Partenaire</th>
+                <th>Contact</th>
+                <th>Adresse</th>
+                <th>Utilisateurs</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+                <td class="ps-4">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-sm me-3">
+                      <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                        {{ partner.name | slice:0:2 | uppercase }}
+                      </span>
+                    </div>
+                    <div>
+                      <a [routerLink]="['/partner', partner.id]" class="text-dark fw-semibold text-decoration-none">
+                        {{ partner.name }}
+                      </a>
+                      <div class="text-muted small mt-1">
+                        <span class="badge" [ngClass]="{
+                          'bg-success': partner.partnerStatus === 'active',
+                          'bg-secondary': partner.partnerStatus === 'inactive'
+                        }">
+                          {{ partner.partnerStatus === 'active' ? 'Actif' : 'Inactif' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex flex-column">
+                    <span>{{ partner.tel || '-' }}</span>
+                    <small class="text-muted">{{ partner.email || '-' }}</small>
+                  </div>
+                </td>
+                <td>{{ partner.address || '-' }}</td>
+                <td>
+                  <div *ngIf="partner.users?.length > 0" class="users-list">
+                    <div *ngFor="let user of partner.users" class="d-flex align-items-center mb-2">
+                      <div class="avatar-xs me-2">
+                        <span class="avatar-title rounded-circle bg-light text-dark">
+                          {{ user.email | slice:0:1 | uppercase }}
+                        </span>
+                      </div>
+                      <div>
+                        <div>{{ user.email }}</div>
+                        <small class="text-muted">{{ user?.role?.name || 'Aucun rôle' }}</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="!partner.users || partner.users.length === 0" class="text-muted fst-italic">
+                    Aucun utilisateur
+                  </div>
+                </td>
+                <td class="pe-4">
+                  <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editPartner(partner)" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button *ngIf="partner.partnerStatus !== 'inactive'" 
+                            class="btn btn-sm btn-outline-warning" 
+                            (click)="inactivatePartner(partner)" 
+                            title="Inactiver">
+                      <i class="fas fa-ban"></i>
+                    </button>
+                    <button *ngIf="partner.partnerStatus === 'inactive'" 
+                            class="btn btn-sm btn-outline-success" 
+                            (click)="activatePartner(partner)" 
+                            title="Activer">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deletePartner(partner.id)" title="Supprimer">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid View -->
+  <div *ngIf="displayMode === 'grid'" class="row g-4">
+    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let partner of partners | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body d-flex flex-column">
+          <!-- Partner Header -->
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-lg me-3">
+              <span class="avatar-title rounded-circle bg-primary-subtle text-primary display-5">
+                {{ partner.name | slice:0:2 | uppercase }}
+              </span>
+            </div>
+            <div>
+              <h5 class="card-title mb-0">
+                <a [routerLink]="['/partner', partner.id]" class="text-dark text-decoration-none">
+                  {{ partner.name }}
+                </a>
+              </h5>
+              <span class="badge" [ngClass]="{
+                'bg-success': partner.partnerStatus === 'active',
+                'bg-secondary': partner.partnerStatus === 'inactive'
+              }">
+                {{ partner.partnerStatus === 'active' ? 'Actif' : 'Inactif' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Partner Details -->
+          <div class="partner-details mb-3">
+            <div class="detail-item mb-2">
+              <i class="fas fa-phone me-2 text-muted"></i>
+              <span>{{ partner.tel || 'Non renseigné' }}</span>
+            </div>
+            <div class="detail-item mb-2">
+              <i class="fas fa-map-marker-alt me-2 text-muted"></i>
+              <span>{{ partner.address || 'Non renseignée' }}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-users me-2 text-muted"></i>
+              <span>{{ partner.users?.length || 0 }} utilisateur(s)</span>
+            </div>
+          </div>
+
+          <!-- Users List (Collapsible) -->
+          <div class="mb-3" *ngIf="partner.users?.length > 0">
+            <div class="accordion accordion-flush" id="usersAccordion{{partner.id}}">
+              <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed p-0 bg-transparent shadow-none" 
+                          type="button" 
+                          data-bs-toggle="collapse" 
+                          [attr.data-bs-target]="'#usersCollapse'+partner.id">
+                    <small class="text-primary">Voir les utilisateurs</small>
+                  </button>
+                </h2>
+                <div [id]="'usersCollapse'+partner.id" class="accordion-collapse collapse">
+                  <div class="accordion-body p-0 pt-2">
+                    <div class="users-list">
+                      <div *ngFor="let user of partner.users" class="d-flex align-items-center mb-2">
+                        <div class="avatar-xs me-2">
+                          <span class="avatar-title rounded-circle bg-light text-dark">
+                            {{ user.email | slice:0:1 | uppercase }}
+                          </span>
+                        </div>
+                        <div>
+                          <div class="small">{{ user.email }}</div>
+                          <small class="text-muted">{{ user?.role?.name || 'Aucun rôle' }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-auto d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editPartner(partner)">
+              <i class="fas fa-edit me-1"></i> Modifier
+            </button>
+            <button *ngIf="partner.partnerStatus !== 'inactive'" 
+                    class="btn btn-sm btn-outline-warning flex-grow-1" 
+                    (click)="inactivatePartner(partner)">
+              <i class="fas fa-ban me-1"></i> Inactiver
+            </button>
+            <button *ngIf="partner.partnerStatus === 'inactive'" 
+                    class="btn btn-sm btn-outline-success flex-grow-1" 
+                    (click)="activatePartner(partner)">
+              <i class="fas fa-check me-1"></i> Activer
+            </button>
+            <button class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deletePartner(partner.id)">
+              <i class="fas fa-trash-alt me-1"></i> Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted">
+      Affichage de {{ (p - 1) * itemsPerPage + 1 }} à {{ p * itemsPerPage > partners.length ? partners.length : p * itemsPerPage }} sur {{ partners.length }} partenaires
+    </div>
+    <pagination-controls
+      (pageChange)="p = $event"
+      previousLabel="Précédent"
+      nextLabel="Suivant"
+      maxSize="5"
+      class="pagination"
+    ></pagination-controls>
+  </div>
+</div>

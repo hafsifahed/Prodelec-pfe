@@ -19,6 +19,8 @@ export enum Role {
     RESPONSABLE_METHODE = 'Responsable Méthode',
     RESPONSABLE_PRODUCTION = 'Responsable Production',
     RESPONSABLE_LOGISTIQUE = 'Responsable Logistique',
+    RESPONSABLE_INDUSTRIALISATION = 'Responsable Industrialisation',
+
 
     // Client roles
     CLIENT_ADMIN = 'CLIENTADMIN',

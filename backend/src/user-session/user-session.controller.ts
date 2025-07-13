@@ -8,13 +8,17 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { Permissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { Action } from '../roles/enums/action.enum';
+import { Resource } from '../roles/enums/resource.enum';
 import { CreateUserSessionDto } from './dto/create-user-session.dto';
 import { UpdateUserSessionDto } from './dto/update-user-session.dto';
 import { UserSessionService } from './user-session.service';
 
 @Controller('user-session')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UserSessionController {
   constructor(private readonly sessionService: UserSessionService) {}
 
@@ -24,12 +28,14 @@ export class UserSessionController {
   }
 
   @Put('end/:id')
+  @Permissions({ resource: Resource.SESSIONS, actions: [Action.MANAGE] })
   async endSession(@Param('id') id: number) {
     const result = await this.sessionService.endSession(Number(id));
     return { success: result };
   }
 
   @Put('update')
+  @Permissions({ resource: Resource.SESSIONS, actions: [Action.MANAGE] })
   async updateSession(@Body() dto: UpdateUserSessionDto) {
     return this.sessionService.updateSession(dto);
   }
@@ -50,6 +56,7 @@ export class UserSessionController {
   }
 
   @Delete(':id')
+  @Permissions({ resource: Resource.SESSIONS, actions: [Action.MANAGE] })
   deleteSession(@Param('id') id: number) {
     return this.sessionService.deleteSession(Number(id));
   }

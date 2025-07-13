@@ -80,7 +80,7 @@ export class ChartsUseradminSectionComponent implements OnInit {
   }
 
   private async initData() {
-    if (this.roleName === 'CLIENT ADMIN') {
+    if (this.roleName === 'CLIENTADMIN') {
       // Charger tous les utilisateurs du partenaire
       const allUsers = await this.usersSrv.getClients().toPromise();
       this.users = allUsers.filter(u => u.partner?.id === this.partnerId);

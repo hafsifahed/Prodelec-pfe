@@ -1,5 +1,5 @@
 // src/statistics/statistics.service.ts
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Avis } from '../avis/entities/avis.entity';
@@ -22,7 +22,7 @@ export interface GlobalStats {
   averageAvis: number;
   reclamationRatio: number;          // % réclamations / projets
 
-  sessions: {
+  sessions?: {
     totalEmployees: number;
     connectedEmployees: number;
     totalClients: number;
@@ -154,5 +154,95 @@ export class StatisticsService {
 
   return { projects, devis, partners };
 }
+
+
+
+ /** Statistiques pour un utilisateur donné (sans sessions ni partenaire) */
+  async getGlobalStatsUser(userId: number): Promise<GlobalStats> {
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    /* ---------- Commandes ---------- */
+    const [totalOrders, cancelledOrders] = await Promise.all([
+      this.orderRepo.count({ where: { user: { id: userId } } }),
+      this.orderRepo.count({ where: { annuler: true, user: { id: userId } } }),
+    ]);
+
+    /* ---------- Projets ---------- */
+    const projects = await this.projectRepo.createQueryBuilder('project')
+      .leftJoin('project.order', 'order')
+      .where('order.userId = :userId', { userId })
+      .getMany();
+
+    const totalProjects = projects.length;
+    const completedProjects = projects.filter(p => p.progress === 100).length;
+    const lateProjects = projects.filter(p =>
+      !!p.dlp && p.progress !== 100 && new Date(p.dlp) < new Date()
+    ).length;
+
+    /* ---------- Avis ---------- */
+    const avisList = await this.avisRepo.createQueryBuilder('avis')
+      .leftJoin('avis.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getMany();
+
+    const averageAvis = avisList.length
+      ? avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / avisList.length
+      : 0;
+
+    /* ---------- Réclamations / ratio ---------- */
+    const totalReclam = await this.reclamRepo.createQueryBuilder('reclam')
+      .leftJoin('reclam.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getCount();
+
+    const reclamationRatio = totalProjects
+      ? +(totalReclam / totalProjects * 100).toFixed(2)
+      : 0;
+
+    return {
+      totalOrders,
+      cancelledOrders,
+      totalProjects,
+      completedProjects,
+      lateProjects,
+      averageAvis: +averageAvis.toFixed(2),
+      reclamationRatio,
+    };
+  }
+
+   /** Recherche projets et devis liés à un utilisateur (sans partenaire) */
+  async searchAllUser(keyword: string, userId: number) {
+    if (!keyword || !keyword.trim()) {
+      return { projects: [], devis: [], partners: [] };
+    }
+    keyword = keyword.trim().toLowerCase();
+
+    if (!userId) {
+      throw new ForbiddenException('User ID is required');
+    }
+
+    // Recherche projets liés à l'utilisateur
+    const projects = await this.projectRepo.createQueryBuilder('project')
+      .leftJoin('project.order', 'order')
+      .where('order.userId = :userId', { userId })
+      .andWhere('(LOWER(project.refClient) LIKE :keyword OR LOWER(project.methodeComment) LIKE :keyword)', { keyword: `%${keyword}%` })
+      .take(10)
+      .getMany();
+
+    // Recherche devis liés à l'utilisateur
+    const devis = await this.devisRepo.createQueryBuilder('devis')
+      .leftJoin('devis.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('(LOWER(devis.numdevis) LIKE :keyword OR LOWER(devis.projet) LIKE :keyword)', { keyword: `%${keyword}%` })
+      .take(10)
+      .getMany();
+
+    // Recherche partenaires (optionnel, ici vide car pas lié à user)
+    const partners = [];
+
+    return { projects, devis, partners };
+  }
 
 }

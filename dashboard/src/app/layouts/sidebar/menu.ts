@@ -119,7 +119,7 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    id: 70, label: 'Projets (Admin Client)', icon: 'bx-briefcase', link: purl+'/listprojetclientadmin',
+    id: 71, label: 'Projets (Admin Client)', icon: 'bx-briefcase', link: purl+'/listprojetclientadmin',
     rolePermissions: [
       { resource: Resource.PROJECT, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN] }
     ]

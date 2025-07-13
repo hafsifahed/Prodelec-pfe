@@ -59,6 +59,8 @@ export class SeedService implements OnApplicationBootstrap {
       [RoleEnum.RESPONSABLE_METHODE, this.responsableMethodeProc()],
       [RoleEnum.RESPONSABLE_PRODUCTION, this.responsableProductionProc()],
       [RoleEnum.RESPONSABLE_LOGISTIQUE, this.responsableLogistiqueProc()],
+      [RoleEnum.RESPONSABLE_INDUSTRIALISATION, this.responsableIndustrialisationProc()],
+
     ]);
 
     for (const [name, permissions] of roleDefinitions) {
@@ -131,6 +133,13 @@ private responsableLogistiqueProc() {
   ];
 }
 
+private responsableIndustrialisationProc() {
+  return [
+    { resource: Resource.PROJECT, actions: [Action.MANAGE] },
+    { resource: Resource.ORDERS, actions: [Action.MANAGE] },
+  ];
+}
+
   /* ---------------------------- ADMIN -------------------------------- */
 
   private async seedAdminUser() {
@@ -171,6 +180,7 @@ private responsableLogistiqueProc() {
     { role: RoleEnum.PROCESS_DESIGN,     email: 'design.process@example.com',     first: 'Design'     },
 
     // Nouveaux responsables
+    { role: RoleEnum.RESPONSABLE_INDUSTRIALISATION, email: 'responsable.industrialisation@example.com', first: 'Responsable Industrialisation' },
     { role: RoleEnum.RESPONSABLE_CONCEPTION, email: 'responsable.conception@example.com', first: 'Responsable Conception' },
     { role: RoleEnum.RESPONSABLE_QUALITE,    email: 'responsable.qualite@example.com',    first: 'Responsable Qualité'    },
     { role: RoleEnum.RESPONSABLE_METHODE,    email: 'responsable.methode@example.com',    first: 'Responsable Méthode'    },

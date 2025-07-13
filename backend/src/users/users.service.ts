@@ -143,32 +143,37 @@ export class UsersService {
   
 
   async findOne(username: string, selectSecrets = false): Promise<User | undefined> {
-    const queryBuilder = this.usersRepository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role')
-      .where('user.username = :username', { username });
+  const queryBuilder = this.usersRepository.createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .leftJoinAndSelect('user.partner', 'partner')  // Ajout de la relation partenaire
+    .where('user.username = :username OR user.email = :username', { username });
 
-    if (!selectSecrets) {
-      queryBuilder.select([
-        'user.id',
-        'user.username',
-        'user.firstName',
-        'user.lastName',
-        'user.email',
-        'user.accountStatus',
-        'user.createdAt',
-        'user.updatedAt',
-        'role.id',
-        'role.name',
-        'role.permissions'
-
-      ]);
-    } else {
-      queryBuilder.addSelect('user.password');
-      //queryBuilder.addSelect('user.permissions');  if permissions are on user
-    }
-
-    return queryBuilder.getOne();
+  if (!selectSecrets) {
+    queryBuilder.select([
+      'user.id',
+      'user.username',
+      'user.firstName',
+      'user.lastName',
+      'user.email',
+      'user.accountStatus',
+      'user.createdAt',
+      'user.updatedAt',
+      'role.id',
+      'role.name',
+      'role.permissions',
+      'partner.id',
+      'partner.name',
+      'partner.address',
+      'partner.tel',
+      'partner.partnerStatus',
+    ]);
+  } else {
+    queryBuilder.addSelect('user.password');
   }
+
+  return queryBuilder.getOne();
+}
+
 
   async findOneById(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({
