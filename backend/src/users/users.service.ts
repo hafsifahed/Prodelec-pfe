@@ -143,7 +143,15 @@ export class UsersService {
     .getMany();
 }
 
-  
+  async findByRole(roleName: string): Promise<User[]> {
+  return this.usersRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.role', 'role')
+    .where('role.name = :roleName', { roleName })
+    .getMany();
+}
+
+
 
   async findOne(username: string, selectSecrets = false): Promise<User | undefined> {
   const queryBuilder = this.usersRepository.createQueryBuilder('user')

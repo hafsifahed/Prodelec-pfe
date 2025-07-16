@@ -399,7 +399,7 @@ showLivraisonAdd = false;
 
   // Construction de l'objet ProjectDto
   const project: ProjectDto = {
-    refClient: refclient,
+    refClient: refclient, //refclient
     refProdelec: refProdelec,
     qte: qte,
     dlp: datelivprev,

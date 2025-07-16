@@ -30,6 +30,20 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
   project1:any;
   project2:Project;
 
+          // Pour modal Ajout
+    showConceptionAdd = false;
+    showMethodeAdd = false;
+    showProductionAdd = false;
+    showControleAdd = false;
+    showLivraisonAdd = false;
+
+    // Pour modal Modification
+    showConceptionEdit = false;
+    showMethodeEdit = false;
+    showProductionEdit = false;
+    showControleEdit = false;
+    showLivraisonEdit = false;
+
     private progressSubjects = {
     conception: new Subject<{ project: any, value: number }>(),
     methode: new Subject<{ project: any, value: number }>(),
@@ -239,6 +253,11 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
 
   // Ouvre la modale de duplication
   addModal(project: any) {
+        this.showConceptionAdd = false;
+    this.showMethodeAdd = false;
+    this.showProductionAdd = false;
+    this.showControleAdd = false;
+    this.showLivraisonAdd = false;
     this.submitted = false;
     this.project = project;
     this.showModala?.show();
@@ -266,6 +285,11 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
   }
 
   editModal(id: any) {
+        this.showConceptionEdit = false;
+    this.showMethodeEdit = false;
+    this.showProductionEdit = false;
+    this.showControleEdit = false;
+    this.showLivraisonEdit = false;
       this.submitted = false;
       this.showModal?.show()
       this.projectservice.getProjectById(id).subscribe((data) => {
@@ -696,4 +720,24 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
     const drfWithoutTime = new Date(new Date(drf).getFullYear(), new Date(drf).getMonth(), new Date(drf).getDate());
     return dfWithoutTime < drfWithoutTime;
   }
+
+  toggleSection(modal: 'add' | 'edit', section: string) {
+  if (modal === 'add') {
+    switch (section) {
+      case 'conception': this.showConceptionAdd = !this.showConceptionAdd; break;
+      case 'methode': this.showMethodeAdd = !this.showMethodeAdd; break;
+      case 'production': this.showProductionAdd = !this.showProductionAdd; break;
+      case 'controle': this.showControleAdd = !this.showControleAdd; break;
+      case 'livraison': this.showLivraisonAdd = !this.showLivraisonAdd; break;
+    }
+  } else if (modal === 'edit') {
+    switch (section) {
+      case 'conception': this.showConceptionEdit = !this.showConceptionEdit; break;
+      case 'methode': this.showMethodeEdit = !this.showMethodeEdit; break;
+      case 'production': this.showProductionEdit = !this.showProductionEdit; break;
+      case 'controle': this.showControleEdit = !this.showControleEdit; break;
+      case 'livraison': this.showLivraisonEdit = !this.showLivraisonEdit; break;
+    }
+  }
+}
 }

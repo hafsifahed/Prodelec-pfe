@@ -42,6 +42,8 @@ export class TopbarComponent implements OnInit {
   notification: { message: string; type: string; time: string }[] = [];
   token = localStorage.getItem('token');
   unreadCount : number=0;
+  notificationsSubscription?: Subscription;
+  userSubscription?: Subscription;
 
   keyword: string = '';
   results: SearchResults | null = null;
@@ -99,19 +101,34 @@ export class TopbarComponent implements OnInit {
     }
 
 
-this.userStateService.user$.subscribe(user => {
+ this.userSubscription = this.userStateService.user$.subscribe(user => {
       this.user = user;
-    });
 
-      this.webSocketService.notifications$.subscribe(notifs => {
-      this.notifications = notifs;
-      this.unreadCount = notifs.filter(n => !n.read).length;
+      if (user) {
+        // Utilisateur connecté => s’abonner notifications si pas déjà abonné
+        if (!this.notificationsSubscription) {
+          this.notificationsSubscription = this.webSocketService.notifications$.subscribe(notifs => {
+            this.notifications = notifs;
+            this.unreadCount = notifs.filter(n => !n.read).length;
+          });
+        }
+      } else {
+        // Utilisateur déconnecté => nettoyer l’abonnement notifications et notifications locales
+        this.notificationsSubscription?.unsubscribe();
+        this.notificationsSubscription = undefined;
+        this.notifications = [];
+        this.unreadCount = 0;
+        // Optionnel : déconnexion socket côté service
+        this.webSocketService.disconnect();
+      }
     });
 
 
 
   }
-
+ ngOnDestroy() {
+    this.notificationsSubscription?.unsubscribe();
+  }
 
  onSearchChange(keyword: string) {
     this.loading = true;
@@ -233,7 +250,7 @@ getNotificationIcon(title?: string): string {
           // Clear local storage or any auth tokens
           localStorage.clear();
           this.userStateService.setUser(null);
-          this.webSocketService.clearNotifications();
+          this.webSocketService.disconnect();
           // Redirect to login or home page
           
           this.router.navigate(['/signin']);

@@ -25,7 +25,7 @@ export class ProjectController {
 
   /* ------------------- CRUD de base ------------------- */
 @Post()
-@Permissions({ resource: Resource.PROJECT, actions: [Action.CREATE,Action.MANAGE] })
+@Permissions({ resource: Resource.PROJECT, actions: [Action.MANAGE] })
 create(
   @Body() dto: CreateProjectDto,
   @Query('idOrder') idOrder: number,

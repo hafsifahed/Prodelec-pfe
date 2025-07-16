@@ -45,7 +45,13 @@ export enum RoleName {
   PROCESS_DAF = 'Processus DAF',
   PROCESS_RH = 'Processus Rh',
   CLIENT_ADMIN = 'CLIENTADMIN',
-  CLIENT_USER = 'CLIENTUSER'
+  CLIENT_USER = 'CLIENTUSER',
+      RESPONSABLE_CONCEPTION = 'Responsable Conception',
+    RESPONSABLE_QUALITE = 'Responsable Qualité',
+    RESPONSABLE_METHODE = 'Responsable Méthode',
+    RESPONSABLE_PRODUCTION = 'Responsable Production',
+    RESPONSABLE_LOGISTIQUE = 'Responsable Logistique',
+    RESPONSABLE_INDUSTRIALISATION = 'Responsable Industrialisation',
 }
 
 // Interface pour la permission d’un rôle

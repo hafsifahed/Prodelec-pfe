@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 import { User } from '../users/entities/users.entity';
 import { Devis } from './entities/devi.entity';
 
@@ -12,6 +13,7 @@ export class DevisService {
     private readonly devisRepo: Repository<Devis>,
     @InjectRepository(CahierDesCharges)
     private readonly cdcRepo: Repository<CahierDesCharges>,
+    private notificationsService:NotificationsService,
   ) {}
 
 async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
@@ -29,8 +31,19 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
     etat: 'En attente',
   });
 
-  return this.devisRepo.save(devis);
+  const savedDevis = await this.devisRepo.save(devis);
+
+  // Notification à l’utilisateur lié au CDC
+  await this.notificationsService.createAndSendNotification(
+    cdc.user,
+    'Nouveau devis créé',
+    `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}".`,
+    { devisId: savedDevis.id }
+  );
+
+  return savedDevis;
 }
+
 
 
   findAll(): Promise<Devis[]> {

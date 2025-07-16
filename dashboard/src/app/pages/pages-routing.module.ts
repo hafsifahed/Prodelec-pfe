@@ -52,6 +52,7 @@ import { SettingComponent } from './setting/setting.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
+import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-calendar-admin.component';
 
 
 
@@ -124,7 +125,9 @@ const routes: Routes = [
   { path: 'setting', component: SettingComponent  },
   { path: 'user/:id', component: UserDetailComponent  },
   { path: 'partner/:id', component: PartnerDetailComponent  },
-    { path: 'calendrier', component: ProjectCalendarComponent  },
+  { path: 'calendrier', component: ProjectCalendarComponent  },
+  { path: 'calendrierGlobal', component: ProjectCalendarAdminComponent },
+
 
 
 

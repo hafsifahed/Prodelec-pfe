@@ -30,17 +30,23 @@ export const MENU: MenuItem[] = [
       { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ],
   },
-  {
+    {
+    id: 13, label: 'Employés', icon: 'bx-user', link: purl+'/list-worker',
+    rolePermissions: [
+      { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
+    ],
+  },
+    {
     id: 3, label: 'Calendrier', icon: 'bx-calendar-alt', link: purl+'/calendrier',
     /*rolePermissions: [
       { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
       { resource: Resource.USERS, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN] }
     ],*/
-  },
+  },//, roles: [RoleName.ADMIN] 
     {
-    id: 13, label: 'Employés', icon: 'bx-user', link: purl+'/list-worker',
+    id: 37, label: 'Calendrier Global', icon: 'bx-calendar-alt', link: purl+'/calendrierGlobal',
     rolePermissions: [
-      { resource: Resource.USERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
+      { resource: Resource.PROJECT, actions: [Action.MANAGE]},
     ],
   },
 
@@ -64,7 +70,7 @@ export const MENU: MenuItem[] = [
   {
     id: 4, label: 'Cahier des charges (Admin)', icon: 'bx-file', link: purl+'/cdc',
     rolePermissions: [
-      { resource: Resource.PRODUCTS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
+      { resource: Resource.PRODUCTS, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] }
     ]
   },
   {
@@ -78,7 +84,7 @@ export const MENU: MenuItem[] = [
   {
     id: 5, label: 'Devis (Admin)', icon: 'bx-money', link: purl+'/devis',
     rolePermissions: [
-      { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
+      { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] }
       
     ]
   },
@@ -93,7 +99,7 @@ export const MENU: MenuItem[] = [
   {
     id: 6, label: 'Commandes (Admin)', icon: 'bx-cart', link: purl+'/listorder',
     rolePermissions: [
-      { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN] }
+      { resource: Resource.ORDERS, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] }
     ]
   },
   {
@@ -107,7 +113,7 @@ export const MENU: MenuItem[] = [
   {
     id: 7, label: 'Projets (Admin)', icon: 'bx-briefcase', link: purl+'/listproject',
     rolePermissions: [
-      { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.SUBADMIN,RoleName.PROCESS_METHOD] },
+      { resource: Resource.PROJECT, actions: [Action.MANAGE,Action.READ,Action.UPDATE], roles: [RoleName.ADMIN,RoleName.SUBADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] },
       { resource: Resource.PROJECT, actions: [Action.READ,Action.UPDATE], roles: [RoleName.PROCESS_DESIGN,RoleName.PROCESS_LOGISTICS,RoleName.PROCESS_PRODUCTION,RoleName.PROCESS_QUALITY,RoleName.PROCESS_DAF] }
 
     ]
@@ -129,7 +135,7 @@ export const MENU: MenuItem[] = [
   {
     id: 8, label: 'Réclamation', icon: 'bx-error', link: purl+'/reclamation',
     rolePermissions: [
-      { resource: Resource.QUALITY, actions: [Action.MANAGE], roles: [RoleName.ADMIN] },
+      { resource: Resource.QUALITY, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.SUBADMIN] },
       { resource: Resource.QUALITY, actions: [Action.READ],   roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
   },

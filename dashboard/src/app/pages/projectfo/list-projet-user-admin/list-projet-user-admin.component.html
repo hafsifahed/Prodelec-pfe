@@ -56,7 +56,7 @@
         <tr>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'yyyy-MM-dd'}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.orderName}}</td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}}</td>
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}} - {{project.order.user.partner.name}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.qte}}</td>
           <!-- Conception -->
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
@@ -201,7 +201,7 @@
       <div class="card-body">
         <h5 class="card-title mb-2">{{ project.order.orderName }}</h5>
         <p class="mb-1"><strong>Date Réception BC :</strong> {{ project.order.createdAt | date:'yyyy-MM-dd' }}</p>
-        <p class="mb-1"><strong>Réf. Client :</strong> {{ project.refClient }}</p>
+        <p class="mb-1"><strong>Réf. Client :</strong> {{ project.refClient }} - {{project.order.user.partner.name}}</p>
         <p class="mb-1"><strong>Quantité :</strong> {{ project.qte }}</p>
 
         <!-- Conception -->

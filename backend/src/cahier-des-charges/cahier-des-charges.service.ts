@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
 import { CahierDesCharges } from './entities/cahier-des-charge.entity';
@@ -30,7 +31,7 @@ export class CahierDesChargesService {
   const savedCdc = await this.repository.save(cdc);
 
   // Notification aux admins après création
-  await this.notificationsService.notifyAdmins(
+  await this.notificationsService.notifyResponsablesByRole(Role.RESPONSABLE_INDUSTRIALISATION,
     'Nouveau cahier des charges soumis',
     `Par ${user.username}`,
     { cdcId: savedCdc.id, userId: user.id, username: user.username }

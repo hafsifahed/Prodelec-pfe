@@ -88,6 +88,7 @@ import { CardsSectionComponent } from './dashboard/cards-section/cards-section.c
 import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-section/charts-useradmin-section.component';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
+import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-calendar-admin.component';
 
 
 @NgModule({
@@ -147,7 +148,8 @@ import { ProjectCalendarComponent } from './project-calendar/project-calendar.co
     ChartsSectionComponent,
     CardsSectionComponent,
     ChartsUseradminSectionComponent,
-    ProjectCalendarComponent
+    ProjectCalendarComponent,
+    ProjectCalendarAdminComponent
 
   ],
   imports: [

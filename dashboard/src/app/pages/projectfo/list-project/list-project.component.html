@@ -74,7 +74,7 @@
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'yyyy-MM-dd'}}
           </td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.orderName}}</td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}}</td>
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}} - {{project.order.user.partner.name}}</td>
           
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.qte}}</td>
          
@@ -327,12 +327,12 @@
         <i  class="mdi mdi-pencil text-success me-2"></i>Modifier
       </a>
     </li>
-    <li *ngIf="hasEditPermission(project)">
+    <li >
       <a class="dropdown-item" href="javascript:void(0);" (click)="delete(project.idproject); $event.stopPropagation()">
         <i class="mdi mdi-delete text-danger me-2"></i>Supprimer
       </a>
     </li>
-    <li *ngIf="hasEditPermission(project)">
+    <li >
       <a class="dropdown-item" href="javascript:void(0);" (click)="addModal(project); $event.stopPropagation()">
         <i class="mdi mdi-content-copy text-info me-2"></i>Dupliquer
       </a>
@@ -360,7 +360,7 @@
             </div>
             <div class="col-6">
               <div class="text-muted">Réf. Client</div>
-              <div class="fw-medium">{{ project.refClient }}</div>
+              <div class="fw-medium">{{ project.refClient }} - {{project.order.user.partner.name}}</div>
             </div>
             <div class="col-6">
               <div class="text-muted">N° BC</div>

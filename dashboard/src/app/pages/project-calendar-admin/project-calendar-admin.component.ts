@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import Swal from 'sweetalert2';
+
 import frLocale from '@fullcalendar/core/locales/fr';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { Project } from 'src/app/core/models/projectfo/project';
@@ -16,12 +17,11 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-project-calendar',
-  templateUrl: './project-calendar.component.html',
-  styleUrls: ['./project-calendar.component.scss'],
-  encapsulation:ViewEncapsulation.None
+  selector: 'app-project-calendar-admin',
+  templateUrl: './project-calendar-admin.component.html',
+  styleUrls: ['./project-calendar-admin.component.scss']
 })
-export class ProjectCalendarComponent implements OnInit, OnDestroy {
+export class ProjectCalendarAdminComponent implements OnInit, OnDestroy {
 
   calendarOptions: CalendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -31,13 +31,11 @@ export class ProjectCalendarComponent implements OnInit, OnDestroy {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
-    dayMaxEvents: true,
     events: [],
     editable: false,
     selectable: false,
     locale: frLocale, 
     eventClick: this.handleEventClick.bind(this)
-    
   };
 
   private STEP_COLORS = {
@@ -106,56 +104,34 @@ export class ProjectCalendarComponent implements OnInit, OnDestroy {
 
   loadEvents() {
   const events = [];
-  const today = new Date();
 
   this.projects.forEach(proj => {
     const steps = [
-      { key: 'conception', start: proj.startConception, end: proj.endConception, responsible: proj.conceptionResponsible, progress: proj.conceptionprogress, status: proj.conceptionStatus },
-      { key: 'methode', start: proj.startMethode, end: proj.endMethode, responsible: proj.methodeResponsible, progress: proj.methodeprogress, status: proj.methodeStatus },
-      { key: 'production', start: proj.startProduction, end: proj.endProduction, responsible: proj.productionResponsible, progress: proj.productionprogress, status: proj.productionStatus },
-      { key: 'controleFinal', start: proj.startFc, end: proj.endFc, responsible: proj.finalControlResponsible, progress: proj.fcprogress, status: proj.finalControlStatus },
-      { key: 'livraison', start: proj.startDelivery, end: proj.endDelivery, responsible: proj.deliveryResponsible, progress: proj.deliveryprogress, status: proj.deliveryStatus },
+      { key: 'conception', start: proj.startConception, end: proj.endConception, responsible: proj.conceptionResponsible },
+      { key: 'methode', start: proj.startMethode, end: proj.endMethode, responsible: proj.methodeResponsible },
+      { key: 'production', start: proj.startProduction, end: proj.endProduction, responsible: proj.productionResponsible },
+      { key: 'controleFinal', start: proj.startFc, end: proj.endFc, responsible: proj.finalControlResponsible },
+      { key: 'livraison', start: proj.startDelivery, end: proj.endDelivery, responsible: proj.deliveryResponsible },
     ];
 
     steps.forEach(step => {
       const start = this.toDate(step.start);
       const end = this.toDate(step.end);
 
-      if (!start || !end) return;
-
-      // Condition : utilisateur est responsable de l'étape OU est le client du projet
-      const isResponsible = step.responsible && this.userr && step.responsible.id === this.userr.id;
-      const isClient = this.userr && proj.order.user.username === this.userr.username; // ou autre propriété identifiant client
-
-      if (!isResponsible && !isClient) return;
-
-      let titleStatus = '';
-      let color = this.STEP_COLORS[step.key as keyof typeof this.STEP_COLORS];
-
-      if (end < today && step.progress < 100) {
-        titleStatus = ' (En retard)';
-        color = '#dc3545'; // rouge
-      } else if (step.status === true || step.progress === 100) {
-        titleStatus = ' (Terminé)';
-        color = '#28a745'; // vert
-      } else if (step.progress > 0) {
-        titleStatus = ' (En cours)';
-        color = '#ffc107'; // jaune
-      } else {
-        color = '#6c757d'; // gris
+      // N’ajoute que si dates valides ET responsable existant
+      if (start && end && step.responsible) {
+        events.push({
+          id: `${proj.idproject}-${step.key}`,
+          title: `${this.capitalizeFirstLetter(step.key)} - ${proj.refClient}`,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          color: this.STEP_COLORS[step.key as keyof typeof this.STEP_COLORS],
+          extendedProps: {
+            project: proj,
+            step: step.key
+          }
+        });
       }
-
-      events.push({
-        id: `${proj.idproject}-${step.key}`,
-        title: `${this.capitalizeFirstLetter(step.key)} - ${proj.refClient}${titleStatus}`,
-        start: start.toISOString(),
-        end: end.toISOString(),
-        color: color,
-        extendedProps: {
-          project: proj,
-          step: step.key
-        }
-      });
     });
   });
 
@@ -164,6 +140,7 @@ export class ProjectCalendarComponent implements OnInit, OnDestroy {
     events
   };
 }
+
 
 
 

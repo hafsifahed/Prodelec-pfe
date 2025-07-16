@@ -150,7 +150,7 @@
                     <button *ngIf="partner.partnerStatus !== 'inactive'" 
                             class="btn btn-sm btn-outline-warning" 
                             (click)="inactivatePartner(partner)" 
-                            title="Inactiver">
+                            title="Desactiver">
                       <i class="fas fa-ban"></i>
                     </button>
                     <button *ngIf="partner.partnerStatus === 'inactive'" 
@@ -256,7 +256,7 @@
             <button *ngIf="partner.partnerStatus !== 'inactive'" 
                     class="btn btn-sm btn-outline-warning flex-grow-1" 
                     (click)="inactivatePartner(partner)">
-              <i class="fas fa-ban me-1"></i> Inactiver
+              <i class="fas fa-ban me-1"></i> Desactiver
             </button>
             <button *ngIf="partner.partnerStatus === 'inactive'" 
                     class="btn btn-sm btn-outline-success flex-grow-1" 

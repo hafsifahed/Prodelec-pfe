@@ -145,6 +145,7 @@ private async notifyResponsibles(project: Project, title: string, message: strin
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.order', 'order')
       .leftJoinAndSelect('order.user', 'user')
+      .leftJoinAndSelect('user.partner', 'partner') // ajout relation partner
       .leftJoinAndSelect('project.conceptionResponsible', 'conceptionResponsible')
       .leftJoinAndSelect('project.methodeResponsible', 'methodeResponsible')
       .leftJoinAndSelect('project.productionResponsible', 'productionResponsible')

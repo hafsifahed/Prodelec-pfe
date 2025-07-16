@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { UsersService } from '../users/users.service';
 import { Notification } from './notification.entity';
@@ -28,6 +29,30 @@ const notification = await this.createNotification(admin, title, message, payloa
   }
   return notifications;
 }
+
+ async notifyResponsablesByRole(role: Role, title: string, message: string, payload?: any): Promise<Notification[]> {
+    const responsibles = await this.usersService.findByRole(role);
+    const notifications: Notification[] = [];
+
+    for (const user of responsibles) {
+      const notification = await this.createNotification(user, title, message, payload);
+      notifications.push(notification);
+      this.notificationsGateway.sendNotificationToUser(user.id, notification);
+    }
+    return notifications;
+  }
+
+/*async notifyResponsablesIndustrialisation(title: string, message: string, payload?: any): Promise<Notification[]> {
+  const responsibles = await this.usersService.findByRole(Role.RESPONSABLE_INDUSTRIALISATION);
+  const notifications: Notification[] = [];
+  for (const user of responsibles) {
+    const notification = await this.createNotification(user, title, message, payload);
+    notifications.push(notification);
+    this.notificationsGateway.sendNotificationToUser(user.id, notification);
+  }
+  return notifications;
+}*/
+
 
  async createAndSendNotification(user: User, title: string, message: string, payload?: any): Promise<Notification> {
     const notification = await this.createNotification(user, title, message, payload);
