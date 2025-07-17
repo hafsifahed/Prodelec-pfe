@@ -140,6 +140,15 @@ export const MENU: MenuItem[] = [
     ]
   },
 
+  
+  /* --- Réclamation --- */
+  {
+    id: 8, label: 'Avis', icon: 'bx-error', link: purl+'/list-avis',
+    rolePermissions: [
+      { resource: Resource.QUALITY, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.SUBADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] },
+    ]
+  },
+
   /* --- Notifications --- */
   {
     id: 9, label: 'Notifications', icon: 'bx-bell', link: purl+'/list-notifications',

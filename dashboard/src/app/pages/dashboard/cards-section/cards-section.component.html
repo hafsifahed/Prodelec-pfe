@@ -1,30 +1,32 @@
 <div class="dashboard-cards">
   <div class="row g-4">
     <!-- Clients -->
-    <div class="col-md-6 col-xl-3">
-      <div class="card bg-c-blue">
-        <div class="card-block">
-          <h6 class="m-b-20">Clients</h6>
-          <h2 class="text-right"><span>{{ stats?.totalClients }}</span></h2>
-          <div class="sub-metric">
-            Connectés <span class="f-right">{{ stats?.connectedClients }}</span>
-          </div>
-        </div>
+<!-- Clients -->
+<div class="col-md-6 col-xl-3" *ngIf="stats">
+  <div class="card bg-c-blue">
+    <div class="card-block">
+      <h6 class="m-b-20">Clients</h6>
+      <h2 class="text-right"><span>{{ stats.totalClients }}</span></h2>
+      <div class="sub-metric">
+        Connectés <span class="f-right">{{ stats.connectedClients }}</span>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Employés -->
-    <div class="col-md-6 col-xl-3">
-      <div class="card bg-c-blue">
-        <div class="card-block">
-          <h6 class="m-b-20">Employés</h6>
-          <h2 class="text-right"><span>{{ stats?.totalEmployees }}</span></h2>
-          <div class="sub-metric">
-            Connectés <span class="f-right">{{ stats?.connectedEmployees }}</span>
-          </div>
-        </div>
+<!-- Employés -->
+<div class="col-md-6 col-xl-3" *ngIf="stats">
+  <div class="card bg-c-blue">
+    <div class="card-block">
+      <h6 class="m-b-20">Employés</h6>
+      <h2 class="text-right"><span>{{ stats.totalEmployees }}</span></h2>
+      <div class="sub-metric">
+        Connectés <span class="f-right">{{ stats.connectedEmployees }}</span>
       </div>
     </div>
+  </div>
+</div>
+
 
     <!-- Pourcentage réclamations -->
     <div class="col-md-6 col-xl-3">
