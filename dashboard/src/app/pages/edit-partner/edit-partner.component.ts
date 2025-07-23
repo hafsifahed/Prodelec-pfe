@@ -5,6 +5,9 @@ import { Partner } from '../../core/models/partner.models';
 import { PartnerEditDto } from "../../core/models/partner-edit-dto";
 import { User } from 'src/app/core/models/auth.models';
 import Swal from 'sweetalert2';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpEventType } from '@angular/common/http';
+import { CropperDialogComponent } from '../setting/account-settings/cropper-dialog.component';
 
 @Component({
   selector: 'app-edit-partner',
@@ -25,6 +28,9 @@ export class EditPartnerComponent implements OnInit {
   errorMessage = '';
   imageFile?: File;
   previewUrl: string | ArrayBuffer | null = null;
+  modalRef?: BsModalRef;
+  isUploading = false;
+  uploadProgress = 0;
 
   title = 'Modifier un Partenaire';
   breadcrumbItems = [
@@ -35,7 +41,8 @@ export class EditPartnerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private partnersService: PartnersService
+    private partnersService: PartnersService,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -56,12 +63,11 @@ export class EditPartnerComponent implements OnInit {
           users: partner.users || [],
           image: partner.image || ''
         };
-        this.selectedUsers = partner.users || [];
-        this.previewUrl = partner.image ? this.getImageUrl(partner) : null;
+        this.previewUrl = this.partnersService.getPartnerImageUrl(partner);
       },
-      error: (error: any) => {
-        console.error('Erreur lors de la récupération du partenaire', error);
-        this.showErrorMessage('Erreur lors de la récupération du partenaire. Veuillez réessayer plus tard.');
+      error: (error) => {
+        console.error('Erreur:', error);
+        this.errorMessage = 'Erreur lors du chargement du partenaire';
       }
     });
   }
@@ -69,66 +75,89 @@ export class EditPartnerComponent implements OnInit {
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.imageFile = input.files[0];
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.previewUrl = reader.result;
-      };
-      reader.readAsDataURL(this.imageFile);
+      const file = input.files[0];
+      this.openCropperDialog(file);
     }
   }
 
-  updatePartner(): void {
-    this.partner.users = this.selectedUsers;
+  openCropperDialog(file: File): void {
+    const initialState = {
+      imageChangedEvent: { target: { files: [file] } }
+    };
 
-    if (this.imageFile) {
-      // Upload de l'image avant mise à jour
-      const formData = new FormData();
-      formData.append('file', this.imageFile);
+    this.modalRef = this.modalService.show(CropperDialogComponent, {
+      initialState,
+      class: 'modal-lg'
+    });
 
-      this.partnersService.uploadImage(formData).subscribe({
-        next: (uploadResp) => {
-          this.partner.image = uploadResp.filename || uploadResp.url;
-          this.sendUpdateRequest();
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'upload de l\'image', error);
-          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
-        }
-      });
-    } else {
-      this.sendUpdateRequest();
-    }
-  }
-
-  private sendUpdateRequest(): void {
-    this.partnersService.updatePartner(this.partner.id, this.partner).subscribe({
-      next: () => {
-        Swal.fire({
-          title: 'Succès!',
-          text: 'Partenaire mis à jour avec succès.',
-          icon: 'success'
-        });
-        this.router.navigate(['/list-partner']);
-      },
-      error: (error) => {
-        console.error('Erreur lors de la mise à jour du partenaire', error);
-        Swal.fire({
-          title: 'Erreur!',
-          text: 'Une erreur s\'est produite lors de la mise à jour du partenaire.',
-          icon: 'error'
-        });
-      }
+    this.modalRef.content.onCrop.subscribe((croppedImage: Blob) => {
+      this.handleCroppedImage(croppedImage);
     });
   }
 
-  private showErrorMessage(message: string): void {
-    this.errorMessage = message;
+  handleCroppedImage(croppedImage: Blob): void {
+    this.imageFile = new File([croppedImage], 'partner-image.jpg', {
+      type: croppedImage.type || 'image/jpeg'
+    });
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewUrl = reader.result;
+    };
+    reader.readAsDataURL(this.imageFile);
   }
 
-  getImageUrl(partner: Partner): string {
-    return this.partnersService.getPartnerImageUrl(partner);
+  updatePartner(): void {
+    if (this.imageFile) {
+      this.uploadImage();
+    } else {
+      this.updatePartnerData();
+    }
+  }
+
+  uploadImage(): void {
+  this.isUploading = true;
+  this.uploadProgress = 0;
+  
+  const formData = new FormData();
+  formData.append('file', this.imageFile!);
+
+  this.partnersService.uploadImage(formData).subscribe({
+    next: (event: any) => {
+      if (event.type === HttpEventType.UploadProgress) {
+        // Calcul du pourcentage de progression
+        this.uploadProgress = Math.round((100 * event.loaded) / (event.total || 1));
+      } else if (event.type === HttpEventType.Response) {
+        // Réponse finale du serveur
+        if (event.body) {
+          this.partner.image = event.body.filename || event.body.url;
+          this.updatePartnerData();
+        }
+      }
+    },
+    error: (error) => {
+      console.error('Upload error:', error);
+      this.isUploading = false;
+      this.uploadProgress = 0;
+      Swal.fire('Erreur', 'Échec de l\'upload de l\'image', 'error');
+    }
+  });
+}
+
+  updatePartnerData(): void {
+    this.partnersService.updatePartner(this.partner.id, this.partner).subscribe({
+      next: () => {
+        Swal.fire('Succès', 'Partenaire mis à jour', 'success');
+        this.router.navigate(['/list-partner']);
+      },
+      error: (error) => {
+        console.error('Update error:', error);
+        Swal.fire('Erreur', 'Échec de la mise à jour', 'error');
+      },
+      complete: () => {
+        this.isUploading = false;
+      }
+    });
   }
 
   goBack(): void {

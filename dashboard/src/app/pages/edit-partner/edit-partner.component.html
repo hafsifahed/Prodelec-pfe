@@ -17,37 +17,72 @@
 
           <form (ngSubmit)="updatePartner()" #partnerForm="ngForm" novalidate>
 
-            <!-- Nom -->
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" id="name" name="name" [(ngModel)]="partner.name" required placeholder="Entrez le nom du partenaire" #name="ngModel" [ngClass]="{'is-invalid': name.invalid && name.touched}">
-              <label for="name"><i class="fas fa-signature"></i> Nom du partenaire</label>
-              <div *ngIf="name.invalid && name.touched" class="invalid-feedback">
-                Le nom est requis
+            <!-- Photo de profil -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="profile-image-container position-relative">
+                  <img [src]="previewUrl" 
+                       class="profile-image rounded-circle border" 
+                       width="120" 
+                       height="120"
+                       alt="Logo du partenaire">
+                  <label class="btn btn-sm btn-primary position-absolute bottom-0 end-0 upload-btn">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" 
+                           accept="image/*" 
+                           class="d-none" 
+                           (change)="onImageSelected($event)">
+                  </label>
+                </div>
+                <div *ngIf="isUploading" class="mt-2">
+  <div class="progress" style="height: 6px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+         role="progressbar" 
+         [style.width.%]="uploadProgress"
+         [attr.aria-valuenow]="uploadProgress"
+         aria-valuemin="0"
+         aria-valuemax="100">
+    </div>
+  </div>
+  <small class="text-muted">Téléchargement ({{uploadProgress}}%)</small>
+</div>
               </div>
-            </div>
+              
+              <div class="col-md-9">
+                <!-- Nom -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="name" name="name" [(ngModel)]="partner.name" required 
+                         placeholder="Entrez le nom du partenaire" #name="ngModel" [ngClass]="{'is-invalid': name.invalid && name.touched}">
+                  <label for="name"><i class="fas fa-signature"></i> Nom du partenaire</label>
+                  <div *ngIf="name.invalid && name.touched" class="invalid-feedback">
+                    Le nom est requis
+                  </div>
+                </div>
 
-            <!-- Adresse -->
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" id="address" name="address" [(ngModel)]="partner.address" required placeholder="Entrez l'adresse complète" #address="ngModel" [ngClass]="{'is-invalid': address.invalid && address.touched}">
-              <label for="address"><i class="fas fa-map-marker-alt"></i> Adresse</label>
-              <div *ngIf="address.invalid && address.touched" class="invalid-feedback">
-                L'adresse est requise
+                <!-- Adresse -->
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="address" name="address" [(ngModel)]="partner.address" required 
+                         placeholder="Entrez l'adresse complète" #address="ngModel" [ngClass]="{'is-invalid': address.invalid && address.touched}">
+                  <label for="address"><i class="fas fa-map-marker-alt"></i> Adresse</label>
+                  <div *ngIf="address.invalid && address.touched" class="invalid-feedback">
+                    L'adresse est requise
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- Téléphone -->
             <div class="form-floating mb-3">
-  <input type="tel" class="form-control" id="tel" name="tel" [(ngModel)]="partner.tel" required
-         pattern="^\+?[0-9\s\-]{7,15}$"
-         placeholder="Entrez le numéro de téléphone"
-         #tel="ngModel" [ngClass]="{'is-invalid': tel.invalid && tel.touched}">
-  <label for="tel"><i class="fas fa-phone"></i> Téléphone</label>
-  <div *ngIf="tel.invalid && tel.touched" class="invalid-feedback">
-    <div *ngIf="tel.errors?.required">Le téléphone est requis</div>
-    <div *ngIf="tel.errors?.pattern">Format de téléphone invalide</div>
-  </div>
-</div>
-
+              <input type="tel" class="form-control" id="tel" name="tel" [(ngModel)]="partner.tel" required
+                     pattern="^\+?[0-9\s\-]{7,15}$"
+                     placeholder="Entrez le numéro de téléphone"
+                     #tel="ngModel" [ngClass]="{'is-invalid': tel.invalid && tel.touched}">
+              <label for="tel"><i class="fas fa-phone"></i> Téléphone</label>
+              <div *ngIf="tel.invalid && tel.touched" class="invalid-feedback">
+                <div *ngIf="tel.errors?.required">Le téléphone est requis</div>
+                <div *ngIf="tel.errors?.pattern">Format de téléphone invalide</div>
+              </div>
+            </div>
 
             <!-- Utilisateurs associés -->
             <div class="form-field mb-3">
@@ -65,22 +100,9 @@
               </div>
             </div>
 
-            <!-- Aperçu image -->
-            <div class="mb-3 text-center" *ngIf="previewUrl">
-              <img [src]="previewUrl" alt="{{ partner.name }}" class="rounded-circle" style="width:80px; height:80px; object-fit:cover;" />
-            </div>
-
-            <!-- Image -->
-            <div class="form-group mb-4">
-              <label for="image" class="form-label">
-                <i class="fas fa-image"></i> Image du partenaire
-              </label>
-              <input type="file" id="image" name="image" (change)="onImageSelected($event)" accept="image/*" class="form-control">
-            </div>
-
             <!-- Actions -->
             <div class="d-flex gap-2 justify-content-center">
-              <button type="submit" class="btn btn-primary" [disabled]="partnerForm.invalid">
+              <button type="submit" class="btn btn-primary" [disabled]="partnerForm.invalid || isUploading">
                 <i class="fas fa-save"></i> Mettre à jour
               </button>
               <button type="button" class="btn btn-secondary" (click)="goBack()">

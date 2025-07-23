@@ -7,6 +7,6 @@ export class Partner {
     tel: string;
     image?: string;
     users:User[];
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
 }

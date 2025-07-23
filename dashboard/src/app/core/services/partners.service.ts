@@ -56,8 +56,11 @@ export class PartnersService {
   return this.http.patch<Partner>(`${this.baseUrl}/${partnerId}/activate`, {});
 }
 
-uploadImage(fileData: FormData): Observable<{ filename: string; url: string; path: string }> {
-  return this.http.post<{ filename: string; url: string; path: string }>(`${this.baseUrl}/upload-image`, fileData);
+uploadImage(fileData: FormData): Observable<any> {
+  return this.http.post(`${this.baseUrl}/upload-image`, fileData, {
+    reportProgress: true,
+    observe: 'events'
+  });
 }
 
  getPartnerImageUrl(partner: Partner): string {

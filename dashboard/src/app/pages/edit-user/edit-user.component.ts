@@ -6,6 +6,9 @@ import { UsersService } from 'src/app/core/services/user.service';
 import { PartnersService } from 'src/app/core/services/partners.service';
 import { Partner } from 'src/app/core/models/partner.models';
 import { Role } from 'src/app/core/models/role.model';
+import { HttpEventType } from '@angular/common/http';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { CropperDialogComponent } from '../setting/account-settings/cropper-dialog.component';
 
 @Component({
   selector: 'app-edit-user',
@@ -25,10 +28,13 @@ export class EditUserComponent implements OnInit {
   isSubmitting = false;
 
   previewUrl: string | ArrayBuffer | null = null;
-  selectedFile?: File;
+  imageFile?: File;
+  modalRef?: BsModalRef;
+  isUploading = false;
+  uploadProgress = 0;
+  currentImageUrl?: string;
 
   title = "Édition d'utilisateur";
-
   breadcrumbItems = [
     { label: 'Accueil', active: false },
     { label: "Édition d'utilisateur", active: true }
@@ -39,7 +45,8 @@ export class EditUserComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private usersService: UsersService,
-    private partnersService: PartnersService
+    private partnersService: PartnersService,
+    private modalService: BsModalService
   ) {
     this.editUserForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -61,17 +68,47 @@ export class EditUserComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-
-      const reader = new FileReader();
-      reader.onload = () => (this.previewUrl = reader.result);
-      reader.readAsDataURL(this.selectedFile);
+      const file = input.files[0];
+      this.openCropperDialog(file);
     }
   }
 
+  openCropperDialog(file: File): void {
+    const initialState = {
+      imageChangedEvent: { target: { files: [file] } }
+    };
+
+    this.modalRef = this.modalService.show(CropperDialogComponent, {
+      initialState,
+      class: 'modal-lg'
+    });
+
+    this.modalRef.content.onCrop.subscribe((croppedImage: Blob) => {
+      this.handleCroppedImage(croppedImage);
+    });
+  }
+
+  handleCroppedImage(croppedImage: Blob): void {
+    this.imageFile = new File([croppedImage], 'user-profile.jpg', {
+      type: croppedImage.type || 'image/jpeg'
+    });
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewUrl = reader.result;
+      this.currentImageUrl = undefined;
+    };
+    reader.readAsDataURL(this.imageFile);
+  }
+
+  removeImage(): void {
+    this.previewUrl = this.currentImageUrl || null;
+    this.imageFile = undefined;
+  }
+
   loadUser(): void {
-    this.usersService.getUserById(this.userId).subscribe(
-      (user) => {
+    this.usersService.getUserById(this.userId).subscribe({
+      next: (user) => {
         const isClient = this.clientRoles.some(r => r.id === user.role.id);
         this.selectedUserType = isClient ? 'client' : 'worker';
 
@@ -88,42 +125,44 @@ export class EditUserComponent implements OnInit {
         });
         this.username = user.username;
 
-        // Si utilisateur a une image, afficher aperçu
         if (user.image) {
-          this.previewUrl = this.usersService.getUserImageUrl(user);
+          this.currentImageUrl = this.usersService.getUserImageUrl(user);
+          this.previewUrl = this.currentImageUrl;
         }
       },
-      (error) => {
-        Swal.fire('Error', 'Failed to load user data', 'error');
+      error: (error) => {
+        console.error('Error loading user:', error);
+        Swal.fire('Erreur', 'Échec du chargement des données utilisateur', 'error');
       }
-    );
+    });
   }
 
   loadRoles(): void {
-    this.usersService.getClientRoles().subscribe(
-      roles => {
+    this.usersService.getClientRoles().subscribe({
+      next: (roles) => {
         this.clientRoles = roles;
         if (this.selectedUserType === 'client') this.roles = this.clientRoles;
       },
-      error => console.error('Error loading client roles', error)
-    );
+      error: (error) => console.error('Error loading client roles', error)
+    });
 
-    this.usersService.getWorkerRoles().subscribe(
-      roles => {
+    this.usersService.getWorkerRoles().subscribe({
+      next: (roles) => {
         this.workerRoles = roles;
         if (this.selectedUserType === 'worker') this.roles = this.workerRoles;
       },
-      error => console.error('Error loading worker roles', error)
-    );
+      error: (error) => console.error('Error loading worker roles', error)
+    });
   }
 
   loadPartners(): void {
-    this.partnersService.getAllPartners().subscribe(
-      (partners) => (this.partners = partners),
-      (error) => {
-        Swal.fire('Error', 'Failed to load partners', 'error');
+    this.partnersService.getAllPartners().subscribe({
+      next: (partners) => this.partners = partners,
+      error: (error) => {
+        console.error('Error loading partners:', error);
+        Swal.fire('Erreur', 'Échec du chargement des partenaires', 'error');
       }
-    );
+    });
   }
 
   selectUserType(type: 'client' | 'worker'): void {
@@ -153,58 +192,92 @@ export class EditUserComponent implements OnInit {
   submit(): void {
     if (this.editUserForm.invalid) {
       this.editUserForm.markAllAsTouched();
+      Swal.fire('Erreur', 'Veuillez corriger les erreurs dans le formulaire', 'error');
       return;
     }
 
     this.isSubmitting = true;
     const formValue = this.editUserForm.value;
 
-    const updateUserDto = {
+    const updateUserDto: any = {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       email: formValue.email,
       roleId: Number(formValue.roleId),
-      partnerId: this.selectedUserType === 'client' 
-        ? Number(formValue.partnerId) 
-        : null,
       accountStatus: formValue.accountStatus,
-      image: undefined as string | undefined,
     };
 
-    if (this.selectedFile) {
-      // Upload image avant mise à jour
-      this.usersService.uploadImage(this.selectedFile).subscribe({
-        next: (event) => {
-          if (event.body) {
-            updateUserDto.image = event.body.filename;
-            this.updateUser(updateUserDto);
-          }
-        },
-        error: () => {
-          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
-          this.isSubmitting = false;
-        }
-      });
+    if (this.selectedUserType === 'client') {
+      updateUserDto.partnerId = Number(formValue.partnerId);
+    }
+
+    if (this.imageFile) {
+      this.uploadImage(updateUserDto);
+    } else if (this.currentImageUrl) {
+      updateUserDto.image = this.currentImageUrl.split('/').pop();
+      this.updateUser(updateUserDto);
     } else {
-      // Pas d'image, mise à jour directe
       this.updateUser(updateUserDto);
     }
   }
 
+  uploadImage(updateUserDto: any): void {
+  if (!this.imageFile) {
+    this.updateUser(updateUserDto);
+    return;
+  }
+
+  this.isUploading = true;
+  this.uploadProgress = 0;
+
+  this.usersService.uploadImage(this.imageFile).subscribe({
+    next: (response: { progress: number; body?: any }) => {
+      this.uploadProgress = response.progress;
+
+      if (response.progress === 100 && response.body) {
+        updateUserDto.image = response.body.filename || response.body.url;
+        this.updateUser(updateUserDto);
+      }
+    },
+    error: (error) => {
+      console.error('Upload error:', error);
+      this.isUploading = false;
+      this.uploadProgress = 0;
+      Swal.fire('Erreur', 'Échec de l\'upload de l\'image', 'error');
+    }
+  });
+}
+
   private updateUser(dto: any): void {
     this.usersService.updateUserFull(this.userId, dto).subscribe({
       next: () => {
-        Swal.fire('Succès', 'Utilisateur mis à jour avec succès', 'success');
-        this.router.navigate(['/list-user']);
+        Swal.fire('Succès', 'Utilisateur mis à jour avec succès', 'success')
+          .then(() => {
+            if (this.selectedUserType === 'client') {
+              this.router.navigate(['/list-user']);
+            } else {
+              this.router.navigate(['/list-worker']);
+            }
+          });
       },
-      error: () => {
-        Swal.fire('Erreur', 'Échec de la mise à jour', 'error');
+      error: (error) => {
+        console.error('Update error:', error);
         this.isSubmitting = false;
+        this.isUploading = false;
+        Swal.fire('Erreur', 'Échec de la mise à jour de l\'utilisateur', 'error');
+      },
+      complete: () => {
+        this.isSubmitting = false;
+        this.isUploading = false;
       }
     });
   }
 
   cancel(): void {
-    this.router.navigate(['/list-user']);
+    if (this.selectedUserType === 'client') {
+      this.router.navigate(['/list-user']);
+    } else {
+      this.router.navigate(['/list-worker']);
+    }
   }
 }
