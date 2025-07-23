@@ -6,12 +6,19 @@ import { environment } from 'src/environments/environment';
 // Interface complète correspondant à l'entité Setting côté backend
 export interface Setting {
   id?: number;
+  fullName?: string;
+  primaryEmail?: string;
+  language?: string;
+  twoFactorEnabled?: boolean;
+  connectedDevices?: { name: string; icon: string; lastActive: Date }[];
   reclamationTarget?: number;
   reclamationEmails?: string[];
   avisEmails?: string[];
   devisEmails?: string[];
   cahierDesChargesEmails?: string[];
   globalEmails?: string[];
+  notificationPreferences?: { [key: string]: boolean };
+  notificationFrequency?: string;
 }
 
 @Injectable({

@@ -32,6 +32,7 @@ import {AuthService} from "./core/services/auth.service";
 import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
 import { ReactiveFormsModule } from '@angular/forms';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -58,6 +59,7 @@ export function createTranslateLoader(http: HttpClient): any {
     }),
     LayoutsModule,
     AppRoutingModule,
+    ImageCropperModule,
     ExtrapagesModule,
     CarouselModule,
     AccordionModule.forRoot(),

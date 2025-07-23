@@ -1,0 +1,65 @@
+<h5 class="mb-4 text-primary fw-semibold">Paramètres de Sécurité</h5>
+
+<!-- Mot de passe -->
+<div class="mb-4">
+  <label class="form-label fw-medium">🔑 Mot de passe</label>
+  <div class="d-flex align-items-center gap-3">
+    <span>••••••••</span>
+    <button class="btn btn-outline-primary btn-sm" (click)="openModal(passwordModal)">
+      <i class="bi bi-pencil me-1"></i> Modifier
+    </button>
+  </div>
+</div>
+
+<!-- 2FA -->
+<div class="mb-4">
+  <label class="form-label fw-medium">🔒 Authentification à deux facteurs</label>
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="2faSwitch"
+      [checked]="settings.twoFactorEnabled"
+      (change)="toggleTwoFactorAuth($event.target.checked)">
+    <label class="form-check-label" for="2faSwitch">
+      Activer la 2FA
+    </label>
+  </div>
+</div>
+
+<!-- Modal de changement de mot de passe -->
+<ng-template #passwordModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Changer le mot de passe</h5>
+    <button type="button" class="btn-close" (click)="modalRef?.hide()"></button>
+  </div>
+  
+  <div class="modal-body">
+    <div class="mb-3">
+      <label class="form-label">Mot de passe actuel</label>
+      <input type="password" class="form-control" 
+        [(ngModel)]="passwordForm.currentPassword"
+        placeholder="Entrez votre mot de passe actuel">
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label">Nouveau mot de passe</label>
+      <input type="password" class="form-control"
+        [(ngModel)]="passwordForm.newPassword"
+        placeholder="Minimum 8 caractères">
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label">Confirmer le mot de passe</label>
+      <input type="password" class="form-control"
+        [(ngModel)]="passwordForm.confirmPassword"
+        placeholder="Retapez votre nouveau mot de passe">
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="modalRef?.hide()">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-primary" (click)="changePassword()">
+      Enregistrer
+    </button>
+  </div>
+</ng-template>

@@ -89,6 +89,13 @@ import { ChartsUseradminSectionComponent } from './dashboard/charts-useradmin-se
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
 import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-calendar-admin.component';
+import { AccountSettingsComponent } from './setting/account-settings/account-settings.component';
+import { SecuritySettingsComponent } from './setting/security-settings/security-settings.component';
+import { ReclamationSettingsComponent } from './setting/reclamation-settings/reclamation-settings.component';
+import { NotificationSettingsComponent } from './setting/notification-settings/notification-settings.component';
+import { ChangePasswordModalComponent } from './setting/security-settings/change-password-modal/change-password-modal.component';
+import { ImageCropperModule } from 'ngx-image-cropper';
+import { CropperDialogComponent } from './setting/account-settings/cropper-dialog.component';
 
 
 @NgModule({
@@ -149,7 +156,13 @@ import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-
     CardsSectionComponent,
     ChartsUseradminSectionComponent,
     ProjectCalendarComponent,
-    ProjectCalendarAdminComponent
+    ProjectCalendarAdminComponent,
+    AccountSettingsComponent,
+    SecuritySettingsComponent,
+    ReclamationSettingsComponent,
+    NotificationSettingsComponent,
+    ChangePasswordModalComponent,
+    CropperDialogComponent,
 
   ],
   imports: [
@@ -168,7 +181,7 @@ import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-
     UIModule,
     FullCalendarModule,
     BsDropdownModule,
-
+ImageCropperModule,
 
     NgxExtendedPdfViewerModule,
     BsDatepickerModule,

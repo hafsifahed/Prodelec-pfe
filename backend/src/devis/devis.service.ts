@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { Devis } from './entities/devi.entity';
 
@@ -56,19 +57,58 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
   }
 
   async acceptDevis(id: number): Promise<Devis> {
-    const devis = await this.devisRepo.findOne({ where: { id } });
-    if (!devis) throw new NotFoundException("Ce Cahier n'existe pas");
-    devis.etat = 'Accepté';
-    return this.devisRepo.save(devis);
-  }
+  const devis = await this.devisRepo.findOne({
+    where: { id },
+    relations: ['user'], // pour inclure le user si nécessaire
+  });
+
+  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+
+  devis.etat = 'Accepté';
+  const updatedDevis = await this.devisRepo.save(devis);
+
+  await this.notificationsService.notifyResponsablesByRole(
+    Role.RESPONSABLE_INDUSTRIALISATION,
+    'Devis accepté',
+    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été accepté`,
+    {
+      devisId: updatedDevis.id,
+      userId: devis.user?.id,
+      username: devis.user?.username,
+    },
+  );
+
+  return updatedDevis;
+}
+
 
   async refuseDevis(id: number, commentaire: string): Promise<Devis> {
-    const devis = await this.devisRepo.findOne({ where: { id } });
-    if (!devis) throw new NotFoundException("Ce Cahier n'existe pas");
-    devis.etat = 'Refusé';
-    devis.commentaire = commentaire;
-    return this.devisRepo.save(devis);
-  }
+  const devis = await this.devisRepo.findOne({
+    where: { id },
+    relations: ['user'], // pour accéder au user
+  });
+
+  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+
+  devis.etat = 'Refusé';
+  devis.commentaire = commentaire;
+  const updatedDevis = await this.devisRepo.save(devis);
+
+  await this.notificationsService.notifyResponsablesByRole(
+    Role.RESPONSABLE_INDUSTRIALISATION,
+    'Devis refusé',
+    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été refusé`,
+    {
+      devisId: updatedDevis.id,
+      userId: devis.user?.id,
+      username: devis.user?.username,
+      commentaire,
+    },
+  );
+
+  return updatedDevis;
+}
+
 
   async getDevisById(id: number): Promise<Devis> {
   const devis = await this.devisRepo.findOne({

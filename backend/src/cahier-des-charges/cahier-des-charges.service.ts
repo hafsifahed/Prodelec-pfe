@@ -68,19 +68,58 @@ export class CahierDesChargesService {
   }
 
   async acceptCahierDesCharges(id: number): Promise<CahierDesCharges> {
-    const cdc = await this.repository.findOne({ where: { id } });
-    if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
-    cdc.etat = 'Accepté';
-    return this.repository.save(cdc);
-  }
+  const cdc = await this.repository.findOne({
+    where: { id },
+    relations: ['user'], // important pour accéder à l'utilisateur
+  });
+
+  if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
+
+  cdc.etat = 'Accepté';
+  const updatedCdc = await this.repository.save(cdc);
+
+  // Notification à l'utilisateur
+  await this.notificationsService.createAndSendNotification(
+    cdc.user,
+    'Cahier des charges accepté',
+    `Votre cahier des charges a été accepté.`,
+    {
+      cdcId: updatedCdc.id,
+      etat: updatedCdc.etat,
+    },
+  );
+
+  return updatedCdc;
+}
+
 
   async refuseCahierDesCharges(id: number, commentaire: string): Promise<CahierDesCharges> {
-    const cdc = await this.repository.findOne({ where: { id } });
-    if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
-    cdc.etat = 'Refusé';
-    cdc.commentaire = commentaire;
-    return this.repository.save(cdc);
-  }
+  const cdc = await this.repository.findOne({
+    where: { id },
+    relations: ['user'],
+  });
+
+  if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
+
+  cdc.etat = 'Refusé';
+  cdc.commentaire = commentaire;
+  const updatedCdc = await this.repository.save(cdc);
+
+  // Notification à l'utilisateur
+  await this.notificationsService.createAndSendNotification(
+    cdc.user,
+    'Cahier des charges refusé',
+    `Votre cahier des charges a été refusé. Commentaire : ${commentaire}`,
+    {
+      cdcId: updatedCdc.id,
+      etat: updatedCdc.etat,
+      commentaire,
+    },
+  );
+
+  return updatedCdc;
+}
+
 
   async archiver(id: number): Promise<CahierDesCharges> {
     const cdc = await this.repository.findOne({ where: { id } });

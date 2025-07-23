@@ -27,68 +27,106 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
-    const { username, password, firstName, lastName, email, roleId,image } = dto;
+  const {
+    username,
+    password,
+    firstName,
+    lastName,
+    email,
+    roleId,
+    image
+  } = dto;
 
-    // Find the Role entity by roleId
-    const role = await this.rolesRepository.findOne({ where: { id: roleId } });
-    if (!role) {
-      throw new NotFoundException(`Role with id ${roleId} not found`);
-    }
-
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = this.usersRepository.create({
-      username: email.split('@')[0],
-      password: hashedPassword,
-      firstName,
-      lastName,
-      email,
-      image,
-      role, // assign Role entity here
-      accountStatus: AccountStatus.INACTIVE,
-    });
-
-    const newUser = await this.usersRepository.save(user);
-    delete newUser.password;
-    return newUser;
+  const role = await this.rolesRepository.findOne({ where: { id: roleId } });
+  if (!role) {
+    throw new NotFoundException(`Role with id ${roleId} not found`);
   }
+
+  const baseUsername = username ?? email.split('@')[0];
+  const finalUsername = await this.generateUniqueUsername(baseUsername);
+
+  const existingEmailUser = await this.usersRepository.findOne({ where: { email } });
+  if (existingEmailUser) {
+    throw new BadRequestException(`Email '${email}' is already in use`);
+  }
+
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = this.usersRepository.create({
+    username: finalUsername,
+    password: hashedPassword,
+    firstName,
+    lastName,
+    email,
+    image,
+    role,
+    accountStatus: AccountStatus.INACTIVE,
+  });
+
+  const newUser = await this.usersRepository.save(user);
+  delete newUser.password;
+  return newUser;
+}
+
+
+
 
   async createBy(dto: CreateUserDto & { partnerId?: number }): Promise<User> {
-    const { username, password, firstName, lastName, email, roleId, partnerId,image } = dto;
-  
-    const role = await this.rolesRepository.findOne({ where: { id: roleId } });
-    if (!role) {
-      throw new NotFoundException(`Role with id ${roleId} not found`);
-    }
-  
-    let partner = null;
-    if (partnerId) {
-      partner = await this.partnersRepository.findOne({ where: { id: partnerId } });
-      if (!partner) {
-        throw new NotFoundException(`Partner with id ${partnerId} not found`);
-      }
-    }
-  
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-  
-    const user = this.usersRepository.create({
-      username,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      email,
-      image,
-      role,
-      partner, // assign partner entity if exists
-      accountStatus: AccountStatus.INACTIVE,
-    });
-  
-    const newUser = await this.usersRepository.save(user);
-    delete newUser.password;
-    return newUser;
+  const {
+    username,
+    password,
+    firstName,
+    lastName,
+    email,
+    roleId,
+    partnerId,
+    image
+  } = dto;
+
+  const role = await this.rolesRepository.findOne({ where: { id: roleId } });
+  if (!role) {
+    throw new NotFoundException(`Role with id ${roleId} not found`);
   }
+
+  let partner = null;
+  if (partnerId) {
+    partner = await this.partnersRepository.findOne({ where: { id: partnerId } });
+    if (!partner) {
+      throw new NotFoundException(`Partner with id ${partnerId} not found`);
+    }
+  }
+
+  const existingEmailUser = await this.usersRepository.findOne({ where: { email } });
+  if (existingEmailUser) {
+    throw new BadRequestException(`Email '${email}' is already in use`);
+  }
+
+  const baseUsername = username ?? email.split('@')[0];
+  const finalUsername = await this.generateUniqueUsername(baseUsername);
+
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = this.usersRepository.create({
+    username: finalUsername,
+    password: hashedPassword,
+    firstName,
+    lastName,
+    email,
+    image,
+    role,
+    partner,
+    accountStatus: AccountStatus.INACTIVE,
+  });
+
+  const newUser = await this.usersRepository.save(user);
+  delete newUser.password;
+  return newUser;
+}
+
+
+
   
 
   async findMany(dto: FindUsersDto): Promise<User[]> {
@@ -299,7 +337,7 @@ export class UsersService {
     if (dto.firstName) user.firstName = dto.firstName;
     if (dto.lastName) user.lastName = dto.lastName;
     if (dto.email) user.email = dto.email;
-    if (dto.image) user.email = dto.image;
+    if (dto.image) user.image = dto.image;
 
     return this.usersRepository.save(user);
   }
@@ -538,4 +576,21 @@ export class UsersService {
   }*/
   
   
+    private async generateUniqueUsername(baseUsername: string): Promise<string> {
+  let username = baseUsername;
+  let isUnique = false;
+
+  while (!isUnique) {
+    const existing = await this.usersRepository.findOne({ where: { username } });
+    if (!existing) {
+      isUnique = true;
+    } else {
+      const randomNumber = Math.floor(1000 + Math.random() * 9000); // 4 chiffres
+      username = `${baseUsername}${randomNumber}`;
+    }
+  }
+
+  return username;
+}
+
 }

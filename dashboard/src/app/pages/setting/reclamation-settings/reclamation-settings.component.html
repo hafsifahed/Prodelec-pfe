@@ -1,0 +1,75 @@
+<h5 class="mb-4 text-primary fw-semibold">Paramètres de Réclamation</h5>
+
+<!-- Cible de réclamation -->
+<div class="mb-4">
+  <label for="reclamationTarget" class="form-label fw-medium">
+    🎯 Cible de réclamation par projet
+  </label>
+  <input
+  id="reclamationTarget"
+  type="number"
+  class="form-control"
+  [value]="settings.reclamationTarget"
+  (input)="updateNumberField('reclamationTarget', $event.target.value)">
+</div>
+
+<!-- Boucle sur les listes d'emails -->
+<ng-container *ngFor="let field of emailFields">
+  <div class="mb-5">
+    <label class="form-label text-capitalize fw-medium">
+      📧 {{ formatFieldLabel(field) }}
+    </label>
+
+    <ul class="list-group mb-3">
+      <li
+        *ngFor="let email of settings[field]"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <span class="text-muted">{{ email }}</span>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="removeEmail(field, email)"
+        >
+          <i class="bi bi-x-circle me-1"></i> Supprimer
+        </button>
+      </li>
+      <li
+        *ngIf="!settings[field] || settings[field].length === 0"
+        class="list-group-item text-muted fst-italic"
+      >
+        Aucun email dans cette liste.
+      </li>
+    </ul>
+
+    <!-- Ajouter un email -->
+    <div *ngIf="addingEmailField !== field">
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm"
+        (click)="startAddingEmail(field)"
+      >
+        <i class="bi bi-plus-circle me-1"></i> Ajouter un email
+      </button>
+    </div>
+
+    <div *ngIf="addingEmailField === field" class="input-group mt-2">
+      <input
+        #emailInput
+        type="email"
+        class="form-control"
+        placeholder="Nouvel email"
+        [(ngModel)]="newEmailValue"
+        required
+      />
+      <button class="btn btn-success" type="button" (click)="addEmail(field, emailInput)">
+        Envoyer
+      </button>
+      <button class="btn btn-outline-secondary" type="button" (click)="cancelAddingEmail()">
+        Annuler
+      </button>
+    </div>
+    
+    <div *ngIf="error" class="text-danger mt-2">{{ error }}</div>
+  </div>
+</ng-container>

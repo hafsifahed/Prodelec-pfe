@@ -1,0 +1,113 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Paramètres du compte</h2>
+
+  <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+    <!-- Photo de profil -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="profile-image-container position-relative">
+          <img [src]="previewUrl || getImageUrl()" 
+               class="profile-image rounded-circle" 
+               width="150" 
+               height="150"
+               alt="Photo de profil">
+          <label class="btn btn-sm btn-primary position-absolute bottom-0 end-0 upload-btn">
+            <i class="bi bi-camera"></i>
+            <input type="file" 
+                   accept="image/*" 
+                   class="d-none" 
+                   (change)="openImageCropper($event)">
+          </label>
+        </div>
+        <div *ngIf="isUploading" class="mt-2">
+          <div class="progress" style="height: 6px;">
+            <div class="progress-bar" 
+                 role="progressbar" 
+                 [style.width.%]="uploadProgress"></div>
+          </div>
+          <small class="text-muted">Téléchargement ({{uploadProgress}}%)</small>
+        </div>
+      </div>
+      
+      <div class="col-md-9">
+        <!-- Informations de base -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Prénom</label>
+            <input type="text" 
+                   class="form-control" 
+                   formControlName="firstName">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Nom</label>
+            <input type="text" 
+                   class="form-control" 
+                   formControlName="lastName">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" 
+                 class="form-control" 
+                 formControlName="email">
+        </div>
+      </div>
+    </div>
+
+    <!-- Autres paramètres 
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Préférences</h5>
+        
+        <div class="mb-3">
+          <label class="form-label">Langue</label>
+          <select class="form-select" formControlName="language">
+            <option value="fr">Français</option>
+            <option value="en">Anglais</option>
+            <option value="es">Espagnol</option>
+          </select>
+        </div>
+      </div>
+    </div>-->
+
+    <!-- Mot de passe 
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Sécurité</h5>
+        
+        <div class="mb-3">
+          <label class="form-label">Nouveau mot de passe</label>
+          <input type="password" 
+                 class="form-control" 
+                 formControlName="password"
+                 placeholder="Laissez vide pour ne pas changer">
+        </div>
+      </div>
+    </div>-->
+
+    <!-- Statut du compte -->
+    <div class="card mb-4" *ngIf="settings.accountStatus">
+      <div class="card-body">
+        <h5 class="card-title">Statut du compte</h5>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge" 
+                [ngClass]="{
+                  'bg-success': settings.accountStatus === 'active',
+                  'bg-warning': settings.accountStatus === 'inactive',
+                  'bg-danger': settings.accountStatus === 'suspended'
+                }">
+            {{ getAccountStatusLabel(settings.accountStatus) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons de soumission -->
+    <div class="d-flex justify-content-end gap-2">
+      <button type="submit" class="btn btn-primary" [disabled]="accountForm.invalid">
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+</div>
