@@ -1,50 +1,99 @@
- .notification-container {
-    max-width: 1400px;
-    margin: 0 auto;
+.notification-container {
+  max-width: auto;
+  margin: 0 auto;
+}
+
+/*.notification-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .icon-wrapper {
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &.unread {
+    border-left-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+  }
+}*/
+
+.notification-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+
+  &:hover {
+    // Effet qui fonctionne à la fois en light et dark mode
+    filter: brightness(0.95);
+    
+    // Pour les navigateurs qui ne supportent pas filter
+    @supports not (filter: brightness(0.95)) {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
   }
 
-  .search-container input {
-    transition: all 0.3s ease;
-    border-radius: 20px;
-    padding-left: 2.5rem;
+  &.unread {
+    border-left-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
   }
 
-  .search-container input:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
-  }
-
-  .table th {
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    color: #6c757d;
-  }
-
-  .empty-state {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-  }
-
-  @media (max-width: 992px) {
-    .card-body {
-      padding: 1.5rem;
+  // Adaptation spécifique pour le dark mode
+  [data-bs-theme="dark"] & {
+    &:hover {
+      filter: brightness(1.2);
+      
+      @supports not (filter: brightness(1.2)) {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
     }
     
-    .search-container input {
-      margin-top: 1rem;
-    }
-    
-    .btn span {
-      display: none;
+    &.unread {
+      background-color: rgba(var(--bs-primary-rgb), 0.15);
     }
   }
+}
+
+.notification-message {
+  white-space: pre-wrap; /* Conserve les sauts de ligne */
+  word-wrap: break-word; /* Permet aux longs mots de passer à la ligne */
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .notification-message {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Pour les notifications non lues */
+.unread .notification-message {
+  border-left-color: var(--bs-primary);
+}
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge {
+  font-size: 0.6rem;
+  padding: 0.2em 0.4em;
+}
+
+.btn-link.text-danger {
+  &:hover {
+    color: var(--bs-danger-dark) !important;
+  }
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
