@@ -1,5 +1,6 @@
 import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { User } from '../../users/entities/users.entity';
+import { EtatCahier } from '../entities/cahier-des-charge.entity';
 
 export class CreateCahierDesChargesDto {
   @IsNotEmpty()
@@ -20,8 +21,7 @@ export class CreateCahierDesChargesDto {
   commentaire?: string;
 
   @IsOptional()
-  @IsString()
-  etat?: string;
+  etat?: EtatCahier;
 
   @IsOptional()
   @IsBoolean()

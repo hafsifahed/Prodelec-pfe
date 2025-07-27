@@ -195,4 +195,17 @@ async downloadFile(
     }
     return { message: 'Emails envoyés' };
   }
+
+   @Delete('file/:fileId')
+  async deleteFile(@Param('fileId') fileId: number) {
+    await this.service.removeFile(fileId);
+    return { message: 'Fichier supprimé avec succès' };
+  }
+   @Put('incomplete/:id')
+  async markAsIncomplete(
+    @Param('id') id: number,
+    @Body('commentaire') commentaire: string,
+  ): Promise<CahierDesCharges> {
+    return this.service.markAsIncomplete(id, commentaire);
+  }
 }

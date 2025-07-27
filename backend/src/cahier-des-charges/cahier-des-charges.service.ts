@@ -8,7 +8,7 @@ import { User } from '../users/entities/users.entity';
 import { CahierDesChargesController } from './cahier-des-charges.controller';
 import { CdcFileService } from './cdc-file.service';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
-import { CahierDesCharges } from './entities/cahier-des-charge.entity';
+import { CahierDesCharges, EtatCahier } from './entities/cahier-des-charge.entity';
 
 @Injectable()
 export class CahierDesChargesService {
@@ -32,7 +32,7 @@ export class CahierDesChargesService {
     titre: dto.titre,
     description: dto.description,
     commentaire: dto.commentaire,
-    etat: dto.etat || 'En attente',
+    etat: dto.etat || EtatCahier.EnAttente,
     archive: dto.archive || false,
     archiveU: dto.archiveU || false,
     user,
@@ -71,13 +71,15 @@ export class CahierDesChargesService {
 
   async removeFile(fileId: number): Promise<void> {
     await this.cdcFileService.deleteFile(fileId);
+      // Optionnel : supprimer physiquement le fichier ici si nécessaire
+
   }
 
   async markAsIncomplete(id: number, commentaire: string): Promise<CahierDesCharges> {
     const cdc = await this.repository.findOne({ where: { id }, relations: ['user'] });
     if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
 
-    cdc.etat = 'À compléter';
+    cdc.etat = EtatCahier.ACompleter;
     cdc.commentaire = commentaire;
     const updatedCdc = await this.repository.save(cdc);
 
@@ -118,7 +120,7 @@ export class CahierDesChargesService {
     const cdc = await this.repository.findOne({ where: { id }, relations: ['user'] });
     if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
 
-    cdc.etat = 'Accepté';
+    cdc.etat = EtatCahier.Accepte;
     const updatedCdc = await this.repository.save(cdc);
 
     await this.notificationsService.createAndSendNotification(
@@ -135,7 +137,7 @@ export class CahierDesChargesService {
     const cdc = await this.repository.findOne({ where: { id }, relations: ['user'] });
     if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
 
-    cdc.etat = 'Refusé';
+    cdc.etat = EtatCahier.Refuse;
     cdc.commentaire = commentaire;
     const updatedCdc = await this.repository.save(cdc);
 

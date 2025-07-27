@@ -10,10 +10,18 @@
         </select>
       </div>
       <div class="d-flex flex-column col-sm-12 col-md-4">
-        <input type="text" id="searchFilter" class="form-control" [(ngModel)]="searchQuery" (input)="onSearchQueryChange()" placeholder="Rechercher par projet ou client" />
+        <input 
+          type="text" 
+          id="searchFilter" 
+          class="form-control" 
+          [(ngModel)]="searchQuery" 
+          (input)="onSearchQueryChange()" 
+          placeholder="Rechercher par projet ou client" 
+          autocomplete="off"
+        />
       </div>
       <div class="d-flex justify-content-end col-sm-12 col-md-4">
-        <button class="btn btn-success" routerLink="cdcArchive">Voir l'archive</button>
+        <button type="button" class="btn btn-success" routerLink="cdcArchive">Voir l'archive</button>
       </div>
     </div>
   </div>
@@ -21,6 +29,7 @@
   <div *ngIf="getNonArchivedCahiers().length === 0">
     <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
   </div>
+
   <div *ngIf="getNonArchivedCahiers().length > 0">
     <div class="table-responsive mb-0">
       <table class="table table-centered table-nowrap">
@@ -29,11 +38,17 @@
             <th class="align-middle">Projet</th>
             <th class="align-middle">Client</th>
             <th class="align-middle">Télécharger</th>
-            <th class="align-middle" title="Trier par date" (click)="sortDevisByDate()" style="cursor: pointer;">
+            <th 
+              class="align-middle" 
+              title="Trier par date" 
+              (click)="sortDevisByDate()" 
+              style="cursor: pointer;"
+              [attr.aria-label]="'Trier par date'"
+            >
               Date de création
               <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
             </th>
-            <th class="align-middle">Etat</th>
+            <th class="align-middle">État</th>
             <th class="align-middle">Détails</th>
             <th class="align-middle">Actions</th>
           </tr>
@@ -44,9 +59,14 @@
             <td>{{ cahier.user?.username }} ({{ cahier.user?.partner?.name }})</td>
             <td>
               <ng-container *ngIf="cahier.files?.length > 0; else noAttachment">
-                <a class="attachment-download" 
-                   (click)="telechargerPieceJointe(cahier.files[0].nomFichier, cahier.id!)"
-                   style="cursor:pointer; text-decoration: underline; color: #0d6efd;">
+                <a 
+                  class="attachment-download" 
+                  (click)="telechargerPieceJointe(cahier.files[0].nomFichier, cahier.id!)" 
+                  style="cursor:pointer; text-decoration: underline; color: #0d6efd;"
+                  [attr.aria-label]="'Télécharger ' + cahier.files[0].nomFichier"
+                  role="button"
+                  tabindex="0"
+                >
                   Télécharger
                 </a>
               </ng-container>
@@ -57,31 +77,35 @@
             <td>{{ cahier.createdAt | date }}</td>
             <td>
               <span class="badge badge-pill font-size-11"
-                    [ngClass]="{
-                      'badge-soft-danger': cahier.etat === 'Refusé',
-                      'badge-soft-warning': cahier.etat?.toLowerCase() === 'en attente',
-                      'badge-soft-info': cahier.etat === 'À compléter',
-                      'badge-soft-success': cahier.etat === 'Accepté'
-                    }">
+                [ngClass]="{
+                  'badge-soft-danger': cahier.etat === 'Refusé',
+                  'badge-soft-warning': cahier.etat === 'En attente',
+                  'badge-soft-info': cahier.etat === 'À compléter',
+                  'badge-soft-success': cahier.etat === 'Accepté'
+                }"
+              >
                 {{ cahier.etat }}
               </span>
             </td>
             <td>
-              <button class="btn detail-custom" (click)="openDetailsModal(cahier.id!)" title="Détails">
+              <button type="button" class="btn detail-custom" (click)="openDetailsModal(cahier.id!)" title="Détails">
                 <i class="bx bxs-detail" style="font-size: medium;"></i>
               </button>
             </td>
             <td>
               <ng-container *ngIf="cahier.etat !== 'Accepté' && cahier.etat !== 'Refusé'">
-                <button class="btn accept-btn" title="Accepter" (click)="accepterCahier(cahier.id!)">
+                <button type="button" class="btn accept-btn" title="Accepter" (click)="accepterCahier(cahier.id!)">
                   <i class="mdi mdi-check-outline"></i>
                 </button>
-                <button class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id!, commentModal)">
+                <button type="button" class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id!, commentModal)">
                   <i class="mdi mdi-close-outline"></i>
+                </button>
+                <button type="button" class="btn btn-warning" title="Marquer comme À compléter" (click)="openIncompleteModal(cahier.id!, incompleteModal)">
+                  <i class="mdi mdi-alert-circle-outline"></i>
                 </button>
               </ng-container>
               <ng-container *ngIf="cahier.etat === 'Accepté' || cahier.etat === 'Refusé'">
-                <button class="btn detail-custom" (click)="openDeleteModal(cahier.id!, deleteModal)" title="Archiver">
+                <button type="button" class="btn detail-custom" (click)="openDeleteModal(cahier.id!, deleteModal)" title="Archiver">
                   <i class="mdi mdi-archive"></i>
                 </button>
               </ng-container>
@@ -104,7 +128,7 @@
     <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
   </div>
   <div class="modal-body">
-    <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Veuillez entrer un commentaire pour le refus"></textarea>
+    <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Veuillez entrer un commentaire pour le refus" rows="4"></textarea>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
@@ -129,12 +153,12 @@
       <div class="mb-3">
         <strong>État:</strong>
         <span class="badge badge-pill font-size-13"
-          [ngClass]="{
-            'badge-soft-danger': cahier?.etat === 'Refusé',
-            'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
-            'badge-soft-info': cahier?.etat === 'À compléter',
-            'badge-soft-success': cahier?.etat === 'Accepté'
-          }">
+              [ngClass]="{
+                'badge-soft-danger': cahier?.etat === 'Refusé',
+                'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
+                'badge-soft-info': cahier?.etat === 'À compléter',
+                'badge-soft-success': cahier?.etat === 'Accepté'
+              }">
           {{ cahier?.etat }}
         </span>
       </div>
@@ -146,14 +170,22 @@
           <li *ngFor="let file of cahier.files" class="d-flex align-items-center mb-2">
             <i class="bx bxs-file-pdf me-2" style="font-size: 1.2rem;"></i>
             <span class="me-3">{{ file.nomFichier }}</span>
-            <button class="btn btn-sm btn-primary me-2" (click)="loadPDF(file.nomFichier)">Voir PDF</button>
-            <button class="btn btn-sm btn-secondary" (click)="telechargerPieceJointe(file.nomFichier, cahier.id!)">Télécharger</button>
+            <button type="button" class="btn btn-sm btn-primary me-2" (click)="loadPDF(file.nomFichier)">Voir PDF</button>
+            <button type="button" class="btn btn-sm btn-secondary" (click)="telechargerPieceJointe(file.nomFichier, cahier.id!)">Télécharger</button>
           </li>
         </ul>
       </div>
 
-      <ngx-extended-pdf-viewer *ngIf="pdfUrl" [src]="pdfUrl" useBrowserLocale="true" height="400px" [showToolbar]="true" [showFindButton]="true" [textLayer]="true" [showSidebarOnLoad]="false"></ngx-extended-pdf-viewer>
-
+      <ngx-extended-pdf-viewer 
+        *ngIf="pdfUrl" 
+        [src]="pdfUrl" 
+        useBrowserLocale="true" 
+        height="400px" 
+        [showToolbar]="true" 
+        [showFindButton]="true" 
+        [textLayer]="true" 
+        [showSidebarOnLoad]="false">
+      </ngx-extended-pdf-viewer>
     </div>
   </div>
 </ng-template>
@@ -170,5 +202,20 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
     <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
+  </div>
+</ng-template>
+
+<!-- Modal pour marquer le CDC comme incomplet -->
+<ng-template #incompleteModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Marquer le Cahier des Charges comme « À compléter »</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <textarea [(ngModel)]="commentaire" class="form-control" rows="4" placeholder="Veuillez entrer un commentaire expliquant les modifications nécessaires"></textarea>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    <button type="button" class="btn btn-warning" (click)="confirmMarkAsIncomplete()">Valider</button>
   </div>
 </ng-template>

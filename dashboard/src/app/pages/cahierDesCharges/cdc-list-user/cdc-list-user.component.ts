@@ -171,9 +171,37 @@ export class CDCListUserComponent {
     }
   }
 
-  deleteFile(fileId: number) {
-    // À implémenter si vous avez une API pour supprimer individuellement un fichier
-  }
+  deleteFile(fileId: number): void {
+  Swal.fire({
+    title: 'Confirmer la suppression',
+    text: 'Voulez-vous vraiment supprimer ce fichier ?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Oui, supprimer',
+    cancelButtonText: 'Annuler',
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.cdcService.deleteFile(fileId).subscribe({
+        next: () => {
+          Swal.fire('Supprimé!', 'Le fichier a été supprimé.', 'success');
+          // Rafraîchir la liste d’un cahier des charges actuellement affiché, si besoin
+          if (this.cahier) {
+            this.cdcService.getById(this.cahier.id).subscribe(updatedCdc => {
+              this.cahier = updatedCdc;
+              // Aussi recharger la liste complète si nécessaire
+              if (this.user) this.loadCDC(this.user);
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression fichier', err);
+          Swal.fire('Erreur', 'Impossible de supprimer le fichier.', 'error');
+        }
+      });
+    }
+  });
+}
+
 
   handleCahierDesChargesAdded() {
     Swal.fire('Ajouté!', 'Le cahier des charges a été ajouté avec succès.', 'success')

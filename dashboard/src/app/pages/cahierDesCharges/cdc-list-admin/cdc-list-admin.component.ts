@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
-import { CahierDesCharges, CdcFile } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { DevisService } from 'src/app/core/services/Devis/devis.service';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
@@ -19,6 +19,7 @@ export class CDCListAdminComponent {
   modalRef?: BsModalRef;
   commentaire: string = '';
   rejectId: number | null = null;
+  incompleteId: number | null = null; // Pour markAsIncomplete
   cahier?: CahierDesCharges;
   selectedFile: File | null = null;
   searchQuery: string = '';
@@ -37,6 +38,7 @@ export class CDCListAdminComponent {
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
   @ViewChild('pieceJointeModal', { static: false }) pieceJointeModal?: TemplateRef<any>;
   @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
+  @ViewChild('incompleteModal', { static: false }) incompleteModal?: TemplateRef<any>;
 
   constructor(
     private cdcService: CdcServiceService,
@@ -136,6 +138,35 @@ export class CDCListAdminComponent {
     }
   }
 
+  // --- MARQUER COMME INCOMPLET ---
+
+  openIncompleteModal(id: number, template: TemplateRef<any>): void {
+    this.incompleteId = id;
+    this.commentaire = '';
+    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+  }
+
+  confirmMarkAsIncomplete(): void {
+    if (this.incompleteId !== null && this.commentaire.trim()) {
+      this.cdcService.markAsIncomplete(this.incompleteId, this.commentaire).subscribe({
+        next: () => {
+          Swal.fire('Mis à jour', 'Le cahier des charges a été marqué comme "À compléter".', 'success');
+          this.loadCahiersDesCharges();
+          this.modalRef?.hide();
+          this.incompleteId = null;
+          this.commentaire = '';
+        },
+        error: (error) => {
+          console.error('Erreur lors de la mise à jour', error);
+          Swal.fire('Erreur', 'Erreur lors de la mise à jour du cahier des charges.', 'error');
+          this.modalRef?.hide();
+        }
+      });
+    } else {
+      Swal.fire('Attention', 'Veuillez saisir un commentaire valide.', 'warning');
+    }
+  }
+
   loadPDF(fileName: string): void {
     if (!this.cahier || !this.cahier.user) return;
 
@@ -159,23 +190,23 @@ export class CDCListAdminComponent {
       next: (cahier) => {
         if (cahier.user) {
           this.cdcService.downloadFile(fileName, cahier.user).subscribe({
-            next: (blob) => {
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = fileName;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);
-            },
-            error: (error) => {
-              console.error('Error downloading file', error);
-              if (error.status === 404) {
-                Swal.fire('Erreur', 'Fichier non trouvé : ' + fileName, 'error');
-              }
-            }
-          });
+             next: (blob) => {
+               const url = window.URL.createObjectURL(blob);
+               const a = document.createElement('a');
+               a.href = url;
+               a.download = fileName;
+               document.body.appendChild(a);
+               a.click();
+               document.body.removeChild(a);
+               window.URL.revokeObjectURL(url);
+             },
+             error: (error) => {
+               console.error('Error downloading file', error);
+               if (error.status === 404) {
+                 Swal.fire('Erreur', 'Fichier non trouvé : ' + fileName, 'error');
+               }
+             }
+           });
         } else {
           Swal.fire('Erreur', 'Utilisateur associé au cahier non trouvé', 'error');
         }
@@ -186,6 +217,7 @@ export class CDCListAdminComponent {
       }
     });
   }
+
 
   openCommentModal(id: number, template: TemplateRef<any>): void {
     this.rejectId = id;
@@ -244,7 +276,7 @@ export class CDCListAdminComponent {
         this.cahier = data;
         this.pdfUrl = null;
         if (this.cahier.files && this.cahier.files.length > 0) {
-          // Charge premier PDF présent (ou gérez selon votre besoin)
+          // Charge premier PDF présent (ou gérer autrement)
           const pdfFile = this.cahier.files.find(f => f.nomFichier.toLowerCase().endsWith('.pdf'));
           if (pdfFile) {
             this.loadPDF(pdfFile.nomFichier);

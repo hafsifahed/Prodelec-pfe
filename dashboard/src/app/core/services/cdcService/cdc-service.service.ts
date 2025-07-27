@@ -82,4 +82,26 @@ export class CdcServiceService {
   deleteCdc(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+
+   // -------------------- NOUVEAUX MÉTHODES ----------------------
+
+  /**
+   * Supprime un fichier lié à un Cahier des Charges sur backend.
+   * DELETE /cdc/file/:fileId
+   * @param fileId l'identifiant du fichier à supprimer
+   */
+  deleteFile(fileId: number): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.baseUrl}/file/${fileId}`);
+  }
+
+  /**
+   * Marque un Cahier des Charges comme incomplet avec un commentaire.
+   * PUT /cdc/incomplete/:id
+   * @param id l'identifiant du cahier des charges
+   * @param commentaire texte explicatif pour la remise à compléter
+   */
+  markAsIncomplete(id: number, commentaire: string): Observable<CahierDesCharges> {
+    return this.http.put<CahierDesCharges>(`${this.baseUrl}/incomplete/${id}`, { commentaire });
+  }
 }

@@ -11,6 +11,13 @@ import {
 import { User } from '../../users/entities/users.entity';
 import { CdcFile } from './cdc-file.entity';
 
+export enum EtatCahier {
+  EnAttente = 'En attente',
+  Accepte = 'Accepté',
+  ACompleter = 'À compléter',
+  Refuse = 'Refusé',
+}
+
 @Entity('cahier_des_charges')
 export class CahierDesCharges {
   @PrimaryGeneratedColumn()
@@ -28,8 +35,9 @@ export class CahierDesCharges {
   @Column({ nullable: true })
   commentaire?: string;
 
-  @Column({ default: 'En attente' })
-  etat: string;
+  @Column({ type: 'varchar', default: EtatCahier.EnAttente })
+etat: EtatCahier;
+
 
   @Column({ default: false })
   archive: boolean;
