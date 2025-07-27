@@ -29,6 +29,7 @@ import { UserSession } from './user-session/entities/user-session.entity';
 import { User } from './users/entities/users.entity';
 
 import { CahierDesCharges } from './cahier-des-charges/entities/cahier-des-charge.entity';
+import { CdcFile } from './cahier-des-charges/entities/cdc-file.entity';
 import { Devis } from './devis/entities/devi.entity';
 import { Notification } from './notifications/notification.entity';
 import { NotificationsGateway } from './notifications/notifications.gateway';
@@ -63,6 +64,7 @@ import { StatisticsModule } from './statistics/statistics.module';
         Reclamation,
         Devis,
         CahierDesCharges,
+        CdcFile,
         Order,
         Project,
         Notification,

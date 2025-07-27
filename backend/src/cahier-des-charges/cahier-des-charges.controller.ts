@@ -7,12 +7,17 @@ import {
   Get,
   NotFoundException,
   Param,
-  Post, Put,
-  Query, Res,
-  UploadedFile, UseGuards, UseInterceptors
+  Post,
+  Put,
+  Query,
+  Res,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import * as fs from 'fs';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
@@ -27,53 +32,63 @@ import { CahierDesCharges } from './entities/cahier-des-charge.entity';
 @Controller('cdc')
 @UseGuards(JwtAuthGuard)
 export class CahierDesChargesController {
+  static BASE_DIRECTORY = join(process.env.HOME || process.env.USERPROFILE || '', 'Downloads', 'uploads');
+
   constructor(
     private readonly service: CahierDesChargesService,
     private readonly mailerService: MailerService,
   ) {}
 
-  static BASE_DIRECTORY = join(process.env.HOME || process.env.USERPROFILE || '', 'Downloads', 'uploads');
+ // ------------------ UPLOAD MULTIPLE FILES ------------------------
+  @Post('upload-multiple')
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const tempDir = join(CahierDesChargesController.BASE_DIRECTORY, 'temp');
+          if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
+          cb(null, tempDir);
+        },
+        filename: (req, file, cb) => {
+          cb(null, Date.now() + '-' + file.originalname);
+        },
+      }),
+    }),
+  )
+  async uploadMultipleFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Body('username') username: string,
+    @Body('cdcId') cdcId: number,
+    @CurrentUser() currentUser: User,
+  ) {
+    if (!files || files.length === 0) throw new BadRequestException('No files uploaded');
 
-  // UPLOAD
-  @Post('upload')
-@UseInterceptors(FileInterceptor('file', {
-  storage: diskStorage({
-    destination: (req, file, cb) => {
-      const tempDir = join(CahierDesChargesController.BASE_DIRECTORY, 'temp');
-      if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
-      cb(null, tempDir);
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.originalname);
+    if (username !== currentUser.username) {
+      throw new BadRequestException('Username mismatch');
     }
-  })
-}))
-async uploadFile(
-  @UploadedFile() file: Express.Multer.File,
-  @Body('username') username: string,
-  @CurrentUser() currentUser: User,
-) {
-  if (!file) throw new BadRequestException('No file uploaded');
-  if (username !== currentUser.username) {
-    throw new BadRequestException('Username mismatch');
+
+    const results = [];
+    const userDir = join(CahierDesChargesController.BASE_DIRECTORY, username, 'Cahier des charges');
+    if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
+
+    for (const file of files) {
+      const tempPath = file.path;
+      const targetPath = join(userDir, file.filename);
+      fs.renameSync(tempPath, targetPath);
+
+      if (cdcId) {
+        // Stocker uniquement le nom du fichier (file.filename) en BDD
+        const savedFile = await this.service.addFileToCdc(cdcId, file.filename, currentUser.username);
+        results.push(savedFile);
+      } else {
+        results.push({ filename: file.filename });
+      }
+    }
+
+    return results;
   }
-  const fs = require('fs');
-  const path = require('path');
 
-  const userDir = join(CahierDesChargesController.BASE_DIRECTORY, username, 'Cahier des charges');
-  if (!existsSync(userDir)) mkdirSync(userDir, { recursive: true });
-
-  const tempPath = file.path;
-  const targetPath = path.join(userDir, file.originalname);
-
-  fs.renameSync(tempPath, targetPath);
-
-  return { filename: file.originalname };
-}
-
-
-
-  // CRUD
+  // ------------------ CRUD et autres méthodes inchangées ----------------------
   @Get()
   findAll(): Promise<CahierDesCharges[]> {
     return this.service.getAllCahierDesCharges();
@@ -84,11 +99,10 @@ async uploadFile(
     return this.service.getCahierDesChargesById(id);
   }
 
-     @Post()
+  @Post()
   async create(@Body() dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
     return this.service.saveCahierDesCharges(dto);
   }
-
 
   @Put()
   update(@Body() cdc: CahierDesCharges): Promise<CahierDesCharges> {
@@ -135,25 +149,27 @@ async uploadFile(
     return this.service.restorerU(id);
   }
 
-  // DOWNLOAD (PDF or any file)
+  // ------------------ DOWNLOAD ----------------------
   @Get('download/:fileName')
-  async downloadFile(
-    @Param('fileName') fileName: string,
-    @Query('email') email: string,
-    @Res() res: Response
-  ) {
-    const userDir = join(CahierDesChargesController.BASE_DIRECTORY, email, 'Cahier des charges');
-    const filePath = join(userDir, fileName);
+async downloadFile(
+  @Param('fileName') fileName: string,
+  @Query('username') username: string,
+  @Res() res: Response,
+) {
+  const userDir = join(CahierDesChargesController.BASE_DIRECTORY, username, 'Cahier des charges');
+  const filePath = join(userDir, fileName);
 
-    if (!existsSync(filePath)) throw new NotFoundException('Fichier non trouvé');
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${fileName}"`
-    });
-    createReadStream(filePath).pipe(res);
-  }
+  if (!existsSync(filePath)) throw new NotFoundException('Fichier non trouvé');
+  
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `attachment; filename="${fileName}"`,
+  });
+  createReadStream(filePath).pipe(res);
+}
 
-  // PDF Preview
+
+  // ------------- PDF preview -------------------
   @Get('pdf/:fileName')
   async servePDF(@Param('fileName') fileName: string, @Res() res: Response) {
     const filePath = join(CahierDesChargesController.BASE_DIRECTORY, fileName);
@@ -162,22 +178,21 @@ async uploadFile(
     createReadStream(filePath).pipe(res);
   }
 
-  // ENVOI EMAIL
+  // ------------------ EMAIL ----------------------
   @Post('send')
-async sendEmail(@Body() emailRequest: EmailRequestDto) {
-  if (!emailRequest.to || !Array.isArray(emailRequest.to)) {
-    throw new BadRequestException('Le champ "to" doit être un tableau d\'emails');
-  }
+  async sendEmail(@Body() emailRequest: EmailRequestDto) {
+    if (!emailRequest.to || !Array.isArray(emailRequest.to)) {
+      throw new BadRequestException('Le champ "to" doit être un tableau d\'emails');
+    }
 
-  for (const recipient of emailRequest.to) {
-    await this.mailerService.sendMail({
-      to: recipient,
-      from: 'hafsifahed98@gmail.com',
-      subject: emailRequest.subject,
-      html: emailRequest.text,
-    });
+    for (const recipient of emailRequest.to) {
+      await this.mailerService.sendMail({
+        to: recipient,
+        from: 'hafsifahed98@gmail.com',
+        subject: emailRequest.subject,
+        html: emailRequest.text,
+      });
+    }
+    return { message: 'Emails envoyés' };
   }
-  return { message: 'Emails envoyés' };
-}
-
 }

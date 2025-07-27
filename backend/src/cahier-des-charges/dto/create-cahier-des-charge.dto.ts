@@ -1,4 +1,5 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { User } from '../../users/entities/users.entity';
 
 export class CreateCahierDesChargesDto {
   @IsNotEmpty()
@@ -10,8 +11,9 @@ export class CreateCahierDesChargesDto {
   description?: string;
 
   @IsOptional()
-  @IsString()
-  pieceJointe?: string;
+  @IsArray()
+  @IsString({ each: true })
+  files?: string[];
 
   @IsOptional()
   @IsString()
@@ -30,6 +32,9 @@ export class CreateCahierDesChargesDto {
   archiveU?: boolean;
 
   @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  user: User;
+
+  @IsOptional()
+  @IsArray()
+  fileNames?: string[];
 }

@@ -18,14 +18,13 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 export class AddCdCComponent implements OnInit {
   addForm: FormGroup;
   modalRef?: BsModalRef;
-  selectedFile: File | null = null;
+  selectedFiles: File[] = [];
   user: User | null = null;
-  errorMessage: string = '';
-fileInputTouched = false;
+  fileInputTouched = false;
 
   constructor(
     private cdcService: CdcServiceService,
-    private notificationsService: NotificationService, 
+    private notificationsService: NotificationService,
     private cdcComp: CDCListUserComponent,
     private emailService: EmailService,
     private userStateService: UserStateService
@@ -33,7 +32,6 @@ fileInputTouched = false;
     this.addForm = new FormGroup({
       titre: new FormControl('', [Validators.required, Validators.minLength(3)]),
       description: new FormControl(''),
-      pieceJointe: new FormControl('')
     });
   }
 
@@ -43,133 +41,91 @@ fileInputTouched = false;
     });
   }
 
-  onFileSelected(event: any): void {
-  this.fileInputTouched = true;
-  if (event.target.files && event.target.files.length > 0) {
-    this.selectedFile = event.target.files[0];
-  } else {
-    this.selectedFile = null;
+  onFilesSelected(event: Event): void {
+    this.fileInputTouched = true;
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFiles = Array.from(input.files);
+    } else {
+      this.selectedFiles = [];
+    }
   }
-}
 
- addF() {
+  addF(): void {
+    if (!this.user) {
+      Swal.fire('Erreur', 'Utilisateur non connecté', 'error');
+      return;
+    }
+
+    if (this.addForm.invalid || (this.isDescriptionEmpty() && this.selectedFiles.length === 0)) {
+      Swal.fire('Erreur', 'Veuillez remplir le titre et fournir une description ou au moins un fichier.', 'error');
+      return;
+    }
+
+    if (this.selectedFiles.length > 0) {
+      // Upload multiple fichiers
+      this.cdcService.uploadMultipleFiles(this.selectedFiles, this.user.username).subscribe({
+        next: (uploadResponses) => {
+          // Extraire les noms de fichiers uploadés
+          const fileNames: string[] = uploadResponses.map(f => f.filename);
+          // Créer le Cahier des charges avec la liste des noms de fichiers
+          this.submitCdc(fileNames);
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Erreur lors du téléchargement des fichiers', 'error');
+        }
+      });
+    } else {
+      // Aucun fichier sélectionné : créer avec description seulement
+      this.submitCdc([]);
+    }
+  }
+
+  private submitCdc(uploadedFileNames: string[]): void {
   if (!this.user) {
     Swal.fire('Erreur', 'Utilisateur non connecté', 'error');
     return;
   }
 
-  if (this.addForm.invalid) {
-    Swal.fire('Erreur', 'Veuillez remplir tous les champs correctement.', 'error');
-    return;
-  }
-
-  if (this.selectedFile) {
-    this.cdcService.uploadFile(this.selectedFile,this.user.username).subscribe({
-      next: (response) => {
-        this.submitCdc(response.filename);
-      },
-      error: () => {
-        Swal.fire('Erreur', 'Erreur lors du téléchargement de la pièce jointe', 'error');
-      }
-    });
-  } else {
-    this.submitCdc('');
-  }
-}
-
-private submitCdc(pieceJointeFilename: string) {
-  const cahierDesCharges = {
+  const payload: Partial<CahierDesCharges> & { fileNames?: string[] } = {
     titre: this.addForm.value.titre,
-    description: this.addForm.value.description,
-    pieceJointe: pieceJointeFilename,
+    description: this.addForm.value.description || '',
     commentaire: '',
     archive: false,
     archiveU: false,
     etat: 'en_attente',
-    userId: this.user!.id
+    user: this.user,  // objet partiel user avec id
+    fileNames: uploadedFileNames  // tableau des noms de fichiers
   };
 
- this.cdcService.addCdc(cahierDesCharges).subscribe({
-  next: () => {
-    Swal.fire('Succès', 'Cahier des charges ajouté avec succès.', 'success');
-    this.addForm.reset();
-    this.selectedFile = null;
-
-    // Fermer la modale
-    this.modalRef?.hide();
-
-    // Si vous devez rafraîchir la liste ou autre, vous pouvez aussi appeler ici
-    this.cdcComp.ngOnInit();
-  },
-  error: (error) => {
-    console.error('Erreur lors de l\'ajout', error);
-    Swal.fire('Erreur', error.error?.message || 'Erreur lors de l\'ajout du cahier des charges', 'error');
-  }
-});
-
+  this.cdcService.addCdc(payload).subscribe({
+    next: () => {
+      Swal.fire('Succès', 'Cahier des charges ajouté avec succès.', 'success');
+      this.addForm.reset();
+      this.selectedFiles = [];
+      this.fileInputTouched = false;
+      this.modalRef?.hide();
+      this.cdcComp.ngOnInit();
+    },
+    error: (error) => {
+      console.error('Erreur lors de l\'ajout', error);
+      const msg = 
+        error.error?.message || 
+        error.message || 
+        'Erreur lors de l\'ajout du cahier des charges';
+      Swal.fire('Erreur', msg, 'error');
+    }
+  });
 }
 
 
-
-  private createNotification(title: string, message: string): void {
-    if (!this.user) return;
-    const newNotification = {
-      id: 0,
-      title,
-      message,
-      createdBy: this.user.email ?? '',
-      read: false,
-      userId: this.user.id ?? 0,
-      workerId: 0,
-      createdAt: '',
-      updatedAt: ''
-    };
-
-    /*this.notificationsService.createNotificationForUser(newNotification, this.user.id).subscribe(
-      () => console.log('Notification created successfully.'),
-      (error) => console.error('Error creating notification', error)
-    );*/
+  isDescriptionEmpty(): boolean {
+    const desc = this.addForm.get('description')?.value;
+    return !desc || desc.trim() === '';
   }
-isDescriptionEmpty(): boolean {
-  const desc = this.addForm.get('description')?.value;
-  return !desc || desc.trim() === '';
-}
 
-
+  // Optionnel : méthode d’envoi d’email à garder ou adapter
   sendmail(to: string[], subject: string, cdc: CahierDesCharges): void {
-    const emailText = `
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-          .container { width: 80%; max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-          .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-          .header img { height: 50px; }
-          .content { padding: 20px; }
-          .footer { text-align: center; font-size: 14px; color: #666; padding-top: 20px; border-top: 1px solid #eee; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="https://www.prodelecna.com/wp-content/uploads/2021/12/logo-PRODELEC.png" alt="logo PRODELEC" />
-          </div>
-          <div class="content">
-            <h1>Nouveau Cahier des charges ajouté</h1>
-            <p><strong>Projet:</strong> ${cdc.titre}</p>
-            <p><strong>Client:</strong> ${cdc.user?.partner?.name || 'N/A'}</p>
-            <p><strong>Email:</strong> ${cdc.user?.email}</p>
-          </div>
-          <div class="footer">
-            <p>Prodelec &copy; 2024</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-    this.emailService.sendEmail(to, subject, emailText).subscribe({
-      next: (response) => console.log('Email envoyé', response),
-      error: (error) => console.error('Erreur envoi email', error)
-    });
+    // votre code d’email ici
   }
 }

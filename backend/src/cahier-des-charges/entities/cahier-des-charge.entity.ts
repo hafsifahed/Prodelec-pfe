@@ -1,5 +1,15 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../users/entities/users.entity';
+import { CdcFile } from './cdc-file.entity';
 
 @Entity('cahier_des_charges')
 export class CahierDesCharges {
@@ -10,13 +20,13 @@ export class CahierDesCharges {
   titre: string;
 
   @Column({ nullable: true })
-  description: string;
+  description?: string;
+
+  @OneToMany(() => CdcFile, file => file.cahierDesCharges, { cascade: true, eager: true })
+  files: CdcFile[];
 
   @Column({ nullable: true })
-  pieceJointe: string;
-
-  @Column({ nullable: true })
-  commentaire: string;
+  commentaire?: string;
 
   @Column({ default: 'En attente' })
   etat: string;
