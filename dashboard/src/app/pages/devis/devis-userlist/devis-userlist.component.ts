@@ -26,6 +26,7 @@ export class DevisUserlistComponent {
   isAscending : boolean =true;
   user: User | null = null;
   errorMessage: string;
+negociationId: number | null = null;
 
   constructor(
 
@@ -146,6 +147,14 @@ export class DevisUserlistComponent {
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
+
+  openNegociationModal(id: number, template: TemplateRef<any>): void {
+  this.negociationId = id;
+  this.commentaire = '';
+  this.modalRef = this.modalService.show(template, { class: 'modal-md' });
+}
+
+
   confirmDelete(): void {
     if (this.rejectId !== null) {
       this.devisService.archiverU(this.rejectId).subscribe(
@@ -211,5 +220,18 @@ export class DevisUserlistComponent {
     }
   }
 
-
+//  DevisUserlistComponent
+commencerNegociation(id: number, commentaire: string = ''): void {
+  this.devisService.negocierDevis(id, commentaire).subscribe({
+    next: (updatedDevis) => {
+      Swal.fire('Mise à jour', 'Le devis est maintenant en négociation.', 'success');
+      this.loadDevis(this.user!);  // Recharge la liste avec l’état mis à jour
+      this.modalRef?.hide();
+    },
+    error: (error) => {
+      console.error('Erreur lors du démarrage de la négociation', error);
+      Swal.fire('Erreur', 'Impossible de commencer la négociation.', 'error');
+    }
+  });
+}
 }

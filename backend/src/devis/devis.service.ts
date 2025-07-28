@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
-import { Devis } from './entities/devi.entity';
+import { Devis, EtatDevis } from './entities/devi.entity';
 
 @Injectable()
 export class DevisService {
@@ -29,7 +29,7 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
     user: cdc.user,
     cahierDesCharges: cdc,
     dateCreation: new Date(),
-    etat: 'En attente',
+    etat: EtatDevis.EnAttente
   });
 
   const savedDevis = await this.devisRepo.save(devis);
@@ -64,7 +64,7 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
 
   if (!devis) throw new NotFoundException("Ce devis n'existe pas");
 
-  devis.etat = 'Accepté';
+  devis.etat = EtatDevis.Accepte;
   const updatedDevis = await this.devisRepo.save(devis);
 
   await this.notificationsService.notifyResponsablesByRole(
@@ -90,7 +90,7 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
 
   if (!devis) throw new NotFoundException("Ce devis n'existe pas");
 
-  devis.etat = 'Refusé';
+  devis.etat = EtatDevis.Refuse;
   devis.commentaire = commentaire;
   const updatedDevis = await this.devisRepo.save(devis);
 
@@ -151,4 +151,40 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
   async deleteDevis(id: number): Promise<void> {
     await this.devisRepo.delete(id);
   }
+
+  async startNegociation(id: number, commentaire?: string): Promise<Devis> {
+  const devis = await this.devisRepo.findOne({ where: { id }, relations: ['user'] });
+  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+
+  // On peut ajouter des règles métier ici, exemple refusé ou accepté => interdit la négociation
+  if (devis.etat === EtatDevis.Accepte) {
+    throw new BadRequestException("Un devis accepté ne peut pas être mis en négociation");
+  }
+  if (devis.etat === EtatDevis.Refuse) {
+    throw new BadRequestException("Un devis refusé ne peut pas être mis en négociation");
+  }
+
+  devis.etat = EtatDevis.Negociation;
+
+  if (commentaire) {
+    // Vous pouvez stocker ce commentaire dans une colonne dédiée ou dans commentaire général
+    devis.commentaire = commentaire;
+  }
+
+  const updatedDevis = await this.devisRepo.save(devis);
+
+  await this.notificationsService.notifyResponsablesByRole(
+    Role.RESPONSABLE_INDUSTRIALISATION,
+    'Début de négociation sur un devis',
+    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} est en négociation.`,
+    {
+      devisId: updatedDevis.id,
+      userId: devis.user?.id,
+      username: devis.user?.username,
+    },
+  );
+
+  return updatedDevis;
+}
+
 }

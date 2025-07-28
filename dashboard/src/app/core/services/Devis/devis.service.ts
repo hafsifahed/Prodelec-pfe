@@ -73,4 +73,10 @@ uploadFile(file: File): Observable<string> {
   getFileUrl(fileName: string):  Observable<Blob>{
     return this.http.get(`${environment.baseUrl}/devis/pdf/${fileName}`, { responseType: 'blob' });
   }
+
+  // dans votre service Angular
+negocierDevis(id: number, commentaire: string): Observable<Devis> {
+  return this.http.put<Devis>(`${environment.baseUrl}/negocier/${id}`, { commentaire });
+}
+
 }

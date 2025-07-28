@@ -122,4 +122,13 @@ saveDevis(
   deleteDevis(@Param('id') id: number): Promise<void> {
     return this.devisService.deleteDevis(id);
   }
+
+  @Put('negocier/:id')
+async startNegociation(
+  @Param('id') id: number,
+  @Body() body: { commentaire?: string },
+): Promise<Devis> {
+  if (body.commentaire === undefined) body.commentaire = '';
+  return this.devisService.startNegociation(id, body.commentaire);
+}
 }

@@ -11,6 +11,13 @@ import {
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { User } from '../../users/entities/users.entity';
   
+export enum EtatDevis {
+  EnAttente = 'En attente',
+  Accepte = 'Accepté',
+  Refuse = 'Refusé',
+  Negociation = 'Négociation',   // <-- nouvel état
+}
+
   @Entity('devis')
   export class Devis {
     @PrimaryGeneratedColumn()
@@ -25,8 +32,9 @@ import { User } from '../../users/entities/users.entity';
     @Column({ nullable: true })
     pieceJointe: string;
   
-    @Column({ default: 'En attente' })
-    etat: string;
+    @Column({ default: EtatDevis.EnAttente })
+etat: EtatDevis; // ou utiliser enum: EtatDevis
+
   
     @Column({ nullable: true })
     commentaire: string;
