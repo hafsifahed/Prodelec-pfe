@@ -21,6 +21,7 @@ import { join } from 'path';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DevisService } from './devis.service';
 import { Devis } from './entities/devi.entity';
+
 const BASE_DIRECTORY = join(process.env.HOME || process.env.USERPROFILE || '', 'Downloads', 'uploads', 'Devis');
 
 @Controller('devis')
@@ -76,16 +77,15 @@ export class DevisController {
     return this.devisService.getDevisById(id);
   }
 
-@Post(':cahierDesChargesId')
-saveDevis(
-  @Param('cahierDesChargesId') cdcId: number,
-  @Body() body: { pieceJointe: string; numdevis: string }
-): Promise<Devis> {
-  if (!body?.pieceJointe) throw new BadRequestException('pieceJointe is required');
-  if (!body?.numdevis) throw new BadRequestException('numdevis is required');
-  return this.devisService.saveDevis(cdcId, body.pieceJointe, body.numdevis);
-}
-
+  @Post(':cahierDesChargesId')
+  saveDevis(
+    @Param('cahierDesChargesId') cdcId: number,
+    @Body() body: { pieceJointe: string; numdevis: string }
+  ): Promise<Devis> {
+    if (!body?.pieceJointe) throw new BadRequestException('pieceJointe is required');
+    if (!body?.numdevis) throw new BadRequestException('numdevis is required');
+    return this.devisService.saveDevis(cdcId, body.pieceJointe, body.numdevis);
+  }
 
   @Put('accept/:id')
   acceptDevis(@Param('id') id: number): Promise<Devis> {
@@ -124,11 +124,23 @@ saveDevis(
   }
 
   @Put('negocier/:id')
-async startNegociation(
-  @Param('id') id: number,
-  @Body() body: { commentaire?: string },
-): Promise<Devis> {
-  if (body.commentaire === undefined) body.commentaire = '';
-  return this.devisService.startNegociation(id, body.commentaire);
-}
+  async startNegociation(
+    @Param('id') id: number,
+    @Body() body: { commentaire?: string },
+  ): Promise<Devis> {
+    if (body.commentaire === undefined) body.commentaire = '';
+    return this.devisService.startNegociation(id, body.commentaire);
+  }
+
+  // Nouvelle méthode pour mettre à jour la pièce jointe
+  @Put(':id/piece-jointe')
+  async updatePieceJointe(
+    @Param('id') id: number,
+    @Body() body: { pieceJointe: string }
+  ): Promise<Devis> {
+    if (!body?.pieceJointe) {
+      throw new BadRequestException('pieceJointe is required');
+    }
+    return this.devisService.updatePieceJointe(id, body.pieceJointe);
+  }
 }

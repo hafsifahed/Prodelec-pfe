@@ -1,10 +1,9 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 import { User } from 'src/app/core/models/auth.models';
-import { Devis } from 'src/app/core/models/Devis/devis';
+import { Devis, EtatDevis } from 'src/app/core/models/Devis/devis';
 import { DevisService } from 'src/app/core/services/Devis/devis.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
-import { UsersService } from 'src/app/core/services/user.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,13 +20,13 @@ export class DevisUserlistComponent {
   commentaire: string = '';
   selectedYear: string = 'All'; 
   searchQuery: string = '';
-  p: number = 1; // Current page number
-  itemsPerPage: number = 5; // Items per page
-  isAscending : boolean = true;
+  p: number = 1;
+  itemsPerPage: number = 5;
+  isAscending: boolean = true;
   user: User | null = null;
   errorMessage: string;
-  
   negociationId: number | null = null;
+  EtatDevis = EtatDevis;
 
   @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
   @ViewChild('commentModal', { static: false }) commentModal?: TemplateRef<any>;
@@ -37,7 +36,6 @@ export class DevisUserlistComponent {
   constructor(
     private devisService: DevisService,
     private modalService: BsModalService,
-    private usersService: UsersService,
     private userStateService: UserStateService
   ) {}
 
@@ -52,12 +50,14 @@ export class DevisUserlistComponent {
     if (user.role.name === 'CLIENTADMIN') {
       this.devisService.getAlldevis().subscribe(
         (data) => {
-          this.devis = data.filter(devis => devis.user.partner.id === user.partner.id && !devis.archiveU);
+          this.devis = data.filter(devis => 
+            devis.user.partner?.id === user.partner?.id && !devis.archiveU
+          );
           this.applyFilter();
-          console.log('Loaded and filtered devis for partner:', this.devis);
         },
         (error) => {
           console.error('Error fetching all devis for partner', error);
+          Swal.fire('Erreur', 'Impossible de charger les devis', 'error');
         }
       );
     } else {
@@ -65,10 +65,10 @@ export class DevisUserlistComponent {
         (data) => {
           this.devis = data.filter(devis => !devis.archiveU);
           this.applyFilter();
-          console.log('Loaded and filtered devis for user:', this.devis);
         },
         (error) => {
           console.error('Error fetching user devis', error);
+          Swal.fire('Erreur', 'Impossible de charger vos devis', 'error');
         }
       );
     }
@@ -89,10 +89,11 @@ export class DevisUserlistComponent {
 
   applyFilter(): void {
     this.filteredDevis = this.devis.filter(devis => {
-      const yearMatch = this.selectedYear === 'All' || new Date(devis.dateCreation).getFullYear().toString() === this.selectedYear;
+      const yearMatch = this.selectedYear === 'All' || 
+        new Date(devis.dateCreation).getFullYear().toString() === this.selectedYear;
       const searchMatch = !this.searchQuery || 
         devis.projet.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-        devis.user?.email.toLowerCase().includes(this.searchQuery.toLowerCase());
+        (devis.user?.email && devis.user.email.toLowerCase().includes(this.searchQuery.toLowerCase()));
       return yearMatch && searchMatch;
     });
   }
@@ -102,7 +103,9 @@ export class DevisUserlistComponent {
   }
 
   getUniqueYears(): string[] {
-    const years = this.devis.map(devis => new Date(devis.dateCreation).getFullYear().toString());
+    const years = this.devis
+      .map(devis => new Date(devis.dateCreation).getFullYear().toString())
+      .filter(year => year !== 'NaN');
     return ['All', ...Array.from(new Set(years))];
   }
 
@@ -113,11 +116,14 @@ export class DevisUserlistComponent {
   accepterDevis(id: number): void {
     this.devisService.acceptdevis(id).subscribe(
       (response) => {
-        console.log('Devis accepté', response);
-        location.reload(); // Recharger les données
+        Swal.fire('Succès', 'Le devis a été accepté avec succès.', 'success');
+        if (this.user) {
+          this.loadDevis(this.user);
+        }
       },
       (error) => {
         console.error('Error accepting devis', error);
+        Swal.fire('Erreur', 'Une erreur est survenue lors de l\'acceptation du devis', 'error');
       }
     );
   }
@@ -136,7 +142,9 @@ export class DevisUserlistComponent {
       error: (error) => {
         console.error('Error downloading file', error);
         if (error.status === 404) {
-          console.error('File not found:', fileName);
+          Swal.fire('Fichier introuvable', `Le fichier ${fileName} n'existe pas sur le serveur.`, 'error');
+        } else {
+          Swal.fire('Erreur', 'Une erreur est survenue lors du téléchargement', 'error');
         }
       }
     });
@@ -159,15 +167,17 @@ export class DevisUserlistComponent {
         () => {
           Swal.fire({
             title: 'Archivé!',
-            text: "Devis a été archivé avec succès.",
+            text: "Le devis a été archivé avec succès.",
             icon: 'success'
           });
-          this.ngOnInit();
+          if (this.user) {
+            this.loadDevis(this.user);
+          }
           this.modalRef?.hide();
         },
         error => {
           console.error('Error deleting devis', error);
-          alert('Devis non archivé!');
+          Swal.fire('Erreur', 'Impossible d\'archiver le devis', 'error');
           this.rejectId = null;
           this.modalRef?.hide();
         }
@@ -183,6 +193,7 @@ export class DevisUserlistComponent {
       },
       (error) => {
         console.error('Error fetching devis details', error);
+        Swal.fire('Erreur', 'Impossible de charger les détails du devis', 'error');
       }
     );
   }
@@ -197,14 +208,17 @@ export class DevisUserlistComponent {
     if (this.rejectId !== null && this.commentaire.trim()) {
       this.devisService.rejectdevis(this.rejectId, this.commentaire).subscribe(
         (response) => {
-          console.log('Devis refusé', response);
-          location.reload();
+          Swal.fire('Succès', 'Le devis a été refusé.', 'success');
+          if (this.user) {
+            this.loadDevis(this.user);
+          }
           this.modalRef?.hide();
           this.rejectId = null;
           this.commentaire = '';
         },
         (error) => {
           console.error('Error rejecting devis', error);
+          Swal.fire('Erreur', 'Impossible de refuser le devis', 'error');
           this.modalRef?.hide();
         }
       );

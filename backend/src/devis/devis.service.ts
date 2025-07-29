@@ -14,119 +14,118 @@ export class DevisService {
     private readonly devisRepo: Repository<Devis>,
     @InjectRepository(CahierDesCharges)
     private readonly cdcRepo: Repository<CahierDesCharges>,
-    private notificationsService:NotificationsService,
+    private notificationsService: NotificationsService,
   ) {}
 
-async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
-  // Récupérer le cahier des charges avec relation user
-  const cdc = await this.cdcRepo.findOne({ where: { id: cdcId }, relations: ['user'] });
-  if (!cdc) throw new NotFoundException('Cahier des Charges not found');
+  async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
+    const cdc = await this.cdcRepo.findOne({ 
+      where: { id: cdcId }, 
+      relations: ['user'] 
+    });
+    
+    if (!cdc) throw new NotFoundException('Cahier des Charges not found');
 
-  // Créer le devis lié au cahier des charges
-  const devis = this.devisRepo.create({
-    pieceJointe,
-    numdevis,
-    projet: cdc.titre,
-    commentaire: '',
-    user: cdc.user,
-    cahierDesCharges: cdc,
-    dateCreation: new Date(),
-    etat: EtatDevis.EnAttente,
-  });
+    const devis = this.devisRepo.create({
+      pieceJointe,
+      numdevis,
+      projet: cdc.titre,
+      commentaire: '',
+      user: cdc.user,
+      cahierDesCharges: cdc,
+      dateCreation: new Date(),
+      etat: EtatDevis.EnAttente,
+    });
 
-  // Sauvegarder le devis
-  const savedDevis = await this.devisRepo.save(devis);
+    const savedDevis = await this.devisRepo.save(devis);
 
-  // Mettre à jour le cahier des charges à 'Accepté' (ou votre statut métier)
-  cdc.etat = EtatCahier.Accepte;
-  await this.cdcRepo.save(cdc);
+    cdc.etat = EtatCahier.Accepte;
+    await this.cdcRepo.save(cdc);
 
-  // Envoyer la notification de création de devis
-  await this.notificationsService.createAndSendNotification(
-    cdc.user,
-    'Nouveau devis créé',
-    `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}". Le cahier des charges a été accepté.`,
-    { devisId: savedDevis.id, cdcId: cdc.id }
-  );
+    await this.notificationsService.createAndSendNotification(
+      cdc.user,
+      'Nouveau devis créé',
+      `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}". Le cahier des charges a été accepté.`,
+      { devisId: savedDevis.id, cdcId: cdc.id }
+    );
 
-  return savedDevis;
-}
-
-
-
+    return savedDevis;
+  }
 
   findAll(): Promise<Devis[]> {
-    return this.devisRepo.find({ relations: ['user', 'cahierDesCharges'] });
+    return this.devisRepo.find({ 
+      relations: ['user', 'cahierDesCharges'] 
+    });
   }
 
   findByUser(user: User): Promise<Devis[]> {
     if (!user) return null;
-    return this.devisRepo.find({ where: { user }, relations: ['user', 'cahierDesCharges'] });
+    return this.devisRepo.find({ 
+      where: { user }, 
+      relations: ['user', 'cahierDesCharges'] 
+    });
   }
 
   async acceptDevis(id: number): Promise<Devis> {
-  const devis = await this.devisRepo.findOne({
-    where: { id },
-    relations: ['user'], // pour inclure le user si nécessaire
-  });
+    const devis = await this.devisRepo.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
-  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+    if (!devis) throw new NotFoundException("Ce devis n'existe pas");
 
-  devis.etat = EtatDevis.Accepte;
-  const updatedDevis = await this.devisRepo.save(devis);
+    devis.etat = EtatDevis.Accepte;
+    const updatedDevis = await this.devisRepo.save(devis);
 
-  await this.notificationsService.notifyResponsablesByRole(
-    Role.RESPONSABLE_INDUSTRIALISATION,
-    'Devis accepté',
-    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été accepté`,
-    {
-      devisId: updatedDevis.id,
-      userId: devis.user?.id,
-      username: devis.user?.username,
-    },
-  );
+    await this.notificationsService.notifyResponsablesByRole(
+      Role.RESPONSABLE_INDUSTRIALISATION,
+      'Devis accepté',
+      `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été accepté`,
+      {
+        devisId: updatedDevis.id,
+        userId: devis.user?.id,
+        username: devis.user?.username,
+      },
+    );
 
-  return updatedDevis;
-}
-
+    return updatedDevis;
+  }
 
   async refuseDevis(id: number, commentaire: string): Promise<Devis> {
-  const devis = await this.devisRepo.findOne({
-    where: { id },
-    relations: ['user'], // pour accéder au user
-  });
+    const devis = await this.devisRepo.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
-  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+    if (!devis) throw new NotFoundException("Ce devis n'existe pas");
 
-  devis.etat = EtatDevis.Refuse;
-  devis.commentaire = commentaire;
-  const updatedDevis = await this.devisRepo.save(devis);
+    devis.etat = EtatDevis.Refuse;
+    devis.commentaire = commentaire;
+    const updatedDevis = await this.devisRepo.save(devis);
 
-  await this.notificationsService.notifyResponsablesByRole(
-    Role.RESPONSABLE_INDUSTRIALISATION,
-    'Devis refusé',
-    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été refusé`,
-    {
-      devisId: updatedDevis.id,
-      userId: devis.user?.id,
-      username: devis.user?.username,
-      commentaire,
-    },
-  );
+    await this.notificationsService.notifyResponsablesByRole(
+      Role.RESPONSABLE_INDUSTRIALISATION,
+      'Devis refusé',
+      `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} a été refusé`,
+      {
+        devisId: updatedDevis.id,
+        userId: devis.user?.id,
+        username: devis.user?.username,
+        commentaire,
+      },
+    );
 
-  return updatedDevis;
-}
-
+    return updatedDevis;
+  }
 
   async getDevisById(id: number): Promise<Devis> {
-  const devis = await this.devisRepo.findOne({
-    where: { id },
-    relations: ['user', 'user.partner', 'cahierDesCharges', 'cahierDesCharges.user']
-  });
-  if (!devis) throw new NotFoundException("Ce Devis n'existe pas");
-  return devis;
-}
-
+    const devis = await this.devisRepo.findOne({
+      where: { id },
+      relations: ['user', 'user.partner', 'cahierDesCharges', 'cahierDesCharges.user']
+    });
+    
+    if (!devis) throw new NotFoundException("Ce Devis n'existe pas");
+    return devis;
+  }
 
   async archiver(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({ where: { id } });
@@ -161,35 +160,66 @@ async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<D
   }
 
   async startNegociation(id: number, commentaire?: string): Promise<Devis> {
-  const devis = await this.devisRepo.findOne({ where: { id }, relations: ['user'] });
-  if (!devis) throw new NotFoundException("Ce devis n'existe pas");
+    const devis = await this.devisRepo.findOne({ 
+      where: { id }, 
+      relations: ['user'] 
+    });
+    
+    if (!devis) throw new NotFoundException("Ce devis n'existe pas");
 
-  // On peut ajouter des règles métier ici, exemple refusé ou accepté => interdit la négociation
-  if (devis.etat === EtatDevis.Accepte) {
-    throw new BadRequestException("Un devis accepté ne peut pas être mis en négociation");
+    if (devis.etat === EtatDevis.Accepte) {
+      throw new BadRequestException("Un devis accepté ne peut pas être mis en négociation");
+    }
+    
+    if (devis.etat === EtatDevis.Refuse) {
+      throw new BadRequestException("Un devis refusé ne peut pas être mis en négociation");
+    }
+
+    devis.etat = EtatDevis.Negociation;
+    
+    if (commentaire) {
+      devis.commentaire = commentaire;
+    }
+
+    const updatedDevis = await this.devisRepo.save(devis);
+
+    await this.notificationsService.notifyResponsablesByRole(
+      Role.RESPONSABLE_INDUSTRIALISATION,
+      'Début de négociation sur un devis',
+      `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} est en négociation.`,
+      {
+        devisId: updatedDevis.id,
+        userId: devis.user?.id,
+        username: devis.user?.username,
+      },
+    );
+
+    return updatedDevis;
   }
-  if (devis.etat === EtatDevis.Refuse) {
-    throw new BadRequestException("Un devis refusé ne peut pas être mis en négociation");
+
+  // Nouvelle méthode pour mettre à jour la pièce jointe
+  async updatePieceJointe(id: number, pieceJointe: string): Promise<Devis> {
+  const devis = await this.devisRepo.findOne({ where: { id }, relations: ['user'] }); // Ajout de la relation user
+  
+  if (!devis) {
+    throw new NotFoundException("Ce devis n'existe pas");
   }
 
-  devis.etat = EtatDevis.Negociation;
-
-  if (commentaire) {
-    // Vous pouvez stocker ce commentaire dans une colonne dédiée ou dans commentaire général
-    devis.commentaire = commentaire;
+  // Vérifier que le devis est en état de négociation
+  if (devis.etat !== EtatDevis.Negociation) {
+    throw new BadRequestException("Seuls les devis en négociation peuvent être modifiés");
   }
 
+  devis.pieceJointe = pieceJointe;
+  devis.etat = EtatDevis.EnAttente;
   const updatedDevis = await this.devisRepo.save(devis);
 
-  await this.notificationsService.notifyResponsablesByRole(
-    Role.RESPONSABLE_INDUSTRIALISATION,
-    'Début de négociation sur un devis',
-    `Le devis soumis par ${devis.user?.username ?? 'un utilisateur'} est en négociation.`,
-    {
-      devisId: updatedDevis.id,
-      userId: devis.user?.id,
-      username: devis.user?.username,
-    },
+  // Notification à l'utilisateur
+  await this.notificationsService.createAndSendNotification(
+    devis.user,
+    'Mise à jour du devis pour négociation',
+    `Le devis (#${devis.numdevis}) a été mis à jour avec une nouvelle pièce jointe pour sa négociation.`,
+    { devisId: updatedDevis.id }
   );
 
   return updatedDevis;
