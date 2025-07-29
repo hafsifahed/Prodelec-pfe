@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
+import { CahierDesCharges, EtatCahier } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
@@ -18,32 +18,40 @@ export class DevisService {
   ) {}
 
 async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
+  // Récupérer le cahier des charges avec relation user
   const cdc = await this.cdcRepo.findOne({ where: { id: cdcId }, relations: ['user'] });
   if (!cdc) throw new NotFoundException('Cahier des Charges not found');
 
+  // Créer le devis lié au cahier des charges
   const devis = this.devisRepo.create({
     pieceJointe,
-    numdevis, // Ajout ici
+    numdevis,
     projet: cdc.titre,
     commentaire: '',
     user: cdc.user,
     cahierDesCharges: cdc,
     dateCreation: new Date(),
-    etat: EtatDevis.EnAttente
+    etat: EtatDevis.EnAttente,
   });
 
+  // Sauvegarder le devis
   const savedDevis = await this.devisRepo.save(devis);
 
-  // Notification à l’utilisateur lié au CDC
+  // Mettre à jour le cahier des charges à 'Accepté' (ou votre statut métier)
+  cdc.etat = EtatCahier.Accepte;
+  await this.cdcRepo.save(cdc);
+
+  // Envoyer la notification de création de devis
   await this.notificationsService.createAndSendNotification(
     cdc.user,
     'Nouveau devis créé',
-    `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}".`,
-    { devisId: savedDevis.id }
+    `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}". Le cahier des charges a été accepté.`,
+    { devisId: savedDevis.id, cdcId: cdc.id }
   );
 
   return savedDevis;
 }
+
 
 
 

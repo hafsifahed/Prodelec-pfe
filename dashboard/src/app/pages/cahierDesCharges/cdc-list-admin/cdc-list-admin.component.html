@@ -1,6 +1,7 @@
 <div class="container-fluid">
   <app-page-title title="Cahier des charges"></app-page-title>
 
+  <!-- Filtrage par année et recherche -->
   <div class="row mb-4">
     <div class="d-flex justify-content-between align-items-end w-100">
       <div class="d-flex flex-column col-sm-12 col-md-2">
@@ -26,10 +27,12 @@
     </div>
   </div>
 
+  <!-- Message si aucun cahier -->
   <div *ngIf="getNonArchivedCahiers().length === 0">
     <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
   </div>
 
+  <!-- Tableau des cahiers -->
   <div *ngIf="getNonArchivedCahiers().length > 0">
     <div class="table-responsive mb-0">
       <table class="table table-centered table-nowrap">
@@ -58,26 +61,24 @@
             <td class="text-body fw-bold" [title]="cahier.titre">{{ cahier.titre }}</td>
             <td>{{ cahier.user?.username }} ({{ cahier.user?.partner?.name }})</td>
             <td>
-  <ng-container *ngIf="cahier.files?.length > 0; else noAttachment">
-    <ul class="list-unstyled mb-0" style="padding-left: 0;">
-      <li *ngFor="let file of cahier.files" style="margin-bottom: 0.25rem;">
-        <a
-          href="javascript:void(0)"
-          (click)="telechargerPieceJointe(file.nomFichier, cahier.id!)"
-          [attr.aria-label]="'Télécharger ' + file.nomFichier"
-          style="cursor:pointer; text-decoration: underline; color: #0d6efd;"
-        >
-          {{ file.nomFichier }}
-        </a>
-      </li>
-    </ul>
-  </ng-container>
-  <ng-template #noAttachment>
-    <span class="text-danger">Pas de fichier</span>
-  </ng-template>
-</td>
-
-
+              <ng-container *ngIf="cahier.files?.length > 0; else noAttachment">
+                <ul class="list-unstyled mb-0" style="padding-left: 0;">
+                  <li *ngFor="let file of cahier.files" style="margin-bottom: 0.25rem;">
+                    <a
+                      href="javascript:void(0)"
+                      (click)="telechargerPieceJointe(file.nomFichier, cahier.id!)"
+                      [attr.aria-label]="'Télécharger ' + file.nomFichier"
+                      style="cursor:pointer; text-decoration: underline; color: #0d6efd;"
+                    >
+                      {{ file.nomFichier }}
+                    </a>
+                  </li>
+                </ul>
+              </ng-container>
+              <ng-template #noAttachment>
+                <span class="text-danger">Pas de fichier</span>
+              </ng-template>
+            </td>
             <td>{{ cahier.createdAt | date }}</td>
             <td>
               <span class="badge badge-pill font-size-11"
@@ -104,9 +105,12 @@
                 <button type="button" class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id!, commentModal)">
                   <i class="mdi mdi-close-outline"></i>
                 </button>
-                <button type="button" class="btn btn-warning" title="Marquer comme À compléter" (click)="openIncompleteModal(cahier.id!, incompleteModal)">
+                <button type="button" class="btn acomplete-custom" title="Marquer comme À compléter" (click)="openIncompleteModal(cahier.id!, incompleteModal)">
                   <i class="mdi mdi-alert-circle-outline"></i>
                 </button>
+                <!--<button type="button" class="btn btn-info" title="Ajouter un devis" (click)="openPieceJointeModal(cahier.id!)">
+                  <i class="mdi mdi-file-upload-outline"></i> Ajouter un devis
+                </button>-->
               </ng-container>
               <ng-container *ngIf="cahier.etat === 'Accepté' || cahier.etat === 'Refusé'">
                 <button type="button" class="btn detail-custom" (click)="openDeleteModal(cahier.id!, deleteModal)" title="Archiver">
@@ -157,12 +161,12 @@
       <div class="mb-3">
         <strong>État:</strong>
         <span class="badge badge-pill font-size-13"
-              [ngClass]="{
-                'badge-soft-danger': cahier?.etat === 'Refusé',
-                'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
-                'badge-soft-info': cahier?.etat === 'À compléter',
-                'badge-soft-success': cahier?.etat === 'Accepté'
-              }">
+          [ngClass]="{
+            'badge-soft-danger': cahier?.etat === 'Refusé',
+            'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
+            'badge-soft-info': cahier?.etat === 'À compléter',
+            'badge-soft-success': cahier?.etat === 'Accepté'
+          }">
           {{ cahier?.etat }}
         </span>
       </div>
@@ -191,6 +195,28 @@
         [showSidebarOnLoad]="false">
       </ngx-extended-pdf-viewer>
     </div>
+  </div>
+</ng-template>
+
+<!-- Modal pour ajouter un devis -->
+<ng-template #pieceJointeModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ajouter un devis</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="numdevis" class="form-label">Numéro du devis</label>
+      <input id="numdevis" type="text" class="form-control" [(ngModel)]="numdevis" required />
+    </div>
+    <div class="mb-3">
+      <label for="pieceJointe" class="form-label">Pièce jointe</label>
+      <input id="pieceJointe" type="file" class="form-control" (change)="onFileSelected($event)" required />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="submitDevis()">Ajouter</button>
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
   </div>
 </ng-template>
 

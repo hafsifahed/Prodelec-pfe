@@ -19,13 +19,14 @@ export class CDCListAdminComponent {
   modalRef?: BsModalRef;
   commentaire: string = '';
   rejectId: number | null = null;
-  incompleteId: number | null = null; // Pour markAsIncomplete
+  incompleteId: number | null = null;
   cahier?: CahierDesCharges;
   selectedFile: File | null = null;
   searchQuery: string = '';
-  p: number = 1; // Pagination current page
+
+  p: number = 1;
   itemsPerPage: number = 5;
-  selectedYear: string = 'All'; // Default filter year
+  selectedYear: string = 'All';
   isAscending: boolean = true;
   pdfUrl: string | null = null;
   loadingPdf: boolean = false;
@@ -70,6 +71,7 @@ export class CDCListAdminComponent {
       },
       error: (error) => {
         console.error('Error fetching cahiers des charges', error);
+        Swal.fire('Erreur', 'Erreur lors du chargement des cahiers des charges', 'error');
       }
     });
   }
@@ -109,18 +111,32 @@ export class CDCListAdminComponent {
     });
   }
 
-  accepterCahier(id: number): void {
+ /* accepterCahier(id: number): void {
     this.cdcService.acceptCdc(id).subscribe({
       next: () => {
         Swal.fire('Accepté', 'Cahier des charges accepté avec succès', 'success');
         this.loadCahiersDesCharges();
+
+        // Récupération des détails du CDC pour le formulaire d'ajout de devis
+        this.cdcService.getById(id).subscribe({
+          next: (cahier) => {
+            this.cahier = cahier;
+            this.selectedFile = null;
+            this.numdevis = '';
+            this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
+          },
+          error: (error) => {
+            console.error('Erreur chargement cahier des charges pour devis', error);
+            // Optionnel : afficher un message à l'utilisateur
+          }
+        });
       },
       error: (error) => {
         console.error('Error accepting cahier des charges', error);
         Swal.fire('Erreur', 'Erreur lors de l\'acceptation', 'error');
       }
     });
-  }
+  }*/
 
   refuserCahier(id: number): void {
     const commentaire = prompt('Veuillez entrer un commentaire pour le refus :');
@@ -137,8 +153,6 @@ export class CDCListAdminComponent {
       });
     }
   }
-
-  // --- MARQUER COMME INCOMPLET ---
 
   openIncompleteModal(id: number, template: TemplateRef<any>): void {
     this.incompleteId = id;
@@ -185,7 +199,7 @@ export class CDCListAdminComponent {
     });
   }
 
-    telechargerPieceJointe(fileName: string, id: number): void {
+  telechargerPieceJointe(fileName: string, id: number): void {
     this.cdcService.getById(id).subscribe({
       next: (cahier) => {
         if (cahier.user) {
@@ -217,7 +231,6 @@ export class CDCListAdminComponent {
       }
     });
   }
-
 
   openCommentModal(id: number, template: TemplateRef<any>): void {
     this.rejectId = id;
@@ -276,7 +289,7 @@ export class CDCListAdminComponent {
         this.cahier = data;
         this.pdfUrl = null;
         if (this.cahier.files && this.cahier.files.length > 0) {
-          // Charge premier PDF présent (ou gérer autrement)
+          // Charge premier PDF présent
           const pdfFile = this.cahier.files.find(f => f.nomFichier.toLowerCase().endsWith('.pdf'));
           if (pdfFile) {
             this.loadPDF(pdfFile.nomFichier);
@@ -297,7 +310,7 @@ export class CDCListAdminComponent {
         this.cahier = cahier;
         this.selectedFile = null;
         this.numdevis = '';
-        this.modalRef = this.modalService.show(this.pieceJointeModal!);
+        this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
       },
       error: (error) => {
         console.error('Error fetching cahier des charges details', error);
@@ -315,31 +328,47 @@ export class CDCListAdminComponent {
     }
   }
 
-  submitDevis(): void {
-    if (this.cahier && this.selectedFile && this.numdevis.trim()) {
-      this.devisService.uploadFile(this.selectedFile).subscribe({
-        next: (uploadResponse: any) => {
-          const filename = uploadResponse.filename || uploadResponse;
-          this.devisService.saveDevis(this.cahier!.id!, filename, this.numdevis).subscribe({
-            next: () => {
-              Swal.fire('Ajouté!', 'Le devis a été ajouté avec succès.', 'success').then(() => {
-                this.modalRef?.hide();
-              });
-              this.accepterCahier(this.cahier!.id!);
-            },
-            error: (error) => {
-              console.error('Erreur lors de l\'ajout du devis:', error);
-              Swal.fire('Erreur', 'Erreur lors de l\'ajout du devis', 'error');
-            }
-          });
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'upload du fichier:', error);
-          Swal.fire('Erreur', 'Erreur lors de l\'upload du fichier', 'error');
-        }
-      });
-    } else {
-      Swal.fire('Erreur', 'Veuillez compléter tous les champs requis.', 'warning');
+  accepterCahier(id: number): void {
+  this.cdcService.getById(id).subscribe({
+    next: (cahier) => {
+      this.cahier = cahier;
+      this.selectedFile = null;
+      this.numdevis = '';
+      this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
+    },
+    error: (error) => {
+      console.error('Erreur chargement cahier des charges pour devis', error);
+      Swal.fire('Erreur', 'Erreur lors du chargement du cahier des charges', 'error');
     }
+  });
+}
+
+submitDevis(): void {
+  if (this.cahier && this.selectedFile && this.numdevis.trim()) {
+    this.devisService.uploadFile(this.selectedFile).subscribe({
+      next: (uploadResponse: any) => {
+        const filename = uploadResponse.filename || uploadResponse;
+        this.devisService.saveDevis(this.cahier!.id!, filename, this.numdevis).subscribe({
+          next: () => {
+            Swal.fire('Ajouté!', 'Le devis a été ajouté avec succès.', 'success').then(() => {
+              this.modalRef?.hide();
+              this.loadCahiersDesCharges();
+            });
+          },
+          error: (error) => {
+            console.error('Erreur lors de l\'ajout du devis:', error);
+            Swal.fire('Erreur', 'Erreur lors de l\'ajout du devis', 'error');
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'upload du fichier:', error);
+        Swal.fire('Erreur', 'Erreur lors de l\'upload du fichier', 'error');
+      }
+    });
+  } else {
+    Swal.fire('Erreur', 'Veuillez compléter tous les champs requis.', 'warning');
   }
+}
+
 }
