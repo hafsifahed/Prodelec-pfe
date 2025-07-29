@@ -76,7 +76,7 @@ uploadFile(file: File): Observable<string> {
 
   // dans votre service Angular
 negocierDevis(id: number, commentaire: string): Observable<Devis> {
-  return this.http.put<Devis>(`${environment.baseUrl}/negocier/${id}`, { commentaire });
+  return this.http.put<Devis>(`${environment.baseUrl}/devis/negocier/${id}`, { commentaire });
 }
 
 }

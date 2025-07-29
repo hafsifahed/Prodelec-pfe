@@ -50,7 +50,9 @@
             <span class="badge badge-pill badge-soft-success font-size-11"
               [ngClass]="{
                 'badge-soft-danger': devis.etat === 'Refusé',
-                'badge-soft-warning': devis.etat === 'En attente'
+                'badge-soft-warning': devis.etat === 'En attente',
+                'badge-soft-info': devis.etat === 'Négociation',
+                'badge-soft-success': devis.etat === 'Accepté'
               }">
               {{ devis.etat }}
             </span>
@@ -97,8 +99,10 @@
           <strong>État:</strong>
           <span class="badge badge-pill badge-soft-success font-size-13"
           [ngClass]="{
-            'bg-soft-danger': devisDetails.etat === 'Refusé',
-            'badge-soft-warning': devisDetails.etat === 'En attente'
+            'badge-soft-danger': devis.etat === 'Refusé',
+            'badge-soft-warning': devis.etat === 'En attente',
+            'badge-soft-info': devis.etat === 'Négociation', 
+            'badge-soft-success': devis.etat === 'Accepté'
           
           }">
             {{ devisDetails.etat }}

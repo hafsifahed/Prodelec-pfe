@@ -1,6 +1,13 @@
 import { User } from "../auth.models";
 import { CahierDesCharges } from "../CahierDesCharges/cahier-des-charges";
 
+export enum EtatDevis {
+  EnAttente = 'En attente',
+  Accepte = 'Accepté',
+  Refuse = 'Refusé',
+  Negociation = 'Négociation'   // Nouvel état
+}
+
 export class Devis {
     id: number;
     numdevis : string;
