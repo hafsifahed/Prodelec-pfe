@@ -45,6 +45,14 @@ export class ProjectService {
   project.finalControlResponsible = finalControlResp ? await this.workerByUsername(finalControlResp) : null;
   project.deliveryResponsible     = deliveryResp     ? await this.workerByUsername(deliveryResp)     : null;
 
+
+  project.conceptionStatus = dto.conceptionStatus ?? false;
+  project.methodeStatus = dto.methodeStatus ?? false;
+  project.productionStatus = dto.productionStatus ?? false;
+  project.finalControlStatus = dto.finalControlStatus ?? false;
+  project.deliveryStatus = dto.deliveryStatus ?? false;
+
+
   const saved = await this.projectRepo.save(project);
   await this.notifyResponsibles(
     saved,

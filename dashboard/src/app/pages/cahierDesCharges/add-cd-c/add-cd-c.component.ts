@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { CahierDesCharges, EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
 import { CDCListUserComponent } from '../cdc-list-user/cdc-list-user.component';
@@ -93,7 +93,7 @@ export class AddCdCComponent implements OnInit {
     commentaire: '',
     archive: false,
     archiveU: false,
-    etat: 'en_attente',
+    etat: EtatCahier.EnAttente,
     user: this.user,  // objet partiel user avec id
     fileNames: uploadedFileNames  // tableau des noms de fichiers
   };

@@ -26,4 +26,10 @@ export class ProjectDto {
   endFc?: Date;
   startDelivery?: Date;
   endDelivery?: Date;
+
+  conceptionStatus?: boolean;
+  methodeStatus?: boolean;
+  productionStatus?: boolean;
+  finalControlStatus?: boolean;
+  deliveryStatus?: boolean;
 }

@@ -115,6 +115,12 @@ showLivraisonAdd = false;
       drl: [0, ],
       cdl: ['', ],
       rl: ['', ],
+
+      conceptionChecked: [false],
+      methodeChecked: [false],
+      productionChecked: [false],
+      controleChecked: [false],
+      livraisonChecked: [false],
       qte: [0, [Validators.required]]
     });
 
@@ -397,6 +403,13 @@ showLivraisonAdd = false;
   const rescf = (this.projectForm.get('rcf')?.value || '').trim() || undefined;
   const resliv = (this.projectForm.get('rl')?.value || '').trim() || undefined;
 
+  const conceptionChecked = this.projectForm.get('conceptionChecked')?.value || false;
+const methodeChecked = this.projectForm.get('methodeChecked')?.value || false;
+const productionChecked = this.projectForm.get('productionChecked')?.value || false;
+const controleChecked = this.projectForm.get('controleChecked')?.value || false;
+const livraisonChecked = this.projectForm.get('livraisonChecked')?.value || false;
+
+
   // Construction de l'objet ProjectDto
   const project: ProjectDto = {
     refClient: refclient, //refclient
@@ -423,7 +436,13 @@ showLivraisonAdd = false;
     startFc: debcf,
     endFc: fincf,
     startDelivery: debliv,
-    endDelivery: finliv
+    endDelivery: finliv,
+
+    conceptionStatus: conceptionChecked,
+    methodeStatus: methodeChecked,
+    productionStatus: productionChecked,
+    finalControlStatus: controleChecked,
+    deliveryStatus: livraisonChecked,
   };
 
   console.log("Projet DTO = ", project);

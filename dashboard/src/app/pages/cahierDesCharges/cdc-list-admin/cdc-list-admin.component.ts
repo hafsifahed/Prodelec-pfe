@@ -185,28 +185,28 @@ export class CDCListAdminComponent {
     });
   }
 
-  telechargerPieceJointe(fileName: string, id: number): void {
+    telechargerPieceJointe(fileName: string, id: number): void {
     this.cdcService.getById(id).subscribe({
       next: (cahier) => {
         if (cahier.user) {
           this.cdcService.downloadFile(fileName, cahier.user).subscribe({
-             next: (blob) => {
-               const url = window.URL.createObjectURL(blob);
-               const a = document.createElement('a');
-               a.href = url;
-               a.download = fileName;
-               document.body.appendChild(a);
-               a.click();
-               document.body.removeChild(a);
-               window.URL.revokeObjectURL(url);
-             },
-             error: (error) => {
-               console.error('Error downloading file', error);
-               if (error.status === 404) {
-                 Swal.fire('Erreur', 'Fichier non trouvé : ' + fileName, 'error');
-               }
-             }
-           });
+            next: (blob) => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+            },
+            error: (error) => {
+              console.error('Error downloading file', error);
+              if (error.status === 404) {
+                Swal.fire('Erreur', 'Fichier non trouvé : ' + fileName, 'error');
+              }
+            }
+          });
         } else {
           Swal.fire('Erreur', 'Utilisateur associé au cahier non trouvé', 'error');
         }

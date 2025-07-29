@@ -6,6 +6,14 @@ export interface CdcFile {
   chemin: string;
 }
 
+export enum EtatCahier {
+  EnAttente = 'En attente',
+  ACompleter = 'À compléter',
+  Accepte = 'Accepté',
+  Refuse = 'Refusé',
+}
+
+
 export interface CahierDesCharges {
   id?: number;
   titre: string;

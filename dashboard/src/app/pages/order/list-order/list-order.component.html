@@ -138,6 +138,30 @@
       <div class="modal-body">
         <form (ngSubmit)="addproject()" [formGroup]="projectForm" class="needs-validation createorder-form" id="createorder-form" novalidate>
           
+          <div class="mb-3">
+  <label class="form-label">Étapes du projet</label>
+  <div class="form-check">
+    <input type="checkbox" id="conceptionChecked" class="form-check-input" formControlName="conceptionChecked" />
+    <label class="form-check-label" for="conceptionChecked">Conception</label>
+  </div>
+  <div class="form-check">
+    <input type="checkbox" id="methodeChecked" class="form-check-input" formControlName="methodeChecked" />
+    <label class="form-check-label" for="methodeChecked">Méthode</label>
+  </div>
+  <div class="form-check">
+    <input type="checkbox" id="productionChecked" class="form-check-input" formControlName="productionChecked" />
+    <label class="form-check-label" for="productionChecked">Production</label>
+  </div>
+  <div class="form-check">
+    <input type="checkbox" id="controleChecked" class="form-check-input" formControlName="controleChecked" />
+    <label class="form-check-label" for="controleChecked">Contrôle final</label>
+  </div>
+  <div class="form-check">
+    <input type="checkbox" id="livraisonChecked" class="form-check-input" formControlName="livraisonChecked" />
+    <label class="form-check-label" for="livraisonChecked">Livraison</label>
+  </div>
+</div>
+
           <!-- Boutons pour afficher/masquer les sections -->
           <div class="mb-3 d-flex flex-wrap gap-2">
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('add', 'conception')">

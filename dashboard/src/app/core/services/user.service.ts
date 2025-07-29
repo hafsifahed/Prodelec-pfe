@@ -172,7 +172,8 @@ export class UsersService {
     return this.http.get<User[]>(`${this.apiUrl}/clients`);
   }
 
-     uploadImage(file: File): Observable<{ progress: number; body?: any }> {
+   // Upload image with progress
+  uploadImage(file: File): Observable<{ progress: number; body?: any }> {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
@@ -192,6 +193,7 @@ export class UsersService {
       })
     );
   }
+
   
 
 getUserImageUrl(user: User): string {

@@ -1,29 +1,24 @@
 <div class="container-fluid">
-  <!-- Titre et fil d’Ariane -->
   <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
-
   <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
       <div class="card">
         <div class="card-body">
-
           <h4 class="card-title mb-4">
             <i class="fas fa-plus-circle icon-indigo"></i> Ajouter un Partenaire
           </h4>
           <p class="text-muted mb-4">Renseignez les informations du nouveau partenaire</p>
 
-          <!-- Message d'erreur global -->
           <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center mb-3" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
           </div>
 
           <form [formGroup]="addPartnerForm" (ngSubmit)="addPartner()" novalidate>
-
             <!-- Nom -->
             <div class="form-floating mb-3">
               <input id="name" formControlName="name" type="text" class="form-control"
-                placeholder="Entrez le nom du partenaire"
-                [ngClass]="{ 'is-invalid': addPartnerForm.get('name')?.invalid && addPartnerForm.get('name')?.touched }" />
+                     placeholder="Entrez le nom du partenaire"
+                     [ngClass]="{ 'is-invalid': addPartnerForm.get('name')?.invalid && addPartnerForm.get('name')?.touched }" />
               <label for="name"><i class="fas fa-building"></i> Nom du partenaire</label>
               <div class="invalid-feedback">Le nom est requis</div>
             </div>
@@ -31,8 +26,8 @@
             <!-- Adresse -->
             <div class="form-floating mb-3">
               <input id="address" formControlName="address" type="text" class="form-control"
-                placeholder="Entrez l'adresse complète"
-                [ngClass]="{ 'is-invalid': addPartnerForm.get('address')?.invalid && addPartnerForm.get('address')?.touched }" />
+                     placeholder="Entrez l'adresse complète"
+                     [ngClass]="{ 'is-invalid': addPartnerForm.get('address')?.invalid && addPartnerForm.get('address')?.touched }" />
               <label for="address"><i class="fas fa-map-marker-alt"></i> Adresse</label>
               <div class="invalid-feedback">L'adresse est requise</div>
             </div>
@@ -40,16 +35,19 @@
             <!-- Téléphone -->
             <div class="form-floating mb-3">
               <input id="tel" formControlName="tel" type="text" class="form-control"
-                placeholder="Entrez le numéro de téléphone"
-                [ngClass]="{ 'is-invalid': addPartnerForm.get('tel')?.invalid && addPartnerForm.get('tel')?.touched }" />
+                     placeholder="Entrez le numéro de téléphone"
+                     [ngClass]="{ 'is-invalid': addPartnerForm.get('tel')?.invalid && addPartnerForm.get('tel')?.touched }" />
               <label for="tel"><i class="fas fa-phone"></i> Téléphone</label>
               <div class="invalid-feedback">Le téléphone est requis</div>
             </div>
 
-            <!-- Upload image optionnelle -->
+            <!-- Upload image avec cropper -->
             <div class="mb-3">
-              <label for="image" class="form-label"><i class="fas fa-image"></i> Image du partenaire (optionnel)</label>
-              <input type="file" id="image" class="form-control" accept="image/*" (change)="onImageSelected($event)" />
+              <label for="image" class="form-label">
+                <i class="fas fa-image"></i> Image du partenaire (optionnel)
+              </label>
+              <input type="file" id="image" class="form-control" accept="image/*"
+                     (change)="onImageSelected($event)" />
             </div>
 
             <!-- Aperçu image -->
@@ -57,18 +55,32 @@
               <img [src]="previewUrl" alt="Aperçu image" class="img-thumbnail rounded" style="max-height: 200px;" />
             </div>
 
+            <!-- Barre de progression upload -->
+            <div *ngIf="isUploading" class="mb-2">
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     [style.width.%]="uploadProgress"
+                     [attr.aria-valuenow]="uploadProgress"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                </div>
+              </div>
+              <small class="text-muted">Téléchargement ({{uploadProgress}}%)</small>
+            </div>
+
             <!-- Boutons -->
             <div class="mt-4 d-flex gap-2 justify-content-center">
-              <button type="submit" class="btn btn-primary" [disabled]="addPartnerForm.invalid">
+              <button type="submit" class="btn btn-primary"
+                      [disabled]="addPartnerForm.invalid || isSubmitting || isUploading">
                 <i class="fas fa-save"></i> Enregistrer le partenaire
               </button>
-              <button type="button" class="btn btn-secondary" (click)="goBack()">
+              <button type="button" class="btn btn-secondary" (click)="goBack()"
+                      [disabled]="isSubmitting || isUploading">
                 <i class="fas fa-times"></i> Annuler
               </button>
             </div>
-
           </form>
-
         </div>
       </div>
     </div>

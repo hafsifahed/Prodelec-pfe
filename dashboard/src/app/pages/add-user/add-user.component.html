@@ -1,20 +1,17 @@
 <div class="container-fluid">
-  <!-- start page title -->
   <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
-  <!-- end page title -->
 
   <div class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-6">
       <div class="card">
         <div class="card-body">
 
-          <!-- En-tête -->
           <h4 class="card-title mb-4">
             <i class="fas fa-user-plus icon-indigo"></i> Ajouter un Utilisateur
           </h4>
           <p class="text-muted mb-4">Créez un nouveau compte utilisateur</p>
 
-          <!-- Sélecteur client / employé -->
+          <!-- Client / Employé -->
           <div class="mb-4 d-flex gap-2 justify-content-center">
             <button type="button" class="btn btn-outline-primary" [class.active]="selectedUserType === 'client'" (click)="selectUserType('client')">
               <i class="fas fa-user"></i> Client
@@ -24,14 +21,13 @@
             </button>
           </div>
 
-          <!-- Formulaire -->
           <form [formGroup]="addUserForm" (ngSubmit)="submit()" novalidate>
 
             <!-- Email -->
             <div class="form-floating mb-3">
               <input id="email" type="email" class="form-control" formControlName="email" placeholder="Entrez l'adresse email">
               <label for="email"><i class="fas fa-envelope"></i> Email</label>
-              <div *ngIf="addUserForm.get('email').invalid && addUserForm.get('email').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('email')?.invalid && addUserForm.get('email')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Un email valide est requis
               </div>
             </div>
@@ -40,7 +36,7 @@
             <div class="form-floating mb-3">
               <input id="password" type="password" class="form-control" formControlName="password" placeholder="Mot de passe (min 8 caractères)">
               <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
-              <div *ngIf="addUserForm.get('password').invalid && addUserForm.get('password').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('password')?.invalid && addUserForm.get('password')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> 8 caractères minimum requis
               </div>
             </div>
@@ -49,7 +45,7 @@
             <div class="form-floating mb-3">
               <input id="firstName" type="text" class="form-control" formControlName="firstName" placeholder="Entrez le prénom">
               <label for="firstName"><i class="fas fa-user"></i> Prénom</label>
-              <div *ngIf="addUserForm.get('firstName').invalid && addUserForm.get('firstName').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('firstName')?.invalid && addUserForm.get('firstName')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le prénom est requis
               </div>
             </div>
@@ -58,56 +54,74 @@
             <div class="form-floating mb-3">
               <input id="lastName" type="text" class="form-control" formControlName="lastName" placeholder="Entrez le nom">
               <label for="lastName"><i class="fas fa-user"></i> Nom</label>
-              <div *ngIf="addUserForm.get('lastName').invalid && addUserForm.get('lastName').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('lastName')?.invalid && addUserForm.get('lastName')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Le nom est requis
               </div>
             </div>
 
-            <!-- Rôle (pour les selects, la structure est légèrement différente) -->
+            <!-- Rôle -->
             <div class="form-floating mb-3">
               <select id="roleId" class="form-select" formControlName="roleId" aria-label="Sélectionnez un rôle">
                 <option value="" disabled selected>Sélectionnez un rôle</option>
                 <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
               </select>
               <label for="roleId"><i class="fas fa-user-tag"></i> Rôle</label>
-              <div *ngIf="addUserForm.get('roleId').invalid && addUserForm.get('roleId').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('roleId')?.invalid && addUserForm.get('roleId')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Un rôle doit être sélectionné
               </div>
             </div>
 
-            <!-- Partenaire (visible uniquement pour client) -->
+            <!-- Partenaire (uniquement Client) -->
             <div *ngIf="selectedUserType === 'client'" class="form-floating mb-3">
               <select id="partnerId" class="form-select" formControlName="partnerId" aria-label="Sélectionnez un partenaire">
                 <option value="" disabled selected>Sélectionnez un partenaire</option>
                 <option *ngFor="let partner of partners" [value]="partner.id">{{ partner.name }}</option>
               </select>
               <label for="partnerId"><i class="fas fa-handshake"></i> Partenaire</label>
-              <div *ngIf="addUserForm.get('partnerId').invalid && addUserForm.get('partnerId').touched" class="text-danger mt-1">
+              <div *ngIf="addUserForm.get('partnerId')?.invalid && addUserForm.get('partnerId')?.touched" class="text-danger mt-1">
                 <i class="fas fa-exclamation-circle"></i> Un partenaire doit être sélectionné
               </div>
             </div>
-            <!-- Upload image -->
-              <div class="mb-3">
-                <label for="fileInput" class="form-label"><i class="fas fa-image"></i> Photo de profil (optionnel)</label>
-                <input id="fileInput" type="file" (change)="onFileSelected($event)" accept="image/*" class="form-control" />
-              </div>
 
-              <!-- Aperçu image -->
-              <div *ngIf="previewUrl" class="mb-3 text-center">
-                <img [src]="previewUrl" alt="Aperçu image" style="max-width: 150px; max-height: 150px; border-radius: 8px; object-fit: cover;" />
-              </div>
+            <!-- Upload image avec cropper -->
+            <div class="mb-3">
+              <label for="fileInput" class="form-label">
+                <i class="fas fa-image"></i> Photo de profil (optionnel)
+              </label>
+              <input id="fileInput" type="file" accept="image/*" class="form-control" (change)="onFileSelected($event)">
+            </div>
 
-            <!-- Actions -->
+            <!-- Preview image -->
+            <div *ngIf="previewUrl" class="mb-3 text-center">
+              <img [src]="previewUrl" alt="Aperçu image" style="max-width: 150px; max-height: 150px; border-radius: 8px; object-fit: cover;" />
+            </div>
+
+            <!-- Upload progress -->
+            <div *ngIf="isUploading" class="mb-2">
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                     role="progressbar"
+                     [style.width.%]="uploadProgress"
+                     [attr.aria-valuenow]="uploadProgress"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                </div>
+              </div>
+              <small class="text-muted">Téléchargement ({{uploadProgress}}%)</small>
+            </div>
+
+            <!-- Boutons -->
             <div class="mt-4 d-flex gap-2 justify-content-center">
-              <button type="submit" class="btn btn-primary" [disabled]="addUserForm.invalid || isSubmitting">
+              <button type="submit" class="btn btn-primary" [disabled]="addUserForm.invalid || isSubmitting || isUploading">
                 <i class="fas fa-save"></i> {{ isSubmitting ? 'Création en cours...' : 'Créer l\'utilisateur' }}
               </button>
-              <button type="button" class="btn btn-secondary" (click)="cancel()">
+              <button type="button" class="btn btn-secondary" (click)="cancel()" [disabled]="isSubmitting || isUploading">
                 <i class="fas fa-times"></i> Annuler
               </button>
             </div>
 
           </form>
+
         </div>
       </div>
     </div>

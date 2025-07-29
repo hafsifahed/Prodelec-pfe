@@ -4,6 +4,8 @@ import { Partner } from '../../core/models/partner.models';
 import { PartnersService } from '../../core/services/partners.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { CropperDialogComponent } from '../setting/account-settings/cropper-dialog.component';
 
 @Component({
   selector: 'app-add-partner',
@@ -14,7 +16,11 @@ export class AddPartnerComponent implements OnInit {
   addPartnerForm: FormGroup;
   imageFile?: File;
   previewUrl: string | ArrayBuffer | null = null;
+  isSubmitting = false;
+  isUploading = false;
+  uploadProgress = 0;
   errorMessage = '';
+  modalRef?: BsModalRef;
   title = 'Ajouter un Partenaire';
 
   breadcrumbItems = [
@@ -25,7 +31,8 @@ export class AddPartnerComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private partnersService: PartnersService,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService
   ) {
     this.addPartnerForm = this.fb.group({
       name: ['', Validators.required],
@@ -39,56 +46,79 @@ export class AddPartnerComponent implements OnInit {
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.imageFile = input.files[0];
-
-      const reader = new FileReader();
-      reader.onload = () => this.previewUrl = reader.result;
-      reader.readAsDataURL(this.imageFile);
+      const file = input.files[0];
+      this.openCropperDialog(file);
     }
   }
 
+  openCropperDialog(file: File): void {
+    const initialState = {
+      imageChangedEvent: { target: { files: [file] } }
+    };
+    this.modalRef = this.modalService.show(CropperDialogComponent, {
+      initialState,
+      class: 'modal-lg'
+    });
+    this.modalRef.content.onCrop.subscribe((croppedImage: Blob) => {
+      this.handleCroppedImage(croppedImage);
+    });
+  }
+
+  handleCroppedImage(croppedImage: Blob): void {
+    this.imageFile = new File([croppedImage], 'partner-image.jpg', { type: croppedImage.type || 'image/jpeg' });
+    const reader = new FileReader();
+    reader.onload = () => { this.previewUrl = reader.result; };
+    reader.readAsDataURL(this.imageFile);
+  }
+
   addPartner(): void {
-    if (this.addPartnerForm.invalid) {
+    if (this.addPartnerForm.invalid || this.isSubmitting) {
       this.errorMessage = 'Veuillez remplir correctement tous les champs obligatoires.';
       this.addPartnerForm.markAllAsTouched();
       return;
     }
-
+    this.isSubmitting = true;
     this.errorMessage = '';
-
     const formValue = this.addPartnerForm.value;
-
     const partnerData: any = {
       name: formValue.name,
       address: formValue.address,
       tel: formValue.tel
     };
-
     if (this.imageFile) {
-      // Upload séparé de l'image
-      const formData = new FormData();
-      formData.append('file', this.imageFile);
-
-      this.partnersService.uploadImage(formData).subscribe({
-        next: (uploadResp) => {
-          // Ajouter le nom ou url de l'image dans les données du partenaire
-          partnerData.image = uploadResp.filename || uploadResp.url;
-          this.createPartner(partnerData);
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'upload de l\'image', error);
-          Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
-        }
-      });
+      this.uploadImageAndCreatePartner(partnerData);
     } else {
-      // Pas d'image, création directe
       this.createPartner(partnerData);
     }
+  }
+
+  uploadImageAndCreatePartner(partnerData: any): void {
+    this.isUploading = true;
+    this.uploadProgress = 0;
+    const formData = new FormData();
+    formData.append('file', this.imageFile!);
+    this.partnersService.uploadImage(formData).subscribe({
+      next: (event: any) => {
+        if (event.type && event.type === 1) { // HttpEventType.UploadProgress
+          this.uploadProgress = Math.round((100 * event.loaded) / (event.total || 1));
+        } else if (event.body) {
+          partnerData.image = event.body.filename || event.body.url;
+          this.isUploading = false;
+          this.createPartner(partnerData);
+        }
+      },
+      error: (error) => {
+        this.isUploading = false;
+        this.isSubmitting = false;
+        Swal.fire('Erreur', 'Erreur lors de l\'upload de l\'image', 'error');
+      }
+    });
   }
 
   private createPartner(partnerData: Partner): void {
     this.partnersService.addPartner(partnerData).subscribe({
       next: () => {
+        this.isSubmitting = false;
         Swal.fire({
           title: 'Succès!',
           text: 'Partenaire ajouté avec succès.',
@@ -97,7 +127,7 @@ export class AddPartnerComponent implements OnInit {
         this.router.navigate(['/list-partner']);
       },
       error: (error) => {
-        console.error('Erreur lors de l\'ajout du partenaire', error);
+        this.isSubmitting = false;
         Swal.fire({
           title: 'Erreur!',
           text: 'Erreur lors de l\'ajout du partenaire. Veuillez réessayer ultérieurement.',

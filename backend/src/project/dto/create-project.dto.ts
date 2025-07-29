@@ -1,11 +1,11 @@
 import {
-    IsBoolean,
-    IsDateString,
-    IsInt,
-    IsNumber,
-    IsOptional,
-    IsString,
-    Min,
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateProjectDto {
@@ -113,4 +113,19 @@ export class CreateProjectDto {
 
   @IsOptional() @IsDateString()
   endDelivery?: string;
+  
+@IsOptional() @IsBoolean()
+  conceptionStatus: boolean;
+
+  @IsOptional() @IsBoolean()
+  methodeStatus: boolean;
+
+  @IsOptional() @IsBoolean()
+  productionStatus: boolean;
+
+  @IsOptional() @IsBoolean()
+  finalControlStatus: boolean;
+
+  @IsOptional() @IsBoolean()
+  deliveryStatus: boolean;
 }

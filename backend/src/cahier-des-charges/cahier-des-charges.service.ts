@@ -25,39 +25,38 @@ export class CahierDesChargesService {
   ) {}
 
   async saveCahierDesCharges(dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
-  const user = await this.userRepository.findOneBy({ id: dto.user.id });
-  if (!user) throw new NotFoundException('User not found');
+    const user = await this.userRepository.findOneBy({ id: dto.user.id });
+    if (!user) throw new NotFoundException('User not found');
 
-  const cdcData = {
-    titre: dto.titre,
-    description: dto.description,
-    commentaire: dto.commentaire,
-    etat: dto.etat || EtatCahier.EnAttente,
-    archive: dto.archive || false,
-    archiveU: dto.archiveU || false,
-    user,
-  };
+    const cdcData = {
+      titre: dto.titre,
+      description: dto.description,
+      commentaire: dto.commentaire,
+      etat: dto.etat || EtatCahier.EnAttente,
+      archive: dto.archive || false,
+      archiveU: dto.archiveU || false,
+      user,
+    };
 
-  const cdc = this.repository.create(cdcData);
-  const savedCdc = await this.repository.save(cdc);
+    const cdc = this.repository.create(cdcData);
+    const savedCdc = await this.repository.save(cdc);
 
-  // Utiliser dto.fileNames (tableau de string envoyé par frontend)
-  if (dto.fileNames && dto.fileNames.length > 0) {
-    for (const filename of dto.fileNames) {
-      const chemin = this.getFilePath(user.username, filename);
-      await this.cdcFileService.createFile(filename, chemin, savedCdc.id);
+    if (dto.fileNames && dto.fileNames.length > 0) {
+      for (const filename of dto.fileNames) {
+        const chemin = this.getFilePath(user.username, filename);
+        await this.cdcFileService.createFile(filename, chemin, savedCdc.id);
+      }
     }
+
+    await this.notificationsService.notifyResponsablesByRole(
+      Role.RESPONSABLE_INDUSTRIALISATION,
+      'Nouveau cahier des charges soumis',
+      `Par ${user.username}`,
+      { cdcId: savedCdc.id, userId: user.id, username: user.username },
+    );
+
+    return savedCdc;
   }
-
-  await this.notificationsService.notifyResponsablesByRole(
-    Role.RESPONSABLE_INDUSTRIALISATION,
-    'Nouveau cahier des charges soumis',
-    `Par ${user.username}`,
-    { cdcId: savedCdc.id, userId: user.id, username: user.username },
-  );
-
-  return savedCdc;
-}
 
 
   private getFilePath(username: string, filename: string): string {
