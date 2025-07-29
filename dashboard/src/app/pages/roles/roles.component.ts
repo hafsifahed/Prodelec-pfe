@@ -227,7 +227,7 @@ export class RolesComponent {
 
     let roleName = formValue.name;
     if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
-      roleName = 'CLIENT ' + roleName;
+      roleName = 'CLIENT' + roleName;
     }
 
     const permissionsMap = new Map<string, Set<string>>();
@@ -268,7 +268,7 @@ export class RolesComponent {
 
     let roleName = formValue.name;
     if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
-      roleName = 'CLIENT ' + roleName;
+      roleName = 'CLIENT' + roleName;
     }
 
     const permissionsMap = new Map<string, Set<string>>();

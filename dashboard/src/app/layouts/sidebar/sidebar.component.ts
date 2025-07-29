@@ -59,6 +59,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
     this.usersService.getPermissionProfile().subscribe({
       next: (userData) => {
         this.user = userData;
+          console.log('User role and permissions:', this.user.role);
         if (this.user.role) {
           this.initialize(this.user.role);
         } else {
