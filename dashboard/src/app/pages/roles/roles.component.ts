@@ -1,8 +1,9 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component, TemplateRef, ViewChild, OnInit } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { RolesService } from 'src/app/core/services/roles.service';
 import Swal from 'sweetalert2';
+import { finalize } from 'rxjs/operators';
 
 export interface Role {
   id?: number;
@@ -15,15 +16,15 @@ export interface Role {
   templateUrl: './roles.component.html',
   styleUrls: ['./roles.component.scss']
 })
-export class RolesComponent {
+export class RolesComponent implements OnInit {
   roles: Role[] = [];
   selectedRole: Role | null = null;
 
   modalRef?: BsModalRef;
   rejectId: number | null = null;
-  isLoading: boolean = false;
+  isLoading = false;
 
-  title = 'Rôles';
+  title = 'Gestion des Rôles';
 
   breadcrumbItems = [
     { label: 'Accueil', active: false },
@@ -34,7 +35,7 @@ export class RolesComponent {
   editRoleForm: FormGroup;
   errorMessage: string | null = null;
 
-  resources = [
+  readonly resources = [
     { value: 'users', label: 'Utilisateurs' },
     { value: 'roles', label: 'Rôles' },
     { value: 'partners', label: 'Partenaires' },
@@ -53,7 +54,7 @@ export class RolesComponent {
     { value: 'sessions', label: 'Sessions' }
   ];
 
-  actions = [
+  readonly actions = [
     { value: 'create', label: 'Créer' },
     { value: 'read', label: 'Lire' },
     { value: 'update', label: 'Mettre à jour' },
@@ -96,15 +97,14 @@ export class RolesComponent {
   loadRoles(): void {
     this.isLoading = true;
     this.errorMessage = null;
-    this.rolesService.findAll().subscribe(
-      (data) => {
-        this.roles = data;
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error('Error loading roles', error);
+
+    this.rolesService.findAll().pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(
+      data => this.roles = data,
+      error => {
+        console.error('Erreur lors du chargement des rôles', error);
         this.errorMessage = 'Erreur lors du chargement des rôles. Veuillez réessayer.';
-        this.isLoading = false;
       }
     );
   }
@@ -120,39 +120,32 @@ export class RolesComponent {
   addPermission(type: 'add' | 'edit'): void {
     const permArray = type === 'add' ? this.addPermissions : this.editPermissions;
     const usedResources = permArray.controls.map(control => control.get('resource')?.value);
-    
-    const availableResources = this.resources.filter(
-      resource => !usedResources.includes(resource.value)
-    );
-    
+    const availableResources = this.resources.filter(resource => !usedResources.includes(resource.value));
+
     if (availableResources.length === 0) {
       Swal.fire('Info', 'Toutes les ressources ont déjà été ajoutées.', 'info');
       return;
     }
-    
+
     const group = this.fb.group({
       resource: [availableResources[0].value, Validators.required],
       actions: [[]]
     });
-    
     permArray.push(group);
   }
 
   getAvailableResources(index: number, type: 'add' | 'edit'): any[] {
     const permArray = type === 'add' ? this.addPermissions : this.editPermissions;
     const currentResource = permArray.at(index).get('resource')?.value;
-    
     const usedResources = permArray.controls
-      .map((control, i) => i !== index ? control.get('resource')?.value : null)
+      .map((control, i) => (i !== index ? control.get('resource')?.value : null))
       .filter(res => res !== null);
-    
+
     if (permArray.length <= 1) {
       return this.resources;
     }
-    
-    return this.resources.filter(
-      res => !usedResources.includes(res.value) || res.value === currentResource
-    );
+
+    return this.resources.filter(res => !usedResources.includes(res.value) || res.value === currentResource);
   }
 
   removePermission(index: number, type: 'add' | 'edit'): void {
@@ -193,7 +186,7 @@ export class RolesComponent {
 
     const isClient = role.name.toUpperCase().startsWith('CLIENT');
     const type = isClient ? 'client' : 'employee';
-    const name = isClient ? role.name.substring(6).trim() : role.name;
+    const name = isClient ? role.name.substring(6) : role.name;
 
     this.editRoleForm.patchValue({
       id: role.id,
@@ -221,10 +214,7 @@ export class RolesComponent {
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
-  submitAddRole(): void {
-    if (this.addRoleForm.invalid) return;
-    const formValue = this.addRoleForm.value;
-
+  private buildRoleFromForm(formValue: any): Role {
     let roleName = formValue.name;
     if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
       roleName = 'CLIENT' + roleName;
@@ -243,13 +233,23 @@ export class RolesComponent {
       actions: Array.from(actionsSet)
     }));
 
-    const newRole: Role = {
+    return {
+      id: formValue.id,
       name: roleName,
       permissions
     };
+  }
+
+  submitAddRole(): void {
+    if (this.addRoleForm.invalid) return;
+
+    const newRole = this.buildRoleFromForm(this.addRoleForm.value);
 
     this.errorMessage = null;
-    this.rolesService.create(newRole).subscribe(
+    this.isLoading = true;
+    this.rolesService.create(newRole).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(
       () => {
         Swal.fire('Succès', 'Rôle ajouté avec succès', 'success');
         this.modalRef?.hide();
@@ -264,43 +264,21 @@ export class RolesComponent {
 
   submitEditRole(): void {
     if (this.editRoleForm.invalid) return;
-    const formValue = this.editRoleForm.value;
 
-    let roleName = formValue.name;
-    if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
-      roleName = 'CLIENT' + roleName;
-    }
-
-    const permissionsMap = new Map<string, Set<string>>();
-    formValue.permissions.forEach((p: any) => {
-      if (!permissionsMap.has(p.resource)) {
-        permissionsMap.set(p.resource, new Set());
-      }
-      p.actions.forEach((action: string) => permissionsMap.get(p.resource)!.add(action));
-    });
-
-    const permissions = Array.from(permissionsMap.entries()).map(([resource, actionsSet]) => ({
-      resource,
-      actions: Array.from(actionsSet)
-    }));
-
-    const updatedRole: Role = {
-      id: formValue.id,
-      name: roleName,
-      permissions
-    };
+    const updatedRole = this.buildRoleFromForm(this.editRoleForm.value);
 
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.rolesService.update(updatedRole.id, updatedRole).subscribe(
+    this.rolesService.update(updatedRole.id!, updatedRole).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(
       () => {
         Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
         this.modalRef?.hide();
         this.loadRoles();
       },
       error => {
-        this.isLoading = false;
         this.errorMessage = 'Erreur lors de la modification du rôle';
         Swal.fire('Erreur', this.errorMessage, 'error');
       }
@@ -313,14 +291,15 @@ export class RolesComponent {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.rolesService.remove(this.rejectId).subscribe(
+    this.rolesService.remove(this.rejectId).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe(
       () => {
         Swal.fire('Supprimé', 'Rôle supprimé avec succès', 'success');
         this.modalRef?.hide();
         this.loadRoles();
       },
       error => {
-        this.isLoading = false;
         this.errorMessage = 'Erreur lors de la suppression du rôle';
         Swal.fire('Erreur', this.errorMessage, 'error');
       }
