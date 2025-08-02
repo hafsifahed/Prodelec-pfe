@@ -6,198 +6,165 @@
         <div id="basic-example">
           <ng-stepper #cdkStepper [linear]="true" class="wizard">
 
+            <!-- 1ère méthode : template-driven -->
             <cdk-step [optional]="false">
               <ng-template cdkStepLabel>
-                <span class="number">1.</span>
-                <span>1ére méthode</span>
+                <span class="number">1.</span> <span>1ère méthode</span>
               </ng-template>
               <section *ngIf="cdkStepper.selectedIndex === 0">
                 <form enctype="multipart/form-data">
+
                   <div class="row">
                     <div class="col-lg-6">
                       <div class="mb-3">
-                        <div class="form-group">
-                          <label for="basicpill-firstname-input">Numéro de commande</label>
-                          <input type="text" class="form-control" ngModel id="orderName" name="orderName"
-                            [(ngModel)]="orderName">
-                        </div>
+                        <label for="orderName">Numéro de commande</label>
+                        <input type="text" class="form-control" id="orderName" name="orderName" [(ngModel)]="orderName" required />
                       </div>
                     </div>
+
                     <div class="col-lg-6">
                       <div class="mb-3">
-                        <div class="form-group">
-                          <label for="basicpill-lastname-input">Numéro de devis </label>
-                          <input type="text" class="form-control" ngModel id="quoteNumber" name="quoteNumber"
-                            [(ngModel)]="quoteNumber">
+                        <label for="selectedDevis1">Choisir un devis (facultatif)</label>
+                        <select class="form-control" id="selectedDevis1" name="selectedDevis1" [(ngModel)]="selectedDevis1">
+                          <option [ngValue]="null" selected>-- Aucun devis --</option>
+                          <option *ngFor="let devis of devisList" [ngValue]="devis">
+                            {{ devis.numdevis }} - {{ devis.projet }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label>Sélectionner la commande à partir de votre PC</label>
+                    <div *ngIf="fileStatus.status === 'progress'">
+                      <div class="progress">
+                        <div class="progress-bar progress-bar-animated bg-info" role="progressbar"
+                          [style.width.%]="fileStatus.percent">
+                          {{ fileStatus.requestType }} {{ fileStatus.percent }}%
                         </div>
                       </div>
                     </div>
+                    <input name="file" type="file" class="form-control" (change)="onUploadFile($event)" />
+                    <small *ngIf="attachementName" class="text-muted">Fichier sélectionné : {{ attachementName }}</small>
                   </div>
 
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <div class="form-group">
-                        <label>Seléctionner la commande a partir de votre PC</label>
-                        <div *ngIf="fileStatus.status==='progress'">
-                          <div class="progress">
-                            <div [style.width.%]="fileStatus.percent" class="progress-bar progress-bar-animated bg-info"
-                              role="progressbar" aria-valuenow="!">
-                              {{ fileStatus.requestType }} {{ fileStatus.percent }}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <div class="form-group">
-                        <input name="file"
-                              type="file"
-                              class="form-control"
-                              (change)="onUploadFile($event)">
-                        <small *ngIf="attachementName" class="text-muted">
-                          Fichier sélectionné : {{ attachementName }}
-                        </small>
-
-                      </div>
-                    </div>
-                  </div>
-
+                  <ul class="list-inline wizard d-flex justify-content-end mb-0 mt-3">
+                    <li class="previous list-inline-item">
+                      <button class="btn btn-primary" (click)="save1()">Ajouter</button>
+                    </li>
+                  </ul>
                 </form>
-                <br>
-                <ul class="list-inline wizard d-flex justify-content-end mb-0">
-                  <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary"
-                      (click)="save1()">Ajouter</button></li>
-                </ul>
               </section>
             </cdk-step>
 
+            <!-- 2ème méthode : formulaire réactif -->
             <cdk-step [optional]="true">
               <ng-template cdkStepLabel>
-                <span class="number">2.</span>
-                <span>2éme méthode</span>
+                <span class="number">2.</span> <span>2ème méthode</span>
               </ng-template>
               <section *ngIf="cdkStepper.selectedIndex === 1">
-                <form [formGroup]="addForm">
+                <form [formGroup]="addForm" novalidate>
                   <div class="row">
                     <div class="col-lg-6">
                       <div class="mb-3">
-                        <label for="basicpill-pancard-input">Numéro de commande</label>
-                        <input type="text" class="form-control" id="orderNumber" formControlName="orderNumber">
+                        <label for="orderNumber">Numéro de commande</label>
+                        <input type="text" class="form-control" id="orderNumber" formControlName="orderNumber" />
+                        <div *ngIf="addForm.get('orderNumber')?.invalid && addForm.get('orderNumber')?.touched" class="text-danger">
+                          Veuillez saisir un numéro de commande.
+                        </div>
                       </div>
                     </div>
 
                     <div class="col-lg-6">
                       <div class="mb-3">
-                        <label for="basicpill-vatno-input">Email de fournisseur</label>
-                        <input type="text" class="form-control" id="supplierEmail" formControlName="supplierEmail">
+                        <label for="supplierEmail">Email du fournisseur</label>
+                        <input type="email" class="form-control" id="supplierEmail" formControlName="supplierEmail" />
+                        <div *ngIf="addForm.get('supplierEmail')?.invalid && addForm.get('supplierEmail')?.touched" class="text-danger">
+                          Email invalide.
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="devis">Choisir un devis (facultatif)</label>
+                        <select class="form-control" formControlName="devis" id="devis">
+                          <option [ngValue]="null" selected>-- Aucun devis --</option>
+                          <option *ngFor="let devis of devisList" [ngValue]="devis">
+                            {{ devis.numdevis }} - {{ devis.projet }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="mb-3">
+                        <label for="vat">TVA (%)</label>
+                        <input type="number" class="form-control" id="vat" formControlName="vat" min="0" />
+                        <div *ngIf="addForm.get('vat')?.invalid && addForm.get('vat')?.touched" class="text-danger">
+                          Veuillez saisir une TVA valide.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="invoice-table" id="table">
-                    <button type="button" class="plus-btn" (click)="addProduct()">+</button>
+                    <button type="button" class="btn btn-success mb-3" (click)="addProduct()">Ajouter Produit +</button>
                     <div class="row">
                       <div class="col-md-4">
                         <div class="form-group">
-                          <label for="basicpill-vatno-input">Nom de produit</label>
-                          <input type="text" class="form-control" id="productName" formControlName="productName">
-
+                          <label for="productName">Nom du produit</label>
+                          <input type="text" class="form-control" id="productName" formControlName="productName" placeholder="Nom produit" />
                         </div>
                       </div>
-
                       <div class="col-md-4">
                         <div class="form-group">
                           <label for="quantity">Quantité</label>
-                          <input type="number" class="form-control" id="quantity" formControlName="quantity">
+                          <input type="number" class="form-control" id="quantity" formControlName="quantity" min="1" />
                         </div>
                       </div>
-
                       <div class="col-md-4">
                         <div class="form-group">
-                          <label for="unitPrice">Prix Unitaire</label>
-                          <input type="number" class="form-control" id="unitPrice" formControlName="unitPrice">
+                          <label for="unitPrice">Prix unitaire</label>
+                          <input type="number" class="form-control" id="unitPrice" formControlName="unitPrice" min="0" />
                         </div>
                       </div>
-
                     </div>
-                    <br>
+
                     <div class="product-section" *ngIf="showProductSection">
-                      <div formArrayName="products">
-                        <div class="row" *ngFor="let product of addForm.get('products')['controls']; let i = index">
-
-                          <div class="row">
-                            <div class="col-md-3">
-                              <div class="form-group">
-                                <label for="productName">Nom du Produit</label>
-
-                                <input type="text" class="form-control" id="unitPrice"
-                                  [value]="product.get('productName').value" readonly>
-
-                              </div>
-                            </div>
-
-                            <div class="col-md-3">
-                              <div class="form-group">
-                                <label for="quantity">Quantité</label>
-                                <input type="number" class="form-control" id="quantity"
-                                  [value]="product.get('quantity').value" readonly>
-                              </div>
-                            </div>
-
-                            <div class="col-md-3">
-                              <div class="form-group">
-                                <label for="unitPrice">Prix Unitaire</label>
-                                <input type="number" class="form-control" id="unitPrice"
-                                  [value]="product.get('unitPrice').value" readonly>
-                              </div>
-                            </div>
-                            <div class="col-md-3">
-                              <br>
-                              <br>
-                              <button type="button" class="moin-btn" (click)="removeProduct(i)">-</button>
-
-                            </div>
-
+                      <div formArrayName="products" class="mt-3">
+                        <div class="row mb-2" *ngFor="let product of addForm.get('products')['controls']; let i = index" [formGroupName]="i">
+                          <div class="col-md-3">
+                            <input readonly type="text" class="form-control" formControlName="productName" />
                           </div>
-
+                          <div class="col-md-3">
+                            <input readonly type="number" class="form-control" formControlName="quantity" />
+                          </div>
+                          <div class="col-md-3">
+                            <input readonly type="number" class="form-control" formControlName="unitPrice" />
+                          </div>
+                          <div class="col-md-3">
+                            <button type="button" class="btn btn-danger" (click)="removeProduct(i)">-</button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <br>
-
-
                   </div>
-                  <div class="row">
-                    <div class="col-lg-6">
-                      <div class="mb-3">
-                        <label for="basicpill-vatno-input">TVA</label>
-                        <input type="text" class="form-control" id="vat" formControlName="vat">
-                      </div>
-                    </div>
-                    <div class="col-lg-6">
-                      <div class="mb-3">
-                        <label for="basicpill-pancard-input">Numéro de devis</label>
-                        <input type="text" class="form-control" id="devisNumber" formControlName="devisNumber">
-                      </div>
-                    </div>
-                  </div>
-                  <ul class="list-inline wizard d-flex justify-content-end mb-0">
-                    <li class="previous list-inline-item" aria-disabled="true"><button class="btn btn-primary"
-                        (click)="save2()">Ajouter</button></li>
+
+                  <ul class="list-inline wizard d-flex justify-content-end mb-0 mt-3">
+                    <li class="previous list-inline-item">
+                      <button type="button" class="btn btn-primary" (click)="save2()">Ajouter</button>
+                    </li>
                   </ul>
                 </form>
-
-
               </section>
             </cdk-step>
           </ng-stepper>
         </div>
-
       </div>
-      <!-- end card body -->
     </div>
-    <!-- end card -->
   </div>
-  <!-- end col -->
 </div>

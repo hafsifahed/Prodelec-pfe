@@ -1,12 +1,13 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { Devis } from '../../devis/entities/devi.entity';
 import { Project } from '../../project/entities/project.entity'; // adapte le chemin
 import { User } from '../../users/entities/users.entity';
 
@@ -20,9 +21,6 @@ export class Order {
 
   @Column({ nullable: true })
   attachementName: string;
-
-  @Column({ nullable: true })
-  quoteNumber: string;
 
   @Column({ default: false })
   annuler: boolean;
@@ -44,4 +42,7 @@ export class Order {
 
   @OneToMany(() => Project, project => project.order)
   projects: Project[];
+
+   @ManyToOne(() => Devis, devis => devis.orders, { eager: true, nullable: true })
+  devis: Devis;
 }

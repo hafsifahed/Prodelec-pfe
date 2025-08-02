@@ -225,4 +225,18 @@ export class DevisService {
   return updatedDevis;
 }
 
+async findAcceptedByCurrentUser(user: User): Promise<Devis[]> {
+  if (!user) {
+    throw new BadRequestException('Utilisateur non valide');
+  }
+
+  return this.devisRepo.find({
+    where: {
+      user: { id: user.id },
+      etat: EtatDevis.Accepte
+    },
+    relations: ['user', 'cahierDesCharges']
+  });
+}
+
 }

@@ -4,11 +4,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
+import { Order } from '../../order/entities/order.entity';
 import { User } from '../../users/entities/users.entity';
   
 export enum EtatDevis {
@@ -54,6 +56,9 @@ etat: EtatDevis; // ou utiliser enum: EtatDevis
   
     @Column({ default: false })
     archiveU: boolean;
+
+     @OneToMany(() => Order, order => order.devis)
+  orders: Order[];
 
     @CreateDateColumn({ type: 'timestamp' })
       createdAt: Date;

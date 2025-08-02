@@ -18,7 +18,9 @@ import { Response } from 'express';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../users/entities/users.entity';
 import { DevisService } from './devis.service';
 import { Devis } from './entities/devi.entity';
 
@@ -72,6 +74,10 @@ export class DevisController {
     return this.devisService.findByUser({ id: userId } as any);
   }
 
+    @Get('accepted')
+ getAcceptedDevisForCurrentUser(@CurrentUser() user: User) {
+  return this.devisService.findAcceptedByCurrentUser(user);
+}
   @Get(':id')
   getDevisById(@Param('id') id: number): Promise<Devis> {
     return this.devisService.getDevisById(id);
@@ -143,4 +149,7 @@ export class DevisController {
     }
     return this.devisService.updatePieceJointe(id, body.pieceJointe);
   }
+
+
+
 }

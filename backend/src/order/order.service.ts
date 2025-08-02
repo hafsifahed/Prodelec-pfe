@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Devis } from '../devis/entities/devi.entity';
 import { User } from '../users/entities/users.entity';
 import { Order } from './entities/order.entity';
 
@@ -11,15 +12,27 @@ export class OrderService {
     private readonly orderRepo: Repository<Order>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Devis)
+  private readonly devisRepo: Repository<Devis>,
   ) {}
 
   async addOrder(orderData: Partial<Order>, idUser: number): Promise<Order> {
-    const user = await this.userRepo.findOne({ where: { id: idUser } });
-    if (!user) throw new NotFoundException(`User not found with id: ${idUser}`);
+  const user = await this.userRepo.findOne({ where: { id: idUser } });
+  if (!user) throw new NotFoundException(`User not found with id: ${idUser}`);
 
-    const order = this.orderRepo.create({ ...orderData, user });
-    return this.orderRepo.save(order);
+  let devis: Devis = null;
+  if (orderData.devis && orderData.devis.id) {
+    devis = await this.devisRepo.findOne({ where: { id: orderData.devis.id } });
+    if (!devis) throw new NotFoundException(`Devis not found with id: ${orderData.devis.id}`);
   }
+
+  const order = this.orderRepo.create({ 
+    ...orderData, 
+    user,
+    devis,
+  });
+  return this.orderRepo.save(order);
+}
 
   async updateOrder(orderId: number, orderData: Partial<Order>): Promise<Order> {
     const order = await this.orderRepo.findOne({ where: { idOrder: orderId } });
@@ -32,7 +45,11 @@ export class OrderService {
   async getAllOrders(): Promise<Order[]> {
     return this.orderRepo.find();
   }
-
+/**const order = await this.orderRepo.findOne({
+  where: { idOrder },
+  relations: ['user', 'devis'],
+});
+ */
   async getOrderById(idOrder: number): Promise<Order> {
     const order = await this.orderRepo.findOne({ where: { idOrder } });
     if (!order) throw new NotFoundException(`Order not found with id: ${idOrder}`);

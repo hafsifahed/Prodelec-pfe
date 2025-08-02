@@ -82,4 +82,9 @@ negocierDevis(id: number, commentaire: string): Observable<Devis> {
 updateDevisPieceJointe(id: number, pieceJointe: string): Observable<Devis> {
   return this.http.put<Devis>(`${environment.baseUrl}/devis/${id}/piece-jointe`, { pieceJointe });
 }
+
+getAcceptedDevisForCurrentUser(): Observable<Devis[]> {
+  return this.http.get<Devis[]>(`${environment.baseUrl}/devis/accepted`);
+}
+
 }

@@ -12,7 +12,7 @@ import { PartnersService } from 'src/app/core/services/partners.service';
 
 import { AvisModels } from 'src/app/core/models/avis.models';
 import { Reclamation } from 'src/app/core/models/reclamation';
-import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { CahierDesCharges, EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { Devis } from 'src/app/core/models/Devis/devis';
 import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
@@ -238,9 +238,9 @@ export class ChartsSectionComponent implements OnInit {
       );
     });
 
-    const accepted = filtered.filter(c => c.etat === 'Accepté').length;
-    const refused = filtered.filter(c => c.etat === 'Refusé').length;
-    const pending = filtered.filter(c => c.etat === 'en_attente').length;
+    const accepted = filtered.filter(c => c.etat === EtatCahier.Accepte).length;
+    const refused = filtered.filter(c => c.etat === EtatCahier.Refuse).length;
+    const pending = filtered.filter(c => c.etat === EtatCahier.EnAttente).length;
 
     if (accepted + refused + pending === 0) {
       this.hasCdcData = false;
