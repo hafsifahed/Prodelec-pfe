@@ -12,8 +12,8 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 
 import { AvisModels } from 'src/app/core/models/avis.models';
 import { Reclamation } from 'src/app/core/models/reclamation';
-import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
-import { Devis } from 'src/app/core/models/Devis/devis';
+import { CahierDesCharges, EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { Devis, EtatDevis } from 'src/app/core/models/Devis/devis';
 import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
 
@@ -155,7 +155,7 @@ export class ChartsUseradminSectionComponent implements OnInit {
   }
 
   resetFilters() {
-    this.selectedUser = this.roleName === 'CLIENT ADMIN' ? null : this.user?.id;
+    this.selectedUser = this.roleName === 'CLIENTADMIN' ? null : this.user?.id;
     this.selectedYear = null;
     this.updateAllCharts();
   }
@@ -210,9 +210,9 @@ export class ChartsUseradminSectionComponent implements OnInit {
       );
     });
 
-    const accepted = filtered.filter(c => c.etat === 'Accepté').length;
-    const refused = filtered.filter(c => c.etat === 'Refusé').length;
-    const pending = filtered.filter(c => c.etat === 'en_attente').length;
+    const accepted = filtered.filter(c => c.etat === EtatCahier.Accepte).length;
+    const refused = filtered.filter(c => c.etat === EtatCahier.Refuse).length;
+    const pending = filtered.filter(c => c.etat === EtatCahier.EnAttente).length;
 
     if (accepted + refused + pending === 0) {
       this.hasCdcData = false;
@@ -221,7 +221,7 @@ export class ChartsUseradminSectionComponent implements OnInit {
       this.hasCdcData = true;
       this.chartOptionsCahiersDesCharges = this.buildPie(
         [accepted, refused, pending],
-        ['Accepté', 'Refusé', 'En attente'],
+        [EtatCahier.Accepte, EtatCahier.Refuse, EtatCahier.EnAttente],
         ['#00E396', '#FF4560', '#0096FF']
       );
     }
@@ -238,9 +238,9 @@ export class ChartsUseradminSectionComponent implements OnInit {
       );
     });
 
-    const accepted = filtered.filter(d => d.etat === 'Accepté').length;
-    const refused = filtered.filter(d => d.etat === 'Refusé').length;
-    const pending = filtered.filter(d => d.etat === 'En attente').length;
+    const accepted = filtered.filter(d => d.etat === EtatDevis.Accepte).length;
+    const refused = filtered.filter(d => d.etat === EtatDevis.Refuse).length;
+    const pending = filtered.filter(d => d.etat === EtatDevis.EnAttente).length;
 
     if (accepted + refused + pending === 0) {
       this.hasDevisData = false;
@@ -249,7 +249,7 @@ export class ChartsUseradminSectionComponent implements OnInit {
       this.hasDevisData = true;
       this.chartOptionsDevis = this.buildPie(
         [accepted, refused, pending],
-        ['Accepté', 'Refusé', 'En attente'],
+        [EtatDevis.Accepte, EtatDevis.Refuse,EtatDevis.EnAttente],
         ['#00E396', '#FF4560', '#0096FF']
       );
     }

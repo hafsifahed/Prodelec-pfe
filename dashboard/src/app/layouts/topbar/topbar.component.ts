@@ -234,8 +234,34 @@ getNotificationIcon(title?: string): string {
     event.preventDefault();
     this.mobileMenuButtonClicked.emit();
   }
+logout() {
+  const sessionData = this.getSessionToken(this.token);
+  
+  this.authService.logOut(sessionData).subscribe(
+    (res) => {
+      // Suppression des alertes, on fait uniquement le nettoyage et redirection
+      localStorage.clear();
+      this.userStateService.setUser(null);
+      this.webSocketService.disconnect();
+      location.reload();
+      //this.router.navigate(['/signin']);
+      // Ou pour faire un simple refresh complet de la page browser
+      // location.reload();
+    },
+    (err) => {
+      console.error('Logout failed', err);
+      // Pas d'alerte, juste éventuellement loguer l'erreur
+      // Tu peux aussi décider de forcer la déconnexion même en erreur :
+      localStorage.clear();
+      this.userStateService.setUser(null);
+      this.webSocketService.disconnect();
+      this.router.navigate(['/signin']);
+      // ou location.reload();
+    }
+  );
+}
 
-  logout() {
+ /* logout() {
     const sessionData = this.getSessionToken(this.token);
   
     this.authService.logOut(sessionData).subscribe(
@@ -267,7 +293,7 @@ getNotificationIcon(title?: string): string {
       }
     );
   }
-
+*/
   private getSessionToken(token: string): any {
     if (!token) return '';
     try {

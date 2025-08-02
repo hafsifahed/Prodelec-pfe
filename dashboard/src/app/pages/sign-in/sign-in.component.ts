@@ -106,14 +106,8 @@ export class SignInComponent implements OnInit {
     this.usersService.getProfile().subscribe({
       next: (user) => {
         this.userStateService.setUser(user);
-        Swal.fire({
-          title: 'Connexion réussie!',
-          text: 'Vous êtes maintenant connecté.',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          this.router.navigate(['/dashboard']);
-        });
+        this.router.navigate(['/dashboard']);
+
       },
       error: () => {
         this.userStateService.setUser(null);

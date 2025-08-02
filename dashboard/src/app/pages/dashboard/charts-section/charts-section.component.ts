@@ -13,7 +13,7 @@ import { PartnersService } from 'src/app/core/services/partners.service';
 import { AvisModels } from 'src/app/core/models/avis.models';
 import { Reclamation } from 'src/app/core/models/reclamation';
 import { CahierDesCharges, EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
-import { Devis } from 'src/app/core/models/Devis/devis';
+import { Devis, EtatDevis } from 'src/app/core/models/Devis/devis';
 import { Order } from 'src/app/core/models/order/order';
 import { Project } from 'src/app/core/models/projectfo/project';
 
@@ -249,7 +249,7 @@ export class ChartsSectionComponent implements OnInit {
       this.hasCdcData = true;
       this.chartOptionsCahiersDesCharges = this.buildPie(
         [accepted, refused, pending],
-        ['Accepté', 'Refusé', 'En attente'],
+        [EtatCahier.Accepte, EtatCahier.Refuse, EtatCahier.EnAttente],
         ['#00E396', '#FF4560', '#0096FF']
       );
     }
@@ -268,9 +268,9 @@ export class ChartsSectionComponent implements OnInit {
       );
     });
 
-    const accepted = filtered.filter(d => d.etat === 'Accepté').length;
-    const refused = filtered.filter(d => d.etat === 'Refusé').length;
-    const pending = filtered.filter(d => d.etat === 'En attente').length;
+    const accepted = filtered.filter(d => d.etat === EtatDevis.Accepte).length;
+    const refused = filtered.filter(d => d.etat === EtatDevis.Refuse).length;
+    const pending = filtered.filter(d => d.etat === EtatDevis.EnAttente).length;
 
     if (accepted + refused + pending === 0) {
       this.hasDevisData = false;
