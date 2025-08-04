@@ -7,17 +7,17 @@
 }
 
 .connection-status {
-  padding: 0.25rem 0.5rem;
+  padding: 0.3rem 0.5rem;
   border-radius: 4px;
   font-size: 0.8rem;
   margin-bottom: 0.5rem;
-  align-self: flex-end;
-  
+  text-align: right;
+
   &.connected {
     background-color: #d4edda;
     color: #155724;
   }
-  
+
   &.disconnected {
     background-color: #f8d7da;
     color: #721c24;
@@ -25,10 +25,12 @@
 }
 
 .discussion-header {
-  padding: 0.5rem 0;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 1rem;
-  border-bottom: 1px solid #dee2e6;
-  
+
   h2 {
     margin: 0;
     font-size: 1.5rem;
@@ -42,56 +44,27 @@
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-  margin-bottom: 1rem;
   background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .message {
-  max-width: 75%;
   padding: 0.75rem 1rem;
-  border-radius: 1rem;
-  position: relative;
-  word-wrap: break-word;
-  
+  border-radius: 8px;
+  background-color: #e9ecef;
+  max-width: 80%;
+  align-self: flex-start;
+
   &.mine {
     align-self: flex-end;
     background-color: #d1e7dd;
-    border-bottom-right-radius: 0.25rem;
-    
-    .message-header {
-      display: none;
-    }
   }
-  
-  &.other {
-    align-self: flex-start;
-    background-color: #f8f9fa;
-    border-bottom-left-radius: 0.25rem;
-  }
-  
+
   &.optimistic {
     opacity: 0.7;
   }
@@ -100,61 +73,100 @@
 .message-header {
   display: flex;
   align-items: center;
-  margin-bottom: 0.25rem;
-  
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
   .avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    margin-right: 0.5rem;
     object-fit: cover;
   }
-  
+
   .author-name {
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: bold;
   }
 }
 
 .message-content {
-  line-height: 1.4;
+  margin-bottom: 0.5rem;
+  white-space: pre-wrap;
 }
 
 .message-footer {
-  text-align: right;
-  font-size: 0.75rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  
-  .you-badge {
-    font-style: italic;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6c757d;
+
+  .message-date {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
   }
-  
+
+  .you-badge {
+    font-size: 0.7rem;
+    background-color: #0d6efd;
+    color: white;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+
   .sending-status {
-    font-size: 0.6rem;
+    margin-left: 0.5rem;
+    color: #0d6efd;
   }
 }
 
 .typing-indicator {
-  font-size: 0.8rem;
-  color: #6c757d;
   padding: 0.5rem;
   font-style: italic;
+  color: #6c757d;
+  font-size: 0.9rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .loading-container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  height: 100vh;
   gap: 1rem;
-  
-  p {
-    margin-top: 1rem;
+}
+
+.message-input-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+
+  textarea {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    resize: none;
+    min-height: 60px;
+    max-height: 150px;
+  }
+
+  button {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
   }
 }

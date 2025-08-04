@@ -1,40 +1,31 @@
-<!-- discussion-view.component.html -->
 <div class="discussion-container" *ngIf="!isLoading; else loading">
   
-  <!-- Statut connexion -->
   <div class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected">
     {{ isConnected ? 'Connected' : 'Disconnected' }}
   </div>
   
-  <!-- En-tête -->
   <div class="discussion-header">
     <h2><i class="fas fa-comments"></i> {{ discussion?.cdc?.titre || 'Untitled Discussion' }}</h2>
   </div>
 
-  <!-- Messages -->
   <div #messagesContainer class="messages-container">
     <ng-container *ngFor="let message of messages$ | async; trackBy: trackByMessageId">
       <div class="message"
            [class.mine]="message.author?.id === currentUser?.id"
            [class.optimistic]="message.id < 0">
 
-        <!-- Auteur autre que moi -->
-        <!-- discussion-view.component.html -->
-<div class="message-header" *ngIf="message.author?.id !== currentUser?.id">
-  <img [src]="message.author?.image 
-              ? environment.baseUrl + '/uploads/users/ProfileImages/' + message.author.image 
-              : 'assets/images/companies/img-6.png'"
-       alt="User avatar"
-       class="avatar">
-  <span class="author-name">
-    {{message.author.username}}
-  </span>
-</div>
+        <div class="message-header" *ngIf="message.author?.id !== currentUser?.id">
+          <img [src]="getImageUrl(message.author)"
+               alt="User avatar"
+               class="avatar"
+               onerror="this.src='assets/images/companies/img-6.png'">
+          <span class="author-name">
+            {{ message.author?.username }}
+          </span>
+        </div>
 
-        <!-- Contenu -->
         <div class="message-content">{{ message.content }}</div>
 
-        <!-- Date -->
         <div class="message-footer">
           <span class="message-date">
             {{ message.createdAt | date:'dd/MM/yyyy HH:mm' }}
@@ -47,16 +38,14 @@
       </div>
     </ng-container>
 
-    <!-- Indicateur de frappe -->
-     <div *ngIf="typingUsers.size" class="typing-indicator">
-    <span *ngFor="let userId of typingUsers; let last = last">
-      {{ getParticipantName(userId) | async }}{{ !last ? ', ' : '' }}
-    </span>
-    {{ typingUsers.size > 1 ? 'are' : 'is' }} typing...
-  </div>
+    <div *ngIf="typingUsers.size" class="typing-indicator">
+      <span *ngFor="let userId of typingUsers; let last = last">
+        {{ getParticipantName(userId) }}{{ !last ? ', ' : '' }}
+      </span>
+      {{ typingUsers.size > 1 ? 'are' : 'is' }} typing...
+    </div>
   </div>
 
-  <!-- Zone de saisie -->
   <app-message-input
     (messageSent)="handleMessageSent($event)"
     (typing)="handleTyping()"
@@ -64,7 +53,6 @@
   </app-message-input>
 </div>
 
-<!-- Loading -->
 <ng-template #loading>
   <div class="loading-container">
     <div class="spinner-border text-primary" role="status"></div>
@@ -72,7 +60,6 @@
   </div>
 </ng-template>
 
-<!-- Erreur -->
 <div *ngIf="error" class="alert alert-danger mt-3">
   {{ error }}
   <button class="btn btn-sm btn-light ms-2" (click)="loadDiscussion()">Retry</button>
