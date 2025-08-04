@@ -44,7 +44,6 @@ export class TopbarComponent implements OnInit {
   unreadCount : number=0;
   notificationsSubscription?: Subscription;
   userSubscription?: Subscription;
-  imageCache = new Map<number, string>();
 
   keyword: string = '';
   results: SearchResults | null = null;
@@ -130,7 +129,6 @@ export class TopbarComponent implements OnInit {
  ngOnDestroy() {
     this.notificationsSubscription?.unsubscribe();
         this.userSubscription?.unsubscribe();
-        this.imageCache.clear();
 
   }
 
@@ -346,25 +344,7 @@ logout() {
   }
 
    getImageUrl(user: User): string {
-    if (!user || !user.id) return 'assets/images/companies/img-6.png';
-    
-    // Vérifier le cache d'abord
-    if (this.imageCache.has(user.id)) {
-      return this.imageCache.get(user.id);
-    }
-
-    // Si l'utilisateur n'a pas d'image définie
-    if (!user.image) {
-      const defaultUrl = 'assets/images/companies/img-6.png';
-      this.imageCache.set(user.id, defaultUrl);
-      return defaultUrl;
-    }
-
-    // Construire l'URL et la mettre en cache
-    const imageUrl = this.usersService.getUserImageUrl(user);
-    this.imageCache.set(user.id, imageUrl);
-    
-    return imageUrl;
+   return this.usersService.getUserImageUrl(user)
   }
 
 }

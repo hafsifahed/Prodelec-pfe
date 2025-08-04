@@ -39,7 +39,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   messages$ = this.messagesSubject.asObservable();
 
   // Cache pour les URLs d'images déjà vérifiées
-  private imageCache = new Map<number, string>();
 
   constructor(
     private route: ActivatedRoute,
@@ -292,31 +291,12 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getImageUrl(user: User): string {
-    if (!user || !user.id) return 'assets/images/companies/img-6.png';
-    
-    // Vérifier le cache d'abord
-    if (this.imageCache.has(user.id)) {
-      return this.imageCache.get(user.id);
-    }
-
-    // Si l'utilisateur n'a pas d'image définie
-    if (!user.image) {
-      const defaultUrl = 'assets/images/companies/img-6.png';
-      this.imageCache.set(user.id, defaultUrl);
-      return defaultUrl;
-    }
-
-    // Construire l'URL et la mettre en cache
-    const imageUrl = `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`;
-    this.imageCache.set(user.id, imageUrl);
-    
-    return imageUrl;
+   return this.usersService.getUserImageUrl(user)
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     this.socketService.disconnect();
     this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
-    this.imageCache.clear();
   }
 }
