@@ -57,6 +57,7 @@ export interface AccountStatusDto {
 })
 export class UsersService {
   private apiUrl = `${environment.baseUrl}/users`; // Adjust base URL
+ private imageCache = new Map<number, string>();
 
   constructor(private http: HttpClient) {}
 
@@ -196,12 +197,28 @@ export class UsersService {
 
   
 
-getUserImageUrl(user: User): string {
-console.log('sddsd',user.image)
-  return user.image
-    ? `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`
-    : 'assets/images/companies/img-6.png'; // image par défaut locale
-}
 
+
+  getUserImageUrl(user: User): string {
+    if (!user || !user.id) return 'assets/images/companies/img-6.png';
+    
+    if (this.imageCache.has(user.id)) {
+      return this.imageCache.get(user.id);
+    }
+
+    if (!user.image) {
+      const defaultUrl = 'assets/images/companies/img-6.png';
+      this.imageCache.set(user.id, defaultUrl);
+      return defaultUrl;
+    }
+
+    const imageUrl = `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`;
+    this.imageCache.set(user.id, imageUrl);
+    return imageUrl;
+  }
+
+  clearImageCache() {
+    this.imageCache.clear();
+  }
   
 }

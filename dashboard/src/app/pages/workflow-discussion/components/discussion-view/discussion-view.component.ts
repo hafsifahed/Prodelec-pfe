@@ -38,6 +38,9 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private messagesSubject = new BehaviorSubject<WorkflowMessage[]>([]);
   messages$ = this.messagesSubject.asObservable();
 
+  // Cache pour les URLs d'images déjà vérifiées
+  private imageCache = new Map<number, string>();
+
   constructor(
     private route: ActivatedRoute,
     private discussionService: WorkflowDiscussionService,
@@ -124,8 +127,8 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.subscriptions.add(
         this.socketService.onMessageReceived().pipe(
-    debounceTime(100) 
-  ).subscribe({
+          debounceTime(100) 
+        ).subscribe({
           next: (message) => {
             console.log('Message reçu via socket:', message);
             this.handleIncomingMessage(message);
@@ -288,17 +291,32 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     return user ? `${user.firstName} ${user.lastName}` : 'Unknown user';
   }
 
-   getImageUrl(user: User): string {
-    if (!user) return 'assets/images/default-avatar.png';
-    console.log("iamge disc",user.image)
-    return user.image 
-      ? `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`
-      : 'assets/images/companies/img-6.png';
+  getImageUrl(user: User): string {
+    if (!user || !user.id) return 'assets/images/companies/img-6.png';
+    
+    // Vérifier le cache d'abord
+    if (this.imageCache.has(user.id)) {
+      return this.imageCache.get(user.id);
+    }
+
+    // Si l'utilisateur n'a pas d'image définie
+    if (!user.image) {
+      const defaultUrl = 'assets/images/companies/img-6.png';
+      this.imageCache.set(user.id, defaultUrl);
+      return defaultUrl;
+    }
+
+    // Construire l'URL et la mettre en cache
+    const imageUrl = `${environment.baseUrl}/uploads/users/ProfileImages/${user.image}`;
+    this.imageCache.set(user.id, imageUrl);
+    
+    return imageUrl;
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
     this.socketService.disconnect();
     this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.imageCache.clear();
   }
 }
