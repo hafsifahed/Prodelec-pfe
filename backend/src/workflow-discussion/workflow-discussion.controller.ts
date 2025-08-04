@@ -1,15 +1,14 @@
-// workflow-discussion.controller.ts
 import {
   Body,
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   UseGuards,
   UsePipes,
-  ValidationPipe
+  ValidationPipe,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/users.entity';
@@ -24,26 +23,23 @@ export class WorkflowDiscussionController {
   constructor(private readonly service: WorkflowDiscussionService) {}
 
   @Get(':id')
-  async getDiscussion(@Param('id') id: number) {
+  async getDiscussion(@Param('id', ParseIntPipe) id: number) {
     return this.service.getFullDiscussion(id);
   }
 
-
-@Post(':id/messages')
-@UsePipes(new ValidationPipe({ transform: true }))
-async addMessage(
-  @Param('id') id: number,
-  @Body() body: any, // Receive raw body
-  @CurrentUser() user: User,
-) {
-  const dto = plainToInstance(CreateMessageDto, body);
-  console.log('Received dto:', dto);
-  return this.service.addMessage(id, dto, user);
-}
+  @Post(':id/messages')
+  async addMessage(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateMessageDto,
+    @CurrentUser() user: User,
+  ) {
+    // body is already validated and transformed
+    return this.service.addMessage(id, body, user);
+  }
 
   @Post(':id/transition')
   async transitionPhase(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: TransitionPhaseDto,
   ) {
     return this.service.transitionPhase(id, dto);

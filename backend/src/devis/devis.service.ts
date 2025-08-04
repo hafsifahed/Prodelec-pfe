@@ -5,6 +5,7 @@ import { CahierDesCharges, EtatCahier } from '../cahier-des-charges/entities/cah
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
+import { WorkflowPhase } from '../workflow-discussion/entities/workflow-discussion.entity';
 import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { Devis, EtatDevis } from './entities/devi.entity';
 
@@ -52,7 +53,7 @@ export class DevisService {
 
      await this.discussionService.transitionPhase(
     cdcId, 
-    { targetPhase: 'devis', targetEntityId: savedDevis.id }
+    { targetPhase: WorkflowPhase.DEVIS, targetEntityId: savedDevis.id }
   );
 
     return savedDevis;

@@ -2,6 +2,7 @@
 import { User } from "src/app/core/models/auth.models";
 import { WorkflowMessage } from "./workflow-message.model";
 import { Order } from "src/app/core/models/order/order";
+import { WorkflowPhase } from "./workflow-phase.model";
 
 export interface WorkflowDiscussion {
   id: number;
@@ -33,7 +34,7 @@ export interface WorkflowDiscussion {
     order: Order;
     user: User;
   }>;
-  currentPhase: 'cdc' | 'devis' | 'order' | 'project';
+  currentPhase: WorkflowPhase;
   createdAt: Date | string;
   messages: WorkflowMessage[];
 }

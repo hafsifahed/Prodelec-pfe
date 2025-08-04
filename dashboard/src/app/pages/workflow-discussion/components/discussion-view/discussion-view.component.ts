@@ -1,3 +1,4 @@
+// discussion-view.component.ts
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, BehaviorSubject } from 'rxjs';
@@ -14,7 +15,6 @@ import { UsersService } from 'src/app/core/services/user.service';
   selector: 'app-discussion-view',
   templateUrl: './discussion-view.component.html',
   styleUrls: ['./discussion-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MessageInputComponent) messageInput: MessageInputComponent;
@@ -43,7 +43,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     private discussionService: WorkflowDiscussionService,
     private socketService: WorkflowSocketService,
     private userStateService: UserStateService,
-    private usersService: UsersService
+    public usersService: UsersService
   ) {}
 
   ngOnInit(): void {
@@ -63,23 +63,27 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   private loadDiscussion(): void {
-    this.subscriptions.add(
-      this.discussionService.getDiscussion(this.discussionId).subscribe({
-        next: (discussion) => {
-          this.discussion = discussion;
-          const processedMessages = (discussion.messages || []).map(msg => this.processMessage(msg));
-          this.messagesSubject.next(processedMessages);
-          this.isLoading = false;
-          setTimeout(() => this.scrollToBottom(), 100);
-        },
-        error: (err) => {
-          console.error('Failed to load discussion', err);
-          this.error = 'Failed to load discussion';
-          this.isLoading = false;
-        }
-      })
-    );
-  }
+  this.isLoading = true;
+  this.error = null;
+  
+  this.subscriptions.add(
+    this.discussionService.getDiscussion(this.discussionId).subscribe({
+      next: (discussion) => {
+        console.log('idd',discussion)
+        this.discussion = discussion;
+        const processedMessages = (discussion.messages || []).map(msg => this.processMessage(msg));
+        this.messagesSubject.next(processedMessages);
+        this.isLoading = false;
+        setTimeout(() => this.scrollToBottom(), 100);
+      },
+      error: (err) => {
+        console.error('Failed to load discussion', err);
+        this.error = err.message || 'Failed to load discussion';
+        this.isLoading = false;
+      }
+    })
+  );
+}
 
   private processMessage(msg: WorkflowMessage): WorkflowMessage {
     return {
@@ -89,9 +93,8 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     };
   }
 
-  private enrichAuthorData(author: any): User {
+  private enrichAuthorData(author: any): any {
     if (!author) return null;
-    
     if (author.firstName && author.lastName) return author;
     
     const participants = [
@@ -125,6 +128,13 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
         this.socketService.onTypingReceived().subscribe({
           next: ({ userId }) => this.handleUserTyping(userId),
           error: (err) => console.error('Typing error:', err)
+        })
+      );
+
+      this.subscriptions.add(
+        this.socketService.onError().subscribe({
+          next: (error) => this.error = error.message,
+          error: (err) => console.error('Error handler error:', err)
         })
       );
     } catch (error) {

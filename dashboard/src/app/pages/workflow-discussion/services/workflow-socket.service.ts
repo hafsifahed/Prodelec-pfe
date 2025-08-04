@@ -1,3 +1,4 @@
+// workflow-socket.service.ts
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -71,11 +72,11 @@ export class WorkflowSocketService {
     });
   }
 
-  onError(): Observable<string> {
+  onError(): Observable<{ message: string }> {
     return new Observable(observer => {
       if (!this.socket) return;
 
-      const handler = (err: string) => observer.next(err);
+      const handler = (err: { message: string }) => observer.next(err);
       this.socket.on('error', handler);
 
       return () => this.socket?.off('error', handler);

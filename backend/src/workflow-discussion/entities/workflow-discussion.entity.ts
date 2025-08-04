@@ -1,10 +1,24 @@
-// workflow-discussion.entity.ts
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../../devis/entities/devi.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Project } from '../../project/entities/project.entity';
 import { WorkflowMessage } from './workflow-message.entity';
+
+export enum WorkflowPhase {
+  CDC = 'cdc',
+  DEVIS = 'devis',
+  ORDER = 'order',
+  PROJECT = 'project',
+}
 
 @Entity('workflow_discussions')
 export class WorkflowDiscussion {
@@ -19,17 +33,23 @@ export class WorkflowDiscussion {
   @JoinColumn()
   devis?: Devis;
 
-  @OneToMany(() => Order, order => order.discussion)
+  @OneToMany(() => Order, (order) => order.discussion)
   orders?: Order[];
 
-  @OneToMany(() => Project, project => project.discussion)
+  @OneToMany(() => Project, (project) => project.discussion)
   projects?: Project[];
 
-  @OneToMany(() => WorkflowMessage, message => message.discussion)
+  @OneToMany(() => WorkflowMessage, (message) => message.discussion, {
+    cascade: true,
+  })
   messages: WorkflowMessage[];
 
-  @Column({ type: 'enum', enum: ['cdc', 'devis', 'order', 'project'], default: 'cdc' })
-  currentPhase: string;
+  @Column({
+    type: 'enum',
+    enum: WorkflowPhase,
+    default: WorkflowPhase.CDC,
+  })
+  currentPhase: WorkflowPhase;
 
   @CreateDateColumn()
   createdAt: Date;

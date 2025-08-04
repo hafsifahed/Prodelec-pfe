@@ -1,3 +1,4 @@
+// message-input.component.ts
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 
 @Component({
@@ -8,7 +9,7 @@ import { Component, EventEmitter, Output, Input } from '@angular/core';
 export class MessageInputComponent {
   @Output() messageSent = new EventEmitter<string>();
   @Output() typing = new EventEmitter<void>();
-  @Input() disabled = false; // Add this line
+  @Input() disabled = false;
   
   messageContent = '';
   private typingDebounce: any;

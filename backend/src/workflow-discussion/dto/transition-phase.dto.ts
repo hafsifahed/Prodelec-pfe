@@ -1,5 +1,11 @@
-// transition-phase.dto.ts
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { WorkflowPhase } from '../entities/workflow-discussion.entity';
+
 export class TransitionPhaseDto {
-  readonly targetPhase: 'devis' | 'order' | 'project';
-  readonly targetEntityId?: number; // Pour lier un devis/order/projet existant
+  @IsEnum([WorkflowPhase.DEVIS, WorkflowPhase.ORDER, WorkflowPhase.PROJECT])
+  targetPhase: WorkflowPhase;
+
+  @IsOptional()
+  @IsNumber()
+  targetEntityId?: number; // To link existing devis/order/project
 }

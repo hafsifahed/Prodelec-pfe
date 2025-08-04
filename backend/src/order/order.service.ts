@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Devis } from '../devis/entities/devi.entity';
 import { User } from '../users/entities/users.entity';
+import { WorkflowPhase } from '../workflow-discussion/entities/workflow-discussion.entity';
 import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { Order } from './entities/order.entity';
 
@@ -41,7 +42,7 @@ export class OrderService {
       await this.workflowDiscussionService.transitionPhase(
         discussion.id, 
         { 
-          targetPhase: 'order', 
+          targetPhase: WorkflowPhase.ORDER, 
           targetEntityId: savedOrder.idOrder
         }
       );

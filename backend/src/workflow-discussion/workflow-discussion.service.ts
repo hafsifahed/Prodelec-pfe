@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,8 +14,8 @@ import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { TransitionPhaseDto } from './dto/transition-phase.dto';
-import { WorkflowDiscussion } from './entities/workflow-discussion.entity';
-import { WorkflowMessage } from './entities/workflow-message.entity';
+import { WorkflowDiscussion, WorkflowPhase } from './entities/workflow-discussion.entity';
+import { WorkflowMessage, WorkflowMessageType } from './entities/workflow-message.entity';
 
 @Injectable()
 export class WorkflowDiscussionService {
@@ -48,7 +48,7 @@ export class WorkflowDiscussionService {
 
     const discussion = this.discussionRepo.create({
       cdc,
-      currentPhase: 'cdc',
+      currentPhase: WorkflowPhase.CDC,
     });
 
     return this.discussionRepo.save(discussion);
@@ -57,27 +57,41 @@ export class WorkflowDiscussionService {
   async validateParticipant(discussionId: number, userId: number): Promise<void> {
     const discussion = await this.discussionRepo.findOne({
       where: { id: discussionId },
-      relations: ['cdc.user', 'devis.user', 'orders.user', 'projects.order.user'],
+      relations: [
+        'cdc',
+        'cdc.user',
+        'devis',
+        'devis.user',
+        'orders',
+        'orders.user',
+        'projects',
+        'projects.order',
+        'projects.order.user',
+      ],
     });
     if (!discussion) throw new NotFoundException('Discussion not found');
 
     const participants = new Set<number>();
+
     if (discussion.cdc?.user) participants.add(discussion.cdc.user.id);
     if (discussion.devis?.user) participants.add(discussion.devis.user.id);
-    discussion.orders?.forEach(order => {
+    discussion.orders?.forEach((order) => {
       if (order.user) participants.add(order.user.id);
     });
-    discussion.projects?.forEach(project => {
+    discussion.projects?.forEach((project) => {
       if (project.order?.user) participants.add(project.order.user.id);
     });
 
-    const user = await this.userRepo.findOne({ where: { id: userId }, relations: ['role'] });
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['role'],
+    });
     if (!user) throw new UnauthorizedException('User not found');
     if (
       user.role?.name === Role.RESPONSABLE_INDUSTRIALISATION ||
       user.role?.name === Role.ADMIN
     ) {
-      return; // Bypass pour certains rôles
+      return; // Bypass for special roles
     }
 
     if (!participants.has(userId))
@@ -94,27 +108,23 @@ export class WorkflowDiscussionService {
     const discussion = await this.discussionRepo.findOne({ where: { id: discussionId } });
     if (!discussion) throw new NotFoundException('Discussion not found');
 
-    if (!dto.content?.trim()) {
-      throw new BadRequestException('Message content cannot be empty');
-    }
+    const content = dto.content?.trim();
+    if (!content) throw new BadRequestException('Message content cannot be empty');
 
     const message = this.messageRepo.create({
-      content: dto.content.trim(),
+      content,
       author,
       discussion,
+      type: WorkflowMessageType.MESSAGE,
     });
 
     return this.messageRepo.save(message);
   }
 
-  async getMessageWithAuthor(messageId: number): Promise<WorkflowMessage> {
-    return this.messageRepo.findOne({
-      where: { id: messageId },
-      relations: ['author'],
-    });
-  }
-
-  async transitionPhase(discussionId: number, dto: TransitionPhaseDto): Promise<WorkflowDiscussion> {
+  async transitionPhase(
+    discussionId: number,
+    dto: TransitionPhaseDto,
+  ): Promise<WorkflowDiscussion> {
     const discussion = await this.discussionRepo.findOne({
       where: { id: discussionId },
       relations: ['cdc', 'devis', 'orders', 'projects'],
@@ -124,24 +134,29 @@ export class WorkflowDiscussionService {
 
     if (dto.targetEntityId) {
       switch (dto.targetPhase) {
-        case 'devis':
+        case WorkflowPhase.DEVIS:
           const devis = await this.devisRepo.findOne({ where: { id: dto.targetEntityId } });
           if (!devis) throw new NotFoundException('Devis not found');
           discussion.devis = devis;
           break;
 
-        case 'order':
+        case WorkflowPhase.ORDER:
           const order = await this.orderRepo.findOne({ where: { idOrder: dto.targetEntityId } });
           if (!order) throw new NotFoundException('Order not found');
           if (!discussion.orders) discussion.orders = [];
-          discussion.orders.push(order);
+          // Avoid duplicates
+          if (!discussion.orders.find((o) => o.idOrder === order.idOrder)) {
+            discussion.orders.push(order);
+          }
           break;
 
-        case 'project':
+        case WorkflowPhase.PROJECT:
           const project = await this.projectRepo.findOne({ where: { idproject: dto.targetEntityId } });
           if (!project) throw new NotFoundException('Project not found');
           if (!discussion.projects) discussion.projects = [];
-          discussion.projects.push(project);
+          if (!discussion.projects.find((p) => p.idproject === project.idproject)) {
+            discussion.projects.push(project);
+          }
           break;
 
         default:
@@ -177,14 +192,14 @@ export class WorkflowDiscussionService {
     });
   }
 
+  // Additional helpers by linked entities
+
   async getDiscussionByDevis(devisId: number): Promise<WorkflowDiscussion> {
     const devis = await this.devisRepo.findOne({
       where: { id: devisId },
       relations: ['cahierDesCharges'],
     });
-    if (!devis) {
-      throw new NotFoundException(`Devis with ID ${devisId} not found`);
-    }
+    if (!devis) throw new NotFoundException(`Devis with ID ${devisId} not found`);
 
     const discussion = await this.discussionRepo.findOne({
       where: { cdc: { id: devis.cahierDesCharges.id } },

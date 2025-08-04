@@ -5,7 +5,7 @@ import {
     OnGatewayDisconnect,
     SubscribeMessage,
     WebSocketGateway,
-    WebSocketServer
+    WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { User } from '../users/entities/users.entity';
@@ -32,7 +32,8 @@ export class WorkflowSocketGateway implements OnGatewayConnection, OnGatewayDisc
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth?.token || client.handshake.query?.token;
+      const token =
+        client.handshake.auth?.token || client.handshake.query?.token;
       if (!token) throw new Error('Missing token');
 
       const payload = this.jwtService.verify(token, {
@@ -73,38 +74,44 @@ export class WorkflowSocketGateway implements OnGatewayConnection, OnGatewayDisc
   }
 
   @SubscribeMessage('new_message')
-async handleNewMessage(client: Socket, payload: { discussionId: number; content: string }) {
-  try {
-    const user = client.data.user;
-    const message = await this.discussionService.addMessage(
-      payload.discussionId, 
-      { content: payload.content },
-      { id: user.sub } as User
-    );
+  async handleNewMessage(
+    client: Socket,
+    payload: { discussionId: number; content: string },
+  ) {
+    try {
+      const userPayload = client.data.user;
+      if (!userPayload) throw new Error('Unauthorized');
 
-    // Diffuser à tous les clients
-    this.server.to(`discussion_${payload.discussionId}`).emit('message_created', {
-      ...message,
-      createdAt: new Date(message.createdAt),
-      author: {
-        id: user.sub,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        image: user.image
-      }
-    });
+      const author: User = { id: userPayload.sub } as User;
 
-  } catch (err) {
-    client.emit('error', { message: err.message });
+      const message = await this.discussionService.addMessage(
+        payload.discussionId,
+        { content: payload.content },
+        author,
+      );
+
+      this.server.to(`discussion_${payload.discussionId}`).emit('message_created', {
+        id: message.id,
+        content: message.content,
+        createdAt: message.createdAt,
+        type: message.type,
+        author: {
+          id: userPayload.sub,
+          firstName: userPayload.firstName,
+          lastName: userPayload.lastName,
+          image: userPayload.image,
+        },
+      });
+    } catch (err) {
+      client.emit('error', { message: err.message });
+    }
   }
-}
 
   @SubscribeMessage('typing')
   handleTyping(client: Socket, payload: { discussionId: number }) {
     const user = client.data.user;
     if (!user) return;
 
-    // Transmit to other clients in the room
     client.broadcast.to(`discussion_${payload.discussionId}`).emit('typing', {
       discussionId: payload.discussionId,
       userId: user.sub,

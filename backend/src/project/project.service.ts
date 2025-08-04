@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Order } from '../order/entities/order.entity';
 import { User } from '../users/entities/users.entity';
+import { WorkflowPhase } from '../workflow-discussion/entities/workflow-discussion.entity';
 import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
@@ -68,7 +69,7 @@ export class ProjectService {
       await this.workflowDiscussionService.transitionPhase(
         discussion.id,
         {
-          targetPhase: 'project',
+          targetPhase: WorkflowPhase.PROJECT,
           targetEntityId: saved.idproject
         }
       );
