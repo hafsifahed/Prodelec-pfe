@@ -10,6 +10,7 @@ import {
 import { Devis } from '../../devis/entities/devi.entity';
 import { Project } from '../../project/entities/project.entity'; // adapte le chemin
 import { User } from '../../users/entities/users.entity';
+import { WorkflowDiscussion } from '../../workflow-discussion/entities/workflow-discussion.entity';
 
 @Entity('orderprod')
 export class Order {
@@ -45,4 +46,7 @@ export class Order {
 
    @ManyToOne(() => Devis, devis => devis.orders, { eager: true, nullable: true })
   devis: Devis;
+
+ @ManyToOne(() => WorkflowDiscussion, discussion => discussion.orders)
+  discussion: WorkflowDiscussion;
 }

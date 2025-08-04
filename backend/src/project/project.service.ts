@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Order } from '../order/entities/order.entity';
 import { User } from '../users/entities/users.entity';
+import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
 
@@ -18,6 +19,7 @@ export class ProjectService {
     @InjectRepository(Order)    private orderRepo  : Repository<Order>,
     @InjectRepository(User)     private userRepo   : Repository<User>,
     private readonly notifSrv: NotificationsService,
+        private readonly workflowDiscussionService: WorkflowDiscussionService
   ) {}
 
   /* ------------------------------------------------------------------------
@@ -59,6 +61,18 @@ export class ProjectService {
     'Nouveau projet créé',
     `Le projet #${saved.idproject} vous est assigné.`,
   );
+
+  // Lier à la discussion existante
+    if (order.devis) {
+      const discussion = await this.workflowDiscussionService.getDiscussionByDevis(order.devis.id);
+      await this.workflowDiscussionService.transitionPhase(
+        discussion.id,
+        {
+          targetPhase: 'project',
+          targetEntityId: saved.idproject
+        }
+      );
+    }
   return saved;
 }
 

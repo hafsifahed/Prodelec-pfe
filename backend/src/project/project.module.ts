@@ -5,6 +5,7 @@ import { Order } from '../order/entities/order.entity';
 import { OrderModule } from '../order/order.module';
 import { User } from '../users/entities/users.entity';
 import { UsersModule } from '../users/users.module';
+import { WorkflowDiscussionModule } from '../workflow-discussion/workflow-discussion.module';
 import { Project } from './entities/project.entity';
 import { ProjectController } from './project.controller';
 import { ProjectService } from './project.service';
@@ -14,6 +15,7 @@ import { ProjectService } from './project.service';
  NotificationsModule,
  forwardRef(() => OrderModule),
  forwardRef(() => UsersModule),
+     forwardRef(() => WorkflowDiscussionModule),
 ],
   controllers: [ProjectController],
   providers: [ProjectService],

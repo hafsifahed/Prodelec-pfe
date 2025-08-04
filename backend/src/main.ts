@@ -21,7 +21,13 @@ async function bootstrap() {
   app.use(express.urlencoded({ extended: true }));
 
   // Validation globale avec whitelist pour retirer les propriétés non définies dans les DTOs
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(
+  new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  })
+);
 
   // Servir les images statiques partenaires
   app.use(

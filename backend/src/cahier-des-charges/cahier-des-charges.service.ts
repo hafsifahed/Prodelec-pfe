@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
+import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { CahierDesChargesController } from './cahier-des-charges.controller';
 import { CdcFileService } from './cdc-file.service';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
@@ -22,6 +23,7 @@ export class CahierDesChargesService {
     private readonly notificationsService: NotificationsService,
 
     private readonly cdcFileService: CdcFileService,
+    private readonly discussionService:WorkflowDiscussionService
   ) {}
 
   async saveCahierDesCharges(dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
@@ -54,6 +56,7 @@ export class CahierDesChargesService {
       `Par ${user.username}`,
       { cdcId: savedCdc.id, userId: user.id, username: user.username },
     );
+  await this.discussionService.createDiscussionForCDC(savedCdc.id);
 
     return savedCdc;
   }

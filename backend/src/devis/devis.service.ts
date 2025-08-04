@@ -5,6 +5,7 @@ import { CahierDesCharges, EtatCahier } from '../cahier-des-charges/entities/cah
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
+import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { Devis, EtatDevis } from './entities/devi.entity';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class DevisService {
     @InjectRepository(CahierDesCharges)
     private readonly cdcRepo: Repository<CahierDesCharges>,
     private notificationsService: NotificationsService,
+        private readonly discussionService:WorkflowDiscussionService
   ) {}
 
   async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
@@ -47,6 +49,11 @@ export class DevisService {
       `Un devis (#${numdevis}) a été créé pour le cahier des charges "${cdc.titre}". Le cahier des charges a été accepté.`,
       { devisId: savedDevis.id, cdcId: cdc.id }
     );
+
+     await this.discussionService.transitionPhase(
+    cdcId, 
+    { targetPhase: 'devis', targetEntityId: savedDevis.id }
+  );
 
     return savedDevis;
   }

@@ -96,6 +96,7 @@ import { NotificationSettingsComponent } from './setting/notification-settings/n
 import { ChangePasswordModalComponent } from './setting/security-settings/change-password-modal/change-password-modal.component';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { CropperDialogComponent } from './setting/account-settings/cropper-dialog.component';
+import { WorkflowDiscussionComponent } from './workflow-discussion/workflow-discussion.component';
 
 
 @NgModule({
@@ -163,6 +164,7 @@ import { CropperDialogComponent } from './setting/account-settings/cropper-dialo
     NotificationSettingsComponent,
     ChangePasswordModalComponent,
     CropperDialogComponent,
+    WorkflowDiscussionComponent,
 
   ],
   imports: [

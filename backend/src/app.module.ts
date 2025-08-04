@@ -40,6 +40,9 @@ import { ProjectModule } from './project/project.module';
 import { Setting } from './setting/entities/setting.entity';
 import { SettingModule } from './setting/setting.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { WorkflowDiscussion } from './workflow-discussion/entities/workflow-discussion.entity';
+import { WorkflowMessage } from './workflow-discussion/entities/workflow-message.entity';
+import { WorkflowDiscussionModule } from './workflow-discussion/workflow-discussion.module';
 
 @Module({
   imports: [
@@ -68,7 +71,9 @@ import { StatisticsModule } from './statistics/statistics.module';
         Order,
         Project,
         Notification,
-        Setting
+        Setting,
+        WorkflowDiscussion,
+        WorkflowMessage
       ],
       synchronize: true, // à désactiver en prod !
       //logging: true,
@@ -106,6 +111,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     OrderModule,
     StatisticsModule,
     SettingModule,
+    WorkflowDiscussionModule,
   ],
   controllers: [AppController],
   providers: [

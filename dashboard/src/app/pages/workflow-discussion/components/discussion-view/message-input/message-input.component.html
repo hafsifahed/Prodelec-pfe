@@ -1,0 +1,12 @@
+<div class="message-input-container">
+  <textarea 
+    [(ngModel)]="messageContent" 
+    (input)="onInput()" 
+    (keydown.enter)="sendMessage(); $event.preventDefault()" 
+    placeholder="Écrire un message..."
+    [disabled]="disabled"
+  ></textarea>
+  <button (click)="sendMessage()" [disabled]="!messageContent.trim() || disabled">
+    <i class="fas fa-paper-plane"></i>
+  </button>
+</div>

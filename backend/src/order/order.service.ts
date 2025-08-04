@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Devis } from '../devis/entities/devi.entity';
 import { User } from '../users/entities/users.entity';
+import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
 import { Order } from './entities/order.entity';
 
 @Injectable()
@@ -14,6 +15,8 @@ export class OrderService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(Devis)
   private readonly devisRepo: Repository<Devis>,
+      private workflowDiscussionService: WorkflowDiscussionService
+
   ) {}
 
   async addOrder(orderData: Partial<Order>, idUser: number): Promise<Order> {
@@ -31,7 +34,19 @@ export class OrderService {
     user,
     devis,
   });
-  return this.orderRepo.save(order);
+
+  const savedOrder =  await this.orderRepo.save(order);
+   if (devis) {
+      const discussion = await this.workflowDiscussionService.getDiscussionByDevis(devis.id);
+      await this.workflowDiscussionService.transitionPhase(
+        discussion.id, 
+        { 
+          targetPhase: 'order', 
+          targetEntityId: savedOrder.idOrder
+        }
+      );
+    }
+  return savedOrder;
 }
 
   async updateOrder(orderId: number, orderData: Partial<Order>): Promise<Order> {

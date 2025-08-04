@@ -1,13 +1,14 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Order } from '../../order/entities/order.entity';
 import { User } from '../../users/entities/users.entity';
+import { WorkflowDiscussion } from '../../workflow-discussion/entities/workflow-discussion.entity';
 
 @Entity('project')
 export class Project {
@@ -171,4 +172,7 @@ export class Project {
 
   @ManyToOne(() => Order, { nullable: true })
   order: Order;
+
+  @ManyToOne(() => WorkflowDiscussion, discussion => discussion.projects)
+discussion: WorkflowDiscussion;
 }

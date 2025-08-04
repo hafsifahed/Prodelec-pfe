@@ -18,7 +18,13 @@ const routes: Routes = [
     loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule),
     canActivate:[AuthGuard]
 
-  }
+  },
+  {
+        path: 'workflow-discussions',
+        loadChildren: () => import('./pages/workflow-discussion/workflow-discussion.module')
+          .then(m => m.WorkflowDiscussionModule),
+       // canActivate: [AuthGuard],
+      }
   ,
   { path: '', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule) },
   { path: 'home', component: CyptolandingComponent },
