@@ -10,6 +10,7 @@ import { WorkflowDiscussionService } from '../../services/workflow-discussion.se
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { User } from 'src/app/core/models/auth.models';
 import { UsersService } from 'src/app/core/services/user.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-discussion-view',
@@ -24,7 +25,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   discussion: WorkflowDiscussion;
   currentUser: User | null = null;
   token = localStorage.getItem('token');
-
+  environment = environment;
   isLoading = true;
   isSending = false;
   error: string | null = null;
@@ -247,7 +248,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     return message.id;
   }
 
-  getParticipantName(userId: number): string {
+  /*getParticipantName(userId: number): string {
     if (userId === this.currentUser?.id) return 'You';
     
     const participants = [
@@ -260,6 +261,58 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     const user = participants.find(u => u.id === userId);
     return user ? `${user.firstName} ${user.lastName}` : 'Unknown user';
   }
+ async getParticipantName(userId: number): Promise<string> {
+  if (userId === this.currentUser?.id) return 'You';
+  
+  try {
+    // Récupération de l'utilisateur depuis le service
+    const user = await this.usersService.getUserById(userId).toPromise();
+    console.log('llll',user)
+    if (user) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return 'Unknown user';
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return 'Unknown user';
+  }
+}*/
+
+// discussion-view.component.ts
+
+async getParticipantName(userId: number): Promise<string> {
+  // 1. Vérification de base
+  if (!userId) return 'Unknown user';
+  if (userId === this.currentUser?.id) return 'You';
+
+  // 2. Vérification que le service a la méthode nécessaire
+  if (!this.usersService.getUserById) {
+    console.warn('UsersService does not have getUserById method');
+    return this.getParticipantNameFallback(userId);
+  }
+
+  // 3. Récupération de l'utilisateur
+  try {
+    const user = await this.usersService.getUserById(userId).toPromise();
+    return user ? `${user.firstName} ${user.lastName}` : 'Unknown user';
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return this.getParticipantNameFallback(userId);
+  }
+}
+
+// Méthode de fallback si getUserById n'est pas disponible ou échoue
+private getParticipantNameFallback(userId: number): string {
+  const participants = [
+    this.discussion?.cdc?.user,
+    this.discussion?.devis?.user,
+    ...(this.discussion?.orders?.map(o => o.user) || []),
+    ...(this.discussion?.projects?.map(p => p.user) || [])
+  ].filter(u => u);
+  
+  const user = participants.find(u => u.id === userId);
+  return user ? `${user.firstName} ${user.lastName}` : 'Responsable';
+}
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();

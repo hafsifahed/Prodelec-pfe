@@ -19,15 +19,17 @@
            [class.optimistic]="message.id < 0">
 
         <!-- Auteur autre que moi -->
-        <div class="message-header" *ngIf="message.author?.id !== currentUser?.id">
-          <img *ngIf="message.author?.image"
-               [src]="usersService.getUserImageUrl(message.author)"
-               alt="User avatar"
-               class="avatar">
-          <span class="author-name">
-            {{ message.author?.firstName }} {{ message.author?.lastName }}
-          </span>
-        </div>
+        <!-- discussion-view.component.html -->
+<div class="message-header" *ngIf="message.author?.id !== currentUser?.id">
+  <img [src]="message.author?.image 
+              ? environment.baseUrl + '/uploads/users/ProfileImages/' + message.author.image 
+              : 'assets/images/companies/img-6.png'"
+       alt="User avatar"
+       class="avatar">
+  <span class="author-name">
+    {{message.author.username}}
+  </span>
+</div>
 
         <!-- Contenu -->
         <div class="message-content">{{ message.content }}</div>
@@ -46,12 +48,12 @@
     </ng-container>
 
     <!-- Indicateur de frappe -->
-    <div *ngIf="typingUsers.size" class="typing-indicator">
-      <span *ngFor="let userId of typingUsers; let last = last">
-        {{ getParticipantName(userId) }}{{ !last ? ', ' : '' }}
-      </span>
-      {{ typingUsers.size > 1 ? 'are' : 'is' }} typing...
-    </div>
+     <div *ngIf="typingUsers.size" class="typing-indicator">
+    <span *ngFor="let userId of typingUsers; let last = last">
+      {{ getParticipantName(userId) | async }}{{ !last ? ', ' : '' }}
+    </span>
+    {{ typingUsers.size > 1 ? 'are' : 'is' }} typing...
+  </div>
   </div>
 
   <!-- Zone de saisie -->

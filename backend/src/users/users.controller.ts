@@ -72,7 +72,6 @@ export class UsersController {
   }
 
   @Get('byid/:id')
-  @Permissions({ resource: Resource.USERS, actions: [Action.READ, Action.MANAGE] })
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
