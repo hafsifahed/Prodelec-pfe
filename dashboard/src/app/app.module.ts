@@ -33,6 +33,7 @@ import {LoaderService} from "./core/services/loader.service";
 import {DatePipe} from "@angular/common";
 import { ReactiveFormsModule } from '@angular/forms';
 import { ImageCropperModule } from 'ngx-image-cropper';
+import { ImgFallbackDirective } from './core/helpers/img-fallback.directive';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -43,6 +44,7 @@ export function createTranslateLoader(http: HttpClient): any {
   declarations: [
     AppComponent,
     CyptolandingComponent,
+    ImgFallbackDirective
 
   ],
   imports: [

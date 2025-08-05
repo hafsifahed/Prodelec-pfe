@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, BehaviorSubject, of, debounceTime } from 'rxjs';
+import { Subscription, BehaviorSubject, of, debounceTime, Subject } from 'rxjs';
 import { WorkflowSocketService } from '../../services/workflow-socket.service';
 import { MessageInputComponent } from './message-input/message-input.component';
 import { WorkflowDiscussion } from '../../models/workflow-discussion.model';
@@ -33,7 +33,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   typingUsers = new Set<number>();
   private typingTimeouts = new Map<number, any>();
   private optimisticMessages = new Map<number, WorkflowMessage>();
-
+  private typingSubject = new Subject<void>();
   private subscriptions = new Subscription();
   private messagesSubject = new BehaviorSubject<WorkflowMessage[]>([]);
   messages$ = this.messagesSubject.asObservable();
@@ -50,6 +50,15 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   ) {}
 
   ngOnInit(): void {
+     this.subscriptions.add(
+      this.typingSubject.pipe(
+        debounceTime(500)  
+      ).subscribe(() => {
+        if (this.discussionId) {
+          this.socketService.sendTyping(this.discussionId);
+        }
+      })
+    );
     this.subscriptions.add(
       this.userStateService.user$.subscribe(user => {
         this.currentUser = user;
@@ -255,7 +264,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   handleTyping(): void {
-    this.socketService.sendTyping(this.discussionId);
+        this.typingSubject.next();
   }
 
   scrollToBottom(): void {

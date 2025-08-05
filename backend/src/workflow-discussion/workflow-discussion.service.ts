@@ -168,6 +168,43 @@ export class WorkflowDiscussionService {
     return this.discussionRepo.save(discussion);
   }
 
+  async getAllDiscussions(): Promise<WorkflowDiscussion[]> {
+  return this.discussionRepo.find({
+    relations: [
+      'cdc', 'cdc.user',
+      'devis', 'devis.user',
+      'orders', 'orders.user',
+      'projects', 'projects.order', 'projects.order.user',
+      'messages', 'messages.author',
+    ],
+    order: {
+      createdAt: 'DESC',
+      messages: { createdAt: 'ASC' }
+    }
+  });
+}
+
+async getDiscussionsByUser(userId: number): Promise<WorkflowDiscussion[]> {
+  return this.discussionRepo
+    .createQueryBuilder('discussion')
+    .leftJoinAndSelect('discussion.cdc', 'cdc')
+    .leftJoinAndSelect('cdc.user', 'cdcUser')
+    .leftJoinAndSelect('discussion.devis', 'devis')
+    .leftJoinAndSelect('devis.user', 'devisUser')
+    .leftJoinAndSelect('discussion.orders', 'orders')
+    .leftJoinAndSelect('orders.user', 'ordersUser')
+    .leftJoinAndSelect('discussion.projects', 'projects')
+    .leftJoinAndSelect('projects.order', 'projectOrder')
+    .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
+    .leftJoinAndSelect('discussion.messages', 'messages')
+    .leftJoinAndSelect('messages.author', 'messagesAuthor')
+    .where('cdcUser.id = :userId OR devisUser.id = :userId OR ordersUser.id = :userId OR projectOrderUser.id = :userId', { userId })
+    .orderBy('discussion.createdAt', 'DESC')
+    .addOrderBy('messages.createdAt', 'ASC')
+    .getMany();
+}
+
+
   async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
     return this.discussionRepo.findOne({
       where: { id: discussionId },

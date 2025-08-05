@@ -22,6 +22,16 @@ import { WorkflowDiscussionService } from './workflow-discussion.service';
 export class WorkflowDiscussionController {
   constructor(private readonly service: WorkflowDiscussionService) {}
 
+  @Get()
+async getAll() {
+  return this.service.getAllDiscussions();
+}
+
+@Get('user/:userId')
+async getAllByUser(@Param('userId', ParseIntPipe) userId: number) {
+  return this.service.getDiscussionsByUser(userId);
+}
+
   @Get(':id')
   async getDiscussion(@Param('id', ParseIntPipe) id: number) {
     return this.service.getFullDiscussion(id);

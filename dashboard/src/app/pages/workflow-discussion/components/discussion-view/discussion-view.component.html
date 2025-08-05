@@ -18,7 +18,7 @@
           <img [src]="getImageUrl(message.author)"
                alt="User avatar"
                class="avatar"
-               onerror="this.src='assets/images/companies/img-6.png'">
+               appImgFallback>
           <span class="author-name">
             {{ message.author?.username }}
           </span>

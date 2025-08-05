@@ -23,7 +23,7 @@ const routes: Routes = [
         path: 'workflow-discussions',
         loadChildren: () => import('./pages/workflow-discussion/workflow-discussion.module')
           .then(m => m.WorkflowDiscussionModule),
-       // canActivate: [AuthGuard],
+        canActivate: [AuthGuard],
       }
   ,
   { path: '', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule) },
