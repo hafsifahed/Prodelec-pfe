@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { WorkflowDiscussionSidebar } from '../models/workflow-discussion-sidebar.model';
 import { User } from 'src/app/core/models/auth.models';
@@ -15,6 +15,8 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   isLoading = true;
   error: string | null = null;
+  @Input() selectedDiscussionId: number | null = null;
+@Output() discussionSelected = new EventEmitter<number>();
   
   // Pagination
   currentPage = 1;
@@ -49,6 +51,9 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
       this.itemsPerPage
     ).subscribe({
       next: (response) => {
+        console.log("disc from",response.discussions)
+                console.log("disc from total",response.total)
+
         this.discussions = response.discussions;
         this.totalItems = response.total;
         this.isLoading = false;
@@ -68,19 +73,21 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   }
 
   getDiscussionTitle(discussion: WorkflowDiscussionSidebar): string {
-    switch (discussion.currentPhase) {
-      case 'cdc':
-        return discussion.cdc.titre;
-      case 'devis':
-        return `${discussion.cdc.titre} - ${discussion.devis?.numdevis || 'Devis'}`;
-      case 'order':
-        return `${discussion.cdc.titre} - ${discussion.orders?.[0]?.orderName || 'Order'}`;
-      case 'project':
-        return `${discussion.cdc.titre} - ${discussion.projects?.[0]?.refClient || 'Project'}`;
-      default:
-        return 'Untitled Discussion';
-    }
+  if (!discussion.cdc) return 'Untitled Discussion';
+  
+  switch (discussion.currentPhase) {
+    case 'cdc':
+      return discussion.cdc.titre;
+    case 'devis':
+      return `${discussion.cdc.titre} - ${discussion.devis?.numdevis || 'Devis'}`;
+    case 'order':
+      return `${discussion.cdc.titre} - ${discussion.orders?.[0]?.orderName || 'Order'}`;
+    case 'project':
+      return `${discussion.cdc.titre} - ${discussion.projects?.[0]?.refClient || 'Project'}`;
+    default:
+      return discussion.cdc.titre;
   }
+}
 
   getLastMessagePreview(discussion: WorkflowDiscussionSidebar): string {
     if (!discussion.lastMessage) return 'No messages yet';

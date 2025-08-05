@@ -22,11 +22,11 @@
   <!-- Discussion List -->
   <div *ngIf="!isLoading && !error && discussions.length > 0" class="discussions">
     <div 
-      *ngFor="let discussion of discussions"
-      class="discussion-item"
-      [routerLink]="['/discussions', discussion.id]"
-      routerLinkActive="active"
-    >
+  *ngFor="let discussion of discussions"
+  class="discussion-item"
+  [class.selected]="discussion.id === selectedDiscussionId"
+  (click)="discussionSelected.emit(discussion.id)"
+>
       <div class="discussion-header">
         <span class="phase-badge" [class]="discussion.currentPhase">
           {{ discussion.currentPhase | uppercase }}

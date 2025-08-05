@@ -33,12 +33,19 @@ export class WorkflowDiscussionController {
 
 @Get('my-discussions')
 async getDiscussionsByUser(
-    @CurrentUser() user: User,
-    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
-  ) {
+  @CurrentUser() user: User,
+  @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+  @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
+) {
+  if (user.role?.name?.toUpperCase().includes('CLIENT')) {
+    // Si rôle contient CLIENT → filtrer par user
     return this.service.getDiscussionsByUser(user.id, page, limit);
+  } else {
+    // Sinon, retourner toutes les discussions (avec pagination)
+    return this.service.getAllDiscussions(page, limit);
   }
+}
+
 
   @Get(':id')
   async getDiscussion(@Param('id', ParseIntPipe) id: number) {

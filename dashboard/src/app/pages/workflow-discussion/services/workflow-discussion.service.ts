@@ -32,12 +32,12 @@ export class WorkflowDiscussionService {
     );
   }
 
-    getAllDiscussions(page = 1, limit = 20): Observable<WorkflowDiscussionSidebar[]> {
+    getAllDiscussions(page = 1, limit = 20): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
 
-    return this.http.get<WorkflowDiscussionSidebar[]>(this.apiUrl, {
+    return this.http.get<{discussions: WorkflowDiscussionSidebar[], total: number}>(this.apiUrl, {
       headers: this.getAuthHeaders(),
       params
     });

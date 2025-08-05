@@ -1,0 +1,27 @@
+<div class="discussion-page-container" [class.mobile-view]="isMobileView">
+  <!-- Sidebar - Toujours visible en desktop, conditionnelle en mobile -->
+  <div class="sidebar-section" [class.hidden-on-mobile]="isMobileView && selectedDiscussionId">
+    <app-discussion-list 
+      (discussionSelected)="onDiscussionSelected($event)"
+      [selectedDiscussionId]="selectedDiscussionId">
+    </app-discussion-list>
+  </div>
+
+  <!-- Discussion View -->
+  <div class="view-section" *ngIf="selectedDiscussionId || !isMobileView">
+    <div *ngIf="selectedDiscussionId; else noDiscussionSelected">
+      <button class="back-button" *ngIf="isMobileView" (click)="closeDiscussionView()">
+        <i class="fas fa-arrow-left"></i> Back to list
+      </button>
+      <app-discussion-view [discussionId]="selectedDiscussionId"></app-discussion-view>
+    </div>
+    
+    <ng-template #noDiscussionSelected>
+      <div class="no-discussion-placeholder">
+        <mat-icon>forum</mat-icon>
+        <h3>Select a discussion</h3>
+        <p>Choose a conversation from the list to view messages</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

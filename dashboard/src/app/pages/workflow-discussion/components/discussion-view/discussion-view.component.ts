@@ -1,6 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription, BehaviorSubject, of, debounceTime, Subject } from 'rxjs';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
 import { WorkflowSocketService } from '../../services/workflow-socket.service';
 import { MessageInputComponent } from './message-input/message-input.component';
 import { WorkflowDiscussion } from '../../models/workflow-discussion.model';
@@ -10,6 +8,8 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import { User } from 'src/app/core/models/auth.models';
 import { UsersService } from 'src/app/core/services/user.service';
 import { environment } from 'src/environments/environment';
+import { Subscription, BehaviorSubject, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-discussion-view',
@@ -20,7 +20,23 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   @ViewChild(MessageInputComponent) messageInput: MessageInputComponent;
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
-  discussionId: number;
+  private _discussionId: number;
+  @Input() 
+  set discussionId(id: number) {
+    if (this._discussionId === id) return;
+    
+    this.cleanupDiscussion();
+    this._discussionId = id;
+    
+    if (id) {
+      this.setupWebSocket();
+      this.loadDiscussion();
+    }
+  }
+  get discussionId(): number {
+    return this._discussionId;
+  }
+
   discussion: WorkflowDiscussion;
   currentUser: User | null = null;
   token = localStorage.getItem('token');
@@ -38,10 +54,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private messagesSubject = new BehaviorSubject<WorkflowMessage[]>([]);
   messages$ = this.messagesSubject.asObservable();
 
-  // Cache pour les URLs d'images déjà vérifiées
-
   constructor(
-    private route: ActivatedRoute,
     private discussionService: WorkflowDiscussionService,
     private socketService: WorkflowSocketService,
     private userStateService: UserStateService,
@@ -50,29 +63,40 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   ) {}
 
   ngOnInit(): void {
-     this.subscriptions.add(
+    this.subscriptions.add(
       this.typingSubject.pipe(
-        debounceTime(500)  
+        debounceTime(500)
       ).subscribe(() => {
         if (this.discussionId) {
           this.socketService.sendTyping(this.discussionId);
         }
       })
     );
+
     this.subscriptions.add(
       this.userStateService.user$.subscribe(user => {
         this.currentUser = user;
         this.cdr.detectChanges();
       })
     );
-    
-    this.discussionId = +this.route.snapshot.paramMap.get('id');
-    this.loadDiscussion();
   }
 
   ngAfterViewInit(): void {
-    this.setupWebSocket();
+    if (this.discussionId) {
+      this.setupWebSocket();
+    }
     this.scrollToBottom();
+  }
+
+  private cleanupDiscussion(): void {
+    this.socketService.disconnect();
+    this.typingUsers.clear();
+    this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.typingTimeouts.clear();
+    this.discussion = null;
+    this.messagesSubject.next([]);
+    this.error = null;
+    this.isLoading = true;
   }
 
   private loadDiscussion(): void {
@@ -135,10 +159,9 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.subscriptions.add(
         this.socketService.onMessageReceived().pipe(
-          debounceTime(100) 
+          debounceTime(100)
         ).subscribe({
           next: (message) => {
-            console.log('Message reçu via socket:', message);
             this.handleIncomingMessage(message);
           },
           error: (err) => {
@@ -264,7 +287,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   handleTyping(): void {
-        this.typingSubject.next();
+    this.typingSubject.next();
   }
 
   scrollToBottom(): void {
@@ -300,7 +323,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   getImageUrl(user: User): string {
-   return this.usersService.getUserImageUrl(user)
+    return this.usersService.getUserImageUrl(user);
   }
 
   ngOnDestroy(): void {

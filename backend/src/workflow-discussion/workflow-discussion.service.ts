@@ -169,60 +169,54 @@ export class WorkflowDiscussionService {
     return this.discussionRepo.save(discussion);
   }
 
-  async getAllDiscussions(page = 1, limit = 20): Promise<WorkflowDiscussionSidebar[]> {
-  const [discussions, total] = await this.discussionRepo.findAndCount({
-    relations: [
-      'cdc',
-      'devis',
-      'orders',
-      'projects'
-    ],
-    select: {
-      id: true,
-      currentPhase: true,
-      createdAt: true,
-      cdc: { id: true, titre: true },
-      devis: { id: true, numdevis: true },
-      orders: { idOrder: true, orderName: true },
-      projects: { idproject: true, refClient: true }
-    },
-    order: { createdAt: 'DESC' },
-    skip: (page - 1) * limit,
-    take: limit
-  });
+async getAllDiscussions(
+  page = 1,
+  limit = 20,
+): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
+  // QueryBuilder pour charger discussions + relations usuelles
+  const qb = this.discussionRepo
+    .createQueryBuilder('discussion')
+    .leftJoinAndSelect('discussion.cdc', 'cdc')
+    .leftJoinAndSelect('discussion.devis', 'devis')
+    .leftJoinAndSelect('discussion.orders', 'orders')
+    .leftJoinAndSelect('discussion.projects', 'projects')
 
-  // Récupérer le dernier message pour chaque discussion
-  const discussionsWithLastMessage = await Promise.all(
-    discussions.map(async discussion => {
-      const lastMessage = await this.messageRepo.findOne({
-        where: { discussion: { id: discussion.id } },
-        order: { createdAt: 'DESC' },
-        relations: ['author']
-      });
+    // Jointure conditionnelle sur dernier message par discussion
+    .leftJoinAndSelect(
+      'discussion.messages',
+      'lastMessage',
+      `lastMessage.id = (
+        SELECT MAX(sub.id)
+        FROM workflow_messages sub
+        WHERE sub.discussionId = discussion.id
+      )`,
+    )
+    .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
 
-      return {
-        ...discussion,
-        lastMessage: lastMessage ? {
-          id: lastMessage.id,
-          content: lastMessage.content,
-          author: {
-            id: lastMessage.author.id,
-            firstName: lastMessage.author.firstName,
-            lastName: lastMessage.author.lastName
-          },
-          createdAt: lastMessage.createdAt
-        } : null
-      };
-    })
-  );
+    .orderBy('discussion.createdAt', 'DESC')
+    .skip((page - 1) * limit)
+    .take(limit);
 
-  return discussionsWithLastMessage;
+  const [discussions, total] = await qb.getManyAndCount();
+
+  // Formater chaque discussion avec la méthode private
+  const formatted = discussions.map(d => this.formatForSidebar(d));
+
+  return {
+    discussions: formatted,
+    total,
+  };
 }
 
-async getDiscussionsByUser(userId: number ,page = 1,limit = 20): Promise<{discussions:WorkflowDiscussionSidebar[]; total: number }> {
-  
-  const [discussions, total] = await this.discussionRepo
-    .createQueryBuilder('discussion')
+
+async getDiscussionsByUser(
+  userId: number,
+  page = 1,
+  limit = 20,
+): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
+  const qb = this.discussionRepo.createQueryBuilder('discussion');
+
+  qb
     .leftJoinAndSelect('discussion.cdc', 'cdc')
     .leftJoin('cdc.user', 'cdcUser')
     .leftJoinAndSelect('discussion.devis', 'devis')
@@ -232,26 +226,37 @@ async getDiscussionsByUser(userId: number ,page = 1,limit = 20): Promise<{discus
     .leftJoinAndSelect('discussion.projects', 'projects')
     .leftJoin('projects.order', 'projectOrder')
     .leftJoin('projectOrder.user', 'projectOrderUser')
+
     .leftJoinAndSelect(
-      'discussion.messages', 
+      'discussion.messages',
       'lastMessage',
-      'lastMessage.id = (SELECT MAX(id) FROM workflow_messages WHERE discussion_id = discussion.id)'
+      `lastMessage.id = (
+        SELECT MAX(sub.id)
+        FROM workflow_messages sub
+        WHERE sub.discussionId = discussion.id
+      )`,
     )
     .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+
     .where('cdcUser.id = :userId', { userId })
     .orWhere('devisUser.id = :userId', { userId })
     .orWhere('ordersUser.id = :userId', { userId })
     .orWhere('projectOrderUser.id = :userId', { userId })
+
     .orderBy('discussion.createdAt', 'DESC')
     .skip((page - 1) * limit)
-    .take(limit)
-    .getManyAndCount();
+    .take(limit);
+
+  const [discussions, total] = await qb.getManyAndCount();
 
   return {
     discussions: discussions.map(d => this.formatForSidebar(d)),
-    total
+    total,
   };
 }
+
+
+
 
 private formatForSidebar(discussion: WorkflowDiscussion): WorkflowDiscussionSidebar {
   return {
