@@ -8,12 +8,14 @@ import { DiscussionViewComponent } from './components/discussion-view/discussion
 import { WorkflowDiscussionRoutingModule } from './workflow-discussion-routing.module';
 import { MessageInputComponent } from './components/discussion-view/message-input/message-input.component';
 import { DateFormatPipe } from './pipes/date-format.pipe';
+import { DiscussionListComponent } from './discussion-list/discussion-list.component';
 
 @NgModule({
   declarations: [
     DiscussionViewComponent,
     MessageInputComponent,
-    DateFormatPipe
+    DateFormatPipe,
+    DiscussionListComponent
   ],
   imports: [
     CommonModule,

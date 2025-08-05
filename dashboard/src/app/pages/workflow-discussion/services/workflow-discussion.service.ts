@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WorkflowDiscussion } from '../models/workflow-discussion.model';
 import { WorkflowMessage } from '../models/workflow-message.model';
 import { WorkflowPhase } from '../models/workflow-phase.model';
+import { WorkflowDiscussionSidebar } from '../models/workflow-discussion-sidebar.model';
 
 @Injectable({
   providedIn: 'root'
@@ -31,25 +32,27 @@ export class WorkflowDiscussionService {
     );
   }
 
-  getAllDiscussions(): Observable<WorkflowDiscussion[]> {
-    return this.http.get<WorkflowDiscussion[]>(`${this.apiUrl}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      catchError(error => {
-        console.error('Error loading all discussions', error);
-        return throwError(() => new Error('Failed to load discussions'));
-      })
-    );
+    getAllDiscussions(page = 1, limit = 20): Observable<WorkflowDiscussionSidebar[]> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    return this.http.get<WorkflowDiscussionSidebar[]>(this.apiUrl, {
+      headers: this.getAuthHeaders(),
+      params
+    });
   }
 
-  getDiscussionsByUser(userId: number): Observable<WorkflowDiscussion[]> {
-    return this.http.get<WorkflowDiscussion[]>(`${this.apiUrl}/user/${userId}`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      catchError(error => {
-        console.error('Error loading user discussions', error);
-        return throwError(() => new Error('Failed to load user discussions'));
-      })
+
+
+  getDiscussionsByUser( page = 1, limit = 20): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    return this.http.get<{discussions: WorkflowDiscussionSidebar[], total: number}>(
+      `${this.apiUrl}/my-discussions`,
+      { headers: this.getAuthHeaders(), params }
     );
   }
 
@@ -68,4 +71,11 @@ export class WorkflowDiscussionService {
       { headers: this.getAuthHeaders() }
     );
   }
+getDiscussionsForSidebar(page = 1, limit = 20): Observable<WorkflowDiscussionSidebar[]> {
+  return this.http.get<WorkflowDiscussionSidebar[]>(
+    `${this.apiUrl}/all?page=${page}&limit=${limit}`,
+    { headers: this.getAuthHeaders() }
+  );
+}
+  
 }

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -23,14 +24,21 @@ export class WorkflowDiscussionController {
   constructor(private readonly service: WorkflowDiscussionService) {}
 
   @Get()
-async getAll() {
-  return this.service.getAllDiscussions();
-}
+ async getAllDiscussions(
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
+  ) {
+    return this.service.getAllDiscussions(page, limit);
+  }
 
-@Get('user/:userId')
-async getAllByUser(@Param('userId', ParseIntPipe) userId: number) {
-  return this.service.getDiscussionsByUser(userId);
-}
+@Get('my-discussions')
+async getDiscussionsByUser(
+    @CurrentUser() user: User,
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
+  ) {
+    return this.service.getDiscussionsByUser(user.id, page, limit);
+  }
 
   @Get(':id')
   async getDiscussion(@Param('id', ParseIntPipe) id: number) {
@@ -43,7 +51,6 @@ async getAllByUser(@Param('userId', ParseIntPipe) userId: number) {
     @Body() body: CreateMessageDto,
     @CurrentUser() user: User,
   ) {
-    // body is already validated and transformed
     return this.service.addMessage(id, body, user);
   }
 

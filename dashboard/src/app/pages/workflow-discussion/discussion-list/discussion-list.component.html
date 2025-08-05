@@ -1,0 +1,61 @@
+<div class="discussion-list-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading discussions...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-stroked-button (click)="loadDiscussions()">Retry</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && discussions.length === 0" class="empty-state">
+    <mat-icon>forum</mat-icon>
+    <h3>No discussions found</h3>
+    <p>Start a new discussion to see it appear here</p>
+  </div>
+
+  <!-- Discussion List -->
+  <div *ngIf="!isLoading && !error && discussions.length > 0" class="discussions">
+    <div 
+      *ngFor="let discussion of discussions"
+      class="discussion-item"
+      [routerLink]="['/discussions', discussion.id]"
+      routerLinkActive="active"
+    >
+      <div class="discussion-header">
+        <span class="phase-badge" [class]="discussion.currentPhase">
+          {{ discussion.currentPhase | uppercase }}
+        </span>
+        <h3>{{ getDiscussionTitle(discussion) }}</h3>
+        <span class="date">
+          {{ discussion.createdAt | date:'mediumDate' }}
+        </span>
+      </div>
+
+      <div class="discussion-preview">
+        <div class="last-message" *ngIf="discussion.lastMessage">
+          <strong>{{ getMessageAuthorName(discussion.lastMessage) }}:</strong>
+          {{ getLastMessagePreview(discussion) }}
+        </div>
+        <div *ngIf="!discussion.lastMessage" class="no-messages">
+          No messages yet
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <mat-paginator
+    *ngIf="totalItems > itemsPerPage && !isLoading"
+    [length]="totalItems"
+    [pageSize]="itemsPerPage"
+    [pageIndex]="currentPage - 1"
+    (page)="onPageChange($event.pageIndex + 1)"
+    class="discussion-paginator"
+  ></mat-paginator>
+</div>

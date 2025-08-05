@@ -14,6 +14,7 @@ import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { TransitionPhaseDto } from './dto/transition-phase.dto';
+import { WorkflowDiscussionSidebar } from './dto/workflow-discussion.dto';
 import { WorkflowDiscussion, WorkflowPhase } from './entities/workflow-discussion.entity';
 import { WorkflowMessage, WorkflowMessageType } from './entities/workflow-message.entity';
 
@@ -168,43 +169,131 @@ export class WorkflowDiscussionService {
     return this.discussionRepo.save(discussion);
   }
 
-  async getAllDiscussions(): Promise<WorkflowDiscussion[]> {
-  return this.discussionRepo.find({
+  async getAllDiscussions(page = 1, limit = 20): Promise<WorkflowDiscussionSidebar[]> {
+  const [discussions, total] = await this.discussionRepo.findAndCount({
     relations: [
-      'cdc', 'cdc.user',
-      'devis', 'devis.user',
-      'orders', 'orders.user',
-      'projects', 'projects.order', 'projects.order.user',
-      'messages', 'messages.author',
+      'cdc',
+      'devis',
+      'orders',
+      'projects'
     ],
-    order: {
-      createdAt: 'DESC',
-      messages: { createdAt: 'ASC' }
-    }
+    select: {
+      id: true,
+      currentPhase: true,
+      createdAt: true,
+      cdc: { id: true, titre: true },
+      devis: { id: true, numdevis: true },
+      orders: { idOrder: true, orderName: true },
+      projects: { idproject: true, refClient: true }
+    },
+    order: { createdAt: 'DESC' },
+    skip: (page - 1) * limit,
+    take: limit
   });
+
+  // Récupérer le dernier message pour chaque discussion
+  const discussionsWithLastMessage = await Promise.all(
+    discussions.map(async discussion => {
+      const lastMessage = await this.messageRepo.findOne({
+        where: { discussion: { id: discussion.id } },
+        order: { createdAt: 'DESC' },
+        relations: ['author']
+      });
+
+      return {
+        ...discussion,
+        lastMessage: lastMessage ? {
+          id: lastMessage.id,
+          content: lastMessage.content,
+          author: {
+            id: lastMessage.author.id,
+            firstName: lastMessage.author.firstName,
+            lastName: lastMessage.author.lastName
+          },
+          createdAt: lastMessage.createdAt
+        } : null
+      };
+    })
+  );
+
+  return discussionsWithLastMessage;
 }
 
-async getDiscussionsByUser(userId: number): Promise<WorkflowDiscussion[]> {
-  return this.discussionRepo
+async getDiscussionsByUser(userId: number ,page = 1,limit = 20): Promise<{discussions:WorkflowDiscussionSidebar[]; total: number }> {
+  
+  const [discussions, total] = await this.discussionRepo
     .createQueryBuilder('discussion')
     .leftJoinAndSelect('discussion.cdc', 'cdc')
-    .leftJoinAndSelect('cdc.user', 'cdcUser')
+    .leftJoin('cdc.user', 'cdcUser')
     .leftJoinAndSelect('discussion.devis', 'devis')
-    .leftJoinAndSelect('devis.user', 'devisUser')
+    .leftJoin('devis.user', 'devisUser')
     .leftJoinAndSelect('discussion.orders', 'orders')
-    .leftJoinAndSelect('orders.user', 'ordersUser')
+    .leftJoin('orders.user', 'ordersUser')
     .leftJoinAndSelect('discussion.projects', 'projects')
-    .leftJoinAndSelect('projects.order', 'projectOrder')
-    .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
-    .leftJoinAndSelect('discussion.messages', 'messages')
-    .leftJoinAndSelect('messages.author', 'messagesAuthor')
-    .where('cdcUser.id = :userId OR devisUser.id = :userId OR ordersUser.id = :userId OR projectOrderUser.id = :userId', { userId })
+    .leftJoin('projects.order', 'projectOrder')
+    .leftJoin('projectOrder.user', 'projectOrderUser')
+    .leftJoinAndSelect(
+      'discussion.messages', 
+      'lastMessage',
+      'lastMessage.id = (SELECT MAX(id) FROM workflow_messages WHERE discussion_id = discussion.id)'
+    )
+    .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+    .where('cdcUser.id = :userId', { userId })
+    .orWhere('devisUser.id = :userId', { userId })
+    .orWhere('ordersUser.id = :userId', { userId })
+    .orWhere('projectOrderUser.id = :userId', { userId })
     .orderBy('discussion.createdAt', 'DESC')
-    .addOrderBy('messages.createdAt', 'ASC')
-    .getMany();
+    .skip((page - 1) * limit)
+    .take(limit)
+    .getManyAndCount();
+
+  return {
+    discussions: discussions.map(d => this.formatForSidebar(d)),
+    total
+  };
 }
 
+private formatForSidebar(discussion: WorkflowDiscussion): WorkflowDiscussionSidebar {
+  return {
+    id: discussion.id,
+    currentPhase: discussion.currentPhase,
+    createdAt: discussion.createdAt,
+    cdc: {
+      id: discussion.cdc.id,
+      titre: discussion.cdc.titre
+    },
+    devis: discussion.devis ? {
+      id: discussion.devis.id,
+      numdevis: discussion.devis.numdevis
+    } : undefined,
+    orders: discussion.orders?.map(order => ({
+      idOrder: order.idOrder,
+      orderName: order.orderName
+    })),
+    projects: discussion.projects?.map(project => ({
+      idproject: project.idproject,
+      refClient: project.refClient
+    })),
+    lastMessage: discussion.messages?.[0] ? {
+      id: discussion.messages[0].id,
+      content: discussion.messages[0].content,
+      author: {
+        id: discussion.messages[0].author.id,
+        firstName: discussion.messages[0].author.firstName,
+        lastName: discussion.messages[0].author.lastName
+      },
+      createdAt: discussion.messages[0].createdAt
+    } : null
+  };
+}
 
+async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
+  return this.messageRepo.findOne({
+    where: { discussion: { id: discussionId } },
+    order: { createdAt: 'DESC' },
+    relations: ['author']
+  });
+}
   async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
     return this.discussionRepo.findOne({
       where: { id: discussionId },
@@ -275,4 +364,6 @@ async getDiscussionsByUser(userId: number): Promise<WorkflowDiscussion[]> {
 
     return this.getDiscussionByDevis(project.order.devis.id);
   }
+
+  
 }

@@ -1,0 +1,109 @@
+.discussion-list-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+}
+
+.error-state {
+  mat-icon {
+    color: #f44336;
+  }
+}
+
+.empty-state {
+  mat-icon {
+    color: #9e9e9e;
+  }
+}
+
+.discussions {
+  display: grid;
+  gap: 12px;
+}
+
+.discussion-item {
+  padding: 16px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    border-left: 4px solid #3f51b5;
+    background-color: #f5f5f5;
+  }
+}
+
+.discussion-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+
+  h3 {
+    margin: 0;
+    flex-grow: 1;
+    font-size: 16px;
+  }
+
+  .date {
+    color: #757575;
+    font-size: 12px;
+  }
+}
+
+.phase-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  margin-right: 8px;
+  color: white;
+
+  &.cdc { background-color: #673ab7; }
+  &.devis { background-color: #2196f3; }
+  &.order { background-color: #4caf50; }
+  &.project { background-color: #ff9800; }
+}
+
+.discussion-preview {
+  color: #616161;
+  font-size: 14px;
+
+  .last-message {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .no-messages {
+    font-style: italic;
+    color: #9e9e9e;
+  }
+}
+
+.discussion-paginator {
+  margin-top: 20px;
+  background: transparent;
+}
