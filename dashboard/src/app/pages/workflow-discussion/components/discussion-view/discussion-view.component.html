@@ -46,7 +46,7 @@
     </div>
   </div>
 
-  <app-message-input
+  <app-message-input style="padding-bottom: 50px;"
     (messageSent)="handleMessageSent($event)"
     (typing)="handleTyping()"
     [disabled]="!isConnected || isSending">
@@ -54,7 +54,7 @@
 </div>
 
 <ng-template #loading>
-  <div class="loading-container">
+  <div class="loading-container" >
     <div class="spinner-border text-primary" role="status"></div>
     <p>Loading discussion...</p>
   </div>

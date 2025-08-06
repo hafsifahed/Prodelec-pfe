@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
 import { WorkflowSocketService } from '../../services/workflow-socket.service';
-import { MessageInputComponent } from './message-input/message-input.component';
 import { WorkflowDiscussion } from '../../models/workflow-discussion.model';
 import { WorkflowMessage } from '../../models/workflow-message.model';
 import { WorkflowDiscussionService } from '../../services/workflow-discussion.service';
@@ -17,7 +16,6 @@ import { debounceTime } from 'rxjs/operators';
   styleUrls: ['./discussion-view.component.scss']
 })
 export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild(MessageInputComponent) messageInput: MessageInputComponent;
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
   private _discussionId: number;
@@ -45,6 +43,10 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   isSending = false;
   error: string | null = null;
   isConnected = false;
+
+  // Nouvelle propriété pour le contenu du message
+  messageContent: string = '';
+  private typingDebounce: any;
 
   typingUsers = new Set<number>();
   private typingTimeouts = new Map<number, any>();
@@ -234,8 +236,10 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  handleMessageSent(content: string): void {
-    if (!content?.trim()) {
+  // Nouvelle méthode pour envoyer un message
+  sendMessage(): void {
+    const content = this.messageContent.trim();
+    if (!content) {
       this.error = 'Message cannot be empty';
       this.cdr.detectChanges();
       return;
@@ -248,7 +252,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     const tempId = -Date.now();
     const tempMsg: WorkflowMessage = {
       id: tempId,
-      content: content.trim(),
+      content: content,
       author: this.currentUser,
       createdAt: new Date(),
       type: 'message'
@@ -273,6 +277,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
           this.optimisticMessages.delete(tempId);
           this.isSending = false;
           this.cdr.detectChanges();
+          this.messageContent = ''; // Réinitialiser le champ de saisie
         },
         error: (err) => {
           const filteredMessages = currentMessages.filter(msg => msg.id !== tempId);
@@ -284,6 +289,17 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
         }
       })
     );
+  }
+
+  // Nouvelle méthode pour gérer la saisie
+  onInput(): void {
+    // Clear existing debounce
+    if (this.typingDebounce) clearTimeout(this.typingDebounce);
+    
+    // Emit typing event after 500ms of inactivity
+    this.typingDebounce = setTimeout(() => {
+      this.handleTyping();
+    }, 500);
   }
 
   handleTyping(): void {
@@ -330,5 +346,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.subscriptions.unsubscribe();
     this.socketService.disconnect();
     this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
+    if (this.typingDebounce) clearTimeout(this.typingDebounce);
   }
 }

@@ -1,61 +1,69 @@
-<div class="discussion-list-container">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading discussions...</p>
+<!-- discussion-list.component.html -->
+<div class="discussion-list">
+  <div class="list-header">
+    <h2>Discussions</h2>
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Rechercher...">
+    </div>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="error && !isLoading" class="error-state">
-    <mat-icon>error_outline</mat-icon>
-    <p>{{ error }}</p>
-    <button mat-stroked-button (click)="loadDiscussions()">Retry</button>
-  </div>
-
-  <!-- Empty State -->
-  <div *ngIf="!isLoading && !error && discussions.length === 0" class="empty-state">
-    <mat-icon>forum</mat-icon>
-    <h3>No discussions found</h3>
-    <p>Start a new discussion to see it appear here</p>
-  </div>
-
-  <!-- Discussion List -->
-  <div *ngIf="!isLoading && !error && discussions.length > 0" class="discussions">
-    <div 
-  *ngFor="let discussion of discussions"
-  class="discussion-item"
-  [class.selected]="discussion.id === selectedDiscussionId"
-  (click)="discussionSelected.emit(discussion.id)"
->
-      <div class="discussion-header">
-        <span class="phase-badge" [class]="discussion.currentPhase">
-          {{ discussion.currentPhase | uppercase }}
-        </span>
-        <h3>{{ getDiscussionTitle(discussion) }}</h3>
-        <span class="date">
-          {{ discussion.createdAt | date:'mediumDate' }}
-        </span>
-      </div>
-
-      <div class="discussion-preview">
-        <div class="last-message" *ngIf="discussion.lastMessage">
-          <strong>{{ getMessageAuthorName(discussion.lastMessage) }}:</strong>
-          {{ getLastMessagePreview(discussion) }}
+  <div class="list-content">
+    <ng-container *ngIf="isLoading">
+      <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-text">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line small"></div>
         </div>
-        <div *ngIf="!discussion.lastMessage" class="no-messages">
-          No messages yet
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isLoading && error">
+      <div class="error-state">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Erreur de chargement</p>
+        <button (click)="loadDiscussions()">Réessayer</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isLoading && !error && discussions.length === 0">
+      <div class="empty-list">
+        <i class="fas fa-inbox"></i>
+        <p>Aucune discussion</p>
+      </div>
+    </ng-container>
+
+    <div class="discussion-items">
+      <div 
+        *ngFor="let discussion of discussions"
+        class="discussion-item"
+        [class.active]="discussion.id === selectedDiscussionId"
+        (click)="discussionSelected.emit(discussion.id)"
+      >
+        <div class="item-avatar">
+          <div class="phase-indicator" [ngClass]="discussion.currentPhase"></div>
+        </div>
+        
+        <div class="item-content">
+          <div class="item-header">
+            <h4>{{ getDiscussionTitle(discussion) }}</h4>
+            <span class="item-time">
+              {{ discussion.createdAt | date:'shortDate' }}
+            </span>
+          </div>
+          
+          <div class="item-preview">
+            {{ getLastMessagePreview(discussion) }}
+          </div>
+          
+          <div class="item-footer">
+            <span class="badge" [ngClass]="discussion.currentPhase">
+              {{ discussion.currentPhase | uppercase }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Pagination -->
-  <mat-paginator
-    *ngIf="totalItems > itemsPerPage && !isLoading"
-    [length]="totalItems"
-    [pageSize]="itemsPerPage"
-    [pageIndex]="currentPage - 1"
-    (page)="onPageChange($event.pageIndex + 1)"
-    class="discussion-paginator"
-  ></mat-paginator>
 </div>
