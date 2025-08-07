@@ -38,9 +38,11 @@ export class OrderService {
 
   const savedOrder =  await this.orderRepo.save(order);
    if (devis) {
+    console.log('devis order:',devis)
       const discussion = await this.workflowDiscussionService.getDiscussionByDevis(devis.id);
+      console.log('disc by order:',discussion)
       await this.workflowDiscussionService.transitionPhase(
-        discussion.id, 
+        discussion.cdc.id, 
         { 
           targetPhase: WorkflowPhase.ORDER, 
           targetEntityId: savedOrder.idOrder

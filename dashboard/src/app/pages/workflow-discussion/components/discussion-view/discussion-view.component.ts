@@ -201,6 +201,8 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.typingUsers.add(userId);
     this.cdr.detectChanges();
+        this.scrollToBottom();
+
     
     if (this.typingTimeouts.has(userId)) {
       clearTimeout(this.typingTimeouts.get(userId));

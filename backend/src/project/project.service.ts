@@ -67,7 +67,7 @@ export class ProjectService {
     if (order.devis) {
       const discussion = await this.workflowDiscussionService.getDiscussionByDevis(order.devis.id);
       await this.workflowDiscussionService.transitionPhase(
-        discussion.id,
+        discussion.cdc.id,
         {
           targetPhase: WorkflowPhase.PROJECT,
           targetEntityId: saved.idproject

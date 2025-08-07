@@ -183,7 +183,8 @@ export class AddOrderComponent implements OnInit {
         });
         this.router.navigate(['/listorderclient']);
       },
-      error: () => {
+      error: (error) => {
+        console.log(error)
         Swal.fire({
           icon: 'error',
           title: 'Erreur',

@@ -123,11 +123,11 @@ export class WorkflowDiscussionService {
   }
 
   async transitionPhase(
-    discussionId: number,
+    cdcId: number,
     dto: TransitionPhaseDto,
   ): Promise<WorkflowDiscussion> {
     const discussion = await this.discussionRepo.findOne({
-      where: { id: discussionId },
+      where: { cdc:  { id: cdcId } },
       relations: ['cdc', 'devis', 'orders', 'projects'],
     });
 

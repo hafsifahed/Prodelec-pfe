@@ -52,7 +52,7 @@ export class DevisService {
     );
 
      await this.discussionService.transitionPhase(
-    cdcId, 
+    cdc.id, 
     { targetPhase: WorkflowPhase.DEVIS, targetEntityId: savedDevis.id }
   );
 
@@ -76,7 +76,7 @@ export class DevisService {
   async acceptDevis(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user','cahierDesCharges'],
     });
 
     if (!devis) throw new NotFoundException("Ce devis n'existe pas");
@@ -94,6 +94,11 @@ export class DevisService {
         username: devis.user?.username,
       },
     );
+console.log('devi : ',devis.cahierDesCharges)
+    await this.discussionService.transitionPhase(
+    devis.cahierDesCharges.id ,
+    { targetPhase: WorkflowPhase.DEVIS, targetEntityId: updatedDevis.id }
+  );
 
     return updatedDevis;
   }
