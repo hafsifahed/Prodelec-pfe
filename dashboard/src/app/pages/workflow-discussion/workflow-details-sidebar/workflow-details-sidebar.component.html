@@ -3,37 +3,148 @@
     <h4>Détails du workflow</h4>
   </div>
 
-  <!-- Cahier des charges -->
-  <div class="sidebar-section" *ngIf="discussion.cdc">
-    <h5>Cahier des charges</h5>
-    <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
-    <p><strong>État:</strong> {{ discussion.cdc.etat }}</p>
-    <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
-  </div>
+  <!-- Navigation Tabs -->
+  <nav class="sidebar-tabs">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'cdc'" 
+      (click)="setActiveTab('cdc')"
+      *ngIf="discussion.cdc">
+      Cahier des charges
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'devis'" 
+      (click)="setActiveTab('devis')"
+      *ngIf="discussion.devis">
+      Devis
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'orders'" 
+      (click)="setActiveTab('orders')"
+      *ngIf="discussion.orders && discussion.orders.length > 0">
+      Commandes
+    </button>
+  </nav>
 
-  <!-- Devis -->
-  <div class="sidebar-section" *ngIf="discussion.devis">
-    <h5>Devis</h5>
-    <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
-    <p><strong>Projet:</strong> {{ discussion.devis.projet }}</p>
-    <p><strong>État:</strong> {{ discussion.devis.etat }}</p>
-  </div>
-
-  <!-- Orders -->
-  <div class="sidebar-section" *ngIf="discussion.orders && discussion.orders.length > 0">
-    <h5>Commandes</h5>
-    <div *ngFor="let order of discussion.orders">
-      <p><strong>Référence:</strong> {{ order.orderName }}</p>
-      <p><strong>Date:</strong> {{ order.createdAt | date }}</p>
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Cahier des charges -->
+    <div class="sidebar-section" *ngIf="discussion.cdc && activeTab === 'cdc'">
+      <div class="section-header" (click)="toggleSection('cdc')">
+        <h5>Cahier des charges</h5>
+        <span class="toggle-icon">{{ sections.cdc ? '−' : '+' }}</span>
+      </div>
+      
+      <div class="section-content" *ngIf="sections.cdc">
+        <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
+        <p><strong>État:</strong> 
+          <span class="badge" [ngClass]="{
+            'badge-soft-danger': discussion.cdc.etat === 'Refusé',
+            'badge-soft-warning': discussion.cdc.etat === 'En attente',
+            'badge-soft-info': discussion.cdc.etat === 'À compléter',
+            'badge-soft-success': discussion.cdc.etat === 'Accepté'
+          }">
+            {{ discussion.cdc.etat }}
+          </span>
+        </p>
+        <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
+        <p *ngIf="discussion.cdc.user"><strong>Créé par:</strong> {{ discussion.cdc.user.username }}</p>
+      </div>
     </div>
-  </div>
 
-  <!-- Projets -->
-  <div class="sidebar-section" *ngIf="discussion.projects && discussion.projects.length > 0">
-    <h5>Projets</h5>
-    <div *ngFor="let project of discussion.projects">
-      <p><strong>Référence client:</strong> {{ project.refClient }}</p>
-      <p><strong>Statut:</strong> {{ project.status }}</p>
+    <!-- Devis -->
+    <div class="sidebar-section" *ngIf="discussion.devis && activeTab === 'devis'">
+      <div class="section-header" (click)="toggleSection('devis')">
+        <h5>Devis</h5>
+        <span class="toggle-icon">{{ sections.devis ? '−' : '+' }}</span>
+      </div>
+      
+      <div class="section-content" *ngIf="sections.devis">
+        <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
+        <p><strong>Projet:</strong> {{ discussion.devis.projet }}</p>
+        <p><strong>État:</strong> 
+          <span class="badge" [ngClass]="{
+            'badge-soft-danger': discussion.devis.etat === 'Refusé',
+            'badge-soft-warning': discussion.devis.etat === 'En attente',
+            'badge-soft-info': discussion.devis.etat === 'Négociation',
+            'badge-soft-success': discussion.devis.etat === 'Accepté'
+          }">
+            {{ discussion.devis.etat }}
+          </span>
+        </p>
+        <p><strong>Date de création:</strong> {{ discussion.devis.createdAt | date }}</p>
+      </div>
+    </div>
+
+    <!-- Commandes avec leurs projets -->
+    <div *ngIf="discussion.orders && discussion.orders.length > 0 && activeTab === 'orders'">
+      <div class="sidebar-section">
+        <div class="section-header" (click)="toggleSection('orders')">
+          <h5>Commandes ({{ discussion.orders.length }})</h5>
+          <span class="toggle-icon">{{ sections.orders ? '−' : '+' }}</span>
+        </div>
+        
+        <div class="section-content" *ngIf="sections.orders">
+          <div *ngFor="let order of discussion.orders" class="order-item">
+            <div class="order-header" (click)="toggleSection('projects-' + order.idOrder)">
+              <h6>Commande: {{ order.orderName }}</h6>
+              <span class="toggle-icon">{{ sections['projects-' + order.idOrder] ? '−' : '+' }}</span>
+            </div>
+
+            <div class="order-details" *ngIf="sections['projects-' + order.idOrder]">
+              <p><strong>Date:</strong> {{ order.createdAt | date }}</p>
+              <p><strong>Client:</strong> {{ order.user?.username || 'Non spécifié' }}</p>
+              <p><strong>Statut:</strong> 
+                <span class="badge" [ngClass]="getOrderStatusClass(order)">
+                  {{ order.annuler ? 'Annulé' : 'Actif' }}
+                </span>
+              </p>
+
+              <!-- Projets de la commande -->
+              <div *ngIf="order.projects && order.projects.length > 0">
+                <h6>Projets associés ({{ order.projects.length }})</h6>
+                <div *ngFor="let project of order.projects" class="project-item">
+                  <div class="project-header">
+                    <p><strong>Référence client:</strong> {{ project.refClient }}</p>
+                    <p><strong>Référence interne:</strong> {{ project.refProdelec }}</p>
+                    <p><strong>Statut:</strong> 
+                      <span class="badge" [ngClass]="getProjectStatusClass(project)">
+                        {{ getProjectStatus(project) }}
+                      </span>
+                    </p>
+                  </div>
+                  
+                  <div class="project-details">
+                    <p><strong>Quantité:</strong> {{ project.qte }}</p>
+                    <p><strong>Date limite:</strong> {{ project.dlp | date }}</p>
+                    <p><strong>Progression:</strong> {{ project.progress }}%</p>
+                    <p><strong>Durée estimée:</strong> {{ project.duree }} jours</p>
+                  </div>
+                  
+                  <!-- Phases du projet -->
+                  <div class="project-phases">
+                    <div *ngIf="project.conceptionResponsibleId">
+                      <p><strong>Conception:</strong> 
+                        <span *ngIf="project.startConception">Début: {{ project.startConception | date }}</span>
+                        <span *ngIf="project.endConception"> - Fin: {{ project.endConception | date }}</span>
+                      </p>
+                    </div>
+                    
+                    <div *ngIf="project.productionResponsibleId">
+                      <p><strong>Production:</strong> 
+                        <span *ngIf="project.startProduction">Début: {{ project.startProduction | date }}</span>
+                        <span *ngIf="project.endProduction"> - Fin: {{ project.endProduction | date }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

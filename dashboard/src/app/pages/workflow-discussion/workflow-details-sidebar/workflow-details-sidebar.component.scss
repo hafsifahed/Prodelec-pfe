@@ -1,6 +1,6 @@
 .details-sidebar {
   padding: 20px;
-  background-color: #f8f9fa;
+  background: #f8f9fa;
   border-left: 1px solid #dee2e6;
   height: 100%;
   overflow-y: auto;
@@ -11,22 +11,154 @@
     border-bottom: 1px solid #dee2e6;
   }
 
+  .sidebar-tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+
+    .tab-button {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-weight: 500;
+      color: #6c757d;
+      transition: all 0.2s;
+
+      &:hover {
+        color: #495057;
+      }
+
+      &.active {
+        color: #4f46e5;
+        border-bottom-color: #4f46e5;
+      }
+
+      & + .tab-button {
+        margin-left: 10px;
+      }
+    }
+  }
+
   .sidebar-section {
     margin-bottom: 25px;
-    padding: 15px;
-    background-color: white;
+    background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
-    h5 {
-      margin-bottom: 15px;
-      color: #495057;
-      font-size: 1.1rem;
+    .section-header {
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+
+      h5, h6 {
+        margin: 0;
+      }
+
+      .toggle-icon {
+        font-weight: bold;
+        font-size: 1.2em;
+      }
     }
 
-    p {
-      margin-bottom: 8px;
-      font-size: 0.9rem;
+    .section-content {
+      padding: 15px;
     }
+
+    .order-item {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+
+      &:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 10px 0;
+      }
+
+      .order-details {
+        padding-left: 15px;
+        border-left: 2px solid #eee;
+        margin-left: 5px;
+      }
+    }
+
+    .project-item {
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 3px solid #4f46e5;
+
+      .project-header {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+
+        p {
+          margin-right: 15px;
+          margin-bottom: 5px;
+        }
+      }
+
+      .project-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .project-phases {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #dee2e6;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &-soft-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+
+  &-soft-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+
+  &-soft-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
+  }
+
+  &-soft-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+
+  &-soft-primary {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
   }
 }

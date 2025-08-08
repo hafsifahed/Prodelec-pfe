@@ -324,19 +324,17 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
   }
 
     async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
-    return this.discussionRepo.findOne({
-      where: { id: discussionId },
-      relations: [
-        'cdc',
-        'devis',
-        'orders',
-        'projects',
-      ],
-      order: {
-        projects: { createdAt: 'ASC' },
-      },
-    });
-  }
+  return this.discussionRepo
+    .createQueryBuilder('discussion')
+    .leftJoinAndSelect('discussion.cdc', 'cdc')
+    .leftJoinAndSelect('cdc.user', 'user')
+    .leftJoinAndSelect('discussion.devis', 'devis')
+    .leftJoinAndSelect('discussion.orders', 'orders')
+    .leftJoinAndSelect('orders.projects', 'projects')
+    .where('discussion.id = :id', { id: discussionId })
+    .orderBy('projects.createdAt', 'ASC')
+    .getOne();
+}
 
   // Additional helpers by linked entities
 
