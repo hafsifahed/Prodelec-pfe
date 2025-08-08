@@ -238,8 +238,10 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+  
+
   // Nouvelle méthode pour envoyer un message
-  sendMessage(content:string): void {
+ /* sendMessage(content:string): void {
     if (!content) {
       this.error = 'Message cannot be empty';
       this.cdr.detectChanges();
@@ -267,7 +269,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.scrollToBottom();
     this.socketService.sendMessage(this.discussionId, content);
 
-    this.subscriptions.add(
+    /*this.subscriptions.add(
       this.discussionService.addMessage(this.discussionId, content).subscribe({
         next: (savedMsg) => {
           const processedMsg = this.processMessage(savedMsg);
@@ -290,7 +292,56 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
         }
       })
     );
+  }*/
+
+    sendMessage(content: string): void {
+  if (!content) {
+    this.error = 'Message cannot be empty';
+    this.cdr.detectChanges();
+    return;
   }
+
+  this.error = null;
+  this.isSending = true;
+
+  const tempId = -Date.now();
+  const tempMsg: WorkflowMessage = {
+    id: tempId,
+    content,
+    author: this.currentUser,
+    createdAt: new Date(),
+    type: 'message'
+  };
+
+  // Ajouter message optimiste
+  let currentMessages = this.messagesSubject.getValue();
+  currentMessages = [...currentMessages, tempMsg];
+  this.messagesSubject.next(currentMessages);
+  this.optimisticMessages.set(tempId, tempMsg);
+
+  this.scrollToBottom();
+
+  // Envoi via socket uniquement
+  this.socketService.sendMessage(this.discussionId, content);
+
+  // Réception du message final depuis le serveur
+  const sub = this.socketService.onMessageReceived().subscribe((savedMsg) => {
+    if (savedMsg.author.id === this.currentUser.id && savedMsg.content === content) {
+      const processedMsg = this.processMessage(savedMsg);
+      const updatedMessages = this.messagesSubject.getValue().map(msg =>
+        msg.id === tempId ? processedMsg : msg
+      );
+
+      this.messagesSubject.next(updatedMessages);
+      this.optimisticMessages.delete(tempId);
+      this.isSending = false;
+      this.messageContent = '';
+      this.cdr.detectChanges();
+      sub.unsubscribe();
+    }
+  });
+}
+
 
   // Nouvelle méthode pour gérer la saisie
   onInput(): void {

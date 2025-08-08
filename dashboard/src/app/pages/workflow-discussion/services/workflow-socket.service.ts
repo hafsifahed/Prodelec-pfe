@@ -11,6 +11,8 @@ export class WorkflowSocketService {
   private socket: Socket | null = null;
   private connectionStatus = new BehaviorSubject<boolean>(false);
 
+    private sentMessages = new Set<string>();
+
   connect(discussionId: number, token: string): void {
     if (this.socket?.connected) return;
 
@@ -30,6 +32,8 @@ export class WorkflowSocketService {
       this.connectionStatus.next(false);
     });
   }
+
+  
 
   onConnectStatus(): Observable<boolean> {
     return this.connectionStatus.asObservable();
