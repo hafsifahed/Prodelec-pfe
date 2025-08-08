@@ -21,6 +21,17 @@ export class WorkflowDiscussionService {
     });
   }
 
+   getFullDiscussion(discussionId: number): Observable<WorkflowDiscussion> {
+    return this.http.get<WorkflowDiscussion>(`${this.apiUrl}/${discussionId}/full`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      catchError(error => {
+        console.error('Error loading full discussion', error);
+        return throwError(() => new Error('Failed to load full discussion details'));
+      })
+    );
+  }
+  
   getDiscussion(discussionId: number): Observable<WorkflowDiscussion> {
     return this.http.get<WorkflowDiscussion>(`${this.apiUrl}/${discussionId}`, {
       headers: this.getAuthHeaders()

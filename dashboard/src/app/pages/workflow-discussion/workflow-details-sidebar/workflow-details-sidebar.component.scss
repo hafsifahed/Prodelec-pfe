@@ -1,0 +1,32 @@
+.details-sidebar {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-left: 1px solid #dee2e6;
+  height: 100%;
+  overflow-y: auto;
+
+  .sidebar-header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .sidebar-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+    h5 {
+      margin-bottom: 15px;
+      color: #495057;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+  }
+}

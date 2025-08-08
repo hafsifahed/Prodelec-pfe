@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/users.entity';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { TransitionPhaseDto } from './dto/transition-phase.dto';
+import { WorkflowDiscussion } from './entities/workflow-discussion.entity';
 import { WorkflowDiscussionService } from './workflow-discussion.service';
 
 @Controller('workflow-discussions')
@@ -46,9 +47,13 @@ async getDiscussionsByUser(
   }
 }
 
+ @Get(':id/full')
+  async getFullDiscussion(@Param('id') id: number): Promise<WorkflowDiscussion> {
+    return this.service.getFullDiscussion(id);
+  }
 
   @Get(':id')
-  async getDiscussion(@Param('id', ParseIntPipe) id: number) {
+  async getDiscussion(@Param('id', ParseIntPipe) id: number):Promise<WorkflowDiscussion> {
     return this.service.getFullDiscussion(id);
   }
 

@@ -1,4 +1,3 @@
-<!-- workflow-discussions-page.component.html -->
 <div class="discussion-app-container" [class.mobile-view]="isMobileView">
   <div class="sidebar-section" [class.hidden]="isMobileView && selectedDiscussionId">
     <app-discussion-list 
@@ -27,5 +26,104 @@
         <p>Sélectionnez une discussion dans la liste pour afficher les messages</p>
       </div>
     </ng-template>
+  </div>
+
+  <!-- Rightbar pour les détails du workflow -->
+  <div class="details-section" *ngIf="selectedDiscussionId && !isMobileView">
+    <div class="details-container">
+      <div class="details-header">
+        <h4>Détails du workflow</h4>
+      </div>
+
+      <div class="loading-indicator" *ngIf="isLoading">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>Chargement des détails...</p>
+      </div>
+
+      <div class="error-message" *ngIf="error && !isLoading">
+        <div class="alert alert-danger">
+          {{ error }}
+          <button class="btn btn-sm btn-light ms-2" (click)="loadDiscussionDetails(selectedDiscussionId!)">
+            Réessayer
+          </button>
+        </div>
+      </div>
+
+      <div class="details-content" *ngIf="currentDiscussion && !isLoading && !error">
+        <!-- Cahier des charges -->
+        <div class="detail-card" *ngIf="currentDiscussion.cdc">
+          <div class="detail-header">
+            <i class="fas fa-file-alt me-2"></i>
+            <h5>Cahier des charges</h5>
+          </div>
+          <div class="detail-body">
+            <p><strong>Titre:</strong> {{ currentDiscussion.cdc.titre }}</p>
+            <p><strong>État:</strong> 
+              <span class="badge" [ngClass]="{
+                'badge-soft-danger': currentDiscussion.cdc.etat === 'Refusé',
+                'badge-soft-warning': currentDiscussion.cdc.etat === 'En attente',
+                'badge-soft-info': currentDiscussion.cdc.etat === 'À compléter',
+                'badge-soft-success': currentDiscussion.cdc.etat === 'Accepté'
+              }">
+                {{ currentDiscussion.cdc.etat }}
+              </span>
+            </p>
+            <p><strong>Date de création:</strong> {{ currentDiscussion.cdc.createdAt | date }}</p>
+          </div>
+        </div>
+
+        <!-- Devis -->
+        <div class="detail-card" *ngIf="currentDiscussion.devis">
+          <div class="detail-header">
+            <i class="fas fa-file-invoice-dollar me-2"></i>
+            <h5>Devis</h5>
+          </div>
+          <div class="detail-body">
+            <p><strong>Numéro:</strong> {{ currentDiscussion.devis.numdevis }}</p>
+            <p><strong>Projet:</strong> {{ currentDiscussion.devis.projet }}</p>
+            <p><strong>État:</strong> 
+              <span class="badge" [ngClass]="{
+                'badge-soft-danger': currentDiscussion.devis.etat === 'Refusé',
+                'badge-soft-warning': currentDiscussion.devis.etat === 'En attente',
+                'badge-soft-info': currentDiscussion.devis.etat === 'Négociation',
+                'badge-soft-success': currentDiscussion.devis.etat === 'Accepté'
+              }">
+                {{ currentDiscussion.devis.etat }}
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Commandes -->
+        <div class="detail-card" *ngIf="currentDiscussion.orders && currentDiscussion.orders.length > 0">
+          <div class="detail-header">
+            <i class="fas fa-shopping-cart me-2"></i>
+            <h5>Commandes ({{ currentDiscussion.orders.length }})</h5>
+          </div>
+          <div class="detail-body">
+            <div *ngFor="let order of currentDiscussion.orders" class="order-item">
+              <p><strong>Référence:</strong> {{ order.orderName }}</p>
+              <p><strong>Date:</strong> {{ order.createdAt | date }}</p>
+              <p><strong>Statut:</strong> {{ order.status }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projets -->
+        <div class="detail-card" *ngIf="currentDiscussion.projects && currentDiscussion.projects.length > 0">
+          <div class="detail-header">
+            <i class="fas fa-project-diagram me-2"></i>
+            <h5>Projets ({{ currentDiscussion.projects.length }})</h5>
+          </div>
+          <div class="detail-body">
+            <div *ngFor="let project of currentDiscussion.projects" class="project-item">
+              <p><strong>Référence client:</strong> {{ project.refClient }}</p>
+              <p><strong>Statut:</strong> {{ project.status }}</p>
+              <p><strong>Date de début:</strong> {{ project.startDate | date }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

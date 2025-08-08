@@ -299,7 +299,7 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
     relations: ['author']
   });
 }
-  async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
+  async getDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
     return this.discussionRepo.findOne({
       where: { id: discussionId },
       relations: [
@@ -319,6 +319,21 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
         messages: { createdAt: 'ASC' },
         orders: { idOrder: 'ASC' },
         projects: { idproject: 'ASC' },
+      },
+    });
+  }
+
+    async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
+    return this.discussionRepo.findOne({
+      where: { id: discussionId },
+      relations: [
+        'cdc',
+        'devis',
+        'orders',
+        'projects',
+      ],
+      order: {
+        projects: { createdAt: 'ASC' },
       },
     });
   }

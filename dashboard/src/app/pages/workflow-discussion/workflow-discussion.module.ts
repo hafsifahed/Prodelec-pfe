@@ -10,6 +10,7 @@ import { MessageInputComponent } from './components/discussion-view/message-inpu
 import { DateFormatPipe } from './pipes/date-format.pipe';
 import { DiscussionListComponent } from './discussion-list/discussion-list.component';
 import { WorkflowDiscussionsPageComponent } from './workflow-discussions-page/workflow-discussions-page.component';
+import { WorkflowDetailsSidebarComponent } from './workflow-details-sidebar/workflow-details-sidebar.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { WorkflowDiscussionsPageComponent } from './workflow-discussions-page/wo
     MessageInputComponent,
     DateFormatPipe,
     DiscussionListComponent,
-    WorkflowDiscussionsPageComponent
+    WorkflowDiscussionsPageComponent,
+    WorkflowDetailsSidebarComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,39 @@
+<div class="details-sidebar" *ngIf="discussion">
+  <div class="sidebar-header">
+    <h4>Détails du workflow</h4>
+  </div>
+
+  <!-- Cahier des charges -->
+  <div class="sidebar-section" *ngIf="discussion.cdc">
+    <h5>Cahier des charges</h5>
+    <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
+    <p><strong>État:</strong> {{ discussion.cdc.etat }}</p>
+    <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
+  </div>
+
+  <!-- Devis -->
+  <div class="sidebar-section" *ngIf="discussion.devis">
+    <h5>Devis</h5>
+    <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
+    <p><strong>Projet:</strong> {{ discussion.devis.projet }}</p>
+    <p><strong>État:</strong> {{ discussion.devis.etat }}</p>
+  </div>
+
+  <!-- Orders -->
+  <div class="sidebar-section" *ngIf="discussion.orders && discussion.orders.length > 0">
+    <h5>Commandes</h5>
+    <div *ngFor="let order of discussion.orders">
+      <p><strong>Référence:</strong> {{ order.orderName }}</p>
+      <p><strong>Date:</strong> {{ order.createdAt | date }}</p>
+    </div>
+  </div>
+
+  <!-- Projets -->
+  <div class="sidebar-section" *ngIf="discussion.projects && discussion.projects.length > 0">
+    <h5>Projets</h5>
+    <div *ngFor="let project of discussion.projects">
+      <p><strong>Référence client:</strong> {{ project.refClient }}</p>
+      <p><strong>Statut:</strong> {{ project.status }}</p>
+    </div>
+  </div>
+</div>
