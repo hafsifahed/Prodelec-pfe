@@ -1,4 +1,5 @@
 <div class="discussion-app-container" [class.mobile-view]="isMobileView">
+  <!-- Left Sidebar - Liste des discussions -->
   <div class="sidebar-section" [class.hidden]="isMobileView && selectedDiscussionId">
     <app-discussion-list 
       (discussionSelected)="onDiscussionSelected($event)"
@@ -6,6 +7,7 @@
     </app-discussion-list>
   </div>
 
+  <!-- Section centrale - Chat -->
   <div class="chat-section" *ngIf="selectedDiscussionId || !isMobileView">
     <ng-container *ngIf="selectedDiscussionId; else emptyState">
       <div class="chat-header">
@@ -28,8 +30,16 @@
     </ng-template>
   </div>
 
-  <!-- Rightbar pour les détails du workflow -->
-  <div class="details-section" *ngIf="selectedDiscussionId && !isMobileView">
-    <app-workflow-details-sidebar [discussion]="currentDiscussion"></app-workflow-details-sidebar>
+  <!-- Right Sidebar - Détails redimensionnable -->
+  <div class="details-section" *ngIf="selectedDiscussionId && !isMobileView" [style.width.px]="sidebarWidth">
+    <div class="resize-handle" 
+         (mousedown)="startResizing($event)"
+         [class.active]="isResizing"></div>
+    <div class="details-container">
+      <div class="details-header">
+        <h4>Détails du workflow</h4>
+      </div>
+      <app-workflow-details-sidebar [discussion]="currentDiscussion"></app-workflow-details-sidebar>
+    </div>
   </div>
 </div>

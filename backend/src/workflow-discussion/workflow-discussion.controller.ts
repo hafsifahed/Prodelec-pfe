@@ -54,7 +54,7 @@ async getDiscussionsByUser(
 
   @Get(':id')
   async getDiscussion(@Param('id', ParseIntPipe) id: number):Promise<WorkflowDiscussion> {
-    return this.service.getFullDiscussion(id);
+    return this.service.getDiscussion(id);
   }
 
   @Post(':id/messages')

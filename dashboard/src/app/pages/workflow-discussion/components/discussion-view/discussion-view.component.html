@@ -47,7 +47,7 @@
   </div>
 
   <app-message-input style="padding-bottom: 50px;"
-    (messageSent)="handleMessageSent($event)"
+    (messageSent)="sendMessage($event)"
     (typing)="handleTyping()"
     [disabled]="!isConnected || isSending">
   </app-message-input>

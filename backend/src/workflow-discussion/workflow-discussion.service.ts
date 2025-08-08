@@ -117,6 +117,7 @@ export class WorkflowDiscussionService {
       author,
       discussion,
       type: WorkflowMessageType.MESSAGE,
+      phase: discussion.currentPhase 
     });
 
     return this.messageRepo.save(message);
@@ -299,44 +300,52 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
     relations: ['author']
   });
 }
+
   async getDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
-    return this.discussionRepo.findOne({
-      where: { id: discussionId },
-      relations: [
-        'cdc',
-        'cdc.user',
-        'devis',
-        'devis.user',
-        'orders',
-        'orders.user',
-        'projects',
-        'projects.order',
-        'projects.order.user',
-        'messages',
-        'messages.author',
-      ],
-      order: {
-        messages: { createdAt: 'ASC' },
-        orders: { idOrder: 'ASC' },
-        projects: { idproject: 'ASC' },
-      },
-    });
-  }
+  return this.discussionRepo
+    .createQueryBuilder('discussion')
+    .leftJoinAndSelect('discussion.cdc', 'cdc')
+    .leftJoinAndSelect('cdc.user', 'cdcUser')
+    .leftJoinAndSelect('discussion.devis', 'devis')
+    .leftJoinAndSelect('devis.user', 'devisUser')
+    .leftJoinAndSelect('discussion.orders', 'orders')
+    .leftJoinAndSelect('orders.user', 'orderUser')
+    .leftJoinAndSelect('discussion.projects', 'projects')
+    .leftJoinAndSelect('projects.order', 'projectOrder')
+    .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
+    .leftJoinAndSelect(
+      'discussion.messages', 
+      'messages', 
+      'messages.phase = discussion.currentPhase'
+    )
+    .leftJoinAndSelect('messages.author', 'messageAuthor')
+    .where('discussion.id = :id', { id: discussionId })
+    .orderBy('messages.createdAt', 'ASC')
+    .addOrderBy('orders.idOrder', 'ASC')
+    .addOrderBy('projects.idproject', 'ASC')
+    .getOne();
+}
 
     async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
   return this.discussionRepo
     .createQueryBuilder('discussion')
     .leftJoinAndSelect('discussion.cdc', 'cdc')
-    .leftJoinAndSelect('cdc.user', 'user')
+    .leftJoinAndSelect('cdc.user', 'cdcUser')
     .leftJoinAndSelect('discussion.devis', 'devis')
+    .leftJoinAndSelect('devis.user', 'devisUser')
     .leftJoinAndSelect('discussion.orders', 'orders')
+    .leftJoinAndSelect('orders.user', 'orderUser')
     .leftJoinAndSelect('orders.projects', 'projects')
+    .leftJoinAndSelect('projects.order', 'projectOrder')
+    .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
+   
     .where('discussion.id = :id', { id: discussionId })
-    .orderBy('projects.createdAt', 'ASC')
+    .addOrderBy('orders.idOrder', 'ASC')
+    .addOrderBy('projects.idproject', 'ASC')
+    .addOrderBy('projects.createdAt', 'ASC')
     .getOne();
 }
 
-  // Additional helpers by linked entities
 
   async getDiscussionByDevis(devisId: number): Promise<WorkflowDiscussion> {
     const devis = await this.devisRepo.findOne({

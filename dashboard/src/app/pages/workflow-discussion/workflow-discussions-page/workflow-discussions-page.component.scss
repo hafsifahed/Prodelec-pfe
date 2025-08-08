@@ -150,20 +150,40 @@
   }
 }
 
-/* Nouveaux styles pour le rightbar */
+/* Right Sidebar - Redimensionnable */
 .details-section {
-  flex: 0 0 350px;
-  background: white;
   position: relative;
-  z-index: 1;
+  flex: 0 0 auto;
+  background: white;
   border-left: 1px solid #e2e8f0;
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.03);
   overflow-y: auto;
+  height: 100%;
+  transition: width 0.2s ease;
   
+  .resize-handle {
+    position: absolute;
+    left: -4px;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background-color 0.2s;
+    
+    &:hover, &.active {
+      background-color: rgba(79, 70, 229, 0.2);
+    }
+  }
+
   .details-container {
     padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
   }
-  
+
   .details-header {
     padding-bottom: 15px;
     margin-bottom: 20px;
@@ -176,7 +196,7 @@
       color: #1e293b;
     }
   }
-  
+
   .loading-indicator {
     display: flex;
     flex-direction: column;
@@ -263,6 +283,20 @@
   }
 }
 
+/* Styles pendant le redimensionnement */
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
+  
+  * {
+    pointer-events: none;
+  }
+  
+  .resize-handle {
+    pointer-events: auto;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .discussion-app-container.mobile-view {
@@ -344,5 +378,38 @@
         font-size: 40px;
       }
     }
+  }
+}
+
+/* Badge styles */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &-soft-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+
+  &-soft-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+
+  &-soft-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
+  }
+
+  &-soft-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+
+  &-soft-primary {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
   }
 }

@@ -13,6 +13,13 @@ export enum WorkflowMessageType {
   SYSTEM_EVENT = 'system_event',
 }
 
+export enum WorkflowPhase {
+  CDC = 'cdc',
+  DEVIS = 'devis',
+  ORDER = 'order',
+  PROJECT = 'project',
+}
+
 @Entity('workflow_messages')
 export class WorkflowMessage {
   @PrimaryGeneratedColumn()
@@ -33,6 +40,14 @@ export class WorkflowMessage {
     default: WorkflowMessageType.MESSAGE,
   })
   type: WorkflowMessageType;
+
+  @Column({
+    type: 'enum',
+    enum: WorkflowPhase,
+    enumName: 'workflow_phase_enum', // Ajout crucial
+    nullable: true,
+  })
+  phase: WorkflowPhase;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -239,8 +239,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // Nouvelle méthode pour envoyer un message
-  sendMessage(): void {
-    const content = this.messageContent.trim();
+  sendMessage(content:string): void {
     if (!content) {
       this.error = 'Message cannot be empty';
       this.cdr.detectChanges();
