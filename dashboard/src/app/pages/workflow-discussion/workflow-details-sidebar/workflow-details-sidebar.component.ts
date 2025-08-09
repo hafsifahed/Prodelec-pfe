@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { WorkflowDiscussion } from '../models/workflow-discussion.model';
 
 @Component({
@@ -6,7 +6,7 @@ import { WorkflowDiscussion } from '../models/workflow-discussion.model';
   templateUrl: './workflow-details-sidebar.component.html',
   styleUrls: ['./workflow-details-sidebar.component.scss']
 })
-export class WorkflowDetailsSidebarComponent {
+export class WorkflowDetailsSidebarComponent implements OnChanges {
   @Input() discussion: WorkflowDiscussion | null = null;
   
   // State for collapsible sections
@@ -19,6 +19,42 @@ export class WorkflowDetailsSidebarComponent {
 
   // Active tab state
   activeTab: string = 'cdc';
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['discussion'] && this.discussion?.currentPhase) {
+      this.setActiveTabBasedOnPhase();
+    }
+  }
+
+  private setActiveTabBasedOnPhase(): void {
+    if (!this.discussion) return;
+
+    switch (this.discussion.currentPhase.toLowerCase()) {
+      case 'cdc':
+        if (this.discussion.cdc) this.activeTab = 'cdc';
+        break;
+      case 'devis':
+        if (this.discussion.devis) this.activeTab = 'devis';
+        break;
+      case 'order':
+      case 'orders':
+      case 'project':
+      case 'projects':
+        if (this.discussion.orders && this.discussion.orders.length > 0) {
+          this.activeTab = 'orders';
+        }
+        break;
+      default:
+        // Fallback logic
+        if (this.discussion.devis) {
+          this.activeTab = 'devis';
+        } else if (this.discussion.orders && this.discussion.orders.length > 0) {
+          this.activeTab = 'orders';
+        } else {
+          this.activeTab = 'cdc';
+        }
+    }
+  }
 
   getOrderStatusClass(order: any): string {
     if (order.annuler) return 'badge-soft-danger';

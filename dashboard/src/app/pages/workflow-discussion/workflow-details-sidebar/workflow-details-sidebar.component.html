@@ -1,10 +1,11 @@
 <div class="details-sidebar" *ngIf="discussion">
   <div class="sidebar-header">
     <h4>Détails du workflow</h4>
+        <small class="text-muted">Phase actuelle: {{ discussion.currentPhase | uppercase }}</small>
   </div>
 
   <!-- Navigation Tabs -->
-  <nav class="sidebar-tabs">
+   <nav class="sidebar-tabs">
     <button 
       class="tab-button" 
       [class.active]="activeTab === 'cdc'" 

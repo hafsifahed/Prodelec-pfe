@@ -109,6 +109,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.subscriptions.add(
       this.discussionService.getDiscussion(this.discussionId).subscribe({
         next: (discussion) => {
+            console.log('discussion detail :',discussion)
           this.discussion = discussion;
           const processedMessages = (discussion.messages || []).map(msg => this.processMessage(msg));
           this.messagesSubject.next(processedMessages);
@@ -238,62 +239,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  
-
-  // Nouvelle méthode pour envoyer un message
- /* sendMessage(content:string): void {
-    if (!content) {
-      this.error = 'Message cannot be empty';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.error = null;
-    this.isSending = true;
-    this.cdr.detectChanges();
-
-    const tempId = -Date.now();
-    const tempMsg: WorkflowMessage = {
-      id: tempId,
-      content: content,
-      author: this.currentUser,
-      createdAt: new Date(),
-      type: 'message'
-    };
-
-    this.optimisticMessages.set(tempId, tempMsg);
-    const currentMessages = this.messagesSubject.getValue();
-    this.messagesSubject.next([...currentMessages, tempMsg]);
-    this.cdr.detectChanges();
-    
-    this.scrollToBottom();
-    this.socketService.sendMessage(this.discussionId, content);
-
-    /*this.subscriptions.add(
-      this.discussionService.addMessage(this.discussionId, content).subscribe({
-        next: (savedMsg) => {
-          const processedMsg = this.processMessage(savedMsg);
-          const updatedMessages = currentMessages.map(msg => 
-            msg.id === tempId ? processedMsg : msg
-          );
-          this.messagesSubject.next(updatedMessages);
-          this.optimisticMessages.delete(tempId);
-          this.isSending = false;
-          this.cdr.detectChanges();
-          this.messageContent = ''; // Réinitialiser le champ de saisie
-        },
-        error: (err) => {
-          const filteredMessages = currentMessages.filter(msg => msg.id !== tempId);
-          this.messagesSubject.next(filteredMessages);
-          this.optimisticMessages.delete(tempId);
-          this.error = err.message || "Failed to send message";
-          this.isSending = false;
-          this.cdr.detectChanges();
-        }
-      })
-    );
-  }*/
-
     sendMessage(content: string): void {
   if (!content) {
     this.error = 'Message cannot be empty';
@@ -400,4 +345,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
     if (this.typingDebounce) clearTimeout(this.typingDebounce);
   }
+
+  
 }
