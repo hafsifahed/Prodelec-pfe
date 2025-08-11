@@ -112,6 +112,8 @@ import { NegociationDevisModalComponent } from './devis/modals/negociation-devis
 import { ArchiveDevisAdminModalComponent } from './devis/modals/archive-devis-admin-modal/archive-devis-admin-modal.component';
 import { RefuseDevisAdminModalComponent } from './devis/modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
 import { DetailsDevisAdminModalComponent } from './devis/modals/details-devis-admin-modal/details-devis-admin-modal.component';
+import { EditOrderUserModalComponent } from './order/modals/edit-order-user-modal/edit-order-modal.component';
+import { AddProjectModalComponent } from './order/modals/add-project-modal/add-project-modal.component';
 
 
 @NgModule({
@@ -195,6 +197,8 @@ import { DetailsDevisAdminModalComponent } from './devis/modals/details-devis-ad
     ArchiveDevisAdminModalComponent,
     RefuseDevisAdminModalComponent,
     DetailsDevisAdminModalComponent,
+    EditOrderUserModalComponent,
+    AddProjectModalComponent,
 
   ],
   imports: [

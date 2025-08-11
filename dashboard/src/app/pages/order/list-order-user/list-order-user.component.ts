@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpEvent, HttpEventType } from '@angular/common/htt
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ModalDirective } from 'ngx-bootstrap/modal';
+import { BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 import { Order } from 'src/app/core/models/order/order';
 import { OrderDto } from 'src/app/core/models/order/order-dto';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { saveAs } from 'file-saver';
 import { User } from 'src/app/core/models/auth.models';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import { EditOrderUserModalComponent } from '../modals/edit-order-user-modal/edit-order-modal.component';
 
 @Component({
   selector: 'app-list-order-user',
@@ -42,6 +43,7 @@ export class ListOrderUserComponent implements OnInit {
     private orderservice: OrderServiceService,
     private userStateService: UserStateService,
     private formBuilder: UntypedFormBuilder,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
@@ -168,17 +170,18 @@ export class ListOrderUserComponent implements OnInit {
     }
   }
 
-  editModal(id: number) {
-    this.submitted = false;
-    this.showModal?.show();
+  openEditModal(id: number) {
     this.orderservice.getOrderById(id).subscribe({
       next: data => {
-        this.order = data;
-        this.ordersForm.patchValue({
-          numcomm: this.order.orderName,
-          attach: this.order.attachementName ?? ''
+        const initialState = {
+          order: data,
+          username: this.user?.username
+        };
+        
+        const modalRef = this.modalService.show(EditOrderUserModalComponent, { initialState });
+        modalRef.content.onOrderUpdated.subscribe(() => {
+          this.loadOrder(this.user);
         });
-        this.attachementName = this.order.attachementName ?? '';
       },
       error: () => {
         Swal.fire('Erreur', 'Impossible de charger la commande', 'error');
@@ -292,5 +295,38 @@ export class ListOrderUserComponent implements OnInit {
     const years = this.list.map(order => new Date(order.createdAt).getFullYear().toString());
     return ['Tous', ...Array.from(new Set(years))];
   }
+
+  delete(id: number) {
+      Swal.fire({
+        title: 'Vous êtes sûr ?',
+        text: 'Vous ne pouvez pas revenir en arrière !',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.orderservice.deleteOrder(id).subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Supprimé!',
+                text: 'La commande a été supprimée.',
+                icon: 'success',
+              });
+              this.loadOrder(this.user);
+            },
+            error: () => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Il y a un problème!',
+              });
+            },
+          });
+        }
+      });
+    }
+
 
 }

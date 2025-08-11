@@ -6,6 +6,7 @@ import {
     OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../../devis/entities/devi.entity';
@@ -53,4 +54,7 @@ export class WorkflowDiscussion {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updateddAt: Date;
 }

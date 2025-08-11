@@ -67,7 +67,7 @@
           <td>{{ data.updatedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
           <td>
             <div class="d-flex gap-3">
-              <a href="javascript:void(0);" class="text-success" (click)="editModal(data.idOrder)"><i
+              <a href="javascript:void(0);" class="text-success" (click)="openEditModal(data.idOrder)"><i
                   class="mdi mdi-pencil font-size-18"></i></a>
               <a href="javascript:void(0);" class="text-danger" (click)="delete(data.idOrder)"><i
                   class="mdi mdi-delete font-size-18"></i></a>
@@ -84,31 +84,4 @@
     <pagination-controls (pageChange)="p = $event"></pagination-controls>
   </div>
 
-  <!-- Modal modification -->
-  <div bsModal #showModal="bs-modal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modifier la commande</h5>
-          <button type="button" class="btn-close" (click)="showModal.hide()"></button>
-        </div>
-        <div class="modal-body">
-          <form (ngSubmit)="update()" [formGroup]="ordersForm" novalidate>
-            <div class="mb-3">
-              <label for="customername-field" class="form-label">Numéro de commande</label>
-              <input type="text" id="customername-field" class="form-control" required formControlName="numcomm" />
-            </div>
-            <div class="mb-3">
-              <label for="customer-field" class="form-label">Sélectionner la commande à partir de votre PC</label>
-              <input type="file" (change)="onUploadFile($event)" id="customer-field" class="form-control" required formControlName="attach" />
-            </div>
-            <div class="text-end">
-              <button type="button" class="btn btn-outline-secondary me-1" (click)="showModal.hide()">Annuler</button>
-              <button type="submit" class="btn btn-success">Modifier</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
