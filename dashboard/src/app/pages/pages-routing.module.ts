@@ -20,7 +20,7 @@ import {AvisComponent} from "./avis/avis.component";
 import {ListAvisComponent} from "./list-avis/list-avis.component";
 import { C } from '@fullcalendar/core/internal-common';
 import { CDCListUserComponent } from './cahierDesCharges/cdc-list-user/cdc-list-user.component';
-import { AddCdCComponent } from './cahierDesCharges/add-cd-c/add-cd-c.component';
+import { AddCdCComponent } from './cahierDesCharges/modals/add-cd-c/add-cd-c.component';
 import { CDCListAdminComponent } from './cahierDesCharges/cdc-list-admin/cdc-list-admin.component';
 import { ReclamationListComponent } from './reclamation/reclamation-list/reclamation-list.component';
 import { DevisAdminlistComponent } from './devis/devis-adminlist/devis-adminlist.component';

@@ -3,7 +3,7 @@ import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal'
 import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
-import { AddCdCComponent } from '../add-cd-c/add-cd-c.component';
+import { AddCdCComponent } from '../modals/add-cd-c/add-cd-c.component';
 import { UserModel } from 'src/app/core/models/user.models';
 import { UsersService } from 'src/app/core/services/users.service';
 

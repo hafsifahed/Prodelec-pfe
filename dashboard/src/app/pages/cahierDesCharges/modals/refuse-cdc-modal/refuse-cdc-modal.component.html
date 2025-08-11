@@ -1,0 +1,12 @@
+<!-- refuse-cdc-modal.component.html -->
+<div class="modal-header">
+  <h4 class="modal-title">Refuser le Cahier des Charges</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Veuillez entrer un commentaire pour le refus" rows="4"></textarea>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-danger" (click)="confirmRefuse()">Refuser</button>
+</div>

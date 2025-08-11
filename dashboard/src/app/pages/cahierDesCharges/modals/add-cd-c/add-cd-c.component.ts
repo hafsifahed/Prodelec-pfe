@@ -4,7 +4,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { CahierDesCharges, EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
-import { CDCListUserComponent } from '../cdc-list-user/cdc-list-user.component';
+import { CDCListUserComponent } from '../../cdc-list-user/cdc-list-user.component';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { EmailService } from 'src/app/core/services/email.service';
 import { User } from 'src/app/core/models/auth.models';

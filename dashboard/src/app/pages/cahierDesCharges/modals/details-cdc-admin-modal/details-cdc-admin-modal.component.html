@@ -1,0 +1,51 @@
+<!-- details-cdc-admin-modal.component.html -->
+<div class="modal-header">
+  <h5 class="modal-title">Détails du Cahier des Charges</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body modal-body-centered">
+  <div class="mb-3">
+    <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
+    <p *ngIf="cahier?.commentaire" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.commentaire }}</p>
+    <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date }}</p>
+    <p><strong>Client:</strong> {{ cahier?.user?.partner?.name }}</p>
+    <p *ngIf="cahier?.user"><strong>Email:</strong> {{ cahier.user.email }}</p>
+
+    <div class="mb-3">
+      <strong>État:</strong>
+      <span class="badge badge-pill font-size-13"
+        [ngClass]="{
+          'badge-soft-danger': cahier?.etat === 'Refusé',
+          'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
+          'badge-soft-info': cahier?.etat === 'À compléter',
+          'badge-soft-success': cahier?.etat === 'Accepté'
+        }">
+        {{ cahier?.etat }}
+      </span>
+    </div>
+
+    <!-- Fichiers joints -->
+    <div *ngIf="cahier?.files && cahier.files.length > 0">
+      <p><strong>Fichiers joints :</strong></p>
+      <ul class="list-unstyled">
+        <li *ngFor="let file of cahier.files" class="d-flex align-items-center mb-2">
+          <i class="bx bxs-file-pdf me-2" style="font-size: 1.2rem;"></i>
+          <span class="me-3">{{ file.nomFichier }}</span>
+          <button type="button" class="btn btn-sm btn-primary me-2" (click)="loadPDF(file.nomFichier)">Voir PDF</button>
+          <button type="button" class="btn btn-sm btn-secondary" (click)="downloadFile(file.nomFichier, cahier.id!)">Télécharger</button>
+        </li>
+      </ul>
+    </div>
+
+    <ngx-extended-pdf-viewer 
+      *ngIf="pdfUrl" 
+      [src]="pdfUrl" 
+      useBrowserLocale="true" 
+      height="400px" 
+      [showToolbar]="true" 
+      [showFindButton]="true" 
+      [textLayer]="true" 
+      [showSidebarOnLoad]="false">
+    </ngx-extended-pdf-viewer>
+  </div>
+</div>

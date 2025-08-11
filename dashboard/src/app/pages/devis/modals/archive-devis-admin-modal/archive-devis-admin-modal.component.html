@@ -1,0 +1,16 @@
+<!-- archive-devis-admin-modal.component.html -->
+<div class="modal-header bg-light">
+  <h5 class="modal-title">Confirmation d'archivage</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <p>Êtes-vous sûr de vouloir archiver ce devis ?</p>
+  <div class="alert alert-warning">
+    <i class="mdi mdi-alert-circle-outline me-1"></i>
+    Le devis ne sera plus visible dans la liste principale mais restera accessible dans l'archive.
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-danger" (click)="confirmArchive()">Confirmer l'archivage</button>
+</div>

@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 @Component({
   selector: 'app-cropper-dialog',
   templateUrl: './cropper-dialog.component.html',
-  styleUrls: ['./cropper-dialog.component.scss']
+  //styleUrls: ['./cropper-dialog.component.scss']
 })
 export class CropperDialogComponent {
   imageChangedEvent: any;

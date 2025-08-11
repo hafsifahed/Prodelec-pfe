@@ -71,20 +71,6 @@
   <div class="alert alert-info container">Aucun Cahier des Charges disponible.</div>
 </ng-template>
 
-<!-- Modal Confirmation Archive -->
-<ng-template #deleteModal>
-  <div class="modal-header">
-    <h4 class="modal-title">Confirmation</h4>
-    <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p>Voulez-vous vraiment archiver ce cahier des charges ?</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
-  </div>
-</ng-template>
 
 <!-- Modal Ajout Cahier des Charges -->
 <ng-template #addCdcModal>
@@ -97,96 +83,4 @@
   </div>
 </ng-template>
 
-<!-- Modal Détails Cahier des Charges -->
-<ng-template #detailsModal>
-  <div class="modal-header">
-    <h5 class="modal-title">Détails du Cahier des Charges</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <div class="mb-3">
-      <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-      <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date }}</p>
-      <p *ngIf="cahier?.user"><strong>Client:</strong> {{ cahier.user?.username }} ({{ cahier.user?.partner?.name }})</p>
 
-      <div class="mb-3">
-        <strong>État:</strong>
-        <span class="badge badge-pill font-size-13"
-          [ngClass]="{
-            'badge-soft-danger': cahier?.etat === 'Refusé',
-            'badge-soft-warning': cahier?.etat?.toLowerCase() === 'En attente',
-            'badge-soft-info': cahier?.etat === 'À compléter',
-            'badge-soft-success': cahier?.etat === 'Accepté'
-          }">
-          {{ cahier?.etat }}
-        </span>
-      </div>
-
-      <!-- Section des fichiers -->
-      <div *ngIf="cahier?.files && cahier.files.length > 0">
-        <p><strong>Fichiers:</strong></p>
-        <div *ngFor="let file of cahier.files" class="d-flex align-items-center mb-2">
-          <div class="attachment-icon me-2">
-            <i class="bx bxs-file-pdf"></i>
-          </div>
-          <div class="attachment-details flex-grow-1">
-            <a [href]="getDownloadLink(file.nomFichier)" target="_blank" rel="noopener noreferrer">
-              {{ file.nomFichier }}
-            </a>
-          </div>
-          <button class="btn btn-sm btn-danger" (click)="deleteFile(file.id)" title="Supprimer ce fichier">
-            <i class="mdi mdi-delete"></i>
-          </button>
-        </div>
-      </div>
-
-      <button class="btn btn-primary mb-3" (click)="openUploadModal(cahier?.id!)">
-        Ajouter un fichier
-      </button>
-    </div>
-
-    <hr />
-
-    <div *ngIf="cahier?.commentaire">
-      <p><strong>Commentaire:</strong> {{ cahier.commentaire }}</p>
-    </div>
-
-    <div *ngIf="cahier?.etat === 'À compléter'" class="mt-3">
-      <div class="alert alert-info d-flex align-items-center">
-        <i class="bx bx-info-circle me-2" style="font-size: 1.5rem;"></i>
-        Le responsable a demandé des fichiers supplémentaires
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Modal d'ajout de fichier -->
-<ng-template #uploadModal>
-  <div class="modal-header">
-    <h5 class="modal-title">Ajouter un fichier</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <input
-      type="file"
-      class="form-control"
-      (change)="onFilesSelected($event)"
-      multiple
-      #fileInput
-      aria-label="Sélectionnez un ou plusieurs fichiers"
-    />
-    <div *ngIf="selectedFiles.length > 0" class="mt-2">
-      <p>Fichiers sélectionnés :</p>
-      <ul>
-        <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
-      </ul>
-    </div>
-    <button
-      class="btn btn-primary mt-2"
-      (click)="uploadFiles()"
-      [disabled]="selectedFiles.length === 0"
-    >
-      <i class="mdi mdi-upload me-1"></i> Uploader ({{ selectedFiles.length }})
-    </button>
-  </div>
-</ng-template>

@@ -5,6 +5,10 @@ import { Devis, EtatDevis } from 'src/app/core/models/Devis/devis';
 import { DevisService } from 'src/app/core/services/Devis/devis.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
+import { ArchiveDevisModalComponent } from '../modals/archive-devis-modal/archive-devis-modal.component';
+import { RefuseDevisModalComponent } from '../modals/refuse-devis-modal/refuse-devis-modal.component';
+import { DetailsDevisModalComponent } from '../modals/details-devis-modal/details-devis-modal.component';
+import { NegociationDevisModalComponent } from '../modals/negociation-devis-modal/negociation-devis-modal.component';
 
 @Component({
   selector: 'app-devis-userlist',
@@ -12,26 +16,17 @@ import Swal from 'sweetalert2';
   styleUrls: ['./devis-userlist.component.scss']
 })
 export class DevisUserlistComponent {
-  rejectId: number | null = null;
   devisDetails: Devis;
   devis: Devis[] = [];
   modalRef?: BsModalRef;
   filteredDevis: Devis[] = [];
-  commentaire: string = '';
   selectedYear: string = 'All'; 
   searchQuery: string = '';
   p: number = 1;
   itemsPerPage: number = 5;
   isAscending: boolean = true;
   user: User | null = null;
-  errorMessage: string;
-  negociationId: number | null = null;
   EtatDevis = EtatDevis;
-
-  @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
-  @ViewChild('commentModal', { static: false }) commentModal?: TemplateRef<any>;
-  @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
-  @ViewChild('negociationModal') negociationModal?: TemplateRef<any>;
 
   constructor(
     private devisService: DevisService,
@@ -150,100 +145,45 @@ export class DevisUserlistComponent {
     });
   }
 
-  openDeleteModal(id: number, template: TemplateRef<any>): void {
-    this.rejectId = id;
-    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
-  }
+  openDeleteModal(id: number): void {
+  const initialState = { archiveId: id };
+  this.modalRef = this.modalService.show(ArchiveDevisModalComponent, { initialState });
+  this.modalRef.content.onArchived.subscribe(() => {
+    if (this.user) this.loadDevis(this.user);
+  });
+}
 
-  openNegociationModal(id: number, template: TemplateRef<any>): void {
-    this.negociationId = id;
-    this.commentaire = '';
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
+  openNegociationModal(id: number): void {
+  const initialState = { negociationId: id };
+  this.modalRef = this.modalService.show(NegociationDevisModalComponent, { initialState });
+  this.modalRef.content.onNegociationStarted.subscribe(() => {
+    if (this.user) this.loadDevis(this.user);
+  });
+}
 
-  confirmDelete(): void {
-    if (this.rejectId !== null) {
-      this.devisService.archiverU(this.rejectId).subscribe(
-        () => {
-          Swal.fire({
-            title: 'Archivé!',
-            text: "Le devis a été archivé avec succès.",
-            icon: 'success'
-          });
-          if (this.user) {
-            this.loadDevis(this.user);
-          }
-          this.modalRef?.hide();
-        },
-        error => {
-          console.error('Error deleting devis', error);
-          Swal.fire('Erreur', 'Impossible d\'archiver le devis', 'error');
-          this.rejectId = null;
-          this.modalRef?.hide();
-        }
-      );
-    }
-  }
 
   openDetailsModal(id: number): void {
-    this.devisService.getById(id).subscribe(
-      (data) => {
-        this.devisDetails = data;
-        this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-md' });
-      },
-      (error) => {
-        console.error('Error fetching devis details', error);
-        Swal.fire('Erreur', 'Impossible de charger les détails du devis', 'error');
-      }
-    );
-  }
-
-  openCommentModal(id: number, template: TemplateRef<any>): void {
-    this.rejectId = id;
-    this.commentaire = '';
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
-
-  confirmRefuserCahier(): void {
-    if (this.rejectId !== null && this.commentaire.trim()) {
-      this.devisService.rejectdevis(this.rejectId, this.commentaire).subscribe(
-        (response) => {
-          Swal.fire('Succès', 'Le devis a été refusé.', 'success');
-          if (this.user) {
-            this.loadDevis(this.user);
-          }
-          this.modalRef?.hide();
-          this.rejectId = null;
-          this.commentaire = '';
-        },
-        (error) => {
-          console.error('Error rejecting devis', error);
-          Swal.fire('Erreur', 'Impossible de refuser le devis', 'error');
-          this.modalRef?.hide();
-        }
-      );
-    }
-  }
-
-  confirmCommencerNegociation(): void {
-    if (this.negociationId !== null) {
-      this.devisService.negocierDevis(this.negociationId, this.commentaire).subscribe({
-        next: (updatedDevis) => {
-          Swal.fire('Mise à jour', 'Le devis est maintenant en négociation.', 'success');
-          if (this.user) {
-            this.loadDevis(this.user);
-          }
-          this.modalRef?.hide();
-          this.negociationId = null;
-          this.commentaire = '';
-        },
-        error: (error) => {
-          console.error('Erreur lors du démarrage de la négociation', error);
-          Swal.fire('Erreur', 'Impossible de commencer la négociation.', 'error');
-        }
+  this.devisService.getById(id).subscribe(
+    (data) => {
+      const initialState = { devis: data };
+      this.modalRef = this.modalService.show(DetailsDevisModalComponent, { initialState });
+      this.modalRef.content.onDownload.subscribe((fileName: string) => {
+        this.telechargerPieceJointe(fileName);
       });
-    } else {
-      Swal.fire('Attention', 'Aucun devis sélectionné pour la négociation.', 'warning');
+    },
+    (error) => {
+      console.error('Error fetching devis details', error);
+      Swal.fire('Erreur', 'Impossible de charger les détails du devis', 'error');
     }
-  }
+  );
+}
+
+  openCommentModal(id: number): void {
+  const initialState = { refuseId: id };
+  this.modalRef = this.modalService.show(RefuseDevisModalComponent, { initialState });
+  this.modalRef.content.onRefused.subscribe(() => {
+    if (this.user) this.loadDevis(this.user);
+  });
+}
+
 }

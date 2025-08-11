@@ -46,7 +46,7 @@ import { ListSessionWorkersComponent } from './list-session-workers/list-session
 import { ListNotificationsComponent } from './list-notifications/list-notifications.component';
 import { AvisComponent } from './avis/avis.component';
 import { ListAvisComponent } from './list-avis/list-avis.component';
-import { AddCdCComponent } from './cahierDesCharges/add-cd-c/add-cd-c.component';
+import { AddCdCComponent } from './cahierDesCharges/modals/add-cd-c/add-cd-c.component';
 import { CDCListUserComponent } from './cahierDesCharges/cdc-list-user/cdc-list-user.component';
 import { CDCListAdminComponent } from './cahierDesCharges/cdc-list-admin/cdc-list-admin.component';
 import { ReclamationListComponent } from './reclamation/reclamation-list/reclamation-list.component';
@@ -97,6 +97,21 @@ import { ChangePasswordModalComponent } from './setting/security-settings/change
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { CropperDialogComponent } from './setting/account-settings/cropper-dialog.component';
 import { WorkflowDiscussionComponent } from './workflow-discussion/workflow-discussion.component';
+import { DeleteCdcModalComponent } from './cahierDesCharges/modals/delete-cdc-modal/delete-cdc-modal.component';
+import { DetailsCdcModalComponent } from './cahierDesCharges/modals/details-cdc-modal/details-cdc-modal.component';
+import { UploadFileModalComponent } from './cahierDesCharges/modals/upload-file-modal/upload-file-modal.component';
+import { RefuseCdcModalComponent } from './cahierDesCharges/modals/refuse-cdc-modal/refuse-cdc-modal.component';
+import { IncompleteCdcModalComponent } from './cahierDesCharges/modals/incomplete-cdc-modal/incomplete-cdc-modal.component';
+import { DetailsCdcAdminModalComponent } from './cahierDesCharges/modals/details-cdc-admin-modal/details-cdc-admin-modal.component';
+import { AddDevisModalComponent } from './cahierDesCharges/modals/add-devis-modal/add-devis-modal.component';
+import { ArchiveCdcModalComponent } from './cahierDesCharges/modals/archive-cdc-modal/archive-cdc-modal.component';
+import { ArchiveDevisModalComponent } from './devis/modals/archive-devis-modal/archive-devis-modal.component';
+import { RefuseDevisModalComponent } from './devis/modals/refuse-devis-modal/refuse-devis-modal.component';
+import { DetailsDevisModalComponent } from './devis/modals/details-devis-modal/details-devis-modal.component';
+import { NegociationDevisModalComponent } from './devis/modals/negociation-devis-modal/negociation-devis-modal.component';
+import { ArchiveDevisAdminModalComponent } from './devis/modals/archive-devis-admin-modal/archive-devis-admin-modal.component';
+import { RefuseDevisAdminModalComponent } from './devis/modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
+import { DetailsDevisAdminModalComponent } from './devis/modals/details-devis-admin-modal/details-devis-admin-modal.component';
 
 
 @NgModule({
@@ -165,6 +180,21 @@ import { WorkflowDiscussionComponent } from './workflow-discussion/workflow-disc
     ChangePasswordModalComponent,
     CropperDialogComponent,
     WorkflowDiscussionComponent,
+    DeleteCdcModalComponent,
+    DetailsCdcModalComponent,
+    UploadFileModalComponent,
+    ArchiveCdcModalComponent,
+    RefuseCdcModalComponent,
+    IncompleteCdcModalComponent,
+    DetailsCdcAdminModalComponent,
+    AddDevisModalComponent,
+    ArchiveDevisModalComponent,
+    RefuseDevisModalComponent,
+    DetailsDevisModalComponent,
+    NegociationDevisModalComponent,
+    ArchiveDevisAdminModalComponent,
+    RefuseDevisAdminModalComponent,
+    DetailsDevisAdminModalComponent,
 
   ],
   imports: [

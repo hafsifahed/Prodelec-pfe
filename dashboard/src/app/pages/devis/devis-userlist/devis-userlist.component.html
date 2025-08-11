@@ -86,7 +86,7 @@
                 <button type="button" class="btn btn-success btn-sm" title="Accepter" (click)="accepterDevis(devis.id)">
                   <i class="mdi mdi-check-outline"></i>
                 </button>
-                <button type="button" class="btn btn-danger btn-sm" title="Refuser" (click)="openCommentModal(devis.id, commentModal)">
+                <button type="button" class="btn btn-danger btn-sm" title="Refuser" (click)="openCommentModal(devis.id)">
                   <i class="mdi mdi-close-outline"></i>
                 </button>
                 <button
@@ -94,13 +94,13 @@
                   class="btn btn-outline-warning btn-sm"
                   title="Démarrer négociation"
                   *ngIf="devis.etat === EtatDevis.EnAttente"
-                  (click)="openNegociationModal(devis.id, negociationModal)"
+                  (click)="openNegociationModal(devis.id)"
                 >
                   <i class="mdi mdi-handshake-outline"></i>
                 </button>
               </ng-container>
               <ng-container *ngIf="devis.etat === EtatDevis.Accepte || devis.etat === EtatDevis.Refuse">
-                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeleteModal(devis.id, deleteModal)" title="Archiver">
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeleteModal(devis.id)" title="Archiver">
                   <i class="mdi mdi-archive"></i>
                 </button>
               </ng-container>
@@ -127,139 +127,3 @@
     </div>
   </div>
 </div>
-
-<!-- Modal pour refuser un devis -->
-<ng-template #commentModal>
-  <div class="modal-header bg-light">
-    <h4 class="modal-title">Refuser le Devis</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p>Veuillez indiquer la raison du refus :</p>
-    <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Commentaire..." rows="4"></textarea>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmRefuserCahier()" [disabled]="!commentaire.trim()">Refuser</button>
-  </div>
-</ng-template>
-
-<!-- Modal confirmation archival -->
-<ng-template #deleteModal>
-  <div class="modal-header bg-light">
-    <h4 class="modal-title">Confirmation</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p>Voulez-vous vraiment archiver ce devis ?</p>
-    <p class="text-muted">Il sera déplacé vers l'archive et ne sera plus visible dans cette liste.</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
-  </div>
-</ng-template>
-
-<!-- Modal détails du devis -->
-<ng-template #detailsModal>
-  <div class="modal-header bg-light">
-    <h5 class="modal-title">Détails du Devis</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <h6>Informations de base</h6>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span class="fw-medium">Projet:</span>
-            <span>{{ devisDetails?.projet }}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span class="fw-medium">Numéro:</span>
-            <span>{{ devisDetails?.numdevis || 'N/A' }}</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span class="fw-medium">Date de création:</span>
-            <span>{{ devisDetails?.dateCreation | date:'dd/MM/yyyy HH:mm' }}</span>
-          </li>
-        </ul>
-      </div>
-      
-      <div class="col-md-6">
-        <h6>Statut</h6>
-        <div class="d-flex align-items-center mb-3">
-          <span class="fw-medium me-2">État:</span>
-          <span class="badge badge-pill font-size-12"
-            [ngClass]="{
-              'badge-soft-danger': devisDetails?.etat === EtatDevis.Refuse,
-              'badge-soft-warning': devisDetails?.etat === EtatDevis.EnAttente,
-              'badge-soft-info': devisDetails?.etat === EtatDevis.Negociation,
-              'badge-soft-success': devisDetails?.etat === EtatDevis.Accepte
-            }">
-            {{ devisDetails?.etat }}
-          </span>
-        </div>
-        
-        <div *ngIf="devisDetails?.commentaire" class="mt-3">
-          <h6>Commentaire</h6>
-          <div class="border p-2 rounded bg-light">
-            {{ devisDetails.commentaire }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="border-top pt-3">
-      <h6>Pièce jointe</h6>
-      <div class="d-flex align-items-center">
-        <div class="flex-shrink-0">
-          <i class="bx bxs-file-pdf display-4 text-danger"></i>
-        </div>
-        <div class="flex-grow-1 ms-3">
-          <p class="mb-0">{{ devisDetails?.pieceJointe }}</p>
-          <a href="javascript:void(0);" class="text-primary" (click)="telechargerPieceJointe(devisDetails?.pieceJointe)">
-            <i class="mdi mdi-download me-1"></i> Télécharger le fichier
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section Négociation -->
-    <div *ngIf="devisDetails?.etat === EtatDevis.Negociation" class="border-top mt-3 pt-3">
-      <h5 class="text-info">
-        <i class="mdi mdi-handshake-outline me-2"></i>Négociation en cours
-      </h5>
-      <div *ngIf="devisDetails?.commentaire">
-        <p class="fw-medium">Commentaire de négociation:</p>
-        <div class="border p-3 rounded bg-light mb-3">
-          {{ devisDetails.commentaire }}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
-  </div>
-</ng-template>
-
-<!-- Modal démarrer négociation -->
-<ng-template #negociationModal>
-  <div class="modal-header bg-light">
-    <h4 class="modal-title">Démarrer la négociation</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p>Vous pouvez ajouter un commentaire pour expliquer les points à négocier :</p>
-    <textarea
-      [(ngModel)]="commentaire"
-      rows="4"
-      class="form-control"
-      placeholder="Commentaire (optionnel)..."
-    ></textarea>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-warning" (click)="confirmCommencerNegociation()">Démarrer la négociation</button>
-  </div>
-</ng-template>

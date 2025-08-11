@@ -99,13 +99,13 @@
             </td>
             <td>
               <ng-container *ngIf="cahier.etat !== 'Accepté' && cahier.etat !== 'Refusé'">
-                <button type="button" class="btn accept-btn" title="Accepter" (click)="accepterCahier(cahier.id!)">
+                <button type="button" class="btn accept-btn" title="Accepter" (click)="openPieceJointeModal(cahier.id!)">
                   <i class="mdi mdi-check-outline"></i>
                 </button>
-                <button type="button" class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id!, commentModal)">
+                <button type="button" class="btn refuse-btn" title="Refuser" (click)="openCommentModal(cahier.id!)">
                   <i class="mdi mdi-close-outline"></i>
                 </button>
-                <button type="button" class="btn acomplete-custom" title="Marquer comme À compléter" (click)="openIncompleteModal(cahier.id!, incompleteModal)">
+                <button type="button" class="btn acomplete-custom" title="Marquer comme À compléter" (click)="openIncompleteModal(cahier.id!)">
                   <i class="mdi mdi-alert-circle-outline"></i>
                 </button>
                 <!--<button type="button" class="btn btn-info" title="Ajouter un devis" (click)="openPieceJointeModal(cahier.id!)">
@@ -113,7 +113,7 @@
                 </button>-->
               </ng-container>
               <ng-container *ngIf="cahier.etat === 'Accepté' || cahier.etat === 'Refusé'">
-                <button type="button" class="btn detail-custom" (click)="openDeleteModal(cahier.id!, deleteModal)" title="Archiver">
+                <button type="button" class="btn detail-custom" (click)="openDeleteModal(cahier.id!)" title="Archiver">
                   <i class="mdi mdi-archive"></i>
                 </button>
               </ng-container>
@@ -129,123 +129,10 @@
   </div>
 </div>
 
-<!-- Modal pour refuser un CDC -->
-<ng-template #commentModal>
-  <div class="modal-header">
-    <h4 class="modal-title">Refuser le Cahier des Charges</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Veuillez entrer un commentaire pour le refus" rows="4"></textarea>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmRefuserCahier()">Refuser</button>
-  </div>
-</ng-template>
 
-<!-- Modal détails du CDC -->
-<ng-template #detailsModal>
-  <div class="modal-header">
-    <h5 class="modal-title">Détails du Cahier des Charges</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body modal-body-centered">
-    <div class="mb-3">
-      <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-      <p *ngIf="cahier?.commentaire" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.commentaire }}</p>
-      <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date }}</p>
-      <p><strong>Client:</strong> {{ cahier?.user?.partner?.name }}</p>
-      <p *ngIf="cahier?.user"><strong>Email:</strong> {{ cahier.user.email }}</p>
 
-      <div class="mb-3">
-        <strong>État:</strong>
-        <span class="badge badge-pill font-size-13"
-          [ngClass]="{
-            'badge-soft-danger': cahier?.etat === 'Refusé',
-            'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
-            'badge-soft-info': cahier?.etat === 'À compléter',
-            'badge-soft-success': cahier?.etat === 'Accepté'
-          }">
-          {{ cahier?.etat }}
-        </span>
-      </div>
 
-      <!-- Liste des fichiers joints -->
-      <div *ngIf="cahier?.files && cahier.files.length > 0">
-        <p><strong>Fichiers joints :</strong></p>
-        <ul class="list-unstyled">
-          <li *ngFor="let file of cahier.files" class="d-flex align-items-center mb-2">
-            <i class="bx bxs-file-pdf me-2" style="font-size: 1.2rem;"></i>
-            <span class="me-3">{{ file.nomFichier }}</span>
-            <button type="button" class="btn btn-sm btn-primary me-2" (click)="loadPDF(file.nomFichier)">Voir PDF</button>
-            <button type="button" class="btn btn-sm btn-secondary" (click)="telechargerPieceJointe(file.nomFichier, cahier.id!)">Télécharger</button>
-          </li>
-        </ul>
-      </div>
 
-      <ngx-extended-pdf-viewer 
-        *ngIf="pdfUrl" 
-        [src]="pdfUrl" 
-        useBrowserLocale="true" 
-        height="400px" 
-        [showToolbar]="true" 
-        [showFindButton]="true" 
-        [textLayer]="true" 
-        [showSidebarOnLoad]="false">
-      </ngx-extended-pdf-viewer>
-    </div>
-  </div>
-</ng-template>
 
-<!-- Modal pour ajouter un devis -->
-<ng-template #pieceJointeModal>
-  <div class="modal-header">
-    <h5 class="modal-title">Ajouter un devis</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <div class="mb-3">
-      <label for="numdevis" class="form-label">Numéro du devis</label>
-      <input id="numdevis" type="text" class="form-control" [(ngModel)]="numdevis" required />
-    </div>
-    <div class="mb-3">
-      <label for="pieceJointe" class="form-label">Pièce jointe</label>
-      <input id="pieceJointe" type="file" class="form-control" (change)="onFileSelected($event)" required />
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="submitDevis()">Ajouter</button>
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-  </div>
-</ng-template>
 
-<!-- Modal confirmation archival -->
-<ng-template #deleteModal>
-  <div class="modal-header">
-    <h4 class="modal-title">Confirmation</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <p>Voulez-vous vraiment archiver ce cahier des charges ?</p>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-danger" (click)="confirmDelete()">Archiver</button>
-  </div>
-</ng-template>
 
-<!-- Modal pour marquer le CDC comme incomplet -->
-<ng-template #incompleteModal>
-  <div class="modal-header">
-    <h4 class="modal-title">Marquer le Cahier des Charges comme « À compléter »</h4>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
-  </div>
-  <div class="modal-body">
-    <textarea [(ngModel)]="commentaire" class="form-control" rows="4" placeholder="Veuillez entrer un commentaire expliquant les modifications nécessaires"></textarea>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-    <button type="button" class="btn btn-warning" (click)="confirmMarkAsIncomplete()">Valider</button>
-  </div>
-</ng-template>

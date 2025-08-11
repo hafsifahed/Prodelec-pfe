@@ -1,0 +1,18 @@
+<!-- negociation-devis-modal.component.html -->
+<div class="modal-header bg-light">
+  <h4 class="modal-title">Démarrer la négociation</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <p>Vous pouvez ajouter un commentaire pour expliquer les points à négocier :</p>
+  <textarea
+    [(ngModel)]="commentaire"
+    rows="4"
+    class="form-control"
+    placeholder="Commentaire (optionnel)..."
+  ></textarea>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-warning" (click)="confirmNegociation()">Démarrer la négociation</button>
+</div>

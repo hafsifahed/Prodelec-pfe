@@ -6,6 +6,11 @@ import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.
 import Swal from 'sweetalert2';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ArchiveCdcModalComponent } from '../modals/archive-cdc-modal/archive-cdc-modal.component';
+import { RefuseCdcModalComponent } from '../modals/refuse-cdc-modal/refuse-cdc-modal.component';
+import { IncompleteCdcModalComponent } from '../modals/incomplete-cdc-modal/incomplete-cdc-modal.component';
+import { DetailsCdcAdminModalComponent } from '../modals/details-cdc-admin-modal/details-cdc-admin-modal.component';
+import { AddDevisModalComponent } from '../modals/add-devis-modal/add-devis-modal.component';
 
 @Component({
   selector: 'app-cdc-list-admin',
@@ -34,12 +39,6 @@ export class CDCListAdminComponent {
 
   searchSubject = new Subject<string>();
   numdevis: string = '';
-
-  @ViewChild('commentModal', { static: false }) commentModal?: TemplateRef<any>;
-  @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
-  @ViewChild('pieceJointeModal', { static: false }) pieceJointeModal?: TemplateRef<any>;
-  @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
-  @ViewChild('incompleteModal', { static: false }) incompleteModal?: TemplateRef<any>;
 
   constructor(
     private cdcService: CdcServiceService,
@@ -111,75 +110,15 @@ export class CDCListAdminComponent {
     });
   }
 
- /* accepterCahier(id: number): void {
-    this.cdcService.acceptCdc(id).subscribe({
-      next: () => {
-        Swal.fire('Accepté', 'Cahier des charges accepté avec succès', 'success');
-        this.loadCahiersDesCharges();
 
-        // Récupération des détails du CDC pour le formulaire d'ajout de devis
-        this.cdcService.getById(id).subscribe({
-          next: (cahier) => {
-            this.cahier = cahier;
-            this.selectedFile = null;
-            this.numdevis = '';
-            this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
-          },
-          error: (error) => {
-            console.error('Erreur chargement cahier des charges pour devis', error);
-            // Optionnel : afficher un message à l'utilisateur
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error accepting cahier des charges', error);
-        Swal.fire('Erreur', 'Erreur lors de l\'acceptation', 'error');
-      }
-    });
-  }*/
+  openIncompleteModal(id: number): void {
+  const initialState = { incompleteId: id };
+  this.modalRef = this.modalService.show(IncompleteCdcModalComponent, { initialState });
+  this.modalRef.content.onMarkedIncomplete.subscribe(() => {
+    this.loadCahiersDesCharges();
+  });
+}
 
-  refuserCahier(id: number): void {
-    const commentaire = prompt('Veuillez entrer un commentaire pour le refus :');
-    if (commentaire && commentaire.trim()) {
-      this.cdcService.rejectCdc(id, commentaire).subscribe({
-        next: () => {
-          Swal.fire('Refusé', 'Cahier des charges refusé avec succès', 'success');
-          this.loadCahiersDesCharges();
-        },
-        error: (error) => {
-          console.error('Error rejecting cahier des charges', error);
-          Swal.fire('Erreur', 'Erreur lors du refus', 'error');
-        }
-      });
-    }
-  }
-
-  openIncompleteModal(id: number, template: TemplateRef<any>): void {
-    this.incompleteId = id;
-    this.commentaire = '';
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
-
-  confirmMarkAsIncomplete(): void {
-    if (this.incompleteId !== null && this.commentaire.trim()) {
-      this.cdcService.markAsIncomplete(this.incompleteId, this.commentaire).subscribe({
-        next: () => {
-          Swal.fire('Mis à jour', 'Le cahier des charges a été marqué comme "À compléter".', 'success');
-          this.loadCahiersDesCharges();
-          this.modalRef?.hide();
-          this.incompleteId = null;
-          this.commentaire = '';
-        },
-        error: (error) => {
-          console.error('Erreur lors de la mise à jour', error);
-          Swal.fire('Erreur', 'Erreur lors de la mise à jour du cahier des charges.', 'error');
-          this.modalRef?.hide();
-        }
-      });
-    } else {
-      Swal.fire('Attention', 'Veuillez saisir un commentaire valide.', 'warning');
-    }
-  }
 
   loadPDF(fileName: string): void {
     if (!this.cahier || !this.cahier.user) return;
@@ -232,143 +171,55 @@ export class CDCListAdminComponent {
     });
   }
 
-  openCommentModal(id: number, template: TemplateRef<any>): void {
-    this.rejectId = id;
-    this.commentaire = '';
-    this.modalRef = this.modalService.show(template, { class: 'modal-md' });
-  }
-
-  confirmRefuserCahier(): void {
-    if (this.rejectId !== null && this.commentaire.trim()) {
-      this.cdcService.rejectCdc(this.rejectId, this.commentaire).subscribe({
-        next: () => {
-          Swal.fire('Refusé', 'Cahier des charges refusé avec succès', 'success');
-          this.loadCahiersDesCharges();
-          this.modalRef?.hide();
-          this.rejectId = null;
-          this.commentaire = '';
-        },
-        error: (error) => {
-          console.error('Error rejecting cahier des charges', error);
-          this.modalRef?.hide();
-          Swal.fire('Erreur', 'Erreur lors du refus', 'error');
-        }
-      });
-    } else {
-      Swal.fire('Attention', 'Veuillez saisir un commentaire valide', 'warning');
-    }
-  }
-
-  openDeleteModal(id: number, template: TemplateRef<any>): void {
-    this.rejectId = id;
-    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
-  }
-
-  confirmDelete(): void {
-    if (this.rejectId !== null) {
-      this.cdcService.archiver(this.rejectId).subscribe({
-        next: () => {
-          Swal.fire('Archivé!', 'Le cahier des charges a été archivé avec succès.', 'success');
-          this.loadCahiersDesCharges();
-          this.modalRef?.hide();
-          this.rejectId = null;
-        },
-        error: (error) => {
-          console.error('Error archiving cahier des charges', error);
-          Swal.fire('Erreur', 'Erreur lors de l\'archivage', 'error');
-          this.modalRef?.hide();
-          this.rejectId = null;
-        }
-      });
-    }
-  }
-
-  openDetailsModal(id: number): void {
-    this.cdcService.getById(id).subscribe({
-      next: (data) => {
-        this.cahier = data;
-        this.pdfUrl = null;
-        if (this.cahier.files && this.cahier.files.length > 0) {
-          // Charge premier PDF présent
-          const pdfFile = this.cahier.files.find(f => f.nomFichier.toLowerCase().endsWith('.pdf'));
-          if (pdfFile) {
-            this.loadPDF(pdfFile.nomFichier);
-          }
-        }
-        this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-lg' });
-      },
-      error: (error) => {
-        console.error('Error fetching cahier des charges details', error);
-        Swal.fire('Erreur', 'Erreur lors de la récupération des détails', 'error');
-      }
-    });
-  }
-
-  openPieceJointeModal(cdcId: number): void {
-    this.cdcService.getById(cdcId).subscribe({
-      next: (cahier) => {
-        this.cahier = cahier;
-        this.selectedFile = null;
-        this.numdevis = '';
-        this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
-      },
-      error: (error) => {
-        console.error('Error fetching cahier des charges details', error);
-        Swal.fire('Erreur', 'Erreur lors de la récupération du cahier', 'error');
-      }
-    });
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    } else {
-      this.selectedFile = null;
-    }
-  }
-
-  accepterCahier(id: number): void {
-  this.cdcService.getById(id).subscribe({
-    next: (cahier) => {
-      this.cahier = cahier;
-      this.selectedFile = null;
-      this.numdevis = '';
-      this.modalRef = this.modalService.show(this.pieceJointeModal!, { class: 'modal-md' });
-    },
-    error: (error) => {
-      console.error('Erreur chargement cahier des charges pour devis', error);
-      Swal.fire('Erreur', 'Erreur lors du chargement du cahier des charges', 'error');
-    }
+  openCommentModal(id: number): void {
+  const initialState = { rejectId: id };
+  this.modalRef = this.modalService.show(RefuseCdcModalComponent, { initialState });
+  this.modalRef.content.onRefused.subscribe(() => {
+    this.loadCahiersDesCharges();
   });
 }
 
-submitDevis(): void {
-  if (this.cahier && this.selectedFile && this.numdevis.trim()) {
-    this.devisService.uploadFile(this.selectedFile).subscribe({
-      next: (uploadResponse: any) => {
-        const filename = uploadResponse.filename || uploadResponse;
-        this.devisService.saveDevis(this.cahier!.id!, filename, this.numdevis).subscribe({
-          next: () => {
-            Swal.fire('Ajouté!', 'Le devis a été ajouté avec succès.', 'success').then(() => {
-              this.modalRef?.hide();
-              this.loadCahiersDesCharges();
-            });
-          },
-          error: (error) => {
-            console.error('Erreur lors de l\'ajout du devis:', error);
-            Swal.fire('Erreur', 'Erreur lors de l\'ajout du devis', 'error');
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'upload du fichier:', error);
-        Swal.fire('Erreur', 'Erreur lors de l\'upload du fichier', 'error');
-      }
-    });
-  } else {
-    Swal.fire('Erreur', 'Veuillez compléter tous les champs requis.', 'warning');
-  }
+ 
+
+  openDeleteModal(id: number): void {
+  const initialState = { archiveId: id };
+  this.modalRef = this.modalService.show(ArchiveCdcModalComponent, { initialState });
+  this.modalRef.content.onArchived.subscribe(() => {
+    this.loadCahiersDesCharges();
+  });
 }
+
+ 
+
+  openDetailsModal(id: number): void {
+  this.cdcService.getById(id).subscribe({
+    next: (data) => {
+      const initialState = { cahier: data };
+      this.modalRef = this.modalService.show(DetailsCdcAdminModalComponent, { 
+        initialState,
+        class: 'modal-lg'
+      });
+      this.modalRef.content.onFileDownload.subscribe((event: {fileName: string, id: number}) => {
+        this.telechargerPieceJointe(event.fileName, event.id);
+      });
+    },
+    error: (error) => console.error('Error fetching details', error)
+  });
+}
+
+  openPieceJointeModal(cdcId: number): void {
+  this.cdcService.getById(cdcId).subscribe({
+    next: (cahier) => {
+      const initialState = { cahier };
+      this.modalRef = this.modalService.show(AddDevisModalComponent, { initialState });
+      this.modalRef.content.onDevisAdded.subscribe(() => {
+        this.loadCahiersDesCharges();
+      });
+    },
+    error: (error) => console.error('Error fetching CDC', error)
+  });
+}
+
+
 
 }

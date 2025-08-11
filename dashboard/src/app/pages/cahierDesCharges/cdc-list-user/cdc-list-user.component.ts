@@ -3,10 +3,13 @@ import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal'
 import { CahierDesCharges, CdcFile } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
-import { AddCdCComponent } from '../add-cd-c/add-cd-c.component';
+import { AddCdCComponent } from '../modals/add-cd-c/add-cd-c.component';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { User } from 'src/app/core/models/auth.models';
 import { environment } from 'src/environments/environment';
+import { DeleteCdcModalComponent } from '../modals/delete-cdc-modal/delete-cdc-modal.component';
+import { DetailsCdcModalComponent } from '../modals/details-cdc-modal/details-cdc-modal.component';
+import { UploadFileModalComponent } from '../modals/upload-file-modal/upload-file-modal.component';
 
 @Component({
   selector: 'app-cdc-list-user',
@@ -18,10 +21,6 @@ export class CDCListUserComponent {
   cahier?: CahierDesCharges;
   modalRef?: BsModalRef;
 
-  deleteId: number | null = null;
-  selectedCdcId: number | null = null;
-  selectedFiles: File[] = [];
-
   searchTitle = '';
   filterYear = '';
   p = 1;
@@ -32,9 +31,6 @@ export class CDCListUserComponent {
 
   @ViewChildren(CDCListUserComponent) headers!: QueryList<CDCListUserComponent>;
   @ViewChild('addCdcModal') addCdcModal!: TemplateRef<AddCdCComponent>;
-  @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
-  @ViewChild('deleteModal') deleteModal?: TemplateRef<any>;
-  @ViewChild('uploadModal') uploadModal?: TemplateRef<any>;
 
   constructor(
     private cdcService: CdcServiceService,
@@ -101,106 +97,71 @@ export class CDCListUserComponent {
     return Array.from(new Set(years));
   }
 
-  openDeleteModal(id: number, template: TemplateRef<any>): void {
-    this.deleteId = id;
-    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
-  }
+  openDeleteModal(id: number): void {
+  const initialState = {
+    deleteId: id,
+    user: this.user
+  };
+  
+  this.modalRef = this.modalService.show(DeleteCdcModalComponent, { initialState });
+  this.modalRef.content.onArchive.subscribe(() => {
+    if (this.user) this.loadCDC(this.user);
+  });
+}
 
-  confirmDelete(): void {
-    if (this.deleteId !== null) {
-      this.cdcService.archiverU(this.deleteId).subscribe(
-        () => {
-          Swal.fire('Archivé!', 'Le cahier des charges a été archivé avec succès.', 'success');
-          if (this.user) this.loadCDC(this.user);
-          this.modalRef?.hide();
-        },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          Swal.fire('Erreur', 'L\'archivage a échoué', 'error');
-          this.modalRef?.hide();
-        }
-      );
-    }
-  }
+  
 
   openDetailsModal(id: number): void {
-    this.cdcService.getById(id).subscribe(
-      data => {
-        this.cahier = data;
-        this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-md' });
-      },
-      error => console.error('Error fetching cahier des charges details', error)
-    );
-  }
+  this.cdcService.getById(id).subscribe(
+    data => {
+      const initialState = {
+        cahier: data,
+        user: this.user
+      };
+      
+      this.modalRef = this.modalService.show(DetailsCdcModalComponent, { 
+        initialState,
+        class: 'modal-md'
+      });
+      
+      this.modalRef.content.onFileDeleted.subscribe(() => {
+        this.cdcService.getById(id).subscribe(updatedCdc => {
+          this.cahier = updatedCdc;
+          if (this.user) this.loadCDC(this.user);
+        });
+      });
+      
+      this.modalRef.content.onFileUploaded.subscribe(() => {
+        this.openUploadModal(id);
+      });
+    }
+  );
+}
+
 
   openModal(content: any) {
     this.modalRef = this.modalService.show(content, { class: 'modal-md' });
   }
 
   openUploadModal(cdcId: number): void {
-    this.selectedCdcId = cdcId;
-    this.selectedFiles = [];
-    this.openModal(this.uploadModal);
-  }
-
-  onFilesSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      this.selectedFiles = Array.from(input.files);
-    }
-  }
-
-  uploadFiles() {
-    if (this.selectedFiles.length > 0 && this.selectedCdcId && this.user) {
-      this.cdcService.uploadMultipleFiles(this.selectedFiles, this.user.username, this.selectedCdcId)
-        .subscribe({
-          next: () => {
-            Swal.fire('Succès', 'Fichiers uploadés avec succès', 'success');
-            this.selectedFiles = [];
-            this.modalRef?.hide();
-            if (this.user) this.loadCDC(this.user);
-            if (this.cahier?.id === this.selectedCdcId) {
-              this.cdcService.getById(this.selectedCdcId).subscribe(updatedCdc => this.cahier = updatedCdc);
-            }
-          },
-          error: err => {
-            console.error(err);
-            Swal.fire('Erreur', 'Échec de l\'upload des fichiers', 'error');
-          }
-        });
-    }
-  }
-
-  deleteFile(fileId: number): void {
-  Swal.fire({
-    title: 'Confirmer la suppression',
-    text: 'Voulez-vous vraiment supprimer ce fichier ?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Oui, supprimer',
-    cancelButtonText: 'Annuler',
-  }).then(result => {
-    if (result.isConfirmed) {
-      this.cdcService.deleteFile(fileId).subscribe({
-        next: () => {
-          Swal.fire('Supprimé!', 'Le fichier a été supprimé.', 'success');
-          // Rafraîchir la liste d’un cahier des charges actuellement affiché, si besoin
-          if (this.cahier) {
-            this.cdcService.getById(this.cahier.id).subscribe(updatedCdc => {
-              this.cahier = updatedCdc;
-              // Aussi recharger la liste complète si nécessaire
-              if (this.user) this.loadCDC(this.user);
-            });
-          }
-        },
-        error: (err) => {
-          console.error('Erreur lors de la suppression fichier', err);
-          Swal.fire('Erreur', 'Impossible de supprimer le fichier.', 'error');
-        }
-      });
+  const initialState = {
+    cdcId: cdcId,
+    user: this.user
+  };
+  
+  this.modalRef = this.modalService.show(UploadFileModalComponent, { initialState });
+  this.modalRef.content.onUpload.subscribe(() => {
+    if (this.user) this.loadCDC(this.user);
+    if (this.cahier?.id === cdcId) {
+      this.cdcService.getById(cdcId).subscribe(updatedCdc => this.cahier = updatedCdc);
     }
   });
 }
+
+
+
+
+
 
 
   handleCahierDesChargesAdded() {

@@ -20,7 +20,7 @@
             "allowedCommonJsDependencies": [
               "rxjs", "core-js", "chart.js", "chartist","leaflet","sweetalert2","apexcharts","dropzone","file-saver","lodash","detect-passive-events",
               "ev-emitter/ev-emitter","can-use-dom","lodash.debounce","lodash.memoize","lodash.throttle","metismenujs/dist/metismenujs","sweetalert2",
-              "@ckeditor/ckeditor5-build-classic"
+              "@ckeditor/ckeditor5-build-classic","pdfmake/build/pdfmake","pdfmake/build/vfs_fonts"
             ],
             "outputPath": "dist/Prodelec",
             "index": "src/index.html",

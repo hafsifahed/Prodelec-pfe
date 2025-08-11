@@ -1,0 +1,12 @@
+<!-- archive-cdc-modal.component.html -->
+<div class="modal-header">
+  <h4 class="modal-title">Confirmation</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <p>Voulez-vous vraiment archiver ce cahier des charges ?</p>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-danger" (click)="confirmArchive()">Archiver</button>
+</div>

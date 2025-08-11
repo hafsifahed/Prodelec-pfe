@@ -1,0 +1,13 @@
+<!-- refuse-devis-modal.component.html -->
+<div class="modal-header bg-light">
+  <h4 class="modal-title">Refuser le Devis</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <p>Veuillez indiquer la raison du refus :</p>
+  <textarea [(ngModel)]="commentaire" class="form-control" placeholder="Commentaire..." rows="4"></textarea>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-danger" (click)="confirmRefuse()" [disabled]="!commentaire.trim()">Refuser</button>
+</div>

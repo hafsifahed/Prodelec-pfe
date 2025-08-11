@@ -1,0 +1,19 @@
+<!-- add-devis-modal.component.html -->
+<div class="modal-header">
+  <h5 class="modal-title">Ajouter un devis</h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <div class="mb-3">
+    <label for="numdevis" class="form-label">Numéro du devis</label>
+    <input id="numdevis" type="text" class="form-control" [(ngModel)]="numdevis" required />
+  </div>
+  <div class="mb-3">
+    <label for="pieceJointe" class="form-label">Pièce jointe</label>
+    <input id="pieceJointe" type="file" class="form-control" (change)="onFileSelected($event)" required />
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="submitDevis()">Ajouter</button>
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+</div>

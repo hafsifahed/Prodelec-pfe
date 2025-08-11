@@ -1,0 +1,12 @@
+<!-- incomplete-cdc-modal.component.html -->
+<div class="modal-header">
+  <h4 class="modal-title">Marquer comme « À compléter »</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modalRef.hide()"></button>
+</div>
+<div class="modal-body">
+  <textarea [(ngModel)]="commentaire" class="form-control" rows="4" placeholder="Veuillez entrer un commentaire expliquant les modifications nécessaires"></textarea>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="modalRef.hide()">Annuler</button>
+  <button type="button" class="btn btn-warning" (click)="confirmMarkAsIncomplete()">Valider</button>
+</div>
