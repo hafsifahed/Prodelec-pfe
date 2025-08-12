@@ -175,4 +175,15 @@ export class Project {
 
   @ManyToOne(() => WorkflowDiscussion, discussion => discussion.projects)
 discussion: WorkflowDiscussion;
+
+@Column({ default: false })
+  finalControlExist: boolean;
+  @Column({ default: false })
+  conceptionExist: boolean;
+  @Column({ default: false })
+  methodeExist: boolean;
+  @Column({ default: false })
+  productionExist: boolean;
+  @Column({ default: false })
+  deliveryExist: boolean;
 }

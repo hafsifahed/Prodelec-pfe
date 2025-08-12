@@ -120,11 +120,11 @@ export class AddProjectModalComponent implements OnInit {
       endFc: formValue.fcf ? new Date(formatDate(formValue.fcf, 'yyyy-MM-dd', 'en-US')) : null,
       startDelivery: formValue.dl ? new Date(formatDate(formValue.dl, 'yyyy-MM-dd', 'en-US')) : null,
       endDelivery: formValue.fl ? new Date(formatDate(formValue.fl, 'yyyy-MM-dd', 'en-US')) : null,
-      conceptionStatus: formValue.conceptionChecked,
-      methodeStatus: formValue.methodeChecked,
-      productionStatus: formValue.productionChecked,
-      finalControlStatus: formValue.controleChecked,
-      deliveryStatus: formValue.livraisonChecked,
+      conceptionExist: formValue.conceptionChecked,
+      methodeExist: formValue.methodeChecked,
+      productionExist: formValue.productionChecked,
+      finalControlExist: formValue.controleChecked,
+      deliveryExist: formValue.livraisonChecked,
     };
 
     const respcons = (formValue.rc || '').trim() || undefined;

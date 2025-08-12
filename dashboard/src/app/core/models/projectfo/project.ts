@@ -49,4 +49,10 @@ export class Project {
     createdAt: Date;
     updatedAt: Date;
     order:Order;
+
+    conceptionExist!: boolean;
+  methodeExist!: boolean;
+  productionExist!: boolean;
+  finalControlExist!: boolean;
+  deliveryExist!: boolean;
 }

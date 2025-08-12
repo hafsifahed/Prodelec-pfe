@@ -49,11 +49,11 @@ export class ProjectService {
   project.deliveryResponsible     = deliveryResp     ? await this.workerByUsername(deliveryResp)     : null;
 
 
-  project.conceptionStatus = dto.conceptionStatus ?? false;
-  project.methodeStatus = dto.methodeStatus ?? false;
-  project.productionStatus = dto.productionStatus ?? false;
-  project.finalControlStatus = dto.finalControlStatus ?? false;
-  project.deliveryStatus = dto.deliveryStatus ?? false;
+  project.conceptionExist = dto.conceptionExist ?? false;
+  project.methodeExist = dto.methodeExist ?? false;
+  project.productionExist = dto.productionExist ?? false;
+  project.finalControlExist = dto.finalControlExist ?? false;
+  project.deliveryExist = dto.deliveryExist ?? false;
 
 
   const saved = await this.projectRepo.save(project);
@@ -202,7 +202,8 @@ private async notifyResponsibles(project: Project, title: string, message: strin
       .createQueryBuilder('project')
       .leftJoinAndSelect('project.order', 'order')
       .leftJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('user.partner', 'partner') // ajout relation partner
+      .leftJoinAndSelect('user.partner', 'partner') 
+      .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('project.conceptionResponsible', 'conceptionResponsible')
       .leftJoinAndSelect('project.methodeResponsible', 'methodeResponsible')
       .leftJoinAndSelect('project.productionResponsible', 'productionResponsible')
@@ -325,6 +326,7 @@ async computeGlobalProgress(id: number) {
     .leftJoinAndSelect('project.order', 'order')
     .leftJoinAndSelect('order.user', 'user')
     .leftJoinAndSelect('user.partner', 'partner')
+    .leftJoinAndSelect('user.role', 'role') // ajout relation partner
     .leftJoinAndSelect('project.conceptionResponsible', 'conceptionResponsible')
     .leftJoinAndSelect('project.methodeResponsible', 'methodeResponsible')
     .leftJoinAndSelect('project.productionResponsible', 'productionResponsible')

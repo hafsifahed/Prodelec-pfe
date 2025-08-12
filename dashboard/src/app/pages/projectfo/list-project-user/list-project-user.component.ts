@@ -50,7 +50,7 @@ export class ListProjectUserComponent {
   loadproject(user:User):void{
     this.projectservice.getProjectsByUser(user.id).subscribe({
       next: (data) => {
-        console.log("by user",data)
+        console.log("by user :",data)
         if (data.length == 0) {
           Swal.fire({
             icon: 'warning',

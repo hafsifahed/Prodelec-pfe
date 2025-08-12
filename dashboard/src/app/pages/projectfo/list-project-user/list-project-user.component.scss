@@ -3,3 +3,29 @@
     justify-content: center;
     margin-top: 20px; /* Adjust as needed */
   }
+
+.project-card {
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 12px;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.1);
+}
+
+.phase-progress .progress-bar {
+  transition: width 0.5s ease;
+}
+
+.form-range::-webkit-slider-thumb {
+  background-color: var(--bs-primary);
+}
+
+.dropdown-menu {
+  z-index: 1060; /* Au-dessus de tout */
+}
+
+.card {
+  overflow: visible !important;
+}

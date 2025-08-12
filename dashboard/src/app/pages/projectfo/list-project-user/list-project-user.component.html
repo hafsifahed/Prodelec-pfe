@@ -188,84 +188,246 @@
   </div>
 
   <!-- Affichage grille -->
-  <div *ngIf="displayMode === 'grid'" class="row g-3">
-    <div class="col-md-4" *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title mb-2">{{ project.order.orderName }}</h5>
-          <p><strong>Date Réception BC :</strong> {{ project.order.createdAt | date:'yyyy-MM-dd' }}</p>
-          <p><strong>Réf. Client :</strong> {{ project.refClient }} - {{project.order.user.partner.name}}</p>
-          <p><strong>Quantité :</strong> {{ project.qte }}</p>
-
-          <p>
-            <strong>Conception :</strong>
-            <span class="badge" [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
-              {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
-            </span>
-            <span *ngIf="isDateOverdue1(project.endConception, project.realendConception)" class="badge bg-warning ms-2">En retard</span>
-          </p>
-          <div class="progress mb-2" style="height: 10px;">
-            <div class="progress-bar" role="progressbar" [style.width]="project.conceptionprogress + '%'" aria-valuenow="{{project.conceptionprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p>
-            <strong>Méthode :</strong>
-            <span class="badge" [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
-              {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
-            </span>
-            <span *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)" class="badge bg-warning ms-2">En retard</span>
-          </p>
-          <div class="progress mb-2" style="height: 10px;">
-            <div class="progress-bar" role="progressbar" [style.width]="project.methodeprogress + '%'" aria-valuenow="{{project.methodeprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p>
-            <strong>Production :</strong>
-            <span class="badge" [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
-              {{ project.productionStatus ? 'Terminé' : 'En cours' }}
-            </span>
-            <span *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)" class="badge bg-warning ms-2">En retard</span>
-          </p>
-          <div class="progress mb-2" style="height: 10px;">
-            <div class="progress-bar" role="progressbar" [style.width]="project.productionprogress + '%'" aria-valuenow="{{project.productionprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p>
-            <strong>Contrôle final :</strong>
-            <span class="badge" [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
-              {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
-            </span>
-            <span *ngIf="isDateOverdue1(project.endFc, project.realendFc)" class="badge bg-warning ms-2">En retard</span>
-          </p>
-          <div class="progress mb-2" style="height: 10px;">
-            <div class="progress-bar" role="progressbar" [style.width]="project.fcprogress + '%'" aria-valuenow="{{project.fcprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p>
-            <strong>Livraison :</strong>
-            <span class="badge" [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
-              {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
-            </span>
-            <span *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)" class="badge bg-warning ms-2">En retard</span>
-          </p>
-          <div class="progress mb-2" style="height: 10px;">
-            <div class="progress-bar" role="progressbar" [style.width]="project.deliveryprogress + '%'" aria-valuenow="{{project.deliveryprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p><strong>Progression totale :</strong> {{ project.progress.toFixed(2) }}%</p>
-          <div class="progress mb-3" style="height: 12px;">
-            <div class="progress-bar bg-info" role="progressbar" [style.width]="project.progress + '%'" aria-valuenow="{{project.progress}}" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-
-          <p><strong>Date de livraison prévue :</strong> {{ project.dlp | date:'yyyy-MM-dd' }}</p>
-
-          <button *ngIf="project.progress == 100" class="btn btn-sm btn-outline-primary" (click)="archive(project.idproject)">
-            <i class="mdi mdi-archive"></i> Archiver
+  <div *ngIf="displayMode === 'grid'" class="row g-4">
+  <div class="col-xl-4 col-md-6" *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+    <div class="card project-card h-100 border-0 shadow-lg position-relative overflow-hidden">
+      <!-- Status Ribbon -->
+      <div class="position-absolute top-0 end-0 bg-primary text-white px-3 py-1 rounded-bl">
+        <div class="btn-group" dropdown>
+          <button type="button" class="btn btn-sm dropdown-toggle" dropdownToggle>
+            <i class="mdi mdi-cog"></i>
           </button>
+          <ul class="dropdown-menu dropdown-menu-end" *dropdownMenu>
+            <li *ngIf="hasEditPermission(project)">
+              <a class="dropdown-item" href="javascript:void(0);" (click)="editModal(project.idproject); $event.stopPropagation()">
+                <i class="mdi mdi-pencil text-success me-2"></i>Modifier
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="javascript:void(0);" (click)="delete(project.idproject); $event.stopPropagation()">
+                <i class="mdi mdi-delete text-danger me-2"></i>Supprimer
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="javascript:void(0);" (click)="addModal(project); $event.stopPropagation()">
+                <i class="mdi mdi-content-copy text-info me-2"></i>Dupliquer
+              </a>
+            </li>
+          </ul>
+        </div>
+        {{ project.progress.toFixed(2) }}%
+      </div>
+
+      <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0 fw-bold text-primary">
+            <i class="mdi mdi-folder-account-outline me-2"></i>{{ project.refProdelec }}
+          </h5>
+        </div>
+      </div>
+
+      <div class="card-body pt-3 pb-2">
+        <!-- Project Metadata -->
+        <div class="project-meta mb-3">
+          <div class="row g-2 small">
+            <div class="col-6">
+              <div class="text-muted">Client</div>
+              <div class="fw-medium">{{ project.order.user.username }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted">Réf. Client</div>
+              <div class="fw-medium">{{ project.refClient }} - {{project.order.user.partner.name}}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted">N° BC</div>
+              <div class="fw-medium">{{ project.order.orderName }}</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted">Quantité</div>
+              <div class="fw-medium">{{ project.qte }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Date Highlight -->
+        <div class="alert alert-light py-2 mb-3 d-flex align-items-center" [ngClass]="{'alert-danger': isDateOverdue(project.dlp, project)}">
+          <i class="mdi mdi-calendar-clock me-2 fs-5"></i>
+          <div [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
+            <div class="small text-muted">Livraison prévue</div>
+            <div class="fw-medium">{{ project.dlp | date:'yyyy-MM-dd' }}</div>
+          </div>
+        </div>
+
+        <!-- Progress Sections -->
+        <div class="phase-progress mb-3">
+          <!-- Conception -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-medium small">Conception:</span>
+              <div>
+                <span *ngIf="project.conceptionprogress > 0" class="badge rounded-pill ms-2" 
+                      [ngClass]="project.conceptionStatus ? 'bg-success' : 'bg-danger'">
+                  {{ project.conceptionStatus ? 'Terminé' : 'En cours' }}
+                </span>
+                <span class="badge bg-warning rounded-pill ms-2" 
+                      *ngIf="isDateOverdue1(project.endConception, project.realendConception)">
+                  Retard
+                </span>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" 
+                  [style.width]="project.conceptionprogress + '%'"></div>
+            </div>
+            <input *ngIf="(user && project.conceptionResponsible && project.conceptionResponsible.id === user.id) || user.role?.name === 'SUBADMIN'"
+                  type="range" min="0" max="100" 
+                  [value]="project.conceptionprogress"
+                  (input)="updateConceptionProgress(project, $event)"
+                  class="form-range form-range-sm">
+          </div>
+          
+          <!-- Méthode -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-medium small">Méthode:</span>
+              <div>
+                <span *ngIf="project.methodeprogress > 0" class="badge rounded-pill ms-2" 
+                      [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
+                  {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
+                </span>
+                <span class="badge bg-warning rounded-pill ms-2" 
+                      *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)">
+                  Retard
+                </span>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" 
+                  [style.width]="project.methodeprogress + '%'"></div>
+            </div>
+            <input *ngIf="(user && project.methodeResponsible && user.id === project.methodeResponsible.id) || user.role?.name === 'SUBADMIN'"
+                  type="range" min="0" max="100" 
+                  [value]="project.methodeprogress"
+                  (input)="updatemProgress(project, $event)"
+                  class="form-range form-range-sm">
+          </div>
+          
+          <!-- Production -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-medium small">Production:</span>
+              <div>
+                <span *ngIf="project.productionprogress > 0" class="badge rounded-pill ms-2" 
+                      [ngClass]="project.productionStatus ? 'bg-success' : 'bg-danger'">
+                  {{ project.productionStatus ? 'Terminé' : 'En cours' }}
+                </span>
+                <span class="badge bg-warning rounded-pill ms-2" 
+                      *ngIf="isDateOverdue1(project.endProduction, project.realendProduction)">
+                  Retard
+                </span>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" 
+                  [style.width]="project.productionprogress + '%'"></div>
+            </div>
+            <input *ngIf="(user && project.productionResponsible && user.id === project.productionResponsible.id) || user.role?.name === 'SUBADMIN'"
+                  type="range" min="0" max="100" 
+                  [value]="project.productionprogress"
+                  (input)="updatepProgress(project, $event)"
+                  class="form-range form-range-sm">
+          </div>
+          
+          <!-- Contrôle final -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-medium small">Contrôle final:</span>
+              <div>
+                <span *ngIf="project.fcprogress > 0" class="badge rounded-pill ms-2" 
+                      [ngClass]="project.finalControlStatus ? 'bg-success' : 'bg-danger'">
+                  {{ project.finalControlStatus ? 'Terminé' : 'En cours' }}
+                </span>
+                <span class="badge bg-warning rounded-pill ms-2" 
+                      *ngIf="isDateOverdue1(project.endFc, project.realendFc)">
+                  Retard
+                </span>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" 
+                  [style.width]="project.fcprogress + '%'"></div>
+            </div>
+            <input *ngIf="(user && project.finalControlResponsible && user.id === project.finalControlResponsible.id) || user.role?.name === 'SUBADMIN'"
+                  type="range" min="0" max="100" 
+                  [value]="project.fcprogress"
+                  (input)="updatefcProgress(project, $event)"
+                  class="form-range form-range-sm">
+          </div>
+          
+          <!-- Livraison -->
+          <div class="mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-medium small">Livraison:</span>
+              <div>
+                <span *ngIf="project.deliveryprogress > 0" class="badge rounded-pill ms-2" 
+                      [ngClass]="project.deliveryStatus ? 'bg-success' : 'bg-danger'">
+                  {{ project.deliveryStatus ? 'Terminé' : 'En cours' }}
+                </span>
+                <span class="badge bg-warning rounded-pill ms-2" 
+                      *ngIf="isDateOverdue1(project.endDelivery, project.realendDelivery)">
+                  Retard
+                </span>
+              </div>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" role="progressbar" 
+                  [style.width]="project.deliveryprogress + '%'"></div>
+            </div>
+            <input *ngIf="(user && project.deliveryResponsible && user.id === project.deliveryResponsible.id) || user.role?.name === 'SUBADMIN'"
+                  type="range" min="0" max="100" 
+                  [value]="project.deliveryprogress"
+                  (input)="updatedProgress(project, $event)"
+                  class="form-range form-range-sm">
+          </div>
+        </div>
+
+        <!-- Total Progress -->
+        <div class="total-progress mt-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-medium">Progression totale</span>
+            <span class="fw-bold text-primary">{{ project.progress.toFixed(2) }}%</span>
+          </div>
+          <div class="progress" style="height: 12px;">
+            <div class="progress-bar bg-info progress-bar-striped" 
+                role="progressbar" 
+                [style.width]="project.progress + '%'"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Footer - Actions -->
+      <div class="card-footer bg-light py-3 border-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="btn-group">
+            <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/listproject', project.idproject]">
+              <i class="mdi mdi-information-outline me-1"></i>Détails
+            </a>
+            
+            <button *ngIf="project.progress==100" class="btn btn-sm btn-outline-primary" (click)="archive(project.idproject)">
+              <i class="mdi mdi-archive me-1"></i>
+            </button>
+          </div>
+          
+          <span class="badge bg-light text-dark border">
+            <i class="mdi mdi-clock-outline me-1"></i>{{ project.duree }}h
+          </span>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+
 
   <div class="pagination-container mt-3">
     <pagination-controls (pageChange)="p = $event"></pagination-controls>

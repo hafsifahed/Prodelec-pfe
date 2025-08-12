@@ -1,7 +1,29 @@
 
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.project-card {
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-radius: 12px;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.1);
+}
+
+.phase-progress .progress-bar {
+  transition: width 0.5s ease;
+}
+
 .card {
-  transition: box-shadow 0.2s;
+  overflow: visible !important;
 }
-.card:hover {
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+
+.card-header {
+  border-bottom: 1px solid rgba(0,0,0,.1);
 }
+

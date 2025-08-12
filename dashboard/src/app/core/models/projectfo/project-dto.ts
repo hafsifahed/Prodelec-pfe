@@ -32,4 +32,10 @@ export class ProjectDto {
   productionStatus?: boolean;
   finalControlStatus?: boolean;
   deliveryStatus?: boolean;
+
+  conceptionExist?: boolean;
+  methodeExist?: boolean;
+  productionExist?: boolean;
+  finalControlExist?: boolean;
+  deliveryExist?: boolean;
 }

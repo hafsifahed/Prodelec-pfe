@@ -128,4 +128,15 @@ export class CreateProjectDto {
 
   @IsOptional() @IsBoolean()
   deliveryStatus: boolean;
+
+  @IsOptional() @IsBoolean()
+    finalControlExist: boolean;
+  @IsOptional() @IsBoolean()
+    conceptionExist: boolean;
+  @IsOptional() @IsBoolean()
+    methodeExist: boolean;
+  @IsOptional() @IsBoolean()
+    productionExist: boolean;
+  @IsOptional() @IsBoolean()
+    deliveryExist: boolean;
 }
