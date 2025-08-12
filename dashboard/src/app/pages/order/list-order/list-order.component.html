@@ -51,12 +51,17 @@
           <td>{{ data.devis?.numdevis || '-' }}</td>
           <td>{{ data.user?.partner?.name || '-' }}</td>
           <td>{{ data.user?.username || '-' }}</td>
-          <td>
-            <span class="badge badge-pill font-size-11"
-              [ngClass]="{'badge-soft-danger': data.annuler, 'badge-soft-success': !data.annuler}">
-              {{ data.annuler ? 'Annulée' : 'Validée' }}
+          <td class="text-center-td">
+            <span
+              class="badge rounded-pill font-size-11"
+              [ngClass]="{ 'bg-danger': data.annuler, 'bg-success': !data.annuler }"
+              [attr.title]="data.annuler ? 'Commande annulée' : 'Commande validée'">
+              <a href="javascript:void(0);" class="text-white" (click)="changeStatus(data.idOrder)" title="Changer état">
+                {{ data.annuler ? 'Annulée' : 'Validée' }}
+              </a>
             </span>
           </td>
+
           <td>
             <a (click)="onDownloadFile(data.attachementName, data.orderName, data.user)" class="list-group-item" style="cursor: pointer;">
               <i class="bx bx-download"></i>

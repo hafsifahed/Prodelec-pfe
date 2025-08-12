@@ -109,37 +109,41 @@ export class ListOrderComponent implements OnInit {
     });
   }
 
-  chnageStatus(id: number) {
-    Swal.fire({
-      title: 'Vous êtes sûr ?',
-      text: 'Vous ne pouvez pas revenir en arrière !',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.orderservice.changeStatus(id).subscribe({
-          next: () => {
-            Swal.fire({
-              title: 'Supprimé!',
-              text: 'La commande a été supprimée.',
-              icon: 'success',
-            });
-            this.loadOrdersAfterChange();
-          },
-          error: () => {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Il y a un problème!',
-            });
-          },
-        });
-      }
-    });
-  }
+  changeStatus(id: number) {
+  Swal.fire({
+    title: 'Êtes-vous sûr ?',
+    text: 'Cette action modifiera l’état de la commande.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, modifier',
+    cancelButtonText: 'Annuler'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.orderservice.changeStatus(id).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Modifié !',
+            text: "L'état de la commande a été mis à jour.",
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          this.loadOrdersAfterChange();
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: "Une erreur est survenue lors de la modification de l'état.",
+          });
+        }
+      });
+    }
+  });
+}
+
 
   archive(id: number) {
     Swal.fire({
