@@ -1,0 +1,14 @@
+<div class="modal-header">
+  <h5 class="modal-title">Détails de {{ phaseTitle }}</h5>
+  <button type="button" class="btn-close" aria-label="Close"></button>
+</div>
+<div class="modal-body modal-body-centered">
+  <ng-container *ngIf="phaseData">
+    <p class="mb-1" *ngIf="phaseData.comment">{{ phaseData.comment }}</p>
+    <p class="mb-1">Durée: {{ phaseData.duration }} heures</p>
+    <p class="mb-0" *ngIf="phaseData.responsible">Pilote: {{ phaseData.responsible }}</p>
+    <p class="mb-1" *ngIf="phaseData.start">Début: {{ phaseData.start | date:'yyyy-MM-dd' }}</p>
+    <p class="mb-1" *ngIf="phaseData.end">Fin: {{ phaseData.end | date:'yyyy-MM-dd' }}</p>
+    <p class="mb-1" *ngIf="phaseData.realEnd">Fin réelle: {{ phaseData.realEnd | date:'yyyy-MM-dd' }}</p>
+  </ng-container>
+</div>

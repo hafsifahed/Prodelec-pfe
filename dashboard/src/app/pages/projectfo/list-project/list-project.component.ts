@@ -11,6 +11,10 @@ import { ProjectService } from 'src/app/core/services/projectService/project.ser
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { WorkersService } from 'src/app/core/services/workers.service';
 import Swal from 'sweetalert2';
+import { ProjectAddModalComponent } from '../modals/project-add-modal/project-add-modal.component';
+import { ProjectEditModalComponent } from '../modals/project-edit-modal/project-edit-modal.component';
+import { ProjectPhaseDetailsModalComponent } from '../modals/project-phase-details-modal/project-phase-details-modal.component';
+import { WorkflowPhase } from '../../workflow-discussion/models/workflow-phase.model';
 
 @Component({
   selector: 'app-list-project',
@@ -47,6 +51,7 @@ export class ListProjectComponent implements OnInit, OnDestroy {
   
 displayMode: 'table' | 'grid' = 'grid';
 
+
         // Pour modal Ajout
     showConceptionAdd = false;
     showMethodeAdd = false;
@@ -72,13 +77,6 @@ displayMode: 'table' | 'grid' = 'grid';
   private progressSubscriptions: Subscription[] = [];
 
   
-  @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
-  @ViewChild('showModala', { static: false }) showModala?: ModalDirective;
-  @ViewChild('detailsconModal') detailsconModal?: TemplateRef<any>;
-  @ViewChild('detailsmetModal') detailsmetModal?: TemplateRef<any>;
-  @ViewChild('detailsprodModal') detailsprodModal?: TemplateRef<any>;
-  @ViewChild('detailsfcModal') detailsfcModal?: TemplateRef<any>;
-  @ViewChild('detailsdelModal') detailsdelModal?: TemplateRef<any>;
   constructor(private workersService: WorkersService,
         private userStateService: UserStateService,
     private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private modalService: BsModalService) {
@@ -89,90 +87,9 @@ this.userStateService.user$.subscribe(user => {
       this.userr = user;
     });
 
-    this.projectservice.getAllProjects().subscribe({
-      next: (data) => {
-        if (data.length == 0) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Oops...',
-            text: 'Pas de projets',
-          });
-        } else {
-          this.list = data.filter((project) => !project.archivera);
-          this.flist=data.filter((project) => !project.archivera);
-          console.log(this.flist);
-        }
-      },
-      error: () => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Il y a un probléme!',
-        });
-      },
-    });
+    this.loadProjects()
 
-    this.projectsForm = this.formBuilder.group({
-      dlp: ['', [Validators.required]],
-      drc: [0, ],
-      cdc: ['', ],
-      rc: ['', ],
-      drm: [0, ],
-      cdm: ['', ],
-      rm: ['', ],
-      drp: [0, ],
-      cdp: ['', ],
-      rp: ['', ],
-      drcf: [0, ],
-      cdcf: ['', ],
-      rcf: ['', ],
-      drl: [0, ],
-      cdl: ['', ],
-      rl: ['', ],
-      dc: ['', ],
-      fc: ['', ],
-      dm: ['', ],
-      fm: ['', ],
-      dp: ['', ],
-      fp: ['', ],
-      dcf: ['', ],
-      fcf: ['', ],
-      dl: ['', ],
-      fl: ['', ],
-      qte: ['', [Validators.required]]
-    });
-
-    this.projectForm = this.formBuilder.group({
-      refc: ['', [Validators.required]],
-      refp: ['', [Validators.required]],
-      dlp: ['', [Validators.required]],
-      drc: [0, ],
-      cdc: ['', ],
-      rc: ['', ],
-      drm: [0, ],
-      cdm: ['', ],
-      rm: ['', ],
-      drp: [0, ],
-      cdp: ['', ],
-      rp: ['', ],
-      drcf: [0, ],
-      cdcf: ['', ],
-      rcf: ['', ],
-      drl: [0, ],
-      cdl: ['', ],
-      rl: ['', ],
-      dc: ['', ],
-      fc: ['', ],
-      dm: ['', ],
-      fm: ['', ],
-      dp: ['', ],
-      fp: ['', ],
-      dcf: ['', ],
-      fcf: ['', ],
-      dl: ['', ],
-      fl: ['', ],
-      qte: [0, [Validators.required]]
-    });
+    
 
     this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
       this.listr=res;
@@ -188,6 +105,8 @@ this.userStateService.user$.subscribe(user => {
    ngOnDestroy() {
     this.progressSubscriptions.forEach(sub => sub.unsubscribe());
   }
+
+
 
     private initDebounce(step: keyof typeof this.progressSubjects) {
     const sub = this.progressSubjects[step].pipe(debounceTime(700)).subscribe(({ project, value }) => {
@@ -262,183 +181,32 @@ this.userStateService.user$.subscribe(user => {
     });
   }
 
-  addModal(project: any) {
-    this.showConceptionAdd = false;
-    this.showMethodeAdd = false;
-    this.showProductionAdd = false;
-    this.showControleAdd = false;
-    this.showLivraisonAdd = false;
-    this.submitted = false;
-    this.project=project;
-    this.showModala?.show()
-    
-  }
+  
 
-  openDetailsconsModal(project: Project): void {
-    this.project2=project;
-    this.modalRef = this.modalService.show(this.detailsconModal!, { class: 'modal-md' });
-  }
-  openDetailsmetModal(project: Project): void {
-    this.project2=project;
-    this.modalRef = this.modalService.show(this.detailsmetModal!, { class: 'modal-md' });
-  }
-  openDetailsprodModal(project: Project): void {
-    this.project2=project;
-    this.modalRef = this.modalService.show(this.detailsprodModal!, { class: 'modal-md' });
-  }
-  openDetailsfcModal(project: Project): void {
-    this.project2=project;
-    this.modalRef = this.modalService.show(this.detailsfcModal!, { class: 'modal-md' });
-  }
-  openDetailsdelModal(project: Project): void {
-    this.project2=project;
-    this.modalRef = this.modalService.show(this.detailsdelModal!, { class: 'modal-md' });
-  }
-  /**
-   * Open Edit modal
-   * @param content modal content
-   */
-  editModal(id: any) {
-    this.showConceptionEdit = false;
-    this.showMethodeEdit = false;
-    this.showProductionEdit = false;
-    this.showControleEdit = false;
-    this.showLivraisonEdit = false;
 
-    this.submitted = false;
-    this.showModal?.show()
-    this.projectservice.getProjectById(id).subscribe((data) => {
-      this.project1 = data;
-      this.projectForm.controls['refc'].setValue(this.project1.refClient);
-    this.projectForm.controls['refp'].setValue(this.project1.refProdelec);
-    this.projectForm.controls['rc'].setValue(this.project1.conceptionResponsible?.firstName || '');
-    this.projectForm.controls['rm'].setValue(this.project1.methodeResponsible?.firstName || '');
-    this.projectForm.controls['rp'].setValue(this.project1.productionResponsible?.firstName || '');
-    this.projectForm.controls['rcf'].setValue(this.project1.finalControlResponsible?.firstName || '');
-    this.projectForm.controls['rl'].setValue(this.project1.deliveryResponsible?.firstName || '');
-this.projectForm.controls['dlp'].setValue(this.project1.dlp ? formatDate(this.project1.dlp, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['dc'].setValue(this.project1.startConception ? formatDate(this.project1.startConception, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['fc'].setValue(this.project1.endConception ? formatDate(this.project1.endConception, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['dm'].setValue(this.project1.startMethode ? formatDate(this.project1.startMethode, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['fm'].setValue(this.project1.endMethode ? formatDate(this.project1.endMethode, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['dp'].setValue(this.project1.startProduction ? formatDate(this.project1.startProduction, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['fp'].setValue(this.project1.endProduction ? formatDate(this.project1.endProduction, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['dcf'].setValue(this.project1.startFc ? formatDate(this.project1.startFc, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['fcf'].setValue(this.project1.endFc ? formatDate(this.project1.endFc, 'MM/dd/yyyy', 'en-US') : null);
-this.projectForm.controls['dl'].setValue(this.project1.startDelivery ? formatDate(this.project1.startDelivery, 'yyyy-MM-dd', 'en-US') : null);
-this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(this.project1.endDelivery, 'yyyy-MM-dd', 'en-US') : null);
-    this.projectForm.controls['drc'].setValue(this.project1.conceptionDuration);
-    this.projectForm.controls['cdc'].setValue(this.project1.conceptionComment);
-    this.projectForm.controls['drm'].setValue(this.project1.methodeDuration);
-    this.projectForm.controls['cdm'].setValue(this.project1.methodeComment);
-    this.projectForm.controls['drp'].setValue(this.project1.productionDuration);
-    this.projectForm.controls['cdp'].setValue(this.project1.productionComment);
-    this.projectForm.controls['drcf'].setValue(this.project1.finalControlDuration);
-    this.projectForm.controls['cdcf'].setValue(this.project1.finalControlComment);
-    this.projectForm.controls['drl'].setValue(this.project1.deliveryDuration);
-    this.projectForm.controls['cdl'].setValue(this.project1.deliveryComment);
-    this.projectForm.controls['qte'].setValue(this.project1.qte);
+loadProjects(){
+    this.projectservice.getAllProjects().subscribe({
+      next: (data) => {
+        if (data.length == 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Pas de projets',
+          });
+        } else {
+          this.list = data.filter((project) => !project.archivera);
+          this.flist=data.filter((project) => !project.archivera);
+          console.log(this.flist);
+        }
+      },
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Il y a un probléme!',
+        });
+      },
     });
-    
-  }
-
-  updateproject() {
-    const refclient = this.projectForm.get('refc')?.value|| '';
-    const refProdelec = this.projectForm.get('refp')?.value|| '';
-    const qte = this.projectForm.get('qte')?.value;
-    const datelivprev = new Date(formatDate(this.projectForm.get('dlp')?.value,'yyyy-MM-dd','en-US'))||null;
-    const durecons = this.projectForm.get('drc')?.value;
-    const respcons = this.projectForm.get('rc')?.value || '';
-    const comcons = this.projectForm.get('cdc')?.value|| '';
-    const duremeth = this.projectForm.get('drm')?.value;
-    const resmeth = this.projectForm.get('rm')?.value || '';
-    const commeth = this.projectForm.get('cdm')?.value|| '';
-    const durepro = this.projectForm.get('drp')?.value;
-    const resprod = this.projectForm.get('rp')?.value || '';
-    const comprod = this.projectForm.get('cdp')?.value|| '';
-    const durecf = this.projectForm.get('drcf')?.value;
-    const rescf = this.projectForm.get('rcf')?.value || '';
-    const comcf = this.projectForm.get('cdcf')?.value|| '';
-    const dureliv = this.projectForm.get('drl')?.value;
-    const resliv = this.projectForm.get('rl')?.value || '';
-    const comliv = this.projectForm.get('cdl')?.value|| '';
-
-    const dcValue = this.projectForm.get('dc')?.value;
-    const fcValue = this.projectForm.get('fc')?.value;
-    const dmValue = this.projectForm.get('dm')?.value;
-    const fmValue = this.projectForm.get('fm')?.value;
-    const dpValue = this.projectForm.get('dp')?.value;
-    const fpValue = this.projectForm.get('fp')?.value;
-    const dcfValue = this.projectForm.get('dcf')?.value;
-    const fcfValue = this.projectForm.get('fcf')?.value;
-    const dlValue = this.projectForm.get('dl')?.value;
-    const flValue = this.projectForm.get('fl')?.value;
-
-    // Convertir les valeurs en objets Date en vérifiant leur existence
-    const debcon = dcValue ? new Date(formatDate(dcValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const fincon = fcValue ? new Date(formatDate(fcValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debmeth = dmValue ? new Date(formatDate(dmValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finmeth = fmValue ? new Date(formatDate(fmValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debprod = dpValue ? new Date(formatDate(dpValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finprod = fpValue ? new Date(formatDate(fpValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debcf = dcfValue ? new Date(formatDate(dcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const fincf = fcfValue ? new Date(formatDate(fcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
-  
-    const project: ProjectDto = {
-      refClient: refclient,
-    refProdelec: refProdelec,
-    qte: qte,
-    dlp: datelivprev,
-    duree: durecons+duremeth+durepro+durecf+dureliv,
-    conceptionComment: comcons,
-    conceptionDuration: durecons,
-    methodeComment: commeth,
-    methodeDuration: duremeth,
-    productionComment: comprod,
-    productionDuration: durepro,
-    finalControlComment: comcf,
-    finalControlDuration: durecf,
-    deliveryComment: comliv,
-    startConception: debcon,
-    endConception: fincon,
-    startMethode: debmeth,
-    endMethode: finmeth,
-    startProduction: debprod,
-    endProduction: finprod,
-    startFc: debcf,
-    endFc: fincf,
-    startDelivery: debliv,
-    endDelivery: finliv,
-    deliveryDuration: dureliv
-    };
-    console.log(respcons);
-  
-    this.projectservice.updateProject(this.project1.idproject,project,respcons,resmeth,resprod,rescf,resliv).subscribe(() => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Projet modifié',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      location.reload()
-    },
-    () => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'An error occurred while editing',
-        footer: 'Try again'
-      });
-    });
-  
-    this.showModal?.hide();
-    setTimeout(() => {
-      this.projectForm.reset();
-    }, 2000);
-    this.projectForm.reset();
-    this.submitted = true;
   }
 
   delete(id: number) {
@@ -621,112 +389,7 @@ this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(
     return project.order.user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) || project.refClient.toLowerCase().includes(this.searchTerm.toLowerCase());
   }
 
-  addproject() {
-  // Validation simple du formulaire
-  if (this.projectsForm.invalid) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Formulaire invalide',
-      text: 'Veuillez remplir tous les champs obligatoires correctement.',
-    });
-    return;
-  }
 
-  // Récupération des valeurs du formulaire
-  const qte = this.projectsForm.get('qte')?.value;
-  const datelivprev = this.projectsForm.get('dlp')?.value;
-
-  // Conversion des dates en objets Date ou null
-  const debcon = this.projectsForm.get('dc')?.value ? new Date(formatDate(this.projectsForm.get('dc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const fincon = this.projectsForm.get('fc')?.value ? new Date(formatDate(this.projectsForm.get('fc')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const debmeth = this.projectsForm.get('dm')?.value ? new Date(formatDate(this.projectsForm.get('dm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const finmeth = this.projectsForm.get('fm')?.value ? new Date(formatDate(this.projectsForm.get('fm')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const debprod = this.projectsForm.get('dp')?.value ? new Date(formatDate(this.projectsForm.get('dp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const finprod = this.projectsForm.get('fp')?.value ? new Date(formatDate(this.projectsForm.get('fp')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const debcf = this.projectsForm.get('dcf')?.value ? new Date(formatDate(this.projectsForm.get('dcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const fincf = this.projectsForm.get('fcf')?.value ? new Date(formatDate(this.projectsForm.get('fcf')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const debliv = this.projectsForm.get('dl')?.value ? new Date(formatDate(this.projectsForm.get('dl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-  const finliv = this.projectsForm.get('fl')?.value ? new Date(formatDate(this.projectsForm.get('fl')?.value, 'yyyy-MM-dd', 'en-US')) : null;
-
-  // Récupération des durées, en s'assurant qu'elles sont des nombres valides (sinon 0)
-  const durecons = Number(this.projectsForm.get('drc')?.value) || 0;
-  const duremeth = Number(this.projectsForm.get('drm')?.value) || 0;
-  const durepro = Number(this.projectsForm.get('drp')?.value) || 0;
-  const durecf = Number(this.projectsForm.get('drcf')?.value) || 0;
-  const dureliv = Number(this.projectsForm.get('drl')?.value) || 0;
-
-  // Récupération des commentaires
-  const comcons = this.projectsForm.get('cdc')?.value || '';
-  const commeth = this.projectsForm.get('cdm')?.value || '';
-  const comprod = this.projectsForm.get('cdp')?.value || '';
-  const comcf = this.projectsForm.get('cdcf')?.value || '';
-  const comliv = this.projectsForm.get('cdl')?.value || '';
-
-  // Récupération des responsables, en nettoyant les valeurs vides
-  const respcons = (this.projectsForm.get('rc')?.value || '').trim() || undefined;
-  const resmeth = (this.projectsForm.get('rm')?.value || '').trim() || undefined;
-  const resprod = (this.projectsForm.get('rp')?.value || '').trim() || undefined;
-  const rescf = (this.projectsForm.get('rcf')?.value || '').trim() || undefined;
-  const resliv = (this.projectsForm.get('rl')?.value || '').trim() || undefined;
-
-  // Construction de l'objet ProjectDto
-  const project: ProjectDto = {
-    refClient: this.project.refClient,
-    refProdelec: this.project.refProdelec,
-    qte: qte,
-    dlp: datelivprev,
-    duree: durecons + duremeth + durepro + durecf + dureliv,
-    conceptionComment: comcons,
-    conceptionDuration: durecons,
-    methodeComment: commeth,
-    methodeDuration: duremeth,
-    productionComment: comprod,
-    productionDuration: durepro,
-    finalControlComment: comcf,
-    finalControlDuration: durecf,
-    deliveryComment: comliv,
-    deliveryDuration: dureliv,
-    startConception: debcon,
-    endConception: fincon,
-    startMethode: debmeth,
-    endMethode: finmeth,
-    startProduction: debprod,
-    endProduction: finprod,
-    startFc: debcf,
-    endFc: fincf,
-    startDelivery: debliv,
-    endDelivery: finliv
-  };
-
-  // Appel du service pour créer le projet
-  this.projectservice.createProject(project, this.project.order.idOrder, respcons, resmeth, resprod, rescf, resliv).subscribe({
-    next: () => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Projet ajouté',
-        showConfirmButton: false,
-        timer: 1500
-      });
-      location.reload();
-    },
-    error: (error) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: error.error?.message || 'Une erreur est survenue lors de la création du projet.',
-        footer: 'Veuillez réessayer'
-      });
-    }
-  });
-
-  // Fermeture de la modale et reset du formulaire
-  this.showModala?.hide();
-  setTimeout(() => {
-    this.projectsForm.reset();
-  }, 2000);
-  this.projectsForm.reset();
-  this.submitted = true;
-}
 
 
   isDateOverdue(dlp: Date,p:Project): boolean {
@@ -871,4 +534,61 @@ hasPhasePermission(phase: string, project: any): boolean {
   return (this.userr && project[responsibleField]?.id === this.userr.id) || 
          this.userr?.role?.name === 'SUBADMIN';
 }
+
+
+// Méthodes pour ouvrir les nouvelles modales
+   openAddModal(project: Project) {
+    this.modalRef = this.modalService.show(ProjectAddModalComponent, {
+      initialState: { project, listr: this.listr },
+      class: 'modal-xl'
+    });
+
+    this.modalRef.content.modalClosed.subscribe(() => {
+      this.modalRef?.hide();
+    });
+
+    this.modalRef.content.projectAdded.subscribe(() => {
+      this.modalRef?.hide();
+      this.loadProjects();
+    });
+  }
+
+  openEditModal(project: Project) {
+    this.modalRef = this.modalService.show(ProjectEditModalComponent, {
+      initialState: { project, listr: this.listr },
+      class: 'modal-xl'
+    });
+
+    this.modalRef.content.modalClosed.subscribe(() => {
+      this.modalRef?.hide();
+    });
+
+    this.modalRef.content.projectUpdated.subscribe(() => {
+      this.modalRef?.hide();
+      this.loadProjects();
+    });
+  }
+
+  openPhaseDetailsModal(project: Project, phase: any) {
+    this.modalService.show(ProjectPhaseDetailsModalComponent, {
+      initialState: {
+        project: project,
+        phase: phase
+      },
+      class: 'modal-md'
+    });
+  }
+
+  // Rafraîchir la liste des projets
+  refreshProjects() {
+    this.projectservice.getAllProjects().subscribe({
+      next: (data) => {
+        this.list = data.filter(p => !p.archivera);
+        this.flist = [...this.list];
+      },
+      error: () => {
+        Swal.fire('Erreur', 'Impossible de rafraîchir les projets', 'error');
+      }
+    });
+  }
 }

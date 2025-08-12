@@ -109,6 +109,38 @@ export class ListOrderComponent implements OnInit {
     });
   }
 
+  chnageStatus(id: number) {
+    Swal.fire({
+      title: 'Vous êtes sûr ?',
+      text: 'Vous ne pouvez pas revenir en arrière !',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.orderservice.changeStatus(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Supprimé!',
+              text: 'La commande a été supprimée.',
+              icon: 'success',
+            });
+            this.loadOrdersAfterChange();
+          },
+          error: () => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Il y a un problème!',
+            });
+          },
+        });
+      }
+    });
+  }
+
   archive(id: number) {
     Swal.fire({
       title: 'Vous êtes sûr ?',

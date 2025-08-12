@@ -37,7 +37,6 @@ export class TopbarComponent implements OnInit {
   countryName: any;
   valueset: any;
   user: any;
-  userType: string | null = '';
   errorMessage = '';
   notification: { message: string; type: string; time: string }[] = [];
   token = localStorage.getItem('token');

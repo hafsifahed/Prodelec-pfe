@@ -114,6 +114,9 @@ import { RefuseDevisAdminModalComponent } from './devis/modals/refuse-devis-admi
 import { DetailsDevisAdminModalComponent } from './devis/modals/details-devis-admin-modal/details-devis-admin-modal.component';
 import { EditOrderUserModalComponent } from './order/modals/edit-order-user-modal/edit-order-modal.component';
 import { AddProjectModalComponent } from './order/modals/add-project-modal/add-project-modal.component';
+import { ProjectAddModalComponent } from './projectfo/modals/project-add-modal/project-add-modal.component';
+import { ProjectEditModalComponent } from './projectfo/modals/project-edit-modal/project-edit-modal.component';
+import { ProjectPhaseDetailsModalComponent } from './projectfo/modals/project-phase-details-modal/project-phase-details-modal.component';
 
 
 @NgModule({
@@ -199,6 +202,9 @@ import { AddProjectModalComponent } from './order/modals/add-project-modal/add-p
     DetailsDevisAdminModalComponent,
     EditOrderUserModalComponent,
     AddProjectModalComponent,
+    ProjectAddModalComponent,
+    ProjectEditModalComponent,
+    ProjectPhaseDetailsModalComponent,
 
   ],
   imports: [

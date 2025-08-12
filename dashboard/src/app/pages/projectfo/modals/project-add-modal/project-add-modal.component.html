@@ -1,0 +1,243 @@
+<div class="modal-header">
+  <h5 class="modal-title">Ajouter projet</h5>
+  <button type="button" class="btn-close" (click)="closeModal()"></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="projectsForm" (ngSubmit)="addproject()" novalidate>
+    <div class="row g-3">
+
+      <!-- Champs généraux -->
+      <div class="col-12 col-lg-6">
+        <label class="form-label">Quantité</label>
+        <input type="number" class="form-control" formControlName="qte" required />
+      </div>
+      <div class="col-12 col-lg-6">
+        <label class="form-label">Date de livraison prévue</label>
+        <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp" />
+      </div>
+
+      <!-- Boutons d'affichage des sections -->
+      <div class="col-12">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('conception')">
+            {{ showSections.conception ? 'Masquer Conception' : 'Afficher Conception' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('methode')">
+            {{ showSections.methode ? 'Masquer Méthode' : 'Afficher Méthode' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('production')">
+            {{ showSections.production ? 'Masquer Production' : 'Afficher Production' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('controle')">
+            {{ showSections.controle ? 'Masquer Contrôle finale' : 'Afficher Contrôle finale' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('livraison')">
+            {{ showSections.livraison ? 'Masquer Livraison' : 'Afficher Livraison' }}
+          </button>
+        </div>
+      </div>
+
+            <!-- Les phase -->
+
+      <div class="mb-3" *ngIf="user.role.name === 'Responsable Industrialisation'">
+      <label class="form-label">Étapes du projet</label>
+      <div class="form-check">
+        <input type="checkbox" id="conceptionChecked" class="form-check-input" formControlName="conceptionChecked" />
+        <label class="form-check-label" for="conceptionChecked">Conception</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="methodeChecked" class="form-check-input" formControlName="methodeChecked" />
+        <label class="form-check-label" for="methodeChecked">Méthode</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="productionChecked" class="form-check-input" formControlName="productionChecked" />
+        <label class="form-check-label" for="productionChecked">Production</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="controleChecked" class="form-check-input" formControlName="controleChecked" />
+        <label class="form-check-label" for="controleChecked">Contrôle final</label>
+      </div>
+      <div class="form-check">
+        <input type="checkbox" id="livraisonChecked" class="form-check-input" formControlName="livraisonChecked" />
+        <label class="form-check-label" for="livraisonChecked">Livraison</label>
+      </div>
+    </div>
+      <!-- Section Conception -->
+      <div class="col-12" *ngIf="showSections.conception">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white fw-semibold">Conception</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Durée</label>
+                <input type="number" class="form-control" formControlName="drc" />
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Pilote</label>
+                <select class="form-select" formControlName="rc">
+                  <option value="">Sélectionner</option>
+                  <option *ngFor="let dt of listr" [value]="dt.username">{{ dt.username }}</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <textarea class="form-control" formControlName="cdc" rows="1"></textarea>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Début</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc" />
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Fin</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Méthode -->
+      <div class="col-12" *ngIf="showSections.methode">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white fw-semibold">Méthode</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Durée</label>
+                <input type="number" class="form-control" formControlName="drm" />
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Pilote</label>
+                <select class="form-select" formControlName="rm">
+                  <option value="">Sélectionner</option>
+                  <option *ngFor="let dt of listr" [value]="dt.username">{{ dt.username }}</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <textarea class="form-control" formControlName="cdm" rows="1"></textarea>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Début</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm" />
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Fin</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Production -->
+      <div class="col-12" *ngIf="showSections.production">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white fw-semibold">Production</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Durée</label>
+                <input type="number" class="form-control" formControlName="drp" />
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Pilote</label>
+                <select class="form-select" formControlName="rp">
+                  <option value="">Sélectionner</option>
+                  <option *ngFor="let dt of listr" [value]="dt.username">{{ dt.username }}</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <textarea class="form-control" formControlName="cdp" rows="1"></textarea>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Début</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp" />
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Fin</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Contrôle finale -->
+      <div class="col-12" *ngIf="showSections.controle">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white fw-semibold">Contrôle finale</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Durée</label>
+                <input type="number" class="form-control" formControlName="drcf" />
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Pilote</label>
+                <select class="form-select" formControlName="rcf">
+                  <option value="">Sélectionner</option>
+                  <option *ngFor="let dt of listr" [value]="dt.username">{{ dt.username }}</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <textarea class="form-control" formControlName="cdcf" rows="1"></textarea>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Début</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dcf" />
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Fin</label>
+                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fcf" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Livraison -->
+      <div class="col-12" *ngIf="showSections.livraison">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white fw-semibold">Livraison</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Durée</label>
+                <input type="number" class="form-control" formControlName="drl" />
+              </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label">Pilote</label>
+                <select class="form-select" formControlName="rl">
+                  <option value="">Sélectionner</option>
+                  <option *ngFor="let dt of listr" [value]="dt.username">{{ dt.username }}</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <textarea class="form-control" formControlName="cdl" rows="1"></textarea>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Début</label>
+                <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl" />
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <label class="form-label">Fin</label>
+                <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="col-12 text-end">
+        <button type="button" class="btn btn-outline-secondary me-2" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-success">Ajouter</button>
+      </div>
+
+    </div>
+  </form>
+</div>

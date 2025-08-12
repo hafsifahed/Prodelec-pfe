@@ -55,4 +55,11 @@ export class Project {
   productionExist!: boolean;
   finalControlExist!: boolean;
   deliveryExist!: boolean;
+
+  conceptionResponsible!: User;
+methodeResponsible!: User;
+  productionResponsible!: User;
+finalControlResponsible!: User;
+  deliveryResponsible!: User;
+
 }
