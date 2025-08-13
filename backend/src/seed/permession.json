@@ -1,0 +1,127 @@
+{
+  "roles": {
+    "ADMIN": [
+      {"resource": "users", "actions": ["manage"]},
+      {"resource": "roles", "actions": ["manage"]},
+      {"resource": "partners", "actions": ["manage"]},
+      {"resource": "settings", "actions": ["manage"]},
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "inventory", "actions": ["manage"]},
+      {"resource": "quality", "actions": ["manage"]},
+      {"resource": "production", "actions": ["manage"]},
+      {"resource": "logistics", "actions": ["manage"]},
+      {"resource": "hr", "actions": ["manage"]},
+      {"resource": "finance", "actions": ["manage"]},
+      {"resource": "method", "actions": ["manage"]},
+      {"resource": "audit_logs", "actions": ["manage"]},
+      {"resource": "sessions", "actions": ["manage"]}
+    ],
+    
+    "SUBADMIN": [
+      {"resource": "users", "actions": ["read", "create", "update"]},
+      {"resource": "products", "actions": ["read", "create", "update"]},
+      {"resource": "orders", "actions": ["read", "export"]}
+    ],
+    
+    "PROCESS_QUALITY": [
+      {"resource": "quality", "actions": ["manage"]},
+      {"resource": "products", "actions": ["read", "update"]}
+    ],
+    
+    "PROCESS_DESIGN": [
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "production", "actions": ["read"]}
+    ],
+    
+    "PROCESS_METHOD": [
+      {"resource": "method", "actions": ["manage"]},
+      {"resource": "production", "actions": ["read", "update"]},
+      {"resource": "products", "actions": ["read"]}
+    ],
+    
+    "PROCESS_PRODUCTION": [
+      {"resource": "production", "actions": ["manage"]},
+      {"resource": "inventory", "actions": ["read", "update"]},
+      {"resource": "logistics", "actions": ["read"]}
+    ],
+    
+    "PROCESS_LOGISTICS": [
+      {"resource": "logistics", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["create", "read", "update"]},
+      {"resource": "inventory", "actions": ["read"]}
+    ],
+    
+    "PROCESS_DAF": [
+      {"resource": "finance", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["read", "export"]},
+      {"resource": "settings", "actions": ["read"]}
+    ],
+    
+    "PROCESS_RH": [
+      {"resource": "hr", "actions": ["manage"]},
+      {"resource": "users", "actions": ["read", "update"]},
+      {"resource": "sessions", "actions": ["read"]}
+    ],
+    
+    "CLIENT_ADMIN": [
+      {"resource": "users", "actions": ["create", "read", "update"]},
+      {"resource": "products", "actions": ["read"]},
+      {"resource": "orders", "actions": ["manage"]}
+    ],
+    
+    "CLIENT_USER": [
+      {"resource": "products", "actions": ["read"]},
+      {"resource": "orders", "actions": ["create", "read"]}
+    ],
+    
+    "RESPONSABLE_CONCEPTION": [
+      {"resource": "products", "actions": ["manage"]},
+            {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]}
+    ],
+    
+    "RESPONSABLE_QUALITE": [
+      {"resource": "quality", "actions": ["manage"]},
+      {"resource": "audit_logs", "actions": ["read"]},
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]}
+    ],
+    
+    "RESPONSABLE_METHODE": [
+      {"resource": "method", "actions": ["manage"]},
+      {"resource": "production", "actions": ["read"]},
+      {"resource": "products", "actions": ["manage"]},
+            {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]}
+    ],
+    
+    "RESPONSABLE_PRODUCTION": [
+      {"resource": "production", "actions": ["manage"]},
+      {"resource": "inventory", "actions": ["manage"]},
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]}
+    ],
+    
+    "RESPONSABLE_LOGISTIQUE": [
+      {"resource": "logistics", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]}
+    ],
+    
+    "RESPONSABLE_INDUSTRIALISATION": [
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "products", "actions": ["manage"]},
+      {"resource": "quality", "actions": ["read"]},
+      {"resource": "production", "actions": ["read"]},
+      {"resource": "logistics", "actions": ["read"]},
+      {"resource": "users", "actions": ["read"]},
+      {"resource": "roles", "actions": ["read"]}
+    ]
+  }
+}

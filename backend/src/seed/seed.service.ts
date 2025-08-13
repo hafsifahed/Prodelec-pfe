@@ -27,11 +27,10 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectRepository(Setting)
     private readonly settingRepo: Repository<Setting>,
 
-    private readonly usersService: UsersService,   // ✅  on injecte le service
+    private readonly usersService: UsersService,
     private readonly config: ConfigService,
   ) {}
 
-  /* ---------------------------------------------------------------- */
   async onApplicationBootstrap() {
     await this.seedRoles();
     await this.seedAdminUser();
@@ -59,8 +58,7 @@ export class SeedService implements OnApplicationBootstrap {
       [RoleEnum.RESPONSABLE_METHODE, this.responsableMethodeProc()],
       [RoleEnum.RESPONSABLE_PRODUCTION, this.responsableProductionProc()],
       [RoleEnum.RESPONSABLE_LOGISTIQUE, this.responsableLogistiqueProc()],
-      [RoleEnum.RESPONSABLE_INDUSTRIALISATION, this.fullAccess()],
-
+      [RoleEnum.RESPONSABLE_INDUSTRIALISATION, this.responsableIndustrialisationProc()],
     ]);
 
     for (const [name, permissions] of roleDefinitions) {
@@ -74,71 +72,134 @@ export class SeedService implements OnApplicationBootstrap {
 
   /* ------------------------ UTILITAIRES PERSMISSIONS ---------------- */
 
-  private fullAccess()        { return Object.values(Resource).map(r => ({ resource: r, actions: [Action.MANAGE] })); }
-  private subAdmin()          { return [ { resource: Resource.USERS,   actions: [Action.READ, Action.CREATE, Action.UPDATE] },
-                                         { resource: Resource.PRODUCTS,actions: [Action.READ, Action.CREATE, Action.UPDATE] },
-                                         { resource: Resource.ORDERS,  actions: [Action.READ, Action.EXPORT] } ]; }
-  private qualityProc()       { return [ { resource: Resource.QUALITY, actions: [Action.MANAGE] },
-                                         { resource: Resource.PRODUCTS,actions: [Action.READ, Action.UPDATE] } ]; }
-  private designProc()        { return [ { resource: Resource.PRODUCTS,actions: [Action.MANAGE] },
-                                         { resource: Resource.PRODUCTION,actions: [Action.READ] } ]; }
-  private methodProc()        { return [ { resource: Resource.METHOD,actions: [Action.MANAGE] },
-                                         { resource: Resource.PRODUCTION,actions: [Action.READ, Action.UPDATE] },
-                                         { resource: Resource.PRODUCTS,actions: [Action.READ] } ]; }
-  private productionProc()    { return [ { resource: Resource.PRODUCTION,actions: [Action.MANAGE] },
-                                         { resource: Resource.INVENTORY, actions: [Action.READ, Action.UPDATE] },
-                                         { resource: Resource.LOGISTICS, actions: [Action.READ] } ]; }
-  private logisticsProc()     { return [ { resource: Resource.LOGISTICS,actions: [Action.MANAGE] },
-                                         { resource: Resource.ORDERS,   actions: [Action.CREATE, Action.READ, Action.UPDATE] },
-                                         { resource: Resource.INVENTORY,actions: [Action.READ] } ]; }
-  private dafProc()           { return [ { resource: Resource.FINANCE, actions: [Action.MANAGE] },
-                                         { resource: Resource.ORDERS,  actions: [Action.READ, Action.EXPORT] },
-                                         { resource: Resource.SETTINGS,actions: [Action.READ] } ]; }
-  private rhProc()            { return [ { resource: Resource.HR,      actions: [Action.MANAGE] },
-                                         { resource: Resource.USERS,   actions: [Action.READ, Action.UPDATE] },
-                                         { resource: Resource.SESSIONS,actions: [Action.READ] } ]; }
-  private clientAdmin()       { return [ { resource: Resource.USERS,   actions: [Action.CREATE, Action.READ, Action.UPDATE] },
-                                         { resource: Resource.PRODUCTS,actions: [Action.READ] },
-                                         { resource: Resource.ORDERS,  actions: [Action.MANAGE] } ]; }
-  private clientUser()        { return [ { resource: Resource.PRODUCTS,actions: [Action.READ] },
-                                         { resource: Resource.ORDERS,  actions: [Action.CREATE, Action.READ] } ]; }
+  private fullAccess() { 
+    return Object.values(Resource).map(r => ({ resource: r, actions: [Action.MANAGE] })); 
+  }
+
+  private subAdmin() { 
+    return [ 
+      { resource: Resource.USERS,   actions: [Action.READ, Action.CREATE, Action.UPDATE] },
+      { resource: Resource.PRODUCTS, actions: [Action.READ, Action.CREATE, Action.UPDATE] },
+      { resource: Resource.ORDERS,  actions: [Action.READ, Action.EXPORT] } 
+    ]; 
+  }
+
+  private qualityProc() { 
+    return [ 
+      { resource: Resource.QUALITY, actions: [Action.MANAGE] },
+      { resource: Resource.PRODUCTS, actions: [Action.READ, Action.UPDATE] } 
+    ]; 
+  }
+
+  private designProc() { 
+    return [ 
+      { resource: Resource.PRODUCTS, actions: [Action.MANAGE] },
+      { resource: Resource.PRODUCTION, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private methodProc() { 
+    return [ 
+      { resource: Resource.METHOD, actions: [Action.MANAGE] },
+      { resource: Resource.PRODUCTION, actions: [Action.READ, Action.UPDATE] },
+      { resource: Resource.PRODUCTS, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private productionProc() { 
+    return [ 
+      { resource: Resource.PRODUCTION, actions: [Action.MANAGE] },
+      { resource: Resource.INVENTORY, actions: [Action.READ, Action.UPDATE] },
+      { resource: Resource.LOGISTICS, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private logisticsProc() { 
+    return [ 
+      { resource: Resource.LOGISTICS, actions: [Action.MANAGE] },
+      { resource: Resource.ORDERS,   actions: [Action.CREATE, Action.READ, Action.UPDATE] },
+      { resource: Resource.INVENTORY, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private dafProc() { 
+    return [ 
+      { resource: Resource.FINANCE, actions: [Action.MANAGE] },
+      { resource: Resource.ORDERS,  actions: [Action.READ, Action.EXPORT] },
+      { resource: Resource.SETTINGS, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private rhProc() { 
+    return [ 
+      { resource: Resource.HR,      actions: [Action.MANAGE] },
+      { resource: Resource.USERS,   actions: [Action.READ, Action.UPDATE] },
+      { resource: Resource.SESSIONS, actions: [Action.READ] } 
+    ]; 
+  }
+
+  private clientAdmin() { 
+    return [ 
+      { resource: Resource.USERS,   actions: [Action.CREATE, Action.READ, Action.UPDATE] },
+      { resource: Resource.PRODUCTS, actions: [Action.READ] },
+      { resource: Resource.ORDERS,  actions: [Action.MANAGE] } 
+    ]; 
+  }
+
+  private clientUser() { 
+    return [ 
+      { resource: Resource.PRODUCTS, actions: [Action.READ] },
+      { resource: Resource.ORDERS,  actions: [Action.CREATE, Action.READ] } 
+    ]; 
+  }
+
   private responsableConceptionProc() {
-  return [
-    { resource: Resource.PRODUCTS, actions: [Action.MANAGE] },
-    { resource: Resource.DESIGN, actions: [Action.READ] },
-  ];
-}
+    return [
+      { resource: Resource.PRODUCTS, actions: [Action.MANAGE] },
+      { resource: Resource.PROJECT, actions: [Action.MANAGE] },
+    ];
+  }
 
-private responsableQualiteProc() {
-  return [
-    { resource: Resource.QUALITY, actions: [Action.MANAGE] },
-  ];
-}
+  private responsableQualiteProc() {
+    return [
+      { resource: Resource.QUALITY, actions: [Action.MANAGE] },
+      { resource: Resource.AUDIT_LOGS, actions: [Action.READ] }
+    ];
+  }
 
-private responsableMethodeProc() {
-  return [
-    { resource: Resource.METHOD, actions: [Action.MANAGE] },
-  ];
-}
+  private responsableMethodeProc() {
+    return [
+      { resource: Resource.METHOD, actions: [Action.MANAGE] },
+      { resource: Resource.PRODUCTION, actions: [Action.READ] }
+    ];
+  }
 
-private responsableProductionProc() {
-  return [
-    { resource: Resource.PRODUCTION, actions: [Action.MANAGE] },
-  ];
-}
+  private responsableProductionProc() {
+    return [
+      { resource: Resource.PRODUCTION, actions: [Action.MANAGE] },
+      { resource: Resource.INVENTORY, actions: [Action.MANAGE] }
+    ];
+  }
 
-private responsableLogistiqueProc() {
-  return [
-    { resource: Resource.LOGISTICS, actions: [Action.MANAGE] },
-  ];
-}
+  private responsableLogistiqueProc() {
+    return [
+      { resource: Resource.LOGISTICS, actions: [Action.MANAGE] },
+      { resource: Resource.ORDERS, actions: [Action.MANAGE] }
+    ];
+  }
 
-private responsableIndustrialisationProc() {
-  return [
-    { resource: Resource.PROJECT, actions: [Action.MANAGE] },
-    { resource: Resource.ORDERS, actions: [Action.MANAGE] },
-  ];
-}
+  private responsableIndustrialisationProc() {
+    return [
+      { resource: Resource.PROJECT, actions: [Action.MANAGE] },
+      { resource: Resource.ORDERS, actions: [Action.MANAGE] },
+      { resource: Resource.PRODUCTS, actions: [Action.MANAGE] },
+      { resource: Resource.QUALITY, actions: [Action.READ] },
+      { resource: Resource.PRODUCTION, actions: [Action.READ] },
+      { resource: Resource.LOGISTICS, actions: [Action.READ] },
+      { resource: Resource.USERS, actions: [Action.READ] },
+      { resource: Resource.ROLES, actions: [Action.READ] },
+    ];
+  }
 
   /* ---------------------------- ADMIN -------------------------------- */
 
@@ -161,7 +222,7 @@ private responsableIndustrialisationProc() {
       roleId: role.id,
     };
 
-    await this.usersService.create(dto);      // ✅ Hachage + validations centralisées
+    await this.usersService.create(dto);
     await this.userRepo.update({ email }, { accountStatus: AccountStatus.ACTIVE });
 
     this.logger.log('✓ Utilisateur admin créé');
@@ -170,60 +231,56 @@ private responsableIndustrialisationProc() {
   /* ----------------------- UTILISATEURS PROCESS ---------------------- */
 
   private async seedProcessUsers() {
-  const configs: Array<{ role: RoleEnum; email: string; first: string }> = [
-    { role: RoleEnum.PROCESS_RH,         email: 'rh.process@example.com',         first: 'HR'         },
-    { role: RoleEnum.PROCESS_METHOD,     email: 'method.process@example.com',     first: 'Method'     },
-    { role: RoleEnum.PROCESS_PRODUCTION, email: 'production.process@example.com', first: 'Production' },
-    { role: RoleEnum.PROCESS_LOGISTICS,  email: 'logistics.process@example.com',  first: 'Logistics'  },
-    { role: RoleEnum.PROCESS_DAF,        email: 'daf.process@example.com',        first: 'DAF'        },
-    { role: RoleEnum.PROCESS_QUALITY,    email: 'quality.process@example.com',    first: 'Quality'    },
-    { role: RoleEnum.PROCESS_DESIGN,     email: 'design.process@example.com',     first: 'Design'     },
+    const configs: Array<{ role: RoleEnum; email: string; first: string }> = [
+      { role: RoleEnum.PROCESS_RH,         email: 'rh.process@example.com',         first: 'HR'         },
+      { role: RoleEnum.PROCESS_METHOD,     email: 'method.process@example.com',     first: 'Method'     },
+      { role: RoleEnum.PROCESS_PRODUCTION, email: 'production.process@example.com', first: 'Production' },
+      { role: RoleEnum.PROCESS_LOGISTICS,  email: 'logistics.process@example.com',  first: 'Logistics'  },
+      { role: RoleEnum.PROCESS_DAF,        email: 'daf.process@example.com',        first: 'DAF'        },
+      { role: RoleEnum.PROCESS_QUALITY,    email: 'quality.process@example.com',    first: 'Quality'    },
+      { role: RoleEnum.PROCESS_DESIGN,     email: 'design.process@example.com',     first: 'Design'     },
+      { role: RoleEnum.RESPONSABLE_INDUSTRIALISATION, email: 'responsable.industrialisation@example.com', first: 'Responsable Industrialisation' },
+      { role: RoleEnum.RESPONSABLE_CONCEPTION, email: 'responsable.conception@example.com', first: 'Responsable Conception' },
+      { role: RoleEnum.RESPONSABLE_QUALITE,    email: 'responsable.qualite@example.com',    first: 'Responsable Qualité'    },
+      { role: RoleEnum.RESPONSABLE_METHODE,    email: 'responsable.methode@example.com',    first: 'Responsable Méthode'    },
+      { role: RoleEnum.RESPONSABLE_PRODUCTION, email: 'responsable.production@example.com', first: 'Responsable Production' },
+      { role: RoleEnum.RESPONSABLE_LOGISTIQUE, email: 'responsable.logistique@example.com', first: 'Responsable Logistique' },
+    ];
 
-    // Nouveaux responsables
-    { role: RoleEnum.RESPONSABLE_INDUSTRIALISATION, email: 'responsable.industrialisation@example.com', first: 'Responsable Industrialisation' },
-    { role: RoleEnum.RESPONSABLE_CONCEPTION, email: 'responsable.conception@example.com', first: 'Responsable Conception' },
-    { role: RoleEnum.RESPONSABLE_QUALITE,    email: 'responsable.qualite@example.com',    first: 'Responsable Qualité'    },
-    { role: RoleEnum.RESPONSABLE_METHODE,    email: 'responsable.methode@example.com',    first: 'Responsable Méthode'    },
-    { role: RoleEnum.RESPONSABLE_PRODUCTION, email: 'responsable.production@example.com', first: 'Responsable Production' },
-    { role: RoleEnum.RESPONSABLE_LOGISTIQUE, email: 'responsable.logistique@example.com', first: 'Responsable Logistique' },
-  ];
+    for (const cfg of configs) {
+      if (await this.userRepo.findOne({ where: { email: cfg.email } })) continue;
 
-  for (const cfg of configs) {
-    if (await this.userRepo.findOne({ where: { email: cfg.email } })) continue;
+      const role = await this.roleRepo.findOne({ where: { name: cfg.role } });
+      if (!role) {
+        this.logger.warn(`Role ${cfg.role} not found`);
+        continue;
+      }
 
-    const role = await this.roleRepo.findOne({ where: { name: cfg.role } });
-    if (!role) {
-      this.logger.warn(`Role ${cfg.role} not found`);
-      continue;
+      const dto: any = {
+        username: cfg.email.split('@')[0],
+        email: cfg.email,
+        firstName: cfg.first,
+        lastName: 'Process',
+        password: 'aaaaaaaaa',
+        roleId: role.id,
+      };
+
+      await this.usersService.create(dto);
+      await this.userRepo.update({ email: cfg.email }, { accountStatus: AccountStatus.ACTIVE });
+
+      this.logger.log(`✓ Utilisateur process créé : ${cfg.email}`);
     }
-
-    const dto: any = {
-      username: cfg.email.split('@')[0],
-      email: cfg.email,
-      firstName: cfg.first,
-      lastName: 'Process',
-      password: 'aaaaaaaaa', // sera haché par UsersService
-      roleId: role.id,
-    };
-
-    await this.usersService.create(dto);
-    await this.userRepo.update({ email: cfg.email }, { accountStatus: AccountStatus.ACTIVE });
-
-    this.logger.log(`✓ Utilisateur process créé : ${cfg.email}`);
   }
-}
-
 
   /*-------------------------Setting-------------------*/
   private async seedDefaultSetting() {
-  const existing = await this.settingRepo.findOne({ where: { id: 1 } });
-  if (!existing) {
-    const setting = this.settingRepo.create({ reclamationTarget: 3 });
-    await this.settingRepo.save(setting);
-    this.logger.log('✓ Setting par défaut créé (reclamationTarget = 3)');
-  } else {
-    this.logger.log('✓ Setting déjà existant, aucune création');
+    const existing = await this.settingRepo.findOne({ where: { id: 1 } });
+    if (!existing) {
+      const setting = this.settingRepo.create({ reclamationTarget: 3 });
+      await this.settingRepo.save(setting);
+      this.logger.log('✓ Setting par défaut créé (reclamationTarget = 3)');
+    } else {
+      this.logger.log('✓ Setting déjà existant, aucune création');
+    }
   }
-}
-
 }

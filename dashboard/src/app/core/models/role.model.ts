@@ -1,6 +1,3 @@
-// role.model.ts
-
-// Enum des actions possibles (copie conforme à ton backend)
 export enum Action {
   CREATE = 'create',
   READ = 'read',
@@ -13,14 +10,13 @@ export enum Action {
   ASSIGN = 'assign'
 }
 
-// Enum des ressources (copie conforme à ton backend)
 export enum Resource {
   USERS = 'users',
   ROLES = 'roles',
   PARTNERS = 'partners',
   SETTINGS = 'settings',
   PRODUCTS = 'products',
-  PROJECT='project',
+  PROJECT = 'project',
   ORDERS = 'orders',
   INVENTORY = 'inventory',
   QUALITY = 'quality',
@@ -33,7 +29,6 @@ export enum Resource {
   SESSIONS = 'sessions'
 }
 
-// Enum des noms de rôles (tu peux aussi importer ceux du backend via un service ou fichier partagé)
 export enum RoleName {
   ADMIN = 'ADMIN',
   SUBADMIN = 'SUBADMIN',
@@ -46,24 +41,22 @@ export enum RoleName {
   PROCESS_RH = 'Processus Rh',
   CLIENT_ADMIN = 'CLIENTADMIN',
   CLIENT_USER = 'CLIENTUSER',
-      RESPONSABLE_CONCEPTION = 'Responsable Conception',
-    RESPONSABLE_QUALITE = 'Responsable Qualité',
-    RESPONSABLE_METHODE = 'Responsable Méthode',
-    RESPONSABLE_PRODUCTION = 'Responsable Production',
-    RESPONSABLE_LOGISTIQUE = 'Responsable Logistique',
-    RESPONSABLE_INDUSTRIALISATION = 'Responsable Industrialisation',
+  RESPONSABLE_CONCEPTION = 'Responsable Conception',
+  RESPONSABLE_QUALITE = 'Responsable Qualité',
+  RESPONSABLE_METHODE = 'Responsable Méthode',
+  RESPONSABLE_PRODUCTION = 'Responsable Production',
+  RESPONSABLE_LOGISTIQUE = 'Responsable Logistique',
+  RESPONSABLE_INDUSTRIALISATION = 'Responsable Industrialisation',
 }
 
-// Interface pour la permission d’un rôle
 export interface Permission {
   resource: Resource;
   actions: Action[];
 }
 
-// Interface principale Role
 export interface Role {
   id: number;
-  name: RoleName | string; // string pour flexibilité si tu ajoutes des rôles dynamiques
+  name: RoleName | string;
   permissions: Permission[];
   isSystemRole: boolean;
   createdAt: Date;
