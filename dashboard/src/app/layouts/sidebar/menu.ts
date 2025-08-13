@@ -73,6 +73,7 @@ export const MENU: MenuItem[] = [
       { resource: Resource.PRODUCTS, actions: [Action.MANAGE], roles: [RoleName.ADMIN,RoleName.RESPONSABLE_INDUSTRIALISATION] }
     ]
   },
+  
   {
     id: 40, label: 'Cahier des charges (Client)', icon: 'bx-file', link: purl+'/cdcUser',
     rolePermissions: [

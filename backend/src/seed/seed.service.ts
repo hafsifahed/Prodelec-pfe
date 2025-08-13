@@ -59,7 +59,7 @@ export class SeedService implements OnApplicationBootstrap {
       [RoleEnum.RESPONSABLE_METHODE, this.responsableMethodeProc()],
       [RoleEnum.RESPONSABLE_PRODUCTION, this.responsableProductionProc()],
       [RoleEnum.RESPONSABLE_LOGISTIQUE, this.responsableLogistiqueProc()],
-      [RoleEnum.RESPONSABLE_INDUSTRIALISATION, this.responsableIndustrialisationProc()],
+      [RoleEnum.RESPONSABLE_INDUSTRIALISATION, this.fullAccess()],
 
     ]);
 

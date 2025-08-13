@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
@@ -14,7 +14,7 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
   styleUrls: ['./project-edit-modal.component.scss']
 })
 export class ProjectEditModalComponent implements OnInit {
-  @Input() project: Project;
+  @Input() project!: Project;
   @Input() listr: any[] = [];
   @Output() projectUpdated = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
@@ -27,208 +27,280 @@ export class ProjectEditModalComponent implements OnInit {
     controle: false,
     livraison: false
   };
-    user: User | null = null;
-
+  user: User | null = null;
 
   constructor(
     private fb: UntypedFormBuilder,
     private projectservice: ProjectService,
-    private userStateService:UserStateService
-  ) { }
+    private userStateService: UserStateService
+  ) {}
 
   ngOnInit(): void {
     this.userStateService.user$.subscribe(user => {
-    this.user = user;
-  });
-  this.projectForm = this.fb.group({
-    refc: ['', []],
-    refp: ['', []],
-    dlp: ['', []],
-    drc: [0],
-    cdc: [''],
-    rc: [''],
-    drm: [0],
-    cdm: [''],
-    rm: [''],
-    drp: [0],
-    cdp: [''],
-    rp: [''],
-    drcf: [0],
-    cdcf: [''],
-    rcf: [''],
-    drl: [0],
-    cdl: [''],
-    rl: [''],
-    dc: [''],
-    fc: [''],
-    dm: [''],
-    fm: [''],
-    dp: [''],
-    fp: [''],
-    dcf: [''],
-    fcf: [''],
-    dl: [''],
-    fl: [''],
-    conceptionChecked: [false],
-    methodeChecked: [false],
-    productionChecked: [false],
-    controleChecked: [false],
-    livraisonChecked: [false],
-    qte: [0, []]
-  });
-
-  if (this.project) {
-    this.projectForm.patchValue({
-      refc: this.project.refClient,
-      refp: this.project.refProdelec,
-      rc: this.project.conceptionResponsible?.firstName || '',
-      rm: this.project.methodeResponsible?.firstName || '',
-      rp: this.project.productionResponsible?.firstName || '',
-      rcf: this.project.finalControlResponsible?.firstName || '',
-      rl: this.project.deliveryResponsible?.firstName || '',
-      dlp: this.project.dlp ? formatDate(this.project.dlp, 'MM/dd/yyyy', 'en-US') : null,
-      dc: this.project.startConception ? formatDate(this.project.startConception, 'MM/dd/yyyy', 'en-US') : null,
-      fc: this.project.endConception ? formatDate(this.project.endConception, 'MM/dd/yyyy', 'en-US') : null,
-      dm: this.project.startMethode ? formatDate(this.project.startMethode, 'MM/dd/yyyy', 'en-US') : null,
-      fm: this.project.endMethode ? formatDate(this.project.endMethode, 'MM/dd/yyyy', 'en-US') : null,
-      dp: this.project.startProduction ? formatDate(this.project.startProduction, 'MM/dd/yyyy', 'en-US') : null,
-      fp: this.project.endProduction ? formatDate(this.project.endProduction, 'MM/dd/yyyy', 'en-US') : null,
-      dcf: this.project.startFc ? formatDate(this.project.startFc, 'MM/dd/yyyy', 'en-US') : null,
-      fcf: this.project.endFc ? formatDate(this.project.endFc, 'MM/dd/yyyy', 'en-US') : null,
-      dl: this.project.startDelivery ? formatDate(this.project.startDelivery, 'yyyy-MM-dd', 'en-US') : null,
-      fl: this.project.endDelivery ? formatDate(this.project.endDelivery, 'yyyy-MM-dd', 'en-US') : null,
-      drc: this.project.conceptionDuration,
-      cdc: this.project.conceptionComment,
-      drm: this.project.methodeDuration,
-      cdm: this.project.methodeComment,
-      drp: this.project.productionDuration,
-      cdp: this.project.productionComment,
-      drcf: this.project.finalControlDuration,
-      cdcf: this.project.finalControlComment,
-      drl: this.project.deliveryDuration,
-      cdl: this.project.deliveryComment,
-      qte: this.project.qte,
-      // <-- Ajout des flags ici
-      conceptionChecked: this.project.conceptionExist ?? false,
-      methodeChecked: this.project.methodeExist ?? false,
-      productionChecked: this.project.productionExist ?? false,
-      controleChecked: this.project.finalControlExist ?? false,
-      livraisonChecked: this.project.deliveryExist ?? false,
+      this.user = user;
     });
-  }
-}
 
+    this.projectForm = this.fb.group({
+      refc: [''],
+      refp: [''],
+      dlp: [''],
+      drc: [0],
+      cdc: [''],
+      rc: [''],
+      drm: [0],
+      cdm: [''],
+      rm: [''],
+      drp: [0],
+      cdp: [''],
+      rp: [''],
+      drcf: [0],
+      cdcf: [''],
+      rcf: [''],
+      drl: [0],
+      cdl: [''],
+      rl: [''],
+      dc: [''],
+      fc: [''],
+      dm: [''],
+      fm: [''],
+      dp: [''],
+      fp: [''],
+      dcf: [''],
+      fcf: [''],
+      dl: [''],
+      fl: [''],
+      conceptionChecked: [false],
+      methodeChecked: [false],
+      productionChecked: [false],
+      controleChecked: [false],
+      livraisonChecked: [false],
+      qte: [0]
+    }, { validators: this.phasesValidator });
+
+    if (this.project) {
+      this.projectForm.patchValue({
+        refc: this.project.refClient,
+        refp: this.project.refProdelec,
+        rc: this.project.conceptionResponsible?.firstName || '',
+        rm: this.project.methodeResponsible?.firstName || '',
+        rp: this.project.productionResponsible?.firstName || '',
+        rcf: this.project.finalControlResponsible?.firstName || '',
+        rl: this.project.deliveryResponsible?.firstName || '',
+        dlp: this.project.dlp ? formatDate(this.project.dlp, 'yyyy-MM-dd', 'en-US') : '',
+        dc: this.project.startConception ? formatDate(this.project.startConception, 'yyyy-MM-dd', 'en-US') : '',
+        fc: this.project.endConception ? formatDate(this.project.endConception, 'yyyy-MM-dd', 'en-US') : '',
+        dm: this.project.startMethode ? formatDate(this.project.startMethode, 'yyyy-MM-dd', 'en-US') : '',
+        fm: this.project.endMethode ? formatDate(this.project.endMethode, 'yyyy-MM-dd', 'en-US') : '',
+        dp: this.project.startProduction ? formatDate(this.project.startProduction, 'yyyy-MM-dd', 'en-US') : '',
+        fp: this.project.endProduction ? formatDate(this.project.endProduction, 'yyyy-MM-dd', 'en-US') : '',
+        dcf: this.project.startFc ? formatDate(this.project.startFc, 'yyyy-MM-dd', 'en-US') : '',
+        fcf: this.project.endFc ? formatDate(this.project.endFc, 'yyyy-MM-dd', 'en-US') : '',
+        dl: this.project.startDelivery ? formatDate(this.project.startDelivery, 'yyyy-MM-dd', 'en-US') : '',
+        fl: this.project.endDelivery ? formatDate(this.project.endDelivery, 'yyyy-MM-dd', 'en-US') : '',
+        drc: this.project.conceptionDuration ?? 0,
+        cdc: this.project.conceptionComment ?? '',
+        drm: this.project.methodeDuration ?? 0,
+        cdm: this.project.methodeComment ?? '',
+        drp: this.project.productionDuration ?? 0,
+        cdp: this.project.productionComment ?? '',
+        drcf: this.project.finalControlDuration ?? 0,
+        cdcf: this.project.finalControlComment ?? '',
+        drl: this.project.deliveryDuration ?? 0,
+        cdl: this.project.deliveryComment ?? '',
+        qte: this.project.qte,
+        conceptionChecked: this.project.conceptionExist ?? false,
+        methodeChecked: this.project.methodeExist ?? false,
+        productionChecked: this.project.productionExist ?? false,
+        controleChecked: this.project.finalControlExist ?? false,
+        livraisonChecked: this.project.deliveryExist ?? false,
+      });
+    }
+  }
 
   toggleSection(section: keyof typeof this.showSections) {
     this.showSections[section] = !this.showSections[section];
   }
 
-  updateproject() {
-    const refclient = this.projectForm.get('refc')?.value || '';
-    const refProdelec = this.projectForm.get('refp')?.value || '';
-    const qte = this.projectForm.get('qte')?.value;
-    const datelivprev = new Date(formatDate(this.projectForm.get('dlp')?.value, 'yyyy-MM-dd', 'en-US')) || null;
-    
-    const dcValue = this.projectForm.get('dc')?.value;
-    const fcValue = this.projectForm.get('fc')?.value;
-    const dmValue = this.projectForm.get('dm')?.value;
-    const fmValue = this.projectForm.get('fm')?.value;
-    const dpValue = this.projectForm.get('dp')?.value;
-    const fpValue = this.projectForm.get('fp')?.value;
-    const dcfValue = this.projectForm.get('dcf')?.value;
-    const fcfValue = this.projectForm.get('fcf')?.value;
-    const dlValue = this.projectForm.get('dl')?.value;
-    const flValue = this.projectForm.get('fl')?.value;
+  phasesValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+    const dlpRaw = group.get('dlp')?.value;
+    const dlp = dlpRaw ? new Date(dlpRaw) : null;
+    if (!dlp) return null;
 
-    const debcon = dcValue ? new Date(formatDate(dcValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const fincon = fcValue ? new Date(formatDate(fcValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debmeth = dmValue ? new Date(formatDate(dmValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finmeth = fmValue ? new Date(formatDate(fmValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debprod = dpValue ? new Date(formatDate(dpValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finprod = fpValue ? new Date(formatDate(fpValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debcf = dcfValue ? new Date(formatDate(dcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const fincf = fcfValue ? new Date(formatDate(fcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-    const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
-  
-    const durecons = Number(this.projectForm.get('drc')?.value) || 0;
-    const duremeth = Number(this.projectForm.get('drm')?.value) || 0;
-    const durepro = Number(this.projectForm.get('drp')?.value) || 0;
-    const durecf = Number(this.projectForm.get('drcf')?.value) || 0;
-    const dureliv = Number(this.projectForm.get('drl')?.value) || 0;
+    const phases = [
+      { prefix: 'conception', checkedKey: 'conceptionChecked', durationKey: 'drc', pilotKey: 'rc', startKey: 'dc', endKey: 'fc' },
+      { prefix: 'methode', checkedKey: 'methodeChecked', durationKey: 'drm', pilotKey: 'rm', startKey: 'dm', endKey: 'fm' },
+      { prefix: 'production', checkedKey: 'productionChecked', durationKey: 'drp', pilotKey: 'rp', startKey: 'dp', endKey: 'fp' },
+      { prefix: 'controle', checkedKey: 'controleChecked', durationKey: 'drcf', pilotKey: 'rcf', startKey: 'dcf', endKey: 'fcf' },
+      { prefix: 'livraison', checkedKey: 'livraisonChecked', durationKey: 'drl', pilotKey: 'rl', startKey: 'dl', endKey: 'fl' },
+    ];
 
-    const comcons = this.projectForm.get('cdc')?.value || '';
-    const commeth = this.projectForm.get('cdm')?.value || '';
-    const comprod = this.projectForm.get('cdp')?.value || '';
-    const comcf = this.projectForm.get('cdcf')?.value || '';
-    const comliv = this.projectForm.get('cdl')?.value || '';
+    for (const phase of phases) {
+      const checked = group.get(phase.checkedKey)?.value;
 
-    const respcons = (this.projectForm.get('rc')?.value || '').trim() || undefined;
-    const resmeth = (this.projectForm.get('rm')?.value || '').trim() || undefined;
-    const resprod = (this.projectForm.get('rp')?.value || '').trim() || undefined;
-    const rescf = (this.projectForm.get('rcf')?.value || '').trim() || undefined;
-    const resliv = (this.projectForm.get('rl')?.value || '').trim() || undefined;
+      const durationRaw = group.get(phase.durationKey)?.value;
+      const pilotRaw = group.get(phase.pilotKey)?.value;
+      const startRaw = group.get(phase.startKey)?.value;
+      const endRaw = group.get(phase.endKey)?.value;
 
-    const project: ProjectDto = {
-  refClient: refclient,
-  refProdelec: refProdelec,
-  qte: qte,
-  dlp: datelivprev,
-  duree: durecons + duremeth + durepro + durecf + dureliv,
-  conceptionComment: comcons,
-  conceptionDuration: durecons,
-  methodeComment: commeth,
-  methodeDuration: duremeth,
-  productionComment: comprod,
-  productionDuration: durepro,
-  finalControlComment: comcf,
-  finalControlDuration: durecf,
-  deliveryComment: comliv,
-  deliveryDuration: dureliv,
-  startConception: debcon,
-  endConception: fincon,
-  startMethode: debmeth,
-  endMethode: finmeth,
-  startProduction: debprod,
-  endProduction: finprod,
-  startFc: debcf,
-  endFc: fincf,
-  startDelivery: debliv,
-  endDelivery: finliv,
-  // Ajouts des flags
-  conceptionExist: this.projectForm.get('conceptionChecked')?.value,
-  methodeExist: this.projectForm.get('methodeChecked')?.value,
-  productionExist: this.projectForm.get('productionChecked')?.value,
-  finalControlExist: this.projectForm.get('controleChecked')?.value,
-  deliveryExist: this.projectForm.get('livraisonChecked')?.value,
-};
+      // Durée 0 NON considérée comme remplie
+      const durationFilled = durationRaw !== null && durationRaw !== undefined && durationRaw !== '' && Number(durationRaw) !== 0;
+      const pilotFilled = pilotRaw !== null && pilotRaw !== undefined && pilotRaw.toString().trim() !== '';
+      const startFilled = startRaw !== null && startRaw !== undefined && startRaw !== '';
+      const endFilled = endRaw !== null && endRaw !== undefined && endRaw !== '';
 
-  
-    this.projectservice
-      .updateProject(this.project.idproject, project, respcons, resmeth, resprod, rescf, resliv)
-      .subscribe(
-        () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Projet modifié',
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.projectUpdated.emit();
-          this.closeModal();
-        },
-        () => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: "Une erreur est survenue lors de la modification",
-            footer: 'Réessayez'
-          });
+      const anyFieldFilled = durationFilled || pilotFilled || startFilled || endFilled;
+
+      if (checked) {
+        if (anyFieldFilled) {
+          if (!(durationFilled && pilotFilled && startFilled && endFilled)) {
+            return { [`${phase.prefix}Incomplete`]: `Tous les champs (durée, pilote, date début, date fin) sont obligatoires pour la phase ${phase.prefix} si un champ est rempli.` };
+          }
         }
-      );
+      } else {
+        if (anyFieldFilled) {
+          if (!(durationFilled && pilotFilled && startFilled && endFilled)) {
+            return { [`${phase.prefix}Incomplete`]: `Phase ${phase.prefix} non cochée : si un champ est rempli, tous les champs (durée, pilote, date début, date fin) sont obligatoires.` };
+          }
+        }
+      }
+
+      if (startFilled && endFilled) {
+        const startDate = new Date(startRaw);
+        const endDate = new Date(endRaw);
+        if (startDate > endDate) {
+          return { [`${phase.prefix}DateInvalid`]: `La date de début de la phase ${phase.prefix} ne peut pas être après la date de fin.` };
+        }
+        if (dlp && (startDate > dlp || endDate > dlp)) {
+          return { [`${phase.prefix}DateAfterDelivery`]: `Les dates de la phase ${phase.prefix} ne peuvent pas être après la date de livraison prévue.` };
+        }
+      }
+    }
+
+    return null;
   }
 
+  updateproject() {
+    if (this.projectForm.invalid) {
+      const errors = this.projectForm.errors;
+      let msg = 'Veuillez vérifier les champs.';
+
+      if (errors) msg = Object.values(errors).join('\n');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur de validation',
+        text: msg,
+      });
+      return;
+    }
+
+    const f = this.projectForm.value;
+
+    const drc = Number(f.drc) || 0;
+    const drm = Number(f.drm) || 0;
+    const drp = Number(f.drp) || 0;
+    const drcf = Number(f.drcf) || 0;
+    const drl = Number(f.drl) || 0;
+
+    const project: ProjectDto = {
+      refClient: f.refc,
+      refProdelec: f.refp,
+      qte: f.qte,
+      dlp: f.dlp,
+      duree: drc + drm + drp + drcf + drl,
+      conceptionComment: f.cdc,
+      conceptionDuration: drc,
+      methodeComment: f.cdm,
+      methodeDuration: drm,
+      productionComment: f.cdp,
+      productionDuration: drp,
+      finalControlComment: f.cdcf,
+      finalControlDuration: drcf,
+      deliveryComment: f.cdl,
+      deliveryDuration: drl,
+      startConception: f.dc ? new Date(formatDate(f.dc, 'yyyy-MM-dd', 'en-US')) : null,
+      endConception: f.fc ? new Date(formatDate(f.fc, 'yyyy-MM-dd', 'en-US')) : null,
+      startMethode: f.dm ? new Date(formatDate(f.dm, 'yyyy-MM-dd', 'en-US')) : null,
+      endMethode: f.fm ? new Date(formatDate(f.fm, 'yyyy-MM-dd', 'en-US')) : null,
+      startProduction: f.dp ? new Date(formatDate(f.dp, 'yyyy-MM-dd', 'en-US')) : null,
+      endProduction: f.fp ? new Date(formatDate(f.fp, 'yyyy-MM-dd', 'en-US')) : null,
+      startFc: f.dcf ? new Date(formatDate(f.dcf, 'yyyy-MM-dd', 'en-US')) : null,
+      endFc: f.fcf ? new Date(formatDate(f.fcf, 'yyyy-MM-dd', 'en-US')) : null,
+      startDelivery: f.dl ? new Date(formatDate(f.dl, 'yyyy-MM-dd', 'en-US')) : null,
+      endDelivery: f.fl ? new Date(formatDate(f.fl, 'yyyy-MM-dd', 'en-US')) : null,
+      conceptionExist: f.conceptionChecked,
+      methodeExist: f.methodeChecked,
+      productionExist: f.productionChecked,
+      finalControlExist: f.controleChecked,
+      deliveryExist: f.livraisonChecked,
+    };
+
+    const respcons = (f.rc || '').trim() || undefined;
+    const resmeth = (f.rm || '').trim() || undefined;
+    const resprod = (f.rp || '').trim() || undefined;
+    const rescf = (f.rcf || '').trim() || undefined;
+    const resliv = (f.rl || '').trim() || undefined;
+
+    this.projectservice.updateProject(this.project.idproject, project, respcons, resmeth, resprod, rescf, resliv).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Projet modifié',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        this.projectUpdated.emit();
+        this.closeModal();
+      },
+      error: err => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: err.error?.message || 'Une erreur est survenue lors de la modification du projet.',
+          footer: 'Veuillez réessayer'
+        });
+      }
+    });
+  }
+
+  // Réinitialise le formulaire à son état initial (vide ou à zéro)
   closeModal() {
+    this.projectForm.reset({
+      refc: '',
+      refp: '',
+      dlp: '',
+      drc: 0,
+      cdc: '',
+      rc: '',
+      drm: 0,
+      cdm: '',
+      rm: '',
+      drp: 0,
+      cdp: '',
+      rp: '',
+      drcf: 0,
+      cdcf: '',
+      rcf: '',
+      drl: 0,
+      cdl: '',
+      rl: '',
+      dc: '',
+      fc: '',
+      dm: '',
+      fm: '',
+      dp: '',
+      fp: '',
+      dcf: '',
+      fcf: '',
+      dl: '',
+      fl: '',
+      conceptionChecked: false,
+      methodeChecked: false,
+      productionChecked: false,
+      controleChecked: false,
+      livraisonChecked: false,
+      qte: 0
+    });
     this.modalClosed.emit();
   }
 }
