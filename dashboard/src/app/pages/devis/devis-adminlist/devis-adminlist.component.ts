@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { ArchiveDevisAdminModalComponent } from '../modals/archive-devis-admin-modal/archive-devis-admin-modal.component';
 import { DetailsDevisAdminModalComponent } from '../modals/details-devis-admin-modal/details-devis-admin-modal.component';
 import { RefuseDevisAdminModalComponent } from '../modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-devis-adminlist',
@@ -44,12 +45,29 @@ export class DevisAdminlistComponent implements OnInit {
   constructor(
     private devisService: DevisService,
     private modalService: BsModalService,
+    private route: ActivatedRoute,
+    private router: Router,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.loadDevis();
     this.setupSearch();
+     this.route.queryParams.subscribe(params => {
+      const devisId = params['openDevisModal'];
+      if (devisId) {
+        // Ouvrir le modal après un court délai pour permettre le rendu de la page
+        setTimeout(() => this.openDetailsModal(devisId), 100);
+        
+        // Nettoyer le paramètre d'URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { openDevisModal: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
+      }
+    });
   }
   
   setupSearch(): void {

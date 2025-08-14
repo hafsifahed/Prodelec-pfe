@@ -16,7 +16,7 @@ export class ListWorkersComponent implements OnInit {
   loggedInUserRole: string | undefined; // Pour stocker le rôle de l'utilisateur connecté afin de gérer les permissions d'affichage des boutons.
 
   p: number = 1; // Current page number
-  itemsPerPage: number = 5; // Number of items per page
+  itemsPerPage: number = 8; // Number of items per page
 
   title = 'Employés'; // Ajouté pour le breadcrumb si tu en utilises un
 

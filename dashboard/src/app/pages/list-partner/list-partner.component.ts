@@ -14,7 +14,7 @@ export class ListPartnerComponent implements OnInit {
   partners: Partner[] = [];
   errorMessage = '';
   p: number = 1; // Current page number
-  itemsPerPage: number = 5; // Number of items per page
+  itemsPerPage: number = 8; // Number of items per page
   searchKeyword: string = '';
   user: any;
   userType: string | null = '';

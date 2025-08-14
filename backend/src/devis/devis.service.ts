@@ -59,19 +59,53 @@ export class DevisService {
     return savedDevis;
   }
 
-  findAll(): Promise<Devis[]> {
-    return this.devisRepo.find({ 
-      relations: ['user', 'cahierDesCharges'] 
-    });
-  }
+ /* async findAll(): Promise<Devis[]> {
+  return this.devisRepo
+    .createQueryBuilder('devis')
+    .leftJoinAndSelect('devis.user', 'user')
+    .leftJoinAndSelect('devis.cahierDesCharges', 'cdc')
+    .orderBy(`
+      CASE devis.etat
+        WHEN '${EtatDevis.Negociation}' THEN 1
+        WHEN '${EtatDevis.Accepte}' THEN 2
+        WHEN '${EtatDevis.EnAttente}' THEN 3
+        WHEN '${EtatDevis.Refuse}' THEN 4
+        ELSE 5
+      END
+    `, 'ASC')
+    .addOrderBy('devis.createdAt', 'DESC')
+    .getMany();
+}*/
 
-  findByUser(user: User): Promise<Devis[]> {
-    if (!user) return null;
+findAll(): Promise<Devis[]> {
     return this.devisRepo.find({ 
-      where: { user }, 
       relations: ['user', 'cahierDesCharges'] 
     });
   }
+  
+  async findByUser(user: User): Promise<Devis[] | null> {
+        console.log("user cdc :",user)
+
+  if (!user) return null;
+
+  return this.devisRepo
+    .createQueryBuilder('devis')
+    .leftJoinAndSelect('devis.user', 'user')
+    .leftJoinAndSelect('devis.cahierDesCharges', 'cdc')
+    .where('devis.userId = :userId', { userId: user.id })
+    .orderBy(`
+      CASE devis.etat
+        WHEN '${EtatDevis.Negociation}' THEN 1
+        WHEN '${EtatDevis.Accepte}' THEN 2
+        WHEN '${EtatDevis.EnAttente}' THEN 3
+        WHEN '${EtatDevis.Refuse}' THEN 4
+        ELSE 5
+      END
+    `, 'ASC')
+    .addOrderBy('devis.createdAt', 'DESC')
+    .getMany();
+}
+
 
   async acceptDevis(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({

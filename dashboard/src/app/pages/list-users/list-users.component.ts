@@ -14,7 +14,7 @@ export class ListUsersComponent implements OnInit {
   searchKeyword: string = '';
   errorMessage = '';
   p: number = 1; // Current page number (for pagination)
-  itemsPerPage: number = 5; // Number of items per page
+  itemsPerPage: number = 8; // Number of items per page
 displayMode: 'table' | 'grid' = 'grid';
 
   title = 'Utilisateurs';

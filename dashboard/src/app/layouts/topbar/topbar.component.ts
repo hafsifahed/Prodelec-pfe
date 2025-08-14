@@ -136,6 +136,7 @@ export class TopbarComponent implements OnInit {
     this.statisticsService.search(keyword.trim()).subscribe({
       next: (res) => {
         this.results = res;
+        console.log(this.results)
         this.loading = false;
         this.error = null;
       },
@@ -158,7 +159,9 @@ export class TopbarComponent implements OnInit {
       this.router.navigate(['/listproject', id]);
       break;
     case 'devis':
-      this.router.navigate(['/devis', id]);
+      this.router.navigate(['/devis'], { 
+        queryParams: { openDevisModal: id } 
+      });
       break;
     case 'partner':
       this.router.navigate(['/partner', id]);
@@ -197,7 +200,7 @@ export class TopbarComponent implements OnInit {
   if (title.includes('projet')) return '#007bff';
   if (title.includes('cahier')) return '#f0cc1a';
   if (title.includes('réclamation')) return '#a11616';
-  if (title.includes('devis') || title.includes('avis')) return '#28a745';
+  if (title.includes('devis') || title.includes('avis') || title.includes('complémentaire')) return '#28a745';
   if (title.includes('commande')) return '#17a2b8';
   return 'gray';
 }

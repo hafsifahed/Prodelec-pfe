@@ -60,6 +60,7 @@ export class CDCListUserComponent {
     } else {
       this.cdcService.getByIdUser(user.id).subscribe(
         data => {
+          console.log('front cdc user',data)
           this.cahierDesCharges = data.filter(cdc => !cdc.archiveU);
         },
         error => console.error('Error fetching user CDCs', error),

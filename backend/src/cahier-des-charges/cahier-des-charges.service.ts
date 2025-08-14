@@ -95,7 +95,24 @@ export class CahierDesChargesService {
     return updatedCdc;
   }
 
-  getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
+  /*async getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
+  return this.repository
+    .createQueryBuilder('cdc')
+    .leftJoinAndSelect('cdc.files', 'file')
+    .leftJoinAndSelect('cdc.user', 'user')
+    .orderBy(`
+      CASE cdc.etat
+        WHEN '${EtatCahier.EnAttente}' THEN 1
+        WHEN '${EtatCahier.Accepte}' THEN 2
+        WHEN '${EtatCahier.ACompleter}' THEN 3
+        WHEN '${EtatCahier.Refuse}' THEN 4
+        ELSE 5
+      END
+    `, 'ASC')
+    .addOrderBy('cdc.createdAt', 'DESC')
+    .getMany();
+}*/
+ getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
     return this.repository.find({ relations: ['files', 'user'], order: { createdAt: 'DESC' } });
   }
 
@@ -109,10 +126,27 @@ export class CahierDesChargesService {
     await this.repository.delete(id);
   }
 
-  getCahierDesChargesByUser(user: User): Promise<CahierDesCharges[]> | null {
-    if (!user) return null;
-    return this.repository.find({ where: { user }, relations: ['files'] });
-  }
+  async getCahierDesChargesByUser(user: User): Promise<CahierDesCharges[] | null> {
+    console.log("user cdc :",user)
+  if (!user) return null;
+
+  return this.repository
+    .createQueryBuilder('cdc')
+    .leftJoinAndSelect('cdc.files', 'file')
+    .where('cdc.userId = :userId', { userId: user.id })
+    .orderBy(`
+      CASE cdc.etat
+        WHEN '${EtatCahier.ACompleter}' THEN 1
+        WHEN '${EtatCahier.Accepte}' THEN 2
+        WHEN '${EtatCahier.EnAttente}' THEN 3
+        WHEN '${EtatCahier.Refuse}' THEN 4
+        ELSE 5
+      END
+    `, 'ASC')
+    .addOrderBy('cdc.createdAt', 'DESC')
+    .getMany();
+}
+
 
   updateCahierDesCharges(updatedCdc: CahierDesCharges): Promise<CahierDesCharges> {
     return this.repository.save(updatedCdc);

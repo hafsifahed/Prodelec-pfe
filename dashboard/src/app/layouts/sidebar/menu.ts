@@ -6,7 +6,8 @@ const purl = "";
 export const MENU: MenuItem[] = [
   { id: 1, label: 'MENUITEMS.MENU.TEXT', isTitle: true },
   { id: 2, label: 'Tableau de bord', icon: 'bx-home-circle', link: purl + '/dashboard' },
-  
+    { id: 2, label: 'Discussions', icon: 'bx-message-dots', link: purl + '/workflow-discussions' },
+
   {
     id: 3, label: 'Utilisateurs', icon: 'bx-user', link: purl + '/list-user',
     accessOnly: 'WORKER',
