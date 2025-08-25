@@ -1,38 +1,23 @@
-<!-- discussion-list.component.html -->
 <div class="discussion-list">
   <div class="list-header">
     <h2>Discussions</h2>
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="Rechercher...">
+      <input type="text" placeholder="Search...">
     </div>
   </div>
 
   <div class="list-content">
-    <ng-container *ngIf="isLoading">
-      <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]">
-        <div class="skeleton-avatar"></div>
-        <div class="skeleton-text">
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line small"></div>
-        </div>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="!isLoading && error">
-      <div class="error-state">
-        <i class="fas fa-exclamation-triangle"></i>
-        <p>Erreur de chargement</p>
-        <button (click)="loadDiscussions()">Réessayer</button>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="!isLoading && !error && discussions.length === 0">
-      <div class="empty-list">
-        <i class="fas fa-inbox"></i>
-        <p>Aucune discussion</p>
-      </div>
-    </ng-container>
+    <div class="loader" *ngIf="isLoading">Loading...</div>
+    <div class="error-state" *ngIf="error">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>Failed to load discussions.</p>
+      <button (click)="loadDiscussions()">Retry</button>
+    </div>
+    <div class="empty-list" *ngIf="!isLoading && !error && discussions.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>No discussions found.</p>
+    </div>
 
     <div class="discussion-items">
       <div 
@@ -48,15 +33,11 @@
         <div class="item-content">
           <div class="item-header">
             <h4>{{ getDiscussionTitle(discussion) }}</h4>
-            <span class="item-time">
-              {{ discussion.createdAt | date:'shortDate' }}
-            </span>
+            <span class="item-time">{{ discussion.createdAt | date:'shortDate' }}</span>
           </div>
-          
           <div class="item-preview">
             {{ getLastMessagePreview(discussion) }}
           </div>
-          
           <div class="item-footer">
             <span class="badge" [ngClass]="discussion.currentPhase">
               {{ discussion.currentPhase | uppercase }}

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WorkflowDiscussionService } from '../services/workflow-discussion.service';
 import { WorkflowDiscussion } from '../models/workflow-discussion.model';
@@ -14,14 +14,7 @@ export class WorkflowDiscussionsPageComponent implements OnInit, OnDestroy {
   currentDiscussion: WorkflowDiscussion | null = null;
   isLoading = false;
   error: string | null = null;
-  
-  // Configuration de la sidebar redimensionnable
-  sidebarWidth = 350; // Largeur par défaut
-  isResizing = false;
-  startX = 0;
-  startWidth = 0;
-  minWidth = 280; // Largeur minimale
-  maxWidth = 500; // Largeur maximale
+  detailsOpen = false; 
 
   constructor(
     private router: Router,
@@ -39,6 +32,10 @@ export class WorkflowDiscussionsPageComponent implements OnInit, OnDestroy {
       
       if (this.selectedDiscussionId) {
         this.loadDiscussionDetails(this.selectedDiscussionId);
+                  this.detailsOpen = false;
+        if (this.isMobileView) {
+          this.detailsOpen = false;
+        }
       } else {
         this.currentDiscussion = null;
       }
@@ -50,7 +47,6 @@ export class WorkflowDiscussionsPageComponent implements OnInit, OnDestroy {
       this.router.navigate(['workflow-discussions', discussionId]);
     } else {
       this.router.navigate(['workflow-discussions', { id: discussionId }]);
-      this.loadDiscussionDetails(discussionId);
     }
   }
 
@@ -80,44 +76,11 @@ export class WorkflowDiscussionsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Gestion du redimensionnement
-  startResizing(event: MouseEvent): void {
-    this.isResizing = true;
-    this.startX = event.clientX;
-    this.startWidth = this.sidebarWidth;
-    document.body.classList.add('resizing');
-    document.addEventListener('mousemove', this.resize);
-    document.addEventListener('mouseup', this.stopResizing);
-    event.preventDefault();
-  }
-
-  resize = (event: MouseEvent): void => {
-    if (!this.isResizing) return;
-    const dx = event.clientX - this.startX;
-    const newWidth = this.startWidth - dx;
-    
-    // Applique les contraintes de largeur
-    this.sidebarWidth = Math.max(this.minWidth, Math.min(this.maxWidth, newWidth));
-  }
-
-  stopResizing = (): void => {
-    if (this.isResizing) {
-      this.isResizing = false;
-      document.body.classList.remove('resizing');
-      document.removeEventListener('mousemove', this.resize);
-      document.removeEventListener('mouseup', this.stopResizing);
-    }
-  }
-
-  @HostListener('window:mouseup', ['$event'])
-  onMouseUp(event: MouseEvent): void {
-    if (this.isResizing) {
-      this.stopResizing();
-    }
+  toggleDetailsPanel(): void {
+    this.detailsOpen = !this.detailsOpen;
   }
 
   ngOnDestroy(): void {
     window.removeEventListener('resize', () => this.checkViewport());
-    this.stopResizing();
   }
 }

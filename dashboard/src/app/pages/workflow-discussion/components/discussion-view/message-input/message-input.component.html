@@ -1,10 +1,8 @@
-<!-- message-input.component.html -->
 <div class="message-input-container">
-  <textarea 
-    [(ngModel)]="messageContent" 
-    (input)="onInput()" 
-    (keydown.enter)="sendMessage(); $event.preventDefault()" 
-    placeholder="Écrire un message..."
+  <textarea
+    [(ngModel)]="messageContent"
+    (keydown.enter)="sendMessage(); $event.preventDefault()"
+    placeholder="Write a message..."
     [disabled]="disabled"
   ></textarea>
   <button (click)="sendMessage()" [disabled]="!messageContent.trim() || disabled">

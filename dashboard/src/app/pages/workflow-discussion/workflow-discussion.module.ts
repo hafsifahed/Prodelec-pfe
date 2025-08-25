@@ -27,7 +27,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     FormsModule,
     RouterModule,
     WorkflowDiscussionRoutingModule,
-        ModalModule.forRoot()
+        ModalModule.forRoot(),
 
   ],
   exports: [

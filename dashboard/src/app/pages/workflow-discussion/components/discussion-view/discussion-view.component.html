@@ -1,14 +1,8 @@
 <div class="discussion-container" *ngIf="!isLoading; else loading" style="display:flex; flex-direction: column; height: 100%;">
 
-  <div class="connection-status" [class.connected]="isConnected" [class.disconnected]="!isConnected" style="padding: 8px; background:#222; color:#fff;">
-    {{ isConnected ? 'Connected' : 'Disconnected' }}
-  </div>
-
-  <div class="discussion-header" style="padding: 10px; background:#1e1e2f; color:#eee;">
-    <h2><i class="fas fa-comments"></i> {{ discussion?.cdc?.titre || 'Untitled Discussion' }}</h2>
-  </div>
 
   <div class="discussion-actions" *ngIf="discussion?.cdc" style="padding: 10px; display: flex; gap: 10px;">
+   <ng-container *ngIf="discussion?.currentPhase === 'cdc'"> 
     <button type="button" class="btn btn-success" (click)="onAccept()" title="Accepter">
       <i class="mdi mdi-check-outline"></i> Accepter
     </button>
@@ -18,6 +12,39 @@
     <button type="button" class="btn btn-warning" (click)="onMarkIncomplete()" title="Marquer comme À compléter">
       <i class="mdi mdi-alert-circle-outline"></i> À compléter
     </button>
+   </ng-container>
+
+    <!-- Nouveaux boutons pour la phase 'orders' -->
+  <div class="discussion-actions" *ngIf="discussion?.devis">
+  <ng-container *ngIf="discussion.currentPhase === 'devis'">
+    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse"
+            type="button" class="btn btn-success btn-sm"
+            (click)="accepterDevis(discussion.devis.id)"
+            title="Accepter">
+      <i class="mdi mdi-check-outline"></i> Accepter
+    </button>
+    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse"
+            type="button" class="btn btn-danger btn-sm"
+            (click)="openCommentModal(discussion.devis.id)"
+            title="Refuser">
+      <i class="mdi mdi-close-outline"></i> Refuser
+    </button>
+    <button *ngIf="discussion.devis.etat === EtatDevis.EnAttente"
+            type="button" class="btn btn-outline-warning btn-sm"
+            (click)="openNegociationModal(discussion.devis.id)"
+            title="Démarrer négociation">
+      <i class="mdi mdi-handshake-outline"></i> Négocier
+    </button>
+    <button *ngIf="discussion.devis.etat === EtatDevis.Accepte || discussion.devis.etat === EtatDevis.Refuse"
+            type="button" class="btn btn-outline-secondary btn-sm"
+            (click)="openDeleteModal(discussion.devis.id)"
+            title="Archiver">
+      <i class="mdi mdi-archive"></i> Archiver
+    </button>
+  </ng-container>
+</div>
+
+
   </div>
 
   <div #messagesContainer class="messages-container" style="flex-grow: 1; overflow-y: auto; padding: 10px; background:#101025;">

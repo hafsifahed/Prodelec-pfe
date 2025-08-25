@@ -1,59 +1,40 @@
-<div class="discussion-app-container" [class.mobile-view]="isMobileView" style="display:flex; height: 100vh;">
+<div class="chat-app-container">
 
-  <!-- Left Sidebar -->
-  <div class="sidebar-section" [class.hidden]="isMobileView && selectedDiscussionId" style="width: 300px; overflow-y: auto;">
+  <aside class="left-panel" [class.open]="!isMobileView || !selectedDiscussionId">
     <app-discussion-list 
-      (discussionSelected)="onDiscussionSelected($event)"
+      (discussionSelected)="onDiscussionSelected($event)" 
       [selectedDiscussionId]="selectedDiscussionId">
     </app-discussion-list>
-  </div>
+  </aside>
 
-  <!-- Center Chat Section -->
-  <div class="chat-section" style="flex-grow:1; display:flex; flex-direction:column;" *ngIf="selectedDiscussionId || !isMobileView">
-
+  <main class="chat-section">
     <ng-container *ngIf="selectedDiscussionId; else emptyState">
-
-      <div class="chat-header" style="padding: 10px; border-bottom: 1px solid #ccc; display: flex; align-items: center;">
-        <button class="back-button" *ngIf="isMobileView" (click)="closeDiscussionView()" style="margin-right:10px;">
+      <div class="chat-header">
+        <button class="back-button" *ngIf="isMobileView" (click)="closeDiscussionView()">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h3 style="margin:0;">Conversation</h3>
+        <h3>{{ currentDiscussion?.cdc?.titre || 'Conversation' }}</h3>
+        <button class="details-toggle" (click)="toggleDetailsPanel()">
+          <i class="fas fa-info-circle"></i>
+        </button>
       </div>
-
-      <app-discussion-view 
-        [discussionId]="selectedDiscussionId" 
-        style="flex-grow:1; display:flex; flex-direction:column;">
-      </app-discussion-view>
-
+      <app-discussion-view [discussionId]="selectedDiscussionId"></app-discussion-view>
     </ng-container>
 
     <ng-template #emptyState>
-      <div class="empty-chat" style="flex-grow:1; display:flex; flex-direction: column; justify-content: center; align-items: center; color: #666;">
-        <div class="empty-illustration" style="font-size: 48px; margin-bottom: 16px;">
-          <i class="fas fa-comments"></i>
-        </div>
-        <h3>Aucune conversation sélectionnée</h3>
-        <p>Sélectionnez une discussion dans la liste pour afficher les messages</p>
+      <div class="empty-chat">
+        <i class="fas fa-comment-dots"></i>
+        <h3>Select a discussion</h3>
+        <p>Choose a conversation from the list to view messages.</p>
       </div>
     </ng-template>
+  </main>
 
-  </div>
-
-  <!-- Right Sidebar -->
-  <div class="details-section" *ngIf="selectedDiscussionId && !isMobileView" [style.width.px]="sidebarWidth" style="border-left: 1px solid #ddd; overflow-y: auto;">
-    <div class="resize-handle" 
-         (mousedown)="startResizing($event)" 
-         [class.active]="isResizing"
-         style="height:4px; background:#ccc; cursor:row-resize;">
+  <aside class="right-panel" [class.open]="detailsOpen">
+    <div (click)="toggleDetailsPanel()">
+        <i class="fas fa-times"></i>
     </div>
-    <div class="details-container" style="padding: 12px;">
-      <div class="details-header" style="margin-bottom: 12px;">
-        <h4>Détails du workflow</h4>
-      </div>
-      <app-workflow-details-sidebar 
-        [discussion]="currentDiscussion">
-      </app-workflow-details-sidebar>
-    </div>
-  </div>
+    <app-workflow-details-sidebar [discussion]="currentDiscussion"></app-workflow-details-sidebar>
+  </aside>
 
 </div>
