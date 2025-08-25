@@ -17,7 +17,10 @@ export class DevisService {
     @InjectRepository(CahierDesCharges)
     private readonly cdcRepo: Repository<CahierDesCharges>,
     private notificationsService: NotificationsService,
-        private readonly discussionService:WorkflowDiscussionService
+        private readonly discussionService:WorkflowDiscussionService,
+        
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async saveDevis(cdcId: number, pieceJointe: string, numdevis: string): Promise<Devis> {
@@ -59,10 +62,11 @@ export class DevisService {
     return savedDevis;
   }
 
- /* async findAll(): Promise<Devis[]> {
+  async findAll(): Promise<Devis[]> {
   return this.devisRepo
     .createQueryBuilder('devis')
     .leftJoinAndSelect('devis.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
     .leftJoinAndSelect('devis.cahierDesCharges', 'cdc')
     .orderBy(`
       CASE devis.etat
@@ -75,16 +79,16 @@ export class DevisService {
     `, 'ASC')
     .addOrderBy('devis.createdAt', 'DESC')
     .getMany();
-}*/
+}
 
-findAll(): Promise<Devis[]> {
+/*findAll(): Promise<Devis[]> {
     return this.devisRepo.find({ 
       relations: ['user', 'cahierDesCharges'] 
     });
-  }
+  }*/
   
-  async findByUser(user: User): Promise<Devis[] | null> {
-        console.log("user cdc :",user)
+  async findByUser(userId: number): Promise<Devis[] | null> {
+        const user = await this.userRepository.findOneBy({ id: userId });
 
   if (!user) return null;
 

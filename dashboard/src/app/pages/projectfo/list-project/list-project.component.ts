@@ -15,6 +15,7 @@ import { ProjectAddModalComponent } from '../modals/project-add-modal/project-ad
 import { ProjectEditModalComponent } from '../modals/project-edit-modal/project-edit-modal.component';
 import { ProjectPhaseDetailsModalComponent } from '../modals/project-phase-details-modal/project-phase-details-modal.component';
 import { WorkflowPhase } from '../../workflow-discussion/models/workflow-phase.model';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-list-project',
@@ -79,17 +80,20 @@ displayMode: 'table' | 'grid' = 'grid';
   
   constructor(private workersService: WorkersService,
         private userStateService: UserStateService,
+          private cookieService: CookieService,
     private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private modalService: BsModalService) {
   }
 
   ngOnInit() {
+ const savedMode = this.cookieService.get('displayModeWo');
+    this.displayMode = (savedMode === 'table' || savedMode === 'grid') ? savedMode : 'grid';
+
 this.userStateService.user$.subscribe(user => {
       this.userr = user;
     });
 
     this.loadProjects()
 
-    
 
     this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
       this.listr=res;
@@ -495,7 +499,10 @@ loadProjects(){
     return ['Tous', ...Array.from(new Set(years))];
   }
 
-  setDisplayMode(mode: 'table' | 'grid') { this.displayMode = mode; }
+  setDisplayMode(mode: 'table' | 'grid') {
+    this.displayMode = mode;
+    this.cookieService.set('displayModeWo', mode, 365); // save for 1 year
+  }
 
 
    toggleSection(modal: 'add' | 'edit', section: string) {

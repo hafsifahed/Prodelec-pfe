@@ -71,7 +71,7 @@ export class DevisController {
 
   @Get('user/:userId')
   getDevisByUser(@Param('userId') userId: number): Promise<Devis[]> {
-    return this.devisService.findByUser({ id: userId } as any);
+    return this.devisService.findByUser( userId );
   }
 
     @Get('accepted')

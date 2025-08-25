@@ -35,6 +35,7 @@ export class ArchiveProjectAdminCComponent {
             text: 'Pas de projets',
           });
         } else {
+          console.log('archive',data)
           this.list = data.filter((project) => project.archiverc);
           this.flist=data.filter((project) => project.archiverc);
         }

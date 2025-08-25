@@ -506,9 +506,9 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.projectService.archivera(projectId).subscribe(() => {
+        this.projectService.archiverc(projectId).subscribe(() => {
           Swal.fire('Archivé !', 'Le projet a été archivé.', 'success');
-          this.router.navigate(['/projects']);
+          this.router.navigate(['/listproject']);
         }, () => {
           Swal.fire('Erreur', 'L\'archivage a échoué.', 'error');
         });

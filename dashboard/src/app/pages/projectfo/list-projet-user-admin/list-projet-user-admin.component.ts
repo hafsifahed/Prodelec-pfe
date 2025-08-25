@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UntypedFormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 import { User } from 'src/app/core/models/auth.models';
 import { Project } from 'src/app/core/models/projectfo/project';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
@@ -34,9 +35,12 @@ export class ListProjetUserAdminComponent {
 
   constructor(private router: Router, private orderservice: OrderServiceService,
         private userStateService: UserStateService, 
+            private cookieService: CookieService,
     private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
   }
   ngOnInit() {
+     const savedMode = this.cookieService.get('displayModeClA');
+    this.displayMode = (savedMode === 'table' || savedMode === 'grid') ? savedMode : 'grid';
 this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
@@ -205,7 +209,8 @@ this.userStateService.user$.subscribe(user => {
     return dfWithoutTime < drfWithoutTime;
   }
 
-  setDisplayMode(mode: 'table' | 'grid') {
-  this.displayMode = mode;
-}
+   setDisplayMode(mode: 'table' | 'grid') {
+    this.displayMode = mode;
+    this.cookieService.set('displayModeClA', mode, 365); // save for 1 year
+  }
 }

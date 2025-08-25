@@ -95,11 +95,12 @@ export class CahierDesChargesService {
     return updatedCdc;
   }
 
-  /*async getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
+  async getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
   return this.repository
     .createQueryBuilder('cdc')
     .leftJoinAndSelect('cdc.files', 'file')
     .leftJoinAndSelect('cdc.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
     .orderBy(`
       CASE cdc.etat
         WHEN '${EtatCahier.EnAttente}' THEN 1
@@ -111,10 +112,10 @@ export class CahierDesChargesService {
     `, 'ASC')
     .addOrderBy('cdc.createdAt', 'DESC')
     .getMany();
-}*/
- getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
+}
+/* getAllCahierDesCharges(): Promise<CahierDesCharges[]> {
     return this.repository.find({ relations: ['files', 'user'], order: { createdAt: 'DESC' } });
-  }
+  }*/
 
   async getCahierDesChargesById(id: number): Promise<CahierDesCharges> {
     const cdc = await this.repository.findOne({ where: { id }, relations: ['files', 'user'] });

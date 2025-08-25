@@ -87,22 +87,26 @@ const avis = this.avisRepository.create({
 }
 
 async hasOldAvis(userId: number): Promise<boolean> {
-    // Vérifier que l'utilisateur existe
-    const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) throw new NotFoundException('User not found');
-
-    // Calculer la date limite (3 mois en arrière)
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
-
-    // Chercher s'il existe au moins un avis vieux de plus de 3 mois
-    const oldAvis = await this.avisRepository
-      .createQueryBuilder('avis')
-      .where('avis.userId = :userId', { userId })
-      .andWhere('avis.createdAt < :threeMonthsAgo', { threeMonthsAgo })
-      .getOne();
-
-    return !!oldAvis;
+  // Verify that the user exists
+  const user = await this.userRepository.findOneBy({ id: userId });
+  if (!user) {
+    throw new NotFoundException('User not found');
   }
+
+  // Calculate date threshold (3 months ago)
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+
+  // Search for at least one avis older than 3 months
+  const oldAvis = await this.avisRepository
+    .createQueryBuilder('avis')
+    .where('avis.userId = :userId', { userId })
+    .andWhere('avis.createdAt < :threeMonthsAgo', { threeMonthsAgo })
+    .getOne();
+
+  // Return true if found, false otherwise (including no avis)
+  return oldAvis !== undefined && oldAvis !== null;
+}
+
 
 }
