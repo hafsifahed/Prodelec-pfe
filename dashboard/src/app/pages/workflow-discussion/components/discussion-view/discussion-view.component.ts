@@ -13,6 +13,16 @@ import { AddDevisModalComponent } from 'src/app/pages/cahierDesCharges/modals/ad
 import { RefuseCdcModalComponent } from 'src/app/pages/cahierDesCharges/modals/refuse-cdc-modal/refuse-cdc-modal.component';
 import { IncompleteCdcModalComponent } from 'src/app/pages/cahierDesCharges/modals/incomplete-cdc-modal/incomplete-cdc-modal.component';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
+import { RefuseDevisModalComponent } from 'src/app/pages/devis/modals/refuse-devis-modal/refuse-devis-modal.component';
+import { DetailsDevisModalComponent } from 'src/app/pages/devis/modals/details-devis-modal/details-devis-modal.component';
+import { NegociationDevisModalComponent } from 'src/app/pages/devis/modals/negociation-devis-modal/negociation-devis-modal.component';
+import { ArchiveDevisModalComponent } from 'src/app/pages/devis/modals/archive-devis-modal/archive-devis-modal.component';
+import Swal from 'sweetalert2';
+import { DevisService } from 'src/app/core/services/Devis/devis.service';
+import { EtatDevis } from 'src/app/core/models/Devis/devis';
+import { DetailsDevisAdminModalComponent } from 'src/app/pages/devis/modals/details-devis-admin-modal/details-devis-admin-modal.component';
+import { RefuseDevisAdminModalComponent } from 'src/app/pages/devis/modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
+import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 
 @Component({
   selector: 'app-discussion-view',
@@ -55,6 +65,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private typingSubject = new Subject<void>();
   private subscriptions = new Subscription();
   private messagesSubject = new BehaviorSubject<WorkflowMessage[]>([]);
+  EtatDevis = EtatDevis;
   messages$ = this.messagesSubject.asObservable();
 
   constructor(
@@ -64,7 +75,9 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     public usersService: UsersService,
     private cdr: ChangeDetectorRef,
     private cdcService:CdcServiceService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private devisService:DevisService,
+    private orderservice:OrderServiceService
   ) {}
 
   ngOnInit(): void {
@@ -374,4 +387,146 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
       this.loadDiscussion();
     });
   }
+
+  //devis 
+
+   accepterDevis(id: number): void {
+    this.devisService.acceptdevis(this.discussion.devis.id).subscribe(
+      (response) => {
+        Swal.fire('Succès', 'Le devis a été accepté avec succès.', 'success');
+             this.loadDiscussion();
+      },
+      (error) => {
+        console.error('Error accepting devis', error);
+        Swal.fire('Erreur', 'Une erreur est survenue lors de l\'acceptation du devis', 'error');
+      }
+    );
+  }
+
+  telechargerPieceJointe(fileName: string): void {
+    this.devisService.downloadFile(fileName).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Error downloading file', error);
+        if (error.status === 404) {
+          Swal.fire('Fichier introuvable', `Le fichier ${fileName} n'existe pas sur le serveur.`, 'error');
+        } else {
+          Swal.fire('Erreur', 'Une erreur est survenue lors du téléchargement', 'error');
+        }
+      }
+    });
+  }
+
+  openDeleteModal(id: number): void {
+  const initialState = { archiveId: id };
+  this.modalRef = this.modalService.show(ArchiveDevisModalComponent, { initialState });
+  this.modalRef.content.onArchived.subscribe(() => {
+      this.loadDiscussion();
+  });
+}
+
+  openNegociationModal(id: number): void {
+  const initialState = { negociationId: id };
+  this.modalRef = this.modalService.show(NegociationDevisModalComponent, { initialState });
+  this.modalRef.content.onNegociationStarted.subscribe(() => {
+      this.loadDiscussion();
+  });
+}
+
+
+  openDetailsModal(id: number): void {
+  this.devisService.getById(id).subscribe(
+    (data) => {
+      const initialState = { devis: data };
+      this.modalRef = this.modalService.show(DetailsDevisModalComponent, { initialState });
+      this.modalRef.content.onDownload.subscribe((fileName: string) => {
+        this.telechargerPieceJointe(fileName);
+      });
+    },
+    (error) => {
+      console.error('Error fetching devis details', error);
+      Swal.fire('Erreur', 'Impossible de charger les détails du devis', 'error');
+    }
+  );
+}
+openDetailsWorkerModal(id: number): void {
+  this.devisService.getById(id).subscribe(
+    (data) => {
+      const initialState = { devis: data };
+      const modalRef = this.modalService.show(DetailsDevisAdminModalComponent, { 
+        initialState,
+        class: 'modal-lg'
+      });
+      
+      modalRef.content.onDevisUpdated.subscribe(() => {
+            this.loadDiscussion();
+      });
+      
+      modalRef.content.onAccept.subscribe((devisId: number) => {
+        this.accepterDevis(devisId);
+      });
+      
+      modalRef.content.onRefuse.subscribe((devisId: number) => {
+        this.preparerRefus(devisId);
+      });
+    }
+  );
+}
+
+ preparerRefus(id: number): void {
+  const initialState = { refuseId: id };
+  this.modalRef = this.modalService.show(RefuseDevisAdminModalComponent, { initialState });
+  this.modalRef.content.onRefused.subscribe(() => {
+    this.loadDiscussion();
+  });
+}
+  openCommentModal(id: number): void {
+  const initialState = { refuseId: id };
+  this.modalRef = this.modalService.show(RefuseDevisModalComponent, { initialState });
+  this.modalRef.content.onRefused.subscribe(() => {
+      this.loadDiscussion();
+  });
+}
+
+//Order
+ delete(id: number) {
+      Swal.fire({
+        title: 'Vous êtes sûr ?',
+        text: 'Vous ne pouvez pas revenir en arrière !',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.orderservice.deleteOrder(id).subscribe({
+            next: () => {
+              Swal.fire({
+                title: 'Supprimé!',
+                text: 'La commande a été supprimée.',
+                icon: 'success',
+              });
+              this.loadDiscussion();
+            },
+            error: () => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Il y a un problème!',
+              });
+            },
+          });
+        }
+      });
+    }
+  
 }
