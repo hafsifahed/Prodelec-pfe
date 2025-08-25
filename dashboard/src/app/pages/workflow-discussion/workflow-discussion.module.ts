@@ -11,6 +11,7 @@ import { DateFormatPipe } from './pipes/date-format.pipe';
 import { DiscussionListComponent } from './discussion-list/discussion-list.component';
 import { WorkflowDiscussionsPageComponent } from './workflow-discussions-page/workflow-discussions-page.component';
 import { WorkflowDetailsSidebarComponent } from './workflow-details-sidebar/workflow-details-sidebar.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,9 @@ import { WorkflowDetailsSidebarComponent } from './workflow-details-sidebar/work
     CommonModule,
     FormsModule,
     RouterModule,
-    WorkflowDiscussionRoutingModule
+    WorkflowDiscussionRoutingModule,
+        ModalModule.forRoot()
+
   ],
   exports: [
     DiscussionViewComponent

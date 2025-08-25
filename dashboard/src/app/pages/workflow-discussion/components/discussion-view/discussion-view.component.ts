@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, Input } from '@angular/core';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { WorkflowSocketService } from '../../services/workflow-socket.service';
 import { WorkflowDiscussion } from '../../models/workflow-discussion.model';
 import { WorkflowMessage } from '../../models/workflow-message.model';
@@ -6,9 +7,12 @@ import { WorkflowDiscussionService } from '../../services/workflow-discussion.se
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { User } from 'src/app/core/models/auth.models';
 import { UsersService } from 'src/app/core/services/user.service';
-import { environment } from 'src/environments/environment';
-import { Subscription, BehaviorSubject, Subject } from 'rxjs';
+import { Subject, Subscription, BehaviorSubject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { AddDevisModalComponent } from 'src/app/pages/cahierDesCharges/modals/add-devis-modal/add-devis-modal.component';
+import { RefuseCdcModalComponent } from 'src/app/pages/cahierDesCharges/modals/refuse-cdc-modal/refuse-cdc-modal.component';
+import { IncompleteCdcModalComponent } from 'src/app/pages/cahierDesCharges/modals/incomplete-cdc-modal/incomplete-cdc-modal.component';
+import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 
 @Component({
   selector: 'app-discussion-view',
@@ -18,14 +22,14 @@ import { debounceTime } from 'rxjs/operators';
 export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messagesContainer') private messagesContainer: ElementRef;
 
+  modalRef?: BsModalRef;
+
   private _discussionId: number;
-  @Input() 
+  @Input()
   set discussionId(id: number) {
     if (this._discussionId === id) return;
-    
     this.cleanupDiscussion();
     this._discussionId = id;
-    
     if (id) {
       this.setupWebSocket();
       this.loadDiscussion();
@@ -38,16 +42,13 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   discussion: WorkflowDiscussion;
   currentUser: User | null = null;
   token = localStorage.getItem('token');
-  environment = environment;
   isLoading = true;
   isSending = false;
   error: string | null = null;
   isConnected = false;
-
-  // Nouvelle propriété pour le contenu du message
   messageContent: string = '';
-  private typingDebounce: any;
 
+  private typingDebounce: any;
   typingUsers = new Set<number>();
   private typingTimeouts = new Map<number, any>();
   private optimisticMessages = new Map<number, WorkflowMessage>();
@@ -61,14 +62,14 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     private socketService: WorkflowSocketService,
     private userStateService: UserStateService,
     public usersService: UsersService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cdcService:CdcServiceService,
+    private modalService: BsModalService
   ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
-      this.typingSubject.pipe(
-        debounceTime(500)
-      ).subscribe(() => {
+      this.typingSubject.pipe(debounceTime(500)).subscribe(() => {
         if (this.discussionId) {
           this.socketService.sendTyping(this.discussionId);
         }
@@ -90,6 +91,13 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.scrollToBottom();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.socketService.disconnect();
+    this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
+    if (this.typingDebounce) clearTimeout(this.typingDebounce);
+  }
+
   private cleanupDiscussion(): void {
     this.socketService.disconnect();
     this.typingUsers.clear();
@@ -105,11 +113,9 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.isLoading = true;
     this.error = null;
     this.cdr.detectChanges();
-    
     this.subscriptions.add(
       this.discussionService.getDiscussion(this.discussionId).subscribe({
         next: (discussion) => {
-            console.log('discussion detail :',discussion)
           this.discussion = discussion;
           const processedMessages = (discussion.messages || []).map(msg => this.processMessage(msg));
           this.messagesSubject.next(processedMessages);
@@ -118,7 +124,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
           setTimeout(() => this.scrollToBottom(), 100);
         },
         error: (err) => {
-          console.error('Failed to load discussion', err);
           this.error = err.message || 'Failed to load discussion';
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -138,14 +143,12 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private enrichAuthorData(author: any): any {
     if (!author) return null;
     if (author.firstName && author.lastName) return author;
-    
     const participants = [
       this.discussion?.cdc?.user,
       this.discussion?.devis?.user,
       ...(this.discussion?.orders?.map(o => o.user) || []),
       ...(this.discussion?.projects?.map(p => p.user) || [])
     ].filter(u => u && u.id);
-    
     return participants.find(u => u.id === author.id) || author;
   }
 
@@ -161,9 +164,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
       );
 
       this.subscriptions.add(
-        this.socketService.onMessageReceived().pipe(
-          debounceTime(100)
-        ).subscribe({
+        this.socketService.onMessageReceived().pipe(debounceTime(100)).subscribe({
           next: (message) => {
             this.handleIncomingMessage(message);
           },
@@ -191,7 +192,6 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
         })
       );
     } catch (error) {
-      console.error('WebSocket error:', error);
       this.error = 'WebSocket connection failed';
       this.cdr.detectChanges();
     }
@@ -199,12 +199,10 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
   private handleUserTyping(userId: number): void {
     if (userId === this.currentUser?.id) return;
-
     this.typingUsers.add(userId);
     this.cdr.detectChanges();
-        this.scrollToBottom();
+    this.scrollToBottom();
 
-    
     if (this.typingTimeouts.has(userId)) {
       clearTimeout(this.typingTimeouts.get(userId));
     }
@@ -221,7 +219,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private handleIncomingMessage(message: WorkflowMessage): void {
     const processedMsg = this.processMessage(message);
     const currentMessages = this.messagesSubject.getValue();
-    
+
     if (this.optimisticMessages.has(message.id)) {
       const optimisticId = this.optimisticMessages.get(message.id)?.id;
       if (optimisticId) {
@@ -231,7 +229,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
         this.cdr.detectChanges();
       }
     }
-    
+
     if (!currentMessages.some(m => m.id === processedMsg.id)) {
       this.messagesSubject.next([...currentMessages, processedMsg]);
       this.cdr.detectChanges();
@@ -239,63 +237,55 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-    sendMessage(content: string): void {
-  if (!content) {
-    this.error = 'Message cannot be empty';
-    this.cdr.detectChanges();
-    return;
+  sendMessage(content: string): void {
+    if (!content) {
+      this.error = 'Message cannot be empty';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.error = null;
+    this.isSending = true;
+
+    const tempId = -Date.now();
+    const tempMsg: WorkflowMessage = {
+      id: tempId,
+      content,
+      author: this.currentUser,
+      createdAt: new Date(),
+      type: 'message'
+    };
+
+    let currentMessages = this.messagesSubject.getValue();
+    currentMessages = [...currentMessages, tempMsg];
+    this.messagesSubject.next(currentMessages);
+    this.optimisticMessages.set(tempId, tempMsg);
+
+    this.scrollToBottom();
+
+    this.socketService.sendMessage(this.discussionId, content);
+
+    const sub = this.socketService.onMessageReceived().subscribe((savedMsg) => {
+      if (savedMsg.author.id === this.currentUser.id && savedMsg.content === content) {
+        const processedMsg = this.processMessage(savedMsg);
+        const updatedMessages = this.messagesSubject.getValue().map(msg =>
+          msg.id === tempId ? processedMsg : msg
+        );
+
+        this.messagesSubject.next(updatedMessages);
+        this.optimisticMessages.delete(tempId);
+        this.isSending = false;
+        this.messageContent = '';
+        this.cdr.detectChanges();
+        sub.unsubscribe();
+      }
+    });
   }
 
-  this.error = null;
-  this.isSending = true;
-
-  const tempId = -Date.now();
-  const tempMsg: WorkflowMessage = {
-    id: tempId,
-    content,
-    author: this.currentUser,
-    createdAt: new Date(),
-    type: 'message'
-  };
-
-  // Ajouter message optimiste
-  let currentMessages = this.messagesSubject.getValue();
-  currentMessages = [...currentMessages, tempMsg];
-  this.messagesSubject.next(currentMessages);
-  this.optimisticMessages.set(tempId, tempMsg);
-
-  this.scrollToBottom();
-
-  // Envoi via socket uniquement
-  this.socketService.sendMessage(this.discussionId, content);
-
-  // Réception du message final depuis le serveur
-  const sub = this.socketService.onMessageReceived().subscribe((savedMsg) => {
-    if (savedMsg.author.id === this.currentUser.id && savedMsg.content === content) {
-      const processedMsg = this.processMessage(savedMsg);
-      const updatedMessages = this.messagesSubject.getValue().map(msg =>
-        msg.id === tempId ? processedMsg : msg
-      );
-
-      this.messagesSubject.next(updatedMessages);
-      this.optimisticMessages.delete(tempId);
-      this.isSending = false;
-      this.messageContent = '';
-      this.cdr.detectChanges();
-      sub.unsubscribe();
-    }
-  });
-}
-
-
-  // Nouvelle méthode pour gérer la saisie
   onInput(): void {
-    // Clear existing debounce
     if (this.typingDebounce) clearTimeout(this.typingDebounce);
-    
-    // Emit typing event after 500ms of inactivity
     this.typingDebounce = setTimeout(() => {
-      this.handleTyping();
+      this.typingSubject.next();
     }, 500);
   }
 
@@ -308,9 +298,9 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     setTimeout(() => {
       if (this.messagesContainer) {
         try {
-          this.messagesContainer.nativeElement.scrollTop = 
+          this.messagesContainer.nativeElement.scrollTop =
             this.messagesContainer.nativeElement.scrollHeight;
-        } catch(err) {
+        } catch (err) {
           console.error('Scroll error:', err);
         }
       }
@@ -323,14 +313,14 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
   getParticipantName(userId: number): string {
     if (userId === this.currentUser?.id) return 'You';
-    
+
     const participants = [
       this.discussion?.cdc?.user,
       this.discussion?.devis?.user,
       ...(this.discussion?.orders?.map(o => o.user) || []),
       ...(this.discussion?.projects?.map(p => p.user) || [])
     ].filter(u => u);
-    
+
     const user = participants.find(u => u.id === userId);
     return user ? `${user.firstName} ${user.lastName}` : 'Unknown user';
   }
@@ -339,12 +329,49 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     return this.usersService.getUserImageUrl(user);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-    this.socketService.disconnect();
-    this.typingTimeouts.forEach(timeout => clearTimeout(timeout));
-    if (this.typingDebounce) clearTimeout(this.typingDebounce);
+  // ===============================
+  // New action button handlers
+  // ===============================
+
+  /*onAccept(): void {
+    if (!this.discussion?.cdc) return;
+    this.modalRef = this.modalService.show(AddDevisModalComponent, {
+      initialState: { cahier: this.discussion.cdc }
+    });
+    this.modalRef.content.onDevisAdded.subscribe(() => {
+      this.loadDiscussion();
+    });
+  }*/
+  onAccept(): void {
+  this.cdcService.getById(this.discussion.cdc.id).subscribe({
+    next: (cahier) => {
+      const initialState = { cahier };
+      this.modalRef = this.modalService.show(AddDevisModalComponent, { initialState });
+      this.modalRef.content.onDevisAdded.subscribe(() => {
+        this.loadDiscussion();
+      });
+    },
+    error: (error) => console.error('Error fetching CDC', error)
+  });
+}
+
+  onRefuse(): void {
+    if (!this.discussion?.cdc) return;
+    this.modalRef = this.modalService.show(RefuseCdcModalComponent, {
+      initialState: { rejectId: this.discussion.cdc.id }
+    });
+    this.modalRef.content.onRefused.subscribe(() => {
+      this.loadDiscussion();
+    });
   }
 
-  
+  onMarkIncomplete(): void {
+    if (!this.discussion?.cdc) return;
+    this.modalRef = this.modalService.show(IncompleteCdcModalComponent, {
+      initialState: { incompleteId: this.discussion.cdc.id }
+    });
+    this.modalRef.content.onMarkedIncomplete.subscribe(() => {
+      this.loadDiscussion();
+    });
+  }
 }
