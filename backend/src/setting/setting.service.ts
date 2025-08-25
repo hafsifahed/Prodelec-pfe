@@ -13,7 +13,7 @@ export class SettingService {
 
   async updateSetting(id: number, updateData: PatchSettingDto): Promise<Setting> {
     const setting = await this.settingRepository.findOne({ where: { id } });
-    
+    console.log(setting)
     if (!setting) {
       throw new NotFoundException(`Setting with ID ${id} not found`);
     }

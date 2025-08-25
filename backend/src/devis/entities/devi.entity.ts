@@ -18,6 +18,8 @@ export enum EtatDevis {
   Accepte = 'Accepté',
   Refuse = 'Refusé',
   Negociation = 'Négociation',   // <-- nouvel état
+    Expire = 'Expiré',   // <-- nouvel état ajouté
+
 }
 
   @Entity('devis')

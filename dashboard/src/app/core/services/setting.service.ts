@@ -19,6 +19,8 @@ export interface Setting {
   globalEmails?: string[];
   notificationPreferences?: { [key: string]: boolean };
   notificationFrequency?: string;
+  devisExpirationMonths?: number;
+
 }
 
 @Injectable({

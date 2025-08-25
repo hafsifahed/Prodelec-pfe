@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { CahierDesCharges, EtatCahier } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { Role } from '../roles/enums/roles.enum';
@@ -289,5 +289,20 @@ async findAcceptedByCurrentUser(user: User): Promise<Devis[]> {
     relations: ['user', 'cahierDesCharges']
   });
 }
+
+    async invalidateOldDevis(beforeDate: Date): Promise<void> {
+  await this.devisRepo.update(
+    {
+      updatedAt: LessThan(beforeDate),
+     // etat: In([EtatDevis.EnAttente, EtatDevis.Accepte]),
+      archiveU: false,
+    },
+    {
+      etat: EtatDevis.Expire,
+      archiveU: true,
+    },
+  );
+}
+
 
 }

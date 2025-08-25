@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UsersService } from 'src/app/core/services/user.service';
-import { SettingService } from 'src/app/core/services/setting.service';
+import { SettingService, Setting } from 'src/app/core/services/setting.service';
 import { User } from 'src/app/core/models/auth.models';
 
 @Component({
@@ -9,7 +9,8 @@ import { User } from 'src/app/core/models/auth.models';
   styleUrls: ['./setting.component.scss']
 })
 export class SettingComponent implements OnInit {
-  user: User | null = null;  // Changé de settings à user pour plus de clarté
+  user: User | null = null;
+  settings: Setting | null = null; // Ajouté pour gérer paramètres globaux
   loading = false;
   error = '';
   title = 'Paramètres Utilisateur';
@@ -34,6 +35,7 @@ export class SettingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserProfile();
+    this.loadSettings();
   }
 
   setActiveTab(tabId: string): void {
@@ -56,13 +58,42 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  handleSettingsUpdate(updatedSettings: Partial<User>) {
+  loadSettings() {
+    this.settingService.getSettings().subscribe({
+      next: (settings) => {
+        this.settings = settings;
+      },
+      error: (err) => {
+        this.error = 'Erreur lors du chargement des paramètres';
+        console.error('Erreur:', err);
+      }
+    });
+  }
+
+  handleUserUpdate(updatedUser: Partial<User>) {
     if (!this.user?.id) return;
 
     this.loading = true;
-    this.usersService.updateUser(this.user.id, updatedSettings).subscribe({
+    this.usersService.updateUser(this.user.id, updatedUser).subscribe({
       next: (updatedUser) => {
         this.user = { ...this.user, ...updatedUser };
+        this.loading = false;
+        this.error = '';
+      },
+      error: (err) => {
+        this.error = err.error?.message || 'Erreur lors de la mise à jour';
+        this.loading = false;
+      }
+    });
+  }
+
+  handleSettingsUpdate(updatedSettings: Partial<Setting>) {
+    if (!this.settings?.id) return;
+
+    this.loading = true;
+    this.settingService.updateSetting(this.settings.id, updatedSettings).subscribe({
+      next: (updatedSettings) => {
+        this.settings = { ...this.settings, ...updatedSettings };
         this.loading = false;
         this.error = '';
       },

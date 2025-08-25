@@ -28,6 +28,7 @@ import { Role } from './roles/entities/role.entity';
 import { UserSession } from './user-session/entities/user-session.entity';
 import { User } from './users/entities/users.entity';
 
+import { ScheduleModule } from '@nestjs/schedule';
 import { CahierDesCharges } from './cahier-des-charges/entities/cahier-des-charge.entity';
 import { CdcFile } from './cahier-des-charges/entities/cdc-file.entity';
 import { Devis } from './devis/entities/devi.entity';
@@ -46,6 +47,7 @@ import { WorkflowDiscussionModule } from './workflow-discussion/workflow-discuss
 
 @Module({
   imports: [
+     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env', // ou autre chemin vers ton fichier env

@@ -10,7 +10,7 @@ export class ReclamationSettingsComponent {
   @Input() settings!: Setting;
   @Output() settingsUpdate = new EventEmitter<Partial<Setting>>();
 
-  emailFields: string[] = [
+  emailFields: (keyof Setting)[] = [
     'reclamationEmails',
     'avisEmails',
     'devisEmails',
@@ -18,16 +18,16 @@ export class ReclamationSettingsComponent {
     'globalEmails'
   ];
 
-  addingEmailField: string | null = null;
+  addingEmailField: keyof Setting | null = null;
   newEmailValue = '';
   error = '';
 
   updateNumberField(field: keyof Setting, value: string) {
-  const numericValue = value ? +value : null;
-  this.settingsUpdate.emit({ [field]: numericValue });
-}
+    const numericValue = value ? +value : null;
+    this.settingsUpdate.emit({ [field]: numericValue });
+  }
 
-  startAddingEmail(field: string) {
+  startAddingEmail(field: keyof Setting) {
     this.addingEmailField = field;
     this.newEmailValue = '';
     this.error = '';
@@ -39,7 +39,7 @@ export class ReclamationSettingsComponent {
     this.error = '';
   }
 
-  addEmail(field: string, inputElement: HTMLInputElement) {
+  addEmail(field: keyof Setting, inputElement: HTMLInputElement) {
     const email = this.newEmailValue.trim();
 
     if (!inputElement.checkValidity()) {
@@ -47,8 +47,8 @@ export class ReclamationSettingsComponent {
       return;
     }
 
-    const currentEmails = [...(this.settings[field as keyof Setting] as string[]) || []];
-    
+    const currentEmails = [...(this.settings[field] as string[]) || []];
+
     if (currentEmails.includes(email)) {
       this.error = 'Email déjà présent dans la liste';
       return;
@@ -59,8 +59,8 @@ export class ReclamationSettingsComponent {
     this.cancelAddingEmail();
   }
 
-  removeEmail(field: string, emailToRemove: string) {
-    const currentEmails = [...(this.settings[field as keyof Setting] as string[]) || []];
+  removeEmail(field: keyof Setting, emailToRemove: string) {
+    const currentEmails = [...(this.settings[field] as string[]) || []];
     const updatedEmails = currentEmails.filter(e => e !== emailToRemove);
     this.settingsUpdate.emit({ [field]: updatedEmails });
   }

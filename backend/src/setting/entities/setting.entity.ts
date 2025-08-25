@@ -27,4 +27,7 @@ export class Setting {
   // Liste globale d'emails
   @Column('simple-array', { nullable: true })
   globalEmails: string[];
+
+    @Column({ type: 'int', nullable: true, default: 6 })
+  devisExpirationMonths: number; // Durée d'expiration des devis (en mois), valeur par défaut = 6
 }

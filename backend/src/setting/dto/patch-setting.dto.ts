@@ -34,4 +34,9 @@ export class PatchSettingDto {
   @ArrayUnique()
   @IsEmail({}, { each: true })
   globalEmails?: string[];
+
+      @IsOptional()
+        @IsNumber()
+    devisExpirationMonths?: number;
+
 }

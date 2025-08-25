@@ -13,6 +13,22 @@
   (input)="updateNumberField('reclamationTarget', $event.target.value)">
 </div>
 
+<div class="mb-4">
+  <label for="devisExpirationMonths" class="form-label fw-medium">
+    Durée d'expiration des devis (en mois)
+  </label>
+  <input
+    id="devisExpirationMonths"
+    type="number"
+    class="form-control"
+    [value]="settings.devisExpirationMonths"
+    (input)="updateNumberField('devisExpirationMonths', $event.target.value)"
+    min="1"
+    max="36"
+  />
+</div>
+
+
 <!-- Boucle sur les listes d'emails -->
 <ng-container *ngFor="let field of emailFields">
   <div class="mb-5">

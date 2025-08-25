@@ -1,22 +1,23 @@
 <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
 
-<div *ngIf="loading" class="alert alert-info mb-3 d-flex align-items-center gap-2">
+ <!-- <div *ngIf="loading" class="alert alert-info mb-3 d-flex align-items-center gap-2">
   <span class="spinner-border spinner-border-sm"></span> Chargement en cours...
-</div>
+</div>-->
 
 <div *ngIf="error" class="alert alert-danger mb-3">{{ error }}</div>
 
-<div *ngIf="user" class="card shadow-sm border-0">
+<div *ngIf="user && settings" class="card shadow-sm border-0">
   <!-- Barre d'onglets -->
   <div class="card-header bg-white border-bottom">
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item" *ngFor="let tab of tabs">
         <button 
-          class="nav-link" 
+          type="button"
+          class="nav-link"
           [class.active]="activeTab === tab.id"
           (click)="setActiveTab(tab.id)">
           <i class="bi bi-{{tab.icon}} me-2"></i>
-          {{tab.label}}
+          {{ tab.label }}
         </button>
       </li>
     </ul>
@@ -28,27 +29,27 @@
     <app-account-settings 
       *ngIf="activeTab === 'account'" 
       [settings]="user"
-      (settingsUpdate)="handleSettingsUpdate($event)">
+      (settingsUpdate)="handleUserUpdate($event)">
     </app-account-settings>
 
     <!-- Onglet Sécurité -->
     <app-security-settings 
       *ngIf="activeTab === 'security'" 
       [settings]="user"
-      (settingsUpdate)="handleSettingsUpdate($event)">
+      (settingsUpdate)="handleUserUpdate($event)">
     </app-security-settings>
 
     <!-- Onglet Notifications -->
     <app-notification-settings 
       *ngIf="activeTab === 'notifications'" 
       [settings]="user"
-      (settingsUpdate)="handleSettingsUpdate($event)">
+      (settingsUpdate)="handleUserUpdate($event)">
     </app-notification-settings>
 
     <!-- Onglet Réclamations -->
     <app-reclamation-settings 
       *ngIf="activeTab === 'reclamations'" 
-      [settings]="user"
+      [settings]="settings"
       (settingsUpdate)="handleSettingsUpdate($event)">
     </app-reclamation-settings>
   </div>
