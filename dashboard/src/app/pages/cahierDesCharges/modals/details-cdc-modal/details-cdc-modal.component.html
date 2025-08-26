@@ -6,7 +6,7 @@
 <div class="modal-body modal-body-centered">
   <div class="mb-3">
     <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-    <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date }}</p>
+    <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date:'short'  }}</p>
     <p *ngIf="cahier?.user"><strong>Client:</strong> {{ cahier.user?.username }} ({{ cahier.user?.partner?.name }})</p>
 
     <div class="mb-3">

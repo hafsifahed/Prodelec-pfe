@@ -113,7 +113,7 @@ export class AvisComponent implements OnInit {
         this.avis.user = this.user;
         this.calculateAverageRatings();
 
-        this.avisService.saveAvisForUser(this.user.id, this.avis).subscribe(
+        this.avisService.saveAvisForUser( this.avis).subscribe(
             (response: AvisModels) => {
               this.showSuccessMessage('Avis soumis avec succès.');
               this.resetForm();

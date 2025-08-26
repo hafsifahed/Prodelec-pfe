@@ -52,7 +52,7 @@
           <tr *ngFor="let devis of getNonArchivedDevis() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
             <td class="text-body fw-bold">{{ devis.projet }}</td>
             <td>{{ devis.user?.email || 'Non spécifié' }}</td>
-            <td>{{ devis.dateCreation | date:'dd/MM/yyyy' }}</td>
+            <td>{{ devis.dateCreation | date:'short' }}</td>
             <td>
               <span class="badge badge-pill font-size-11"
                 [ngClass]="{

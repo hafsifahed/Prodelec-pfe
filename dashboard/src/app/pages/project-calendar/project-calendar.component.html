@@ -11,8 +11,8 @@
     <p><strong>Commentaire:</strong> {{ stepComment }}</p>
     <p><strong>Durée:</strong> {{ stepDuration }} heures</p>
     <p><strong>Pilote:</strong> {{ stepResponsible?.username || 'Non assigné' }}</p>
-    <p><strong>Début:</strong> {{ stepStartDate | date:'yyyy-MM-dd' }}</p>
-    <p><strong>Fin:</strong> {{ stepEndDate | date:'yyyy-MM-dd' }}</p>
+    <p><strong>Début:</strong> {{ stepStartDate | date:'short' }}</p>
+    <p><strong>Fin:</strong> {{ stepEndDate | date:'short' }}</p>
     <p><strong>Progression:</strong> {{ stepProgress }}%</p>
 
     <div *ngIf="canEditProgress()">

@@ -72,7 +72,7 @@
           <td>
             <a href="javascript:void(0);" class="text-body fw-bold">{{ reclamation.type_de_defaut }}</a>
           </td>
-          <td>{{ reclamation.dateDeCreation | date }}</td>
+          <td>{{ reclamation.dateDeCreation | date:'short' }}</td>
           <td>{{ reclamation.user?.email }}</td>
           <td>
             <span class="badge badge-pill badge-soft-success font-size-11" 
@@ -115,7 +115,7 @@
       <div class="mb-3">
         <p><strong>Titre:</strong> {{ reclamation?.type_de_defaut  }}</p>
         <p *ngIf="reclamation.description"><strong>Description:</strong> {{ reclamation.description }}</p>
-        <p *ngIf="reclamation.dateDeCreation"><strong>Date de création:</strong> {{ reclamation.dateDeCreation }}</p>
+        <p *ngIf="reclamation.dateDeCreation"><strong>Date de création:</strong> {{ reclamation.dateDeCreation |date:'short'}}</p>
         <p *ngIf="reclamation.user"><strong>Client:</strong> {{ reclamation.user?.email }}</p>
         <div class="mb-3">
           <strong>État:</strong>

@@ -35,7 +35,7 @@
           <tr *ngFor="let devis of getArchivedDevis()">
             <td class="text-body fw-bold">{{ devis.projet }}</td>
             <td>{{ devis.user?.email }}</td>
-            <td>{{ devis.dateCreation | date}}</td>
+            <td>{{ devis.dateCreation | date:'short' }}</td>
             <td>
               <span class="badge badge-pill badge-soft-success font-size-11"
                 [ngClass]="{
@@ -76,7 +76,7 @@
       <div class="mb-3">
         <p><strong>Projet:</strong> {{ devisDetails?.projet }}</p>
       
-        <p ><strong>Date de création:</strong> {{ devisDetails?.dateCreation }}</p>
+        <p ><strong>Date de création:</strong> {{ devisDetails?.dateCreation | date:'short' }}</p>
         <p ><strong>Client:</strong> {{ devisDetails.user?.email }}</p>
         <div class="mb-3">
           <strong>État:</strong>

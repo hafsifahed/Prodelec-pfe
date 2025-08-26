@@ -10,7 +10,7 @@
       }">
         {{ user.accountStatus | titlecase }}
       </span>
-      <span class="member-since">Membre depuis {{ user.createdAt | date:'mediumDate' }}</span>
+      <span class="member-since">Membre depuis {{ user.createdAt | date:'short' }}</span>
     </div>
   </header>
 

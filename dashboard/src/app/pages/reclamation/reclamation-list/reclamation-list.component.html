@@ -76,7 +76,7 @@
           <td>
             <a href="javascript:void(0);" class="text-body fw-bold">{{ rec.type_de_defaut }}</a>
           </td>
-          <td>{{ rec.dateDeCreation | date }}</td>
+          <td>{{ rec.dateDeCreation | date:'short' }}</td>
           <td>
             <span class="badge badge-pill badge-soft-success font-size-11"
               [ngClass]="{ 'badge-soft-warning': rec.status === 'En cours' }">
@@ -168,7 +168,7 @@
       <div class="mb-3">
         <p><strong>Titre:</strong> {{ rec?.type_de_defaut  }}</p>
         <p *ngIf="rec.description"><strong>Description:</strong> {{ rec.description }}</p>
-        <p *ngIf="rec.dateDeCreation"><strong>Date de création:</strong> {{ rec.dateDeCreation }}</p>
+        <p *ngIf="rec.dateDeCreation"><strong>Date de création:</strong> {{ rec.dateDeCreation |date:'short' }}</p>
         <p *ngIf="rec.user"><strong>Client:</strong> {{ rec.user?.email }}</p>
         <div class="mb-3">
           <strong>État:</strong>

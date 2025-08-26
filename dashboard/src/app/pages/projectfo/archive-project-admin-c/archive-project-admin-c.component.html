@@ -40,7 +40,7 @@
                             <tbody *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }; let i = index;" id="p_{{project.idproject}}">
                                 <tr >
                                     <td>{{project.order.user.username}}</td>
-                                    <td>{{project.order.createdAt | date:'yyyy-MM-dd'}}</td>
+                                    <td>{{project.order.createdAt | date:'short'}}</td>
                                     <td>{{project.order.orderName}}</td>
                                     <td>{{project.refClient}} - {{project.order.user.partner.name}}</td>
                                     <td>{{project.qte}}</td>
@@ -144,7 +144,7 @@
                                           </div>
                                         </div>
                                       </div></td>
-                                      <td>{{project.dlp | date:'yyyy-MM-dd'}}</td>
+                                      <td>{{project.dlp | date:'dd-MM-yyyy'}}</td>
                                       <td><a href="javascript:void(0);" class="text-primary" (click)="restaurer(project.idproject)">
                                         <i class="mdi mdi-undo font-size-18"></i>
                                       </a>

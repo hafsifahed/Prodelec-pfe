@@ -11,10 +11,9 @@ export class AvisService {
   private apiUrl = `${environment.baseUrl}/avis`;
   constructor(private http: HttpClient) { }
 
-  saveAvisForUser(userId: number, avis: AvisModels) {
+  saveAvisForUser( avis: AvisModels) {
   return this.http.post<AvisModels>(`${this.apiUrl}/`, {
     ...avis,
-    userId // <-- ajoute explicitement userId
   });
 }
 

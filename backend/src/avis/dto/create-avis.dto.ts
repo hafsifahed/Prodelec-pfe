@@ -1,4 +1,5 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { User } from '../../users/entities/users.entity';
 
 export class CreateAvisDto {
   @IsOptional() @IsString() conformiteExigences?: string;
@@ -40,5 +41,5 @@ export class CreateAvisDto {
   @IsOptional() @IsString() pointFaible3?: string;
   @IsOptional() @IsString() pointFaible4?: string;
   @IsOptional() @IsString() pointFaible5?: string;
-  @IsOptional() userId?: number; // for linking to user
+  @IsOptional() user?: User; // for linking to user
 }

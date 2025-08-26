@@ -10,19 +10,19 @@
           <!-- Informations générales -->
           <ul class="list-group list-group-flush mb-4">
             <li class="list-group-item"><strong>Client :</strong> {{ project.order?.user?.username }}</li>
-            <li class="list-group-item"><strong>Date Réception BC :</strong> {{ project.order?.createdAt | date:'yyyy-MM-dd' }}</li>
+            <li class="list-group-item"><strong>Date Réception BC :</strong> {{ project.order?.createdAt | date:'dd-MM-yyyy' }}</li>
             <li class="list-group-item"><strong>N° BC :</strong> {{ project.order?.orderName }}</li>
             <li class="list-group-item"><strong>Réf. Client :</strong> {{ project.refClient }} - {{project.order.user.partner.name}}</li>
             <li class="list-group-item"><strong>Quantité :</strong> {{ project.qte }}</li>
             <li class="list-group-item">
               <strong>Date de livraison prévue :</strong> 
               <span [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
-                {{ project.dlp | date:'yyyy-MM-dd' }}
+                {{ project.dlp | date:'dd-MM-yyyy' }}
               </span>
             </li>
             <li class="list-group-item"><strong>Durée :</strong> {{ project.duree }} heures</li>
-            <li class="list-group-item"><strong>Date de création :</strong> {{ project.createdAt | date:'yyyy-MM-dd HH:mm' }}</li>
-            <li class="list-group-item"><strong>Date de mise à jour :</strong> {{ project.updatedAt | date:'yyyy-MM-dd HH:mm' }}</li>
+            <li class="list-group-item"><strong>Date de création :</strong> {{ project.createdAt | date:'short' }}</li>
+            <li class="list-group-item"><strong>Date de mise à jour :</strong> {{ project.updatedAt | date:'short' }}</li>
           </ul>
 
           <!-- Progressions détaillées -->
@@ -225,7 +225,7 @@
             </div>
             <div class="col-12 col-lg-6">
               <label class="form-label">Date de livraison prévue</label>
-              <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp" />
+              <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dlp" />
             </div>
 
             <!-- Boutons d'affichage des sections -->
@@ -272,11 +272,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dc" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fc" />
                     </div>
                   </div>
                 </div>
@@ -306,11 +306,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dm" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fm" />
                     </div>
                   </div>
                 </div>
@@ -340,11 +340,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dp" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fp" />
                     </div>
                   </div>
                 </div>
@@ -374,11 +374,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dcf" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dcf" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fcf" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fcf" />
                     </div>
                   </div>
                 </div>
@@ -408,11 +408,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl" />
+                      <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="dl" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl" />
+                      <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="fl" />
                     </div>
                   </div>
                 </div>
@@ -485,7 +485,7 @@
                 </div>
                 <div class="col-lg-3 col-md-6">
                   <label for="dlp-field" class="form-label">Date de livraison prévue</label>
-                  <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp" />
+                  <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dlp" />
                 </div>
               </div>
             </div>
@@ -515,11 +515,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dc" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fc" />
                     </div>
                   </div>
                 </div>
@@ -551,11 +551,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dm" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fm" />
                     </div>
                   </div>
                 </div>
@@ -587,11 +587,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dp" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fp" />
                     </div>
                   </div>
                 </div>
@@ -623,11 +623,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dcf" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dcf" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fcf" />
+                      <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fcf" />
                     </div>
                   </div>
                 </div>
@@ -659,11 +659,11 @@
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Début</label>
-                      <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl" />
+                      <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="dl" />
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <label class="form-label">Fin</label>
-                      <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl" />
+                      <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="fl" />
                     </div>
                   </div>
                 </div>
@@ -698,9 +698,9 @@
               *ngIf="project?.conceptionResponsible?.username">{{ project.conceptionComment }}</p>
             <p class="mb-1">Durée: {{project.conceptionDuration }} heures</p>
             <p class="mb-0" *ngIf="project?.conceptionResponsible?.username">Pilote: {{ project?.conceptionResponsible?.username }}</p>
-            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Début: {{ project.startConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Fin: {{ project.endConception| date:'yyyy-MM-dd' }}</p>
-            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Fin réelle: {{ project.realendConception| date:'yyyy-MM-dd'}}</p>
+            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Début: {{ project.startConception| date:'dd-MM-yyyy' }}</p>
+            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Fin: {{ project.endConception| date:'dd-MM-yyyy' }}</p>
+            <p class="mb-1" *ngIf="project?.conceptionResponsible?.username">Fin réelle: {{ project.realendConception| date:'dd-MM-yyyy'}}</p>
       </div>
     
 
@@ -720,11 +720,11 @@
   <p class="mb-0" 
     *ngIf="project?.methodeResponsible?.username">Pilote: {{ project.methodeResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project?.methodeResponsible?.username">Début: {{ project.startMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.methodeResponsible?.username">Début: {{ project.startMethode| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.methodeResponsible?.username">Fin: {{ project.endMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.methodeResponsible?.username">Fin: {{ project.endMethode| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.methodeResponsible?.username">Fin réelle: {{ project.realendMethode| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.methodeResponsible?.username">Fin réelle: {{ project.realendMethode| date:'dd-MM-yyyy' }}</p>
       </div>
     
 
@@ -745,11 +745,11 @@
             <p class="mb-0" 
               *ngIf="project?.productionResponsible?.username">Pilote: {{ project.productionResponsible.username }}</p>
             <p class="mb-1" 
-              *ngIf="project?.productionResponsible?.username">Début: {{ project.startProduction| date:'yyyy-MM-dd' }}</p>
+              *ngIf="project?.productionResponsible?.username">Début: {{ project.startProduction| date:'dd-MM-yyyy' }}</p>
             <p class="mb-1" 
-              *ngIf="project?.productionResponsible?.username">Fin: {{ project.endProduction| date:'yyyy-MM-dd' }}</p>
+              *ngIf="project?.productionResponsible?.username">Fin: {{ project.endProduction| date:'dd-MM-yyyy' }}</p>
             <p class="mb-1" 
-              *ngIf="project?.productionResponsible?.username">Fin réelle: {{ project.realendProduction| date:'yyyy-MM-dd'
+              *ngIf="project?.productionResponsible?.username">Fin réelle: {{ project.realendProduction| date:'dd-MM-yyyy'
               }}</p>
       </div>
     
@@ -770,11 +770,11 @@
   <p class="mb-0" 
     *ngIf="project?.finalControlResponsible?.username">Pilote: {{ project.finalControlResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project?.finalControlResponsible?.username">Début: {{ project.startFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.finalControlResponsible?.username">Début: {{ project.startFc| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.finalControlResponsible?.username">Fin: {{ project.endFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.finalControlResponsible?.username">Fin: {{ project.endFc| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.finalControlResponsible?.username">Fin réelle: {{ project.realendFc| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.finalControlResponsible?.username">Fin réelle: {{ project.realendFc| date:'dd-MM-yyyy' }}</p>
       </div>
     
 
@@ -795,11 +795,11 @@
   <p class="mb-0" 
     *ngIf="project?.deliveryResponsible?.username">Pilote: {{ project.deliveryResponsible.username }}</p>
   <p class="mb-1" 
-    *ngIf="project?.deliveryResponsible?.username">Début: {{ project.startDelivery| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.deliveryResponsible?.username">Début: {{ project.startDelivery| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.deliveryResponsible?.username">Fin: {{ project.endDelivery| date:'yyyy-MM-dd' }}</p>
+    *ngIf="project?.deliveryResponsible?.username">Fin: {{ project.endDelivery| date:'dd-MM-yyyy' }}</p>
   <p class="mb-1" 
-    *ngIf="project?.deliveryResponsible?.username">Fin réelle: {{ project.realendDelivery| date:'yyyy-MM-dd' }}
+    *ngIf="project?.deliveryResponsible?.username">Fin réelle: {{ project.realendDelivery| date:'dd-MM-yyyy' }}
   </p>
       </div>
     

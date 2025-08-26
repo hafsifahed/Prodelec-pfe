@@ -7,7 +7,7 @@
   <div class="mb-3">
     <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
     <p *ngIf="cahier?.commentaire" style="margin-bottom: 2em;"><strong>Description:</strong> {{ cahier.commentaire }}</p>
-    <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date }}</p>
+    <p *ngIf="cahier?.createdAt"><strong>Date de création:</strong> {{ cahier.createdAt | date:'short'  }}</p>
     <p><strong>Client:</strong> {{ cahier?.user?.partner?.name }}</p>
     <p *ngIf="cahier?.user"><strong>Email:</strong> {{ cahier.user.email }}</p>
 

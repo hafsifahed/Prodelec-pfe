@@ -23,7 +23,7 @@
           <tr *ngFor="let cahier of getArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
             <td class="text-body fw-bold">{{ cahier?.titre }}</td>
             <td>{{ cahier.user?.email }}</td>
-            <td>{{ cahier.createdAt | date}}</td>
+            <td>{{ cahier.createdAt | date:'short' }}</td>
             <td>
               <span class="badge badge-pill badge-soft-success font-size-11"
                 [ngClass]="{
@@ -72,7 +72,7 @@
       <!-- Afficher les détails du cahier des charges ici -->
       <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
       <p><strong>Description:</strong> {{ cahier?.description }}</p>
-      <p><strong>Date de création:</strong> {{ cahier?.createdAt }}</p>
+      <p><strong>Date de création:</strong> {{ cahier?.createdAt | date:'short' }}</p>
       <p><strong>Etat:</strong> {{ cahier?.etat }}</p>
       <p><strong>Client:</strong> {{ cahier.user?.partner?.name }}</p>
       <!-- Ajoutez d'autres détails si nécessaire -->

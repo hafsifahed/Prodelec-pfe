@@ -21,8 +21,10 @@ export class AvisService {
   ) {}
 
   async create(createAvisDto: CreateAvisDto): Promise<Avis> {
+
     // Récupérer l'utilisateur à partir de l'id
-    const user = await this.userRepository.findOneBy({ id: createAvisDto.userId });
+    console.log('yser avis')
+    const user = await this.userRepository.findOneBy({ id: createAvisDto.user.id });
 if (!user) throw new NotFoundException('User not found');
 
 const avis = this.avisRepository.create({
@@ -87,25 +89,30 @@ const avis = this.avisRepository.create({
 }
 
 async hasOldAvis(userId: number): Promise<boolean> {
-  // Verify that the user exists
+  // Vérifier que l'utilisateur existe
   const user = await this.userRepository.findOneBy({ id: userId });
   if (!user) {
     throw new NotFoundException('User not found');
   }
 
-  // Calculate date threshold (3 months ago)
+  // Calculer la date seuil : il y a 3 mois
   const threeMonthsAgo = new Date();
-  threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  // Search for at least one avis older than 3 months
-  const oldAvis = await this.avisRepository
+  // Récupérer le dernier avis de l'utilisateur, trié par date création descendante (le plus récent)
+  const lastAvis = await this.avisRepository
     .createQueryBuilder('avis')
     .where('avis.userId = :userId', { userId })
-    .andWhere('avis.createdAt < :threeMonthsAgo', { threeMonthsAgo })
+    .orderBy('avis.createdAt', 'DESC')
     .getOne();
 
-  // Return true if found, false otherwise (including no avis)
-  return oldAvis !== undefined && oldAvis !== null;
+  // Si pas d'avis, retourner true (car jamais fait d'avis)
+  if (!lastAvis) {
+    return true;
+  }
+
+  // Renvoie true si la date du dernier avis est antérieure à la date il y a 3 mois
+  return lastAvis.createdAt < threeMonthsAgo;
 }
 
 

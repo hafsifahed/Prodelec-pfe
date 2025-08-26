@@ -53,7 +53,7 @@
       </thead>
       <tbody *ngFor="let project of flist | paginate: { itemsPerPage: itemsPerPage, currentPage: p }" id="p_{{project.idproject}}">
         <tr>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'yyyy-MM-dd'}}</td>
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'short'}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.orderName}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}} - {{project.order.user.partner.name}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.qte}}</td>
@@ -176,7 +176,7 @@
               </div>
             </div>
           </td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.dlp | date:'yyyy-MM-dd'}}</td>
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.dlp | date:'short'}}</td>
           <td>
             <a *ngIf="project.progress==100" href="javascript:void(0);" class="text-primary" (click)="archive(project.idproject)">
               <i class="mdi mdi-archive font-size-18"></i>
@@ -254,7 +254,7 @@
           <i class="mdi mdi-calendar-clock me-2 fs-5"></i>
           <div [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
             <div class="small text-muted">Livraison prévue</div>
-            <div class="fw-medium">{{ project.dlp | date:'yyyy-MM-dd' }}</div>
+            <div class="fw-medium">{{ project.dlp | date:'short' }}</div>
           </div>
         </div>
 

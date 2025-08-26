@@ -57,11 +57,11 @@
     </div>
     <div class="row mb-2">
       <div class="col-md-6"><strong>Créé le :</strong></div>
-      <div class="col-md-6">{{ user?.createdAt | date }}</div>
+      <div class="col-md-6">{{ user?.createdAt | date:'short' }}</div>
     </div>
     <div class="row mb-2">
       <div class="col-md-6"><strong>Mis à jour le :</strong></div>
-      <div class="col-md-6">{{ user?.updatedAt | date }}</div>
+      <div class="col-md-6">{{ user?.updatedAt | date:'short' }}</div>
     </div>
   </div>
 </div>

@@ -39,7 +39,7 @@
             <tr *ngFor="let devis of getNonArchivedDevis()| paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
               <td class="text-body fw-bold">{{ devis.projet }}</td>
              
-              <td>{{ devis.dateCreation | date}}</td>
+              <td>{{ devis.dateCreation | date:'short'}}</td>
               <td>
                   <a class="attachment-download" (click)="telechargerPieceJointe(devis.pieceJointe,devis.id)">Télécharger</a>
               
@@ -130,7 +130,7 @@
             <div class="mb-3">
               <p><strong>Projet:</strong> {{ devisDetails?.projet }}</p>
             
-              <p ><strong>Date de création:</strong> {{ devisDetails?.dateCreation }}</p>
+              <p ><strong>Date de création:</strong> {{ devisDetails?.dateCreation | date:'short' }}</p>
               <p ><strong>Client:</strong> {{ devisDetails.user?.email }}</p>
               <div class="mb-3">
                 <strong>État:</strong>

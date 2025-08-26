@@ -38,8 +38,8 @@ export class UserAvisCheckComponent implements OnInit {
   hasOldAvisCheck(userId: number): void {
     this.avisService.hasOldAvis(userId).subscribe({
       next: (result) => {
-        this.hasOldAvis = !result;
-        this.showAvisSection = !result; // Affiche la section uniquement si hasOldAvis = true
+        this.hasOldAvis = result;
+        this.showAvisSection = result; // Affiche la section uniquement si hasOldAvis = true
       },
       error: (error) => {
         console.error('Erreur lors de la vérification des avis', error);

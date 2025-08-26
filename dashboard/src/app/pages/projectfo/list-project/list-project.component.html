@@ -71,7 +71,7 @@
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}" class="position-sticky"
             style="left: 0; z-index: 1;">{{project.refProdelec}}</td>
             <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}" class="position-sticky" style="left: 109px; z-index: 1;">{{project.order.user.username}}</td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'yyyy-MM-dd'}}
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.createdAt | date:'short'}}
           </td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.order.orderName}}</td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.refClient}} - {{project.order.user.partner.name}}</td>
@@ -282,12 +282,12 @@
 </td>
 
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
-            {{project.dlp | date:'yyyy-MM-dd'}}
+            {{project.dlp | date:'dd-MM-yyyy'}}
           </td>
           <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.duree}} heures</td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.createdAt | date:'yyyy-MM-dd HH:mm'}}
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.createdAt | date:'short'}}
           </td>
-          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.updatedAt | date:'yyyy-MM-dd HH:mm'}}
+          <td [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">{{project.updatedAt | date:'short'}}
           </td>
           <td>
             <div *ngIf="userr.role.name === 'ADMIN' || userr.role.name === 'SUBADMIN' || userr.role.name === 'Responsable Industrialisation'" class="d-flex gap-3">
@@ -378,7 +378,7 @@
           <i class="mdi mdi-calendar-clock me-2 fs-5"></i>
           <div [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}">
             <div class="small text-muted">Livraison prévue</div>
-            <div class="fw-medium">{{ project.dlp | date:'yyyy-MM-dd' }}</div>
+            <div class="fw-medium">{{ project.dlp | date:'dd-MM-yyyy' }}</div>
           </div>
         </div>
 

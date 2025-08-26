@@ -52,7 +52,7 @@
       <tbody>
         <tr *ngFor="let devis of getNonArchivedDevis() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
           <td class="text-body fw-bold">{{ devis.projet }}</td>
-          <td>{{ devis.dateCreation | date:'dd/MM/yyyy' }}</td>
+          <td>{{ devis.dateCreation | date:'short' }}</td>
           <td>
             <a
               class="text-primary cursor-pointer"
