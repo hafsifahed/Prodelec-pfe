@@ -13,7 +13,7 @@
       </div>
       <div class="col-12 col-lg-6">
         <label class="form-label">Date de livraison prévue</label>
-        <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dlp" />
+        <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dlp" />
       </div>
 
       <!-- Boutons d'affichage des sections -->
@@ -37,31 +37,31 @@
         </div>
       </div>
 
-            <!-- Les phase -->
-
+      <!-- Les phases -->
       <div class="mb-3" *ngIf="user.role.name === 'Responsable Industrialisation'">
-      <label class="form-label">Étapes du projet</label>
-      <div class="form-check">
-        <input type="checkbox" id="conceptionChecked" class="form-check-input" formControlName="conceptionChecked" />
-        <label class="form-check-label" for="conceptionChecked">Conception</label>
+        <label class="form-label">Étapes du projet</label>
+        <div class="form-check">
+          <input type="checkbox" id="conceptionChecked" class="form-check-input" formControlName="conceptionChecked" />
+          <label class="form-check-label" for="conceptionChecked">Conception</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="methodeChecked" class="form-check-input" formControlName="methodeChecked" />
+          <label class="form-check-label" for="methodeChecked">Méthode</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="productionChecked" class="form-check-input" formControlName="productionChecked" />
+          <label class="form-check-label" for="productionChecked">Production</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="controleChecked" class="form-check-input" formControlName="controleChecked" />
+          <label class="form-check-label" for="controleChecked">Contrôle final</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="livraisonChecked" class="form-check-input" formControlName="livraisonChecked" />
+          <label class="form-check-label" for="livraisonChecked">Livraison</label>
+        </div>
       </div>
-      <div class="form-check">
-        <input type="checkbox" id="methodeChecked" class="form-check-input" formControlName="methodeChecked" />
-        <label class="form-check-label" for="methodeChecked">Méthode</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="productionChecked" class="form-check-input" formControlName="productionChecked" />
-        <label class="form-check-label" for="productionChecked">Production</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="controleChecked" class="form-check-input" formControlName="controleChecked" />
-        <label class="form-check-label" for="controleChecked">Contrôle final</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" id="livraisonChecked" class="form-check-input" formControlName="livraisonChecked" />
-        <label class="form-check-label" for="livraisonChecked">Livraison</label>
-      </div>
-    </div>
+
       <!-- Section Conception -->
       <div class="col-12" *ngIf="showSections.conception">
         <div class="card shadow-sm mb-4">
@@ -85,11 +85,16 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Début</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dc" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dc" />
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Fin</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fc" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fc" />
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('conception')">
+                  <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+                </button>
               </div>
             </div>
           </div>
@@ -119,11 +124,16 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Début</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dm" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dm" />
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Fin</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fm" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fm" />
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('methode')">
+                  <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+                </button>
               </div>
             </div>
           </div>
@@ -153,11 +163,16 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Début</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dp" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dp" />
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Fin</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fp" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fp" />
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('production')">
+                  <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+                </button>
               </div>
             </div>
           </div>
@@ -187,11 +202,16 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Début</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="dcf" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dcf" />
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Fin</label>
-                <input bsDatepicker class="form-control" placeholder="yyyy-mm-dd" formControlName="fcf" />
+                <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fcf" />
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('controle')">
+                  <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+                </button>
               </div>
             </div>
           </div>
@@ -221,11 +241,16 @@
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Début</label>
-                <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="dl" />
+                <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="dl" />
               </div>
               <div class="col-lg-6 col-md-6">
                 <label class="form-label">Fin</label>
-                <input type="date" class="form-control" placeholder="yyyy-mm-dd" formControlName="fl" />
+                <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="fl" />
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('livraison')">
+                  <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+                </button>
               </div>
             </div>
           </div>
@@ -241,3 +266,25 @@
     </div>
   </form>
 </div>
+
+<!-- Modal pour la sélection de la plage de dates -->
+<ng-template #dateRangeModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Sélectionner une plage de dates</h5>
+    <button type="button" class="btn-close" (click)="dateRangeModalRef?.hide()"></button>
+  </div>
+  <div class="modal-body text-center">
+    <div class="mb-3">
+      <input type="text" 
+             class="form-control text-center" 
+             bsDaterangepicker 
+             [(bsValue)]="bsValue" 
+             [bsConfig]="bsConfig"
+             placeholder="Sélectionnez une plage de dates">
+    </div>
+  </div>
+  <div class="modal-footer justify-content-center">
+    <button type="button" class="btn btn-secondary" (click)="clearDateSelection()">Effacer</button>
+    <button type="button" class="btn btn-primary" (click)="applyDateSelection()">Appliquer</button>
+  </div>
+</ng-template>

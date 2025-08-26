@@ -1,0 +1,35 @@
+// Personnalisation du datepicker
+.theme-dark-blue {
+  .bs-datepicker {
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    
+    .bs-datepicker-head {
+      background-color: #3b5de7;
+    }
+    
+    .bs-datepicker-body {
+      table td span.selected {
+        background-color: #3b5de7;
+      }
+    }
+  }
+}
+
+// Centre le modal
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+// Bouton de sélection de dates
+.btn-outline-info {
+  color: #3b5de7;
+  border-color: #3b5de7;
+  
+  &:hover {
+    background-color: #3b5de7;
+    border-color: #3b5de7;
+    color: white;
+  }
+}

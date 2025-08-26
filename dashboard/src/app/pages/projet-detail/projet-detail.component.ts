@@ -10,7 +10,9 @@ import { OrderServiceService } from '../../core/services/orderService/order-serv
 import { formatDate } from '@angular/common';
 import { ProjectDto } from '../../core/models/projectfo/project-dto';
 import { debounceTime, Subject, Subscription } from 'rxjs';
+import { defineLocale, frLocale } from 'ngx-bootstrap/chronos';
 
+defineLocale('fr', frLocale);
 @Component({
   selector: 'app-projet-detail',
   templateUrl: './projet-detail.component.html',
@@ -301,17 +303,17 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       this.projectForm.controls['rp'].setValue(this.project1.productionResponsible?.firstName || '');
       this.projectForm.controls['rcf'].setValue(this.project1.finalControlResponsible?.firstName || '');
       this.projectForm.controls['rl'].setValue(this.project1.deliveryResponsible?.firstName || '');
-  this.projectForm.controls['dlp'].setValue(this.project1.dlp ? formatDate(this.project1.dlp, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['dc'].setValue(this.project1.startConception ? formatDate(this.project1.startConception, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['fc'].setValue(this.project1.endConception ? formatDate(this.project1.endConception, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['dm'].setValue(this.project1.startMethode ? formatDate(this.project1.startMethode, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['fm'].setValue(this.project1.endMethode ? formatDate(this.project1.endMethode, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['dp'].setValue(this.project1.startProduction ? formatDate(this.project1.startProduction, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['fp'].setValue(this.project1.endProduction ? formatDate(this.project1.endProduction, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['dcf'].setValue(this.project1.startFc ? formatDate(this.project1.startFc, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['fcf'].setValue(this.project1.endFc ? formatDate(this.project1.endFc, 'MM/dd/yyyy', 'en-US') : null);
-  this.projectForm.controls['dl'].setValue(this.project1.startDelivery ? formatDate(this.project1.startDelivery, 'yyyy-MM-dd', 'en-US') : null);
-  this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(this.project1.endDelivery, 'yyyy-MM-dd', 'en-US') : null);
+  this.projectForm.controls['dlp'].setValue(this.project1.dlp ? formatDate(this.project1.dlp, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['dc'].setValue(this.project1.startConception ? formatDate(this.project1.startConception, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['fc'].setValue(this.project1.endConception ? formatDate(this.project1.endConception, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['dm'].setValue(this.project1.startMethode ? formatDate(this.project1.startMethode, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['fm'].setValue(this.project1.endMethode ? formatDate(this.project1.endMethode, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['dp'].setValue(this.project1.startProduction ? formatDate(this.project1.startProduction, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['fp'].setValue(this.project1.endProduction ? formatDate(this.project1.endProduction, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['dcf'].setValue(this.project1.startFc ? formatDate(this.project1.startFc, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['fcf'].setValue(this.project1.endFc ? formatDate(this.project1.endFc, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['dl'].setValue(this.project1.startDelivery ? formatDate(this.project1.startDelivery, 'dd-MM-yyyy', 'fr-FR') : null);
+  this.projectForm.controls['fl'].setValue(this.project1.endDelivery ? formatDate(this.project1.endDelivery, 'dd-MM-yyyy', 'fr-FR') : null);
       this.projectForm.controls['drc'].setValue(this.project1.conceptionDuration);
       this.projectForm.controls['cdc'].setValue(this.project1.conceptionComment);
       this.projectForm.controls['drm'].setValue(this.project1.methodeDuration);
@@ -331,7 +333,7 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       const refclient = this.projectForm.get('refc')?.value|| '';
       const refProdelec = this.projectForm.get('refp')?.value|| '';
       const qte = this.projectForm.get('qte')?.value;
-      const datelivprev = new Date(formatDate(this.projectForm.get('dlp')?.value,'yyyy-MM-dd','en-US'))||null;
+      const datelivprev = new Date(formatDate(this.projectForm.get('dlp')?.value,'dd-MM-yyyy','fr-FR'))||null;
       const durecons = this.projectForm.get('drc')?.value;
       const respcons = this.projectForm.get('rc')?.value || '';
       const comcons = this.projectForm.get('cdc')?.value|| '';
@@ -360,16 +362,16 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       const flValue = this.projectForm.get('fl')?.value;
   
       // Convertir les valeurs en objets Date en vérifiant leur existence
-      const debcon = dcValue ? new Date(formatDate(dcValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const fincon = fcValue ? new Date(formatDate(fcValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const debmeth = dmValue ? new Date(formatDate(dmValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const finmeth = fmValue ? new Date(formatDate(fmValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const debprod = dpValue ? new Date(formatDate(dpValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const finprod = fpValue ? new Date(formatDate(fpValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const debcf = dcfValue ? new Date(formatDate(dcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const fincf = fcfValue ? new Date(formatDate(fcfValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-      const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
+      const debcon = dcValue ? new Date(formatDate(dcValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const fincon = fcValue ? new Date(formatDate(fcValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const debmeth = dmValue ? new Date(formatDate(dmValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const finmeth = fmValue ? new Date(formatDate(fmValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const debprod = dpValue ? new Date(formatDate(dpValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const finprod = fpValue ? new Date(formatDate(fpValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const debcf = dcfValue ? new Date(formatDate(dcfValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const fincf = fcfValue ? new Date(formatDate(fcfValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const debliv = dlValue ? new Date(formatDate(dlValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+      const finliv = flValue ? new Date(formatDate(flValue, 'dd-MM-yyyy', 'fr-FR')) : null;
     
       const project: ProjectDto = {
         refClient: refclient,
@@ -629,8 +631,8 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       const dlValue = this.projectsForm.get('dl')?.value;
   const flValue = this.projectsForm.get('fl')?.value;
   
-  const debliv = dlValue ? new Date(formatDate(dlValue, 'yyyy-MM-dd', 'en-US')) : null;
-  const finliv = flValue ? new Date(formatDate(flValue, 'yyyy-MM-dd', 'en-US')) : null;
+  const debliv = dlValue ? new Date(formatDate(dlValue, 'dd-MM-yyyy', 'fr-FR')) : null;
+  const finliv = flValue ? new Date(formatDate(flValue, 'dd-MM-yyyy', 'fr-FR')) : null;
       const durecons = this.projectsForm.get('drc')?.value;
       const respcons = this.projectsForm.get('rc')?.value || '';
       const comcons = this.projectsForm.get('cdc')?.value;

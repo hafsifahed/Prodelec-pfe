@@ -239,7 +239,8 @@ ImageCropperModule,
     NgxPaginationModule,
     CommonModule,
     FormsModule,
-    NgxDropzoneModule
+    NgxDropzoneModule,
+
     
   ],
 })

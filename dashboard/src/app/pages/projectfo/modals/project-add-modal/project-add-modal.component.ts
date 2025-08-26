@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl, Validators } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
@@ -6,6 +6,13 @@ import { ProjectService } from 'src/app/core/services/projectService/project.ser
 import Swal from 'sweetalert2';
 import { User } from 'src/app/core/models/auth.models';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
+import { defineLocale } from 'ngx-bootstrap/chronos';
+import { frLocale } from 'ngx-bootstrap/locale';
+
+// Définir la locale française
+defineLocale('fr', frLocale);
 
 @Component({
   selector: 'app-project-add-modal',
@@ -17,9 +24,15 @@ export class ProjectAddModalComponent implements OnInit {
   @Input() listr: any[] = [];
   @Output() projectAdded = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
+  @ViewChild('dateRangeModal') dateRangeModal!: TemplateRef<any>;
+  
   user: User | null = null;
-
   projectsForm!: UntypedFormGroup;
+  dateRangeModalRef?: BsModalRef;
+  activeDateField: string = '';
+  bsConfig: Partial<BsDaterangepickerConfig>;
+  bsValue: Date[] = [];
+
   showSections = {
     conception: false,
     methode: false,
@@ -32,11 +45,24 @@ export class ProjectAddModalComponent implements OnInit {
     private fb: UntypedFormBuilder,
     private projectservice: ProjectService,
     private userStateService: UserStateService,
-  ) {}
+    private modalService: BsModalService,
+    private localeService: BsLocaleService
+  ) {
+    this.localeService.use('fr');
+  }
 
   ngOnInit(): void {
     this.userStateService.user$.subscribe(user => {
       this.user = user;
+    });
+
+    // Configuration du datepicker
+    this.bsConfig = Object.assign({}, {
+      containerClass: 'theme-dark-blue',
+      rangeInputFormat: 'DD/MM/YYYY',
+      showWeekNumbers: false,
+      isAnimated: true,
+      dateInputFormat: 'DD/MM/YYYY'
     });
 
     this.initForm();
@@ -77,6 +103,81 @@ export class ProjectAddModalComponent implements OnInit {
       livraisonChecked: [false],
       qte: ['', [Validators.required]]
     }, { validators: this.phasesValidator });
+  }
+
+  // Ouvrir le modal de sélection de dates
+  openDateRangeModal(field: string) {
+    this.activeDateField = field;
+    
+    // Pré-remplir avec les valeurs existantes si disponibles
+    if (field === 'conception') {
+      const dc = this.projectsForm.get('dc')?.value;
+      const fc = this.projectsForm.get('fc')?.value;
+      if (dc && fc) {
+        this.bsValue = [new Date(dc), new Date(fc)];
+      }
+    } else if (field === 'methode') {
+      const dm = this.projectsForm.get('dm')?.value;
+      const fm = this.projectsForm.get('fm')?.value;
+      if (dm && fm) {
+        this.bsValue = [new Date(dm), new Date(fm)];
+      }
+    } else if (field === 'production') {
+      const dp = this.projectsForm.get('dp')?.value;
+      const fp = this.projectsForm.get('fp')?.value;
+      if (dp && fp) {
+        this.bsValue = [new Date(dp), new Date(fp)];
+      }
+    } else if (field === 'controle') {
+      const dcf = this.projectsForm.get('dcf')?.value;
+      const fcf = this.projectsForm.get('fcf')?.value;
+      if (dcf && fcf) {
+        this.bsValue = [new Date(dcf), new Date(fcf)];
+      }
+    } else if (field === 'livraison') {
+      const dl = this.projectsForm.get('dl')?.value;
+      const fl = this.projectsForm.get('fl')?.value;
+      if (dl && fl) {
+        this.bsValue = [new Date(dl), new Date(fl)];
+      }
+    }
+    
+    this.dateRangeModalRef = this.modalService.show(this.dateRangeModal, {
+      class: 'modal-dialog-centered modal-sm'
+    });
+  }
+
+  // Appliquer la sélection de dates
+  applyDateSelection() {
+    if (this.bsValue && this.bsValue.length === 2) {
+      const startDate = this.bsValue[0];
+      const endDate = this.bsValue[1];
+      
+      if (this.activeDateField === 'conception') {
+        this.projectsForm.get('dc')?.setValue(startDate);
+        this.projectsForm.get('fc')?.setValue(endDate);
+      } else if (this.activeDateField === 'methode') {
+        this.projectsForm.get('dm')?.setValue(startDate);
+        this.projectsForm.get('fm')?.setValue(endDate);
+      } else if (this.activeDateField === 'production') {
+        this.projectsForm.get('dp')?.setValue(startDate);
+        this.projectsForm.get('fp')?.setValue(endDate);
+      } else if (this.activeDateField === 'controle') {
+        this.projectsForm.get('dcf')?.setValue(startDate);
+        this.projectsForm.get('fcf')?.setValue(endDate);
+      } else if (this.activeDateField === 'livraison') {
+        this.projectsForm.get('dl')?.setValue(startDate);
+        this.projectsForm.get('fl')?.setValue(endDate);
+      }
+    }
+    
+    this.dateRangeModalRef?.hide();
+  }
+
+  // Réinitialiser la sélection de dates
+  clearDateSelection() {
+    this.bsValue = [];
+    this.dateRangeModalRef?.hide();
   }
 
   toggleSection(section: keyof typeof this.showSections) {
@@ -185,16 +286,16 @@ export class ProjectAddModalComponent implements OnInit {
       finalControlDuration: drcf,
       deliveryComment: f.cdl,
       deliveryDuration: drl,
-      startConception: f.dc ? new Date(formatDate(f.dc, 'yyyy-MM-dd', 'en-US')) : null,
-      endConception: f.fc ? new Date(formatDate(f.fc, 'yyyy-MM-dd', 'en-US')) : null,
-      startMethode: f.dm ? new Date(formatDate(f.dm, 'yyyy-MM-dd', 'en-US')) : null,
-      endMethode: f.fm ? new Date(formatDate(f.fm, 'yyyy-MM-dd', 'en-US')) : null,
-      startProduction: f.dp ? new Date(formatDate(f.dp, 'yyyy-MM-dd', 'en-US')) : null,
-      endProduction: f.fp ? new Date(formatDate(f.fp, 'yyyy-MM-dd', 'en-US')) : null,
-      startFc: f.dcf ? new Date(formatDate(f.dcf, 'yyyy-MM-dd', 'en-US')) : null,
-      endFc: f.fcf ? new Date(formatDate(f.fcf, 'yyyy-MM-dd', 'en-US')) : null,
-      startDelivery: f.dl ? new Date(formatDate(f.dl, 'yyyy-MM-dd', 'en-US')) : null,
-      endDelivery: f.fl ? new Date(formatDate(f.fl, 'yyyy-MM-dd', 'en-US')) : null,
+      startConception: f.dc ? new Date(formatDate(f.dc, 'dd-MM-yyyy', 'fr-FR')) : null,
+      endConception: f.fc ? new Date(formatDate(f.fc, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startMethode: f.dm ? new Date(formatDate(f.dm, 'dd-MM-yyyy', 'fr-FR')) : null,
+      endMethode: f.fm ? new Date(formatDate(f.fm, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startProduction: f.dp ? new Date(formatDate(f.dp, 'dd-MM-yyyy', 'fr-FR')) : null,
+      endProduction: f.fp ? new Date(formatDate(f.fp, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startFc: f.dcf ? new Date(formatDate(f.dcf, 'dd-MM-yyyy', 'fr-FR')) : null,
+      endFc: f.fcf ? new Date(formatDate(f.fcf, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startDelivery: f.dl ? new Date(formatDate(f.dl, 'dd-MM-yyyy', 'fr-FR')) : null,
+      endDelivery: f.fl ? new Date(formatDate(f.fl, 'dd-MM-yyyy', 'fr-FR')) : null,
       conceptionExist: f.conceptionChecked,
       methodeExist: f.methodeChecked,
       productionExist: f.productionChecked,

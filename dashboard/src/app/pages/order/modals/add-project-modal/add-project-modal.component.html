@@ -46,7 +46,7 @@
       </div>
       <div class="col-lg-12 mb-3">
         <label class="form-label">Date de livraison prévue</label>
-        <input bsDatepicker formControlName="dlp" class="form-control" placeholder="yyyy-mm-dd" />
+        <input bsDatepicker formControlName="dlp" class="form-control" placeholder="dd-MM-yyyy" />
       </div>
 
       <!-- Phases -->
@@ -69,15 +69,20 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Début</label>
-              <input bsDatepicker formControlName="dc" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="dc" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-md-3">
               <label class="form-label">Fin</label>
-              <input bsDatepicker formControlName="fc" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="fc" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-12">
               <label class="form-label">Commentaire</label>
               <textarea formControlName="cdc" rows="2" class="form-control"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('conception')">
+                <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+              </button>
             </div>
           </div>
         </div>
@@ -101,15 +106,20 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Début</label>
-              <input bsDatepicker formControlName="dm" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="dm" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-md-3">
               <label class="form-label">Fin</label>
-              <input bsDatepicker formControlName="fm" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="fm" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-12">
               <label class="form-label">Commentaire</label>
               <textarea formControlName="cdm" rows="2" class="form-control"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('methode')">
+                <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+              </button>
             </div>
           </div>
         </div>
@@ -133,15 +143,20 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Début</label>
-              <input bsDatepicker formControlName="dp" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="dp" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-md-3">
               <label class="form-label">Fin</label>
-              <input bsDatepicker formControlName="fp" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="fp" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-12">
               <label class="form-label">Commentaire</label>
               <textarea formControlName="cdp" rows="2" class="form-control"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('production')">
+                <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+              </button>
             </div>
           </div>
         </div>
@@ -165,15 +180,20 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">Début</label>
-              <input bsDatepicker formControlName="dcf" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="dcf" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-md-3">
               <label class="form-label">Fin</label>
-              <input bsDatepicker formControlName="fcf" class="form-control" placeholder="yyyy-mm-dd" />
+              <input bsDatepicker formControlName="fcf" class="form-control" placeholder="dd-MM-yyyy" />
             </div>
             <div class="col-12">
               <label class="form-label">Commentaire</label>
               <textarea formControlName="cdcf" rows="2" class="form-control"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('controle')">
+                <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+              </button>
             </div>
           </div>
         </div>
@@ -207,6 +227,11 @@
               <label class="form-label">Commentaire</label>
               <textarea formControlName="cdl" rows="2" class="form-control"></textarea>
             </div>
+            <div class="col-12">
+              <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('livraison')">
+                <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -220,3 +245,25 @@
 
   </form>
 </div>
+
+<!-- Modal pour la sélection de la plage de dates -->
+<ng-template #dateRangeModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Sélectionner une plage de dates</h5>
+    <button type="button" class="btn-close" (click)="dateRangeModalRef?.hide()"></button>
+  </div>
+  <div class="modal-body text-center">
+    <div class="mb-3">
+      <input type="text" 
+             class="form-control text-center" 
+             bsDaterangepicker 
+             [(bsValue)]="bsValue" 
+             [bsConfig]="bsConfig"
+             placeholder="Sélectionnez une plage de dates">
+    </div>
+  </div>
+  <div class="modal-footer justify-content-center">
+    <button type="button" class="btn btn-secondary" (click)="clearDateSelection()">Effacer</button>
+    <button type="button" class="btn btn-primary" (click)="applyDateSelection()">Appliquer</button>
+  </div>
+</ng-template>

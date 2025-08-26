@@ -3,6 +3,9 @@ import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/c
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { BsDatepickerConfig, BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
+import { defineLocale } from 'ngx-bootstrap/chronos';
+import { frLocale } from 'ngx-bootstrap/locale';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Project } from 'src/app/core/models/projectfo/project';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
@@ -16,6 +19,9 @@ import { ProjectEditModalComponent } from '../modals/project-edit-modal/project-
 import { ProjectPhaseDetailsModalComponent } from '../modals/project-phase-details-modal/project-phase-details-modal.component';
 import { WorkflowPhase } from '../../workflow-discussion/models/workflow-phase.model';
 import { CookieService } from 'ngx-cookie-service';
+
+// Définir la locale française
+defineLocale('fr', frLocale);
 
 @Component({
   selector: 'app-list-project',
@@ -43,32 +49,35 @@ export class ListProjectComponent implements OnInit, OnDestroy {
   itemsPerPage: number = 3;
   modalRef?: BsModalRef;
   userr: any;
-    title = 'Projets'; // Ajouté pour le breadcrumb si tu en utilises un
+  title = 'Projets'; // Ajouté pour le breadcrumb si tu en utilises un
+
+  // Propriétés pour le date range picker
+  bsConfig: Partial<BsDaterangepickerConfig>;
+  bsValue: Date[] = [];
+  dateRangeModalRef?: BsModalRef;
 
   breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
     { label: 'Accueil', active: false },
     { label: 'Projets', active: true }
   ];
   
-displayMode: 'table' | 'grid' = 'grid';
+  displayMode: 'table' | 'grid' = 'grid';
 
+  // Pour modal Ajout
+  showConceptionAdd = false;
+  showMethodeAdd = false;
+  showProductionAdd = false;
+  showControleAdd = false;
+  showLivraisonAdd = false;
 
-        // Pour modal Ajout
-    showConceptionAdd = false;
-    showMethodeAdd = false;
-    showProductionAdd = false;
-    showControleAdd = false;
-    showLivraisonAdd = false;
+  // Pour modal Modification
+  showConceptionEdit = false;
+  showMethodeEdit = false;
+  showProductionEdit = false;
+  showControleEdit = false;
+  showLivraisonEdit = false;
 
-    // Pour modal Modification
-    showConceptionEdit = false;
-    showMethodeEdit = false;
-    showProductionEdit = false;
-    showControleEdit = false;
-    showLivraisonEdit = false;
-
-
-    private progressSubjects = {
+  private progressSubjects = {
     conception: new Subject<{ project: any, value: number }>(),
     methode: new Subject<{ project: any, value: number }>(),
     production: new Subject<{ project: any, value: number }>(),
@@ -81,25 +90,41 @@ displayMode: 'table' | 'grid' = 'grid';
   constructor(private workersService: WorkersService,
         private userStateService: UserStateService,
           private cookieService: CookieService,
-    private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private modalService: BsModalService) {
+    private router: Router, 
+    private orderservice: OrderServiceService, 
+    private projectservice: ProjectService, 
+    private formBuilder: UntypedFormBuilder,
+    private modalService: BsModalService,
+    private localeService: BsLocaleService) {
+
+    // Configuration de la locale française
+    this.localeService.use('fr');
   }
 
   ngOnInit() {
- const savedMode = this.cookieService.get('displayModeWo');
+    // Configuration du datepicker
+    this.bsConfig = Object.assign({}, {
+      containerClass: 'theme-dark-blue',
+      rangeInputFormat: 'DD/MM/YYYY',
+      showWeekNumbers: false,
+      isAnimated: true,
+      dateInputFormat: 'DD/MM/YYYY'
+    });
+
+    const savedMode = this.cookieService.get('displayModeWo');
     this.displayMode = (savedMode === 'table' || savedMode === 'grid') ? savedMode : 'grid';
 
-this.userStateService.user$.subscribe(user => {
+    this.userStateService.user$.subscribe(user => {
       this.userr = user;
     });
 
     this.loadProjects()
 
-
     this.orderservice.getAllOrdersworkers().subscribe((res:any)=>{
       this.listr=res;
-  });
+    });
 
-  this.initDebounce('conception');
+    this.initDebounce('conception');
     this.initDebounce('methode');
     this.initDebounce('production');
     this.initDebounce('fc');
@@ -110,9 +135,38 @@ this.userStateService.user$.subscribe(user => {
     this.progressSubscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  // Méthode pour ouvrir le modal de sélection de dates
+  openDateRangeModal(template: TemplateRef<any>) {
+    this.dateRangeModalRef = this.modalService.show(template, {
+      class: 'modal-dialog-centered modal-sm'
+    });
+  }
 
+  // Méthode pour appliquer le filtre par date
+  applyDateFilter() {
+    if (this.bsValue && this.bsValue.length === 2) {
+      const startDate = this.bsValue[0];
+      const endDate = this.bsValue[1];
+      
+      // Appliquez votre filtre ici
+      this.flist = this.list.filter(project => {
+        const projectDate = new Date(project.createdAt);
+        return projectDate >= startDate && projectDate <= endDate;
+      });
+      
+      // Fermez le modal
+      this.dateRangeModalRef?.hide();
+    }
+  }
 
-    private initDebounce(step: keyof typeof this.progressSubjects) {
+  // Méthode pour réinitialiser le filtre de date
+  clearDateFilter() {
+    this.bsValue = [];
+    this.flist = this.list;
+    this.dateRangeModalRef?.hide();
+  }
+
+  private initDebounce(step: keyof typeof this.progressSubjects) {
     const sub = this.progressSubjects[step].pipe(debounceTime(700)).subscribe(({ project, value }) => {
       this.sendProgress(step, project, value);
     });
@@ -184,11 +238,8 @@ this.userStateService.user$.subscribe(user => {
       project.progress=res.progress;
     });
   }
-
   
-
-
-loadProjects(){
+  loadProjects(){
     this.projectservice.getAllProjects().subscribe({
       next: (data) => {
         if (data.length == 0) {
@@ -393,9 +444,6 @@ loadProjects(){
     return project.order.user.username.toLowerCase().includes(this.searchTerm.toLowerCase()) || project.refClient.toLowerCase().includes(this.searchTerm.toLowerCase());
   }
 
-
-
-
   isDateOverdue(dlp: Date,p:Project): boolean {
     const today = new Date();
     if (dlp == null) {
@@ -504,7 +552,6 @@ loadProjects(){
     this.cookieService.set('displayModeWo', mode, 365); // save for 1 year
   }
 
-
    toggleSection(modal: 'add' | 'edit', section: string) {
   if (modal === 'add') {
     switch (section) {
@@ -525,25 +572,23 @@ loadProjects(){
   }
 }
 
+  hasEditPermission(project: any): boolean {
+    return (this.userr && 
+           (project.conceptionResponsible?.id === this.userr.id || 
+            project.methodeResponsible?.id === this.userr.id || 
+            project.productionResponsible?.id === this.userr.id || 
+            project.finalControlResponsible?.id === this.userr.id || 
+            project.deliveryResponsible?.id === this.userr.id)) || 
+           this.userr.role?.name === 'SUBADMIN';
+  }
 
-hasEditPermission(project: any): boolean {
-  return (this.userr && 
-         (project.conceptionResponsible?.id === this.userr.id || 
-          project.methodeResponsible?.id === this.userr.id || 
-          project.productionResponsible?.id === this.userr.id || 
-          project.finalControlResponsible?.id === this.userr.id || 
-          project.deliveryResponsible?.id === this.userr.id)) || 
-         this.userr.role?.name === 'SUBADMIN';
-}
+  hasPhasePermission(phase: string, project: any): boolean {
+    const responsibleField = `${phase}Responsible`;
+    return (this.userr && project[responsibleField]?.id === this.userr.id) || 
+           this.userr?.role?.name === 'SUBADMIN';
+  }
 
-hasPhasePermission(phase: string, project: any): boolean {
-  const responsibleField = `${phase}Responsible`;
-  return (this.userr && project[responsibleField]?.id === this.userr.id) || 
-         this.userr?.role?.name === 'SUBADMIN';
-}
-
-
-// Méthodes pour ouvrir les nouvelles modales
+  // Méthodes pour ouvrir les nouvelles modales
    openAddModal(project: Project) {
     this.modalRef = this.modalService.show(ProjectAddModalComponent, {
       initialState: { project, listr: this.listr },

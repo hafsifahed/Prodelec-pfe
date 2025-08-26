@@ -1,7 +1,6 @@
 <div class="container-fluid">
     <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
 
-
   <div class="row mb-4">
     <div class="d-flex justify-content-between align-items-end w-100">
       <div class="d-flex flex-column col-sm-12 col-md-2">
@@ -20,6 +19,11 @@
         </div>
       </div>
       <div class="d-flex justify-content-end col-sm-12 col-md-4 align-items-center">
+        <!-- Bouton pour ouvrir le modal de dates -->
+        <button class="btn btn-info me-3" (click)="openDateRangeModal(dateRangeModal)">
+          <i class="mdi mdi-calendar-range"></i> Filtrer par date
+        </button>
+        
         <button class="btn btn-success me-3" routerLink="/archiveprojectadmin">Voir l'archive</button>
         <!-- Boutons de mode d'affichage -->
         <div class="btn-group" role="group" aria-label="Mode d'affichage">
@@ -34,6 +38,27 @@
     </div>
   </div>
 
+  <!-- Modal pour la sélection de la plage de dates -->
+  <ng-template #dateRangeModal>
+    <div class="modal-header">
+      <h5 class="modal-title">Sélectionner une plage de dates</h5>
+      <button type="button" class="btn-close" (click)="dateRangeModalRef?.hide()"></button>
+    </div>
+    <div class="modal-body text-center">
+      <div class="mb-3">
+        <input type="text" 
+               class="form-control text-center" 
+               bsDaterangepicker 
+               [(bsValue)]="bsValue" 
+               [bsConfig]="bsConfig"
+               placeholder="Sélectionnez une plage de dates">
+      </div>
+    </div>
+    <div class="modal-footer justify-content-center">
+      <button type="button" class="btn btn-secondary" (click)="clearDateFilter()">Effacer</button>
+      <button type="button" class="btn btn-primary" (click)="applyDateFilter()">Appliquer</button>
+    </div>
+  </ng-template>
 
   <!-- Table data -->
   <div *ngIf="displayMode === 'table'" class="table-responsive mb-0">
@@ -146,16 +171,7 @@
   </div>
 </td>
 
-
-
-
-
-
-
-
-
-
-    <td>
+<td>
   <div class="d-flex justify-content-between align-items-center mb-2">
     <span *ngIf="project.productionprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
       'badge-soft-danger': !project.productionStatus,
@@ -227,15 +243,7 @@
   </div>
 </td>
 
-
-
-
-
-
-
-
-
-         <td>
+<td>
   <div class="d-flex justify-content-between align-items-center mb-2">
     <span *ngIf="project.deliveryprogress > 0" class="badge badge-pill font-size-11 me-2" [ngClass]="{
       'badge-soft-danger': !project.deliveryStatus,
@@ -550,10 +558,6 @@
     </div>
   </div>
 </div>
-
-
-
-  
 
   <div class="pagination-container mt-3">
     <pagination-controls (pageChange)="p = $event"></pagination-controls>
