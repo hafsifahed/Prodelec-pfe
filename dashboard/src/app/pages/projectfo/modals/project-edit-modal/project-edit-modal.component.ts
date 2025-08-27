@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
-import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import Swal from 'sweetalert2';
@@ -38,7 +37,6 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
   };
   user: User | null = null;
   private valueChangesSubscriptions: Subscription[] = [];
-
   // Propriétés pour le date range picker
   bsConfig: Partial<BsDaterangepickerConfig>;
   bsValue: Date[] = [];
@@ -72,7 +70,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     this.projectForm = this.fb.group({
       refc: [''],
       refp: [''],
-      dlp: [''],
+      dlp: [null],
       drc: [0],
       cdc: [''],
       rc: [''],
@@ -88,16 +86,16 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
       drl: [0],
       cdl: [''],
       rl: [''],
-      dc: [''],
-      fc: [''],
-      dm: [''],
-      fm: [''],
-      dp: [''],
-      fp: [''],
-      dcf: [''],
-      fcf: [''],
-      dl: [''],
-      fl: [''],
+      dc: [null],
+      fc: [null],
+      dm: [null],
+      fm: [null],
+      dp: [null],
+      fp: [null],
+      dcf: [null],
+      fcf: [null],
+      dl: [null],
+      fl: [null],
       conceptionChecked: [false],
       methodeChecked: [false],
       productionChecked: [false],
@@ -115,17 +113,17 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
         rp: this.project.productionResponsible?.firstName || '',
         rcf: this.project.finalControlResponsible?.firstName || '',
         rl: this.project.deliveryResponsible?.firstName || '',
-        dlp: this.project.dlp ? formatDate(this.project.dlp, 'dd-MM-yyyy', 'fr-FR') : '',
-        dc: this.project.startConception ? formatDate(this.project.startConception, 'dd-MM-yyyy', 'fr-FR') : '',
-        fc: this.project.endConception ? formatDate(this.project.endConception, 'dd-MM-yyyy', 'fr-FR') : '',
-        dm: this.project.startMethode ? formatDate(this.project.startMethode, 'dd-MM-yyyy', 'fr-FR') : '',
-        fm: this.project.endMethode ? formatDate(this.project.endMethode, 'dd-MM-yyyy', 'fr-FR') : '',
-        dp: this.project.startProduction ? formatDate(this.project.startProduction, 'dd-MM-yyyy', 'fr-FR') : '',
-        fp: this.project.endProduction ? formatDate(this.project.endProduction, 'dd-MM-yyyy', 'fr-FR') : '',
-        dcf: this.project.startFc ? formatDate(this.project.startFc, 'dd-MM-yyyy', 'fr-FR') : '',
-        fcf: this.project.endFc ? formatDate(this.project.endFc, 'dd-MM-yyyy', 'fr-FR') : '',
-        dl: this.project.startDelivery ? formatDate(this.project.startDelivery, 'dd-MM-yyyy', 'fr-FR') : '',
-        fl: this.project.endDelivery ? formatDate(this.project.endDelivery, 'dd-MM-yyyy', 'fr-FR') : '',
+        dlp: this.project.dlp ? new Date(this.project.dlp) : null,
+        dc: this.project.startConception ? new Date(this.project.startConception) : null,
+        fc: this.project.endConception ? new Date(this.project.endConception) : null,
+        dm: this.project.startMethode ? new Date(this.project.startMethode) : null,
+        fm: this.project.endMethode ? new Date(this.project.endMethode) : null,
+        dp: this.project.startProduction ? new Date(this.project.startProduction) : null,
+        fp: this.project.endProduction ? new Date(this.project.endProduction) : null,
+        dcf: this.project.startFc ? new Date(this.project.startFc) : null,
+        fcf: this.project.endFc ? new Date(this.project.endFc) : null,
+        dl: this.project.startDelivery ? new Date(this.project.startDelivery) : null,
+        fl: this.project.endDelivery ? new Date(this.project.endDelivery) : null,
         drc: this.project.conceptionDuration ?? 0,
         cdc: this.project.conceptionComment ?? '',
         drm: this.project.methodeDuration ?? 0,
@@ -151,25 +149,25 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
         if (!checked) this.showSections.conception = false;
       }) as Subscription
     );
-    
+
     this.valueChangesSubscriptions.push(
       this.projectForm.get('methodeChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.methode = false;
       }) as Subscription
     );
-    
+
     this.valueChangesSubscriptions.push(
       this.projectForm.get('productionChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.production = false;
       }) as Subscription
     );
-    
+
     this.valueChangesSubscriptions.push(
       this.projectForm.get('controleChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.controle = false;
       }) as Subscription
     );
-    
+
     this.valueChangesSubscriptions.push(
       this.projectForm.get('livraisonChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.livraison = false;
@@ -185,8 +183,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
   // Ouvrir le modal de sélection de dates
   openDateRangeModal(field: string) {
     this.activeDateField = field;
-    
-    // Pré-remplir avec les valeurs existantes si disponibles
+
     if (field === 'conception') {
       const dc = this.projectForm.get('dc')?.value;
       const fc = this.projectForm.get('fc')?.value;
@@ -218,7 +215,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
         this.bsValue = [new Date(dl), new Date(fl)];
       }
     }
-    
+
     this.dateRangeModalRef = this.modalService.show(this.dateRangeModal, {
       class: 'modal-dialog-centered modal-sm'
     });
@@ -229,7 +226,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     if (this.bsValue && this.bsValue.length === 2) {
       const startDate = this.bsValue[0];
       const endDate = this.bsValue[1];
-      
+
       if (this.activeDateField === 'conception') {
         this.projectForm.get('dc')?.setValue(startDate);
         this.projectForm.get('fc')?.setValue(endDate);
@@ -247,7 +244,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
         this.projectForm.get('fl')?.setValue(endDate);
       }
     }
-    
+
     this.dateRangeModalRef?.hide();
   }
 
@@ -265,7 +262,6 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     const dlpRaw = group.get('dlp')?.value;
     const dlp = dlpRaw ? new Date(dlpRaw) : null;
     if (!dlp) return null;
-
     const phases = [
       { prefix: 'conception', checkedKey: 'conceptionChecked', durationKey: 'drc', pilotKey: 'rc', startKey: 'dc', endKey: 'fc' },
       { prefix: 'methode', checkedKey: 'methodeChecked', durationKey: 'drm', pilotKey: 'rm', startKey: 'dm', endKey: 'fm' },
@@ -273,23 +269,18 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
       { prefix: 'controle', checkedKey: 'controleChecked', durationKey: 'drcf', pilotKey: 'rcf', startKey: 'dcf', endKey: 'fcf' },
       { prefix: 'livraison', checkedKey: 'livraisonChecked', durationKey: 'drl', pilotKey: 'rl', startKey: 'dl', endKey: 'fl' },
     ];
-
     for (const phase of phases) {
       const checked = group.get(phase.checkedKey)?.value;
-
       const durationRaw = group.get(phase.durationKey)?.value;
       const pilotRaw = group.get(phase.pilotKey)?.value;
       const startRaw = group.get(phase.startKey)?.value;
       const endRaw = group.get(phase.endKey)?.value;
-
       // Durée 0 NON considérée comme remplie
       const durationFilled = durationRaw !== null && durationRaw !== undefined && durationRaw !== '' && Number(durationRaw) !== 0;
       const pilotFilled = pilotRaw !== null && pilotRaw !== undefined && pilotRaw.toString().trim() !== '';
       const startFilled = startRaw !== null && startRaw !== undefined && startRaw !== '';
       const endFilled = endRaw !== null && endRaw !== undefined && endRaw !== '';
-
       const anyFieldFilled = durationFilled || pilotFilled || startFilled || endFilled;
-
       if (checked) {
         if (anyFieldFilled) {
           if (!(durationFilled && pilotFilled && startFilled && endFilled)) {
@@ -303,7 +294,6 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
           }
         }
       }
-
       if (startFilled && endFilled) {
         const startDate = new Date(startRaw);
         const endDate = new Date(endRaw);
@@ -315,7 +305,6 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
         }
       }
     }
-
     return null;
   }
 
@@ -323,9 +312,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     if (this.projectForm.invalid) {
       const errors = this.projectForm.errors;
       let msg = 'Veuillez vérifier les champs.';
-
       if (errors) msg = Object.values(errors).join('\n');
-
       Swal.fire({
         icon: 'error',
         title: 'Erreur de validation',
@@ -335,13 +322,11 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     }
 
     const f = this.projectForm.value;
-
     const drc = Number(f.drc) || 0;
     const drm = Number(f.drm) || 0;
     const drp = Number(f.drp) || 0;
     const drcf = Number(f.drcf) || 0;
     const drl = Number(f.drl) || 0;
-
     const project: ProjectDto = {
       refClient: f.refc,
       refProdelec: f.refp,
@@ -358,16 +343,16 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
       finalControlDuration: drcf,
       deliveryComment: f.cdl,
       deliveryDuration: drl,
-      startConception: f.dc ? new Date(formatDate(f.dc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endConception: f.fc ? new Date(formatDate(f.fc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startMethode: f.dm ? new Date(formatDate(f.dm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endMethode: f.fm ? new Date(formatDate(f.fm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startProduction: f.dp ? new Date(formatDate(f.dp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endProduction: f.fp ? new Date(formatDate(f.fp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startFc: f.dcf ? new Date(formatDate(f.dcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endFc: f.fcf ? new Date(formatDate(f.fcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startDelivery: f.dl ? new Date(formatDate(f.dl, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endDelivery: f.fl ? new Date(formatDate(f.fl, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startConception: f.dc ? new Date(f.dc) : null,
+      endConception: f.fc ? new Date(f.fc) : null,
+      startMethode: f.dm ? new Date(f.dm) : null,
+      endMethode: f.fm ? new Date(f.fm) : null,
+      startProduction: f.dp ? new Date(f.dp) : null,
+      endProduction: f.fp ? new Date(f.fp) : null,
+      startFc: f.dcf ? new Date(f.dcf) : null,
+      endFc: f.fcf ? new Date(f.fcf) : null,
+      startDelivery: f.dl ? new Date(f.dl) : null,
+      endDelivery: f.fl ? new Date(f.fl) : null,
       conceptionExist: f.conceptionChecked,
       methodeExist: f.methodeChecked,
       productionExist: f.productionChecked,
@@ -408,7 +393,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     this.projectForm.reset({
       refc: '',
       refp: '',
-      dlp: '',
+      dlp: null,
       drc: 0,
       cdc: '',
       rc: '',
@@ -424,16 +409,16 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
       drl: 0,
       cdl: '',
       rl: '',
-      dc: '',
-      fc: '',
-      dm: '',
-      fm: '',
-      dp: '',
-      fp: '',
-      dcf: '',
-      fcf: '',
-      dl: '',
-      fl: '',
+      dc: null,
+      fc: null,
+      dm: null,
+      fm: null,
+      dp: null,
+      fp: null,
+      dcf: null,
+      fcf: null,
+      dl: null,
+      fl: null,
       conceptionChecked: false,
       methodeChecked: false,
       productionChecked: false,

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl, Validators } from '@angular/forms';
-import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import Swal from 'sweetalert2';
@@ -26,7 +25,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
   @Output() projectAdded = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
   @ViewChild('dateRangeModal') dateRangeModal!: TemplateRef<any>;
-  
+
   user: User | null = null;
   projectsForm!: UntypedFormGroup;
   dateRangeModalRef?: BsModalRef;
@@ -72,7 +71,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
 
   private initForm() {
     this.projectsForm = this.fb.group({
-      dlp: ['', [Validators.required]],
+      dlp: [null, [Validators.required]],
       drc: [0],
       cdc: [''],
       rc: [''],
@@ -88,16 +87,16 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
       drl: [0],
       cdl: [''],
       rl: [''],
-      dc: [''],
-      fc: [''],
-      dm: [''],
-      fm: [''],
-      dp: [''],
-      fp: [''],
-      dcf: [''],
-      fcf: [''],
-      dl: [''],
-      fl: [''],
+      dc: [null],
+      fc: [null],
+      dm: [null],
+      fm: [null],
+      dp: [null],
+      fp: [null],
+      dcf: [null],
+      fcf: [null],
+      dl: [null],
+      fl: [null],
       conceptionChecked: [false],
       methodeChecked: [false],
       productionChecked: [false],
@@ -112,25 +111,21 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
         if (!checked) this.showSections.conception = false;
       }) as Subscription
     );
-    
     this.valueChangesSubscriptions.push(
       this.projectsForm.get('methodeChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.methode = false;
       }) as Subscription
     );
-    
     this.valueChangesSubscriptions.push(
       this.projectsForm.get('productionChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.production = false;
       }) as Subscription
     );
-    
     this.valueChangesSubscriptions.push(
       this.projectsForm.get('controleChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.controle = false;
       }) as Subscription
     );
-    
     this.valueChangesSubscriptions.push(
       this.projectsForm.get('livraisonChecked')?.valueChanges.subscribe((checked) => {
         if (!checked) this.showSections.livraison = false;
@@ -146,8 +141,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
   // Ouvrir le modal de sélection de dates
   openDateRangeModal(field: string) {
     this.activeDateField = field;
-    
-    // Pré-remplir avec les valeurs existantes si disponibles
+
     if (field === 'conception') {
       const dc = this.projectsForm.get('dc')?.value;
       const fc = this.projectsForm.get('fc')?.value;
@@ -179,7 +173,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
         this.bsValue = [new Date(dl), new Date(fl)];
       }
     }
-    
+
     this.dateRangeModalRef = this.modalService.show(this.dateRangeModal, {
       class: 'modal-dialog-centered modal-sm'
     });
@@ -190,7 +184,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
     if (this.bsValue && this.bsValue.length === 2) {
       const startDate = this.bsValue[0];
       const endDate = this.bsValue[1];
-      
+
       if (this.activeDateField === 'conception') {
         this.projectsForm.get('dc')?.setValue(startDate);
         this.projectsForm.get('fc')?.setValue(endDate);
@@ -208,7 +202,6 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
         this.projectsForm.get('fl')?.setValue(endDate);
       }
     }
-    
     this.dateRangeModalRef?.hide();
   }
 
@@ -237,7 +230,6 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
 
     for (const phase of phases) {
       const checked = group.get(phase.checkedKey)?.value;
-
       const durationRaw = group.get(phase.durationKey)?.value;
       const pilotRaw = group.get(phase.pilotKey)?.value;
       const startRaw = group.get(phase.startKey)?.value;
@@ -282,7 +274,6 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
         }
       }
     }
-
     return null; // Validation OK
   }
 
@@ -324,16 +315,16 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
       finalControlDuration: drcf,
       deliveryComment: f.cdl,
       deliveryDuration: drl,
-      startConception: f.dc ? new Date(formatDate(f.dc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endConception: f.fc ? new Date(formatDate(f.fc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startMethode: f.dm ? new Date(formatDate(f.dm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endMethode: f.fm ? new Date(formatDate(f.fm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startProduction: f.dp ? new Date(formatDate(f.dp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endProduction: f.fp ? new Date(formatDate(f.fp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startFc: f.dcf ? new Date(formatDate(f.dcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endFc: f.fcf ? new Date(formatDate(f.fcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startDelivery: f.dl ? new Date(formatDate(f.dl, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endDelivery: f.fl ? new Date(formatDate(f.fl, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startConception: f.dc ? new Date(f.dc) : null,
+      endConception: f.fc ? new Date(f.fc) : null,
+      startMethode: f.dm ? new Date(f.dm) : null,
+      endMethode: f.fm ? new Date(f.fm) : null,
+      startProduction: f.dp ? new Date(f.dp) : null,
+      endProduction: f.fp ? new Date(f.fp) : null,
+      startFc: f.dcf ? new Date(f.dcf) : null,
+      endFc: f.fcf ? new Date(f.fcf) : null,
+      startDelivery: f.dl ? new Date(f.dl) : null,
+      endDelivery: f.fl ? new Date(f.fl) : null,
       conceptionExist: f.conceptionChecked,
       methodeExist: f.methodeChecked,
       productionExist: f.productionChecked,
@@ -372,7 +363,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
   // Vide le formulaire et ferme la modale
   closeModal() {
     this.projectsForm.reset({
-      dlp: '',
+      dlp: null,
       drc: 0,
       cdc: '',
       rc: '',
@@ -388,16 +379,16 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
       drl: 0,
       cdl: '',
       rl: '',
-      dc: '',
-      fc: '',
-      dm: '',
-      fm: '',
-      dp: '',
-      fp: '',
-      dcf: '',
-      fcf: '',
-      dl: '',
-      fl: '',
+      dc: null,
+      fc: null,
+      dm: null,
+      fm: null,
+      dp: null,
+      fp: null,
+      dcf: null,
+      fcf: null,
+      dl: null,
+      fl: null,
       conceptionChecked: false,
       methodeChecked: false,
       productionChecked: false,

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl, Validators } from '@angular/forms';
-import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import Swal from 'sweetalert2';
@@ -66,7 +65,7 @@ export class AddProjectModalComponent implements OnInit, OnDestroy {
     this.projectForm = this.fb.group({
       refc: ['', [Validators.required]],
       refp: ['', [Validators.required]],
-      dlp: ['', [Validators.required]],
+      dlp: [null, [Validators.required]],
 
       conceptionChecked: [false],
       methodeChecked: [false],
@@ -76,32 +75,32 @@ export class AddProjectModalComponent implements OnInit, OnDestroy {
 
       drc: [],  // durée conception
       rc: [''], // pilote conception
-      dc: [''], // début conception
-      fc: [''], // fin conception
+      dc: [null], // début conception
+      fc: [null], // fin conception
       cdc: [''], // commentaire conception (optionnel)
 
       drm: [],
       rm: [''],
-      dm: [''],
-      fm: [''],
+      dm: [null],
+      fm: [null],
       cdm: [''],
 
       drp: [],
       rp: [''],
-      dp: [''],
-      fp: [''],
+      dp: [null],
+      fp: [null],
       cdp: [''],
 
       drcf: [],
       rcf: [''],
-      dcf: [''],
-      fcf: [''],
+      dcf: [null],
+      fcf: [null],
       cdcf: [''],
 
       drl: [],
       rl: [''],
-      dl: [''],
-      fl: [''],
+      dl: [null],
+      fl: [null],
       cdl: [''],
 
       qte: [0, [Validators.required]]
@@ -350,16 +349,16 @@ export class AddProjectModalComponent implements OnInit, OnDestroy {
       finalControlDuration: drcf,
       deliveryComment: f.cdl,
       deliveryDuration: drl,
-      startConception: f.dc ? new Date(formatDate(f.dc, 'yyyy-MM-dd', 'en-US')) : null,
-      endConception: f.fc ? new Date(formatDate(f.fc, 'yyyy-MM-dd', 'en-US')) : null,
-      startMethode: f.dm ? new Date(formatDate(f.dm, 'yyyy-MM-dd', 'en-US')) : null,
-      endMethode: f.fm ? new Date(formatDate(f.fm, 'yyyy-MM-dd', 'en-US')) : null,
-      startProduction: f.dp ? new Date(formatDate(f.dp, 'yyyy-MM-dd', 'en-US')) : null,
-      endProduction: f.fp ? new Date(formatDate(f.fp, 'yyyy-MM-dd', 'en-US')) : null,
-      startFc: f.dcf ? new Date(formatDate(f.dcf, 'yyyy-MM-dd', 'en-US')) : null,
-      endFc: f.fcf ? new Date(formatDate(f.fcf, 'yyyy-MM-dd', 'en-US')) : null,
-      startDelivery: f.dl ? new Date(formatDate(f.dl, 'yyyy-MM-dd', 'en-US')) : null,
-      endDelivery: f.fl ? new Date(formatDate(f.fl, 'yyyy-MM-dd', 'en-US')) : null,
+      startConception: f.dc ? new Date(f.dc) : null,
+      endConception: f.fc ? new Date(f.fc) : null,
+      startMethode: f.dm ? new Date(f.dm) : null,
+      endMethode: f.fm ? new Date(f.fm) : null,
+      startProduction: f.dp ? new Date(f.dp) : null,
+      endProduction: f.fp ? new Date(f.fp) : null,
+      startFc: f.dcf ? new Date(f.dcf) : null,
+      endFc: f.fcf ? new Date(f.fcf) : null,
+      startDelivery: f.dl ? new Date(f.dl) : null,
+      endDelivery: f.fl ? new Date(f.fl) : null,
       conceptionExist: f.conceptionChecked,
       methodeExist: f.methodeChecked,
       productionExist: f.productionChecked,
@@ -398,7 +397,7 @@ export class AddProjectModalComponent implements OnInit, OnDestroy {
     this.projectForm.reset({
       refc: '',
       refp: '',
-      dlp: '',
+      dlp: null,
       conceptionChecked: false,
       methodeChecked: false,
       productionChecked: false,
@@ -406,32 +405,32 @@ export class AddProjectModalComponent implements OnInit, OnDestroy {
       livraisonChecked: false,
       drc: null,
       rc: '',
-      dc: '',
-      fc: '',
+      dc: null,
+      fc: null,
       cdc: '',
 
       drm: null,
       rm: '',
-      dm: '',
-      fm: '',
+      dm: null,
+      fm: null,
       cdm: '',
 
       drp: null,
       rp: '',
-      dp: '',
-      fp: '',
+      dp: null,
+      fp: null,
       cdp: '',
 
       drcf: null,
       rcf: '',
-      dcf: '',
-      fcf: '',
+      dcf: null,
+      fcf: null,
       cdcf: '',
 
       drl: null,
       rl: '',
-      dl: '',
-      fl: '',
+      dl: null,
+      fl: null,
       cdl: '',
 
       qte: 0,
