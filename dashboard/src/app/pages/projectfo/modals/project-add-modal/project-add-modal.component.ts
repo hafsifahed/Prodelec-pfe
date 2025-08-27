@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl, Validators } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
@@ -10,6 +10,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { frLocale } from 'ngx-bootstrap/locale';
+import { Subscription } from 'rxjs';
 
 // Définir la locale française
 defineLocale('fr', frLocale);
@@ -19,7 +20,7 @@ defineLocale('fr', frLocale);
   templateUrl: './project-add-modal.component.html',
   styleUrls: ['./project-add-modal.component.scss']
 })
-export class ProjectAddModalComponent implements OnInit {
+export class ProjectAddModalComponent implements OnInit, OnDestroy {
   @Input() project: any;
   @Input() listr: any[] = [];
   @Output() projectAdded = new EventEmitter<void>();
@@ -32,6 +33,7 @@ export class ProjectAddModalComponent implements OnInit {
   activeDateField: string = '';
   bsConfig: Partial<BsDaterangepickerConfig>;
   bsValue: Date[] = [];
+  private valueChangesSubscriptions: Subscription[] = [];
 
   showSections = {
     conception: false,
@@ -103,6 +105,42 @@ export class ProjectAddModalComponent implements OnInit {
       livraisonChecked: [false],
       qte: ['', [Validators.required]]
     }, { validators: this.phasesValidator });
+
+    // Écouter les changements des cases à cocher pour réinitialiser les sections
+    this.valueChangesSubscriptions.push(
+      this.projectsForm.get('conceptionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.conception = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectsForm.get('methodeChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.methode = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectsForm.get('productionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.production = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectsForm.get('controleChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.controle = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectsForm.get('livraisonChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.livraison = false;
+      }) as Subscription
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Désabonnement pour éviter les fuites de mémoire
+    this.valueChangesSubscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // Ouvrir le modal de sélection de dates

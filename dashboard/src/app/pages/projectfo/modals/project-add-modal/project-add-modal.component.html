@@ -16,30 +16,30 @@
         <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="dlp" />
       </div>
 
-      <!-- Boutons d'affichage des sections -->
+      <!-- Boutons d'affichage des sections - Conditionnés par les cases à cocher -->
       <div class="col-12">
         <div class="d-flex flex-wrap gap-2 mb-3">
-          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('conception')">
+          <button *ngIf="projectsForm.get('conceptionChecked')?.value" type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('conception')">
             {{ showSections.conception ? 'Masquer Conception' : 'Afficher Conception' }}
           </button>
-          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('methode')">
+          <button *ngIf="projectsForm.get('methodeChecked')?.value" type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('methode')">
             {{ showSections.methode ? 'Masquer Méthode' : 'Afficher Méthode' }}
           </button>
-          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('production')">
+          <button *ngIf="projectsForm.get('productionChecked')?.value" type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('production')">
             {{ showSections.production ? 'Masquer Production' : 'Afficher Production' }}
           </button>
-          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('controle')">
+          <button *ngIf="projectsForm.get('controleChecked')?.value" type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('controle')">
             {{ showSections.controle ? 'Masquer Contrôle finale' : 'Afficher Contrôle finale' }}
           </button>
-          <button type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('livraison')">
+          <button *ngIf="projectsForm.get('livraisonChecked')?.value" type="button" class="btn btn-outline-primary btn-sm" (click)="toggleSection('livraison')">
             {{ showSections.livraison ? 'Masquer Livraison' : 'Afficher Livraison' }}
           </button>
         </div>
       </div>
 
-      <!-- Les phases -->
-      <div class="mb-3" *ngIf="user.role.name === 'Responsable Industrialisation'">
-        <label class="form-label">Étapes du projet</label>
+      <!-- Cases à cocher pour existence des phases -->
+      <div class="mb-3" *ngIf="user && user.role?.name === 'Responsable Industrialisation'">
+        <label class="form-label fw-semibold">Phases existantes</label>
         <div class="form-check">
           <input type="checkbox" id="conceptionChecked" class="form-check-input" formControlName="conceptionChecked" />
           <label class="form-check-label" for="conceptionChecked">Conception</label>
@@ -62,8 +62,8 @@
         </div>
       </div>
 
-      <!-- Section Conception -->
-      <div class="col-12" *ngIf="showSections.conception">
+      <!-- Section Conception - Conditionnée par case cochée ET showSections -->
+      <div class="col-12" *ngIf="showSections.conception && projectsForm.get('conceptionChecked')?.value">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white fw-semibold">Conception</div>
           <div class="card-body">
@@ -91,7 +91,8 @@
                 <label class="form-label">Fin</label>
                 <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fc" />
               </div>
-              <div class="col-12">
+              <!-- Bouton de sélection de plage conditionné par la case à cocher -->
+              <div class="col-12" *ngIf="projectsForm.get('conceptionChecked')?.value">
                 <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('conception')">
                   <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
                 </button>
@@ -101,8 +102,8 @@
         </div>
       </div>
 
-      <!-- Section Méthode -->
-      <div class="col-12" *ngIf="showSections.methode">
+      <!-- Section Méthode - Conditionnée par case cochée ET showSections -->
+      <div class="col-12" *ngIf="showSections.methode && projectsForm.get('methodeChecked')?.value">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white fw-semibold">Méthode</div>
           <div class="card-body">
@@ -130,7 +131,8 @@
                 <label class="form-label">Fin</label>
                 <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fm" />
               </div>
-              <div class="col-12">
+              <!-- Bouton de sélection de plage conditionné par la case à cocher -->
+              <div class="col-12" *ngIf="projectsForm.get('methodeChecked')?.value">
                 <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('methode')">
                   <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
                 </button>
@@ -140,8 +142,8 @@
         </div>
       </div>
 
-      <!-- Section Production -->
-      <div class="col-12" *ngIf="showSections.production">
+      <!-- Section Production - Conditionnée par case cochée ET showSections -->
+      <div class="col-12" *ngIf="showSections.production && projectsForm.get('productionChecked')?.value">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white fw-semibold">Production</div>
           <div class="card-body">
@@ -169,7 +171,8 @@
                 <label class="form-label">Fin</label>
                 <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fp" />
               </div>
-              <div class="col-12">
+              <!-- Bouton de sélection de plage conditionné par la case à cocher -->
+              <div class="col-12" *ngIf="projectsForm.get('productionChecked')?.value">
                 <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('production')">
                   <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
                 </button>
@@ -179,8 +182,8 @@
         </div>
       </div>
 
-      <!-- Section Contrôle finale -->
-      <div class="col-12" *ngIf="showSections.controle">
+      <!-- Section Contrôle finale - Conditionnée par case cochée ET showSections -->
+      <div class="col-12" *ngIf="showSections.controle && projectsForm.get('controleChecked')?.value">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white fw-semibold">Contrôle finale</div>
           <div class="card-body">
@@ -208,7 +211,8 @@
                 <label class="form-label">Fin</label>
                 <input bsDatepicker class="form-control" placeholder="dd-MM-yyyy" formControlName="fcf" />
               </div>
-              <div class="col-12">
+              <!-- Bouton de sélection de plage conditionné par la case à cocher -->
+              <div class="col-12" *ngIf="projectsForm.get('controleChecked')?.value">
                 <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('controle')">
                   <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
                 </button>
@@ -218,8 +222,8 @@
         </div>
       </div>
 
-      <!-- Section Livraison -->
-      <div class="col-12" *ngIf="showSections.livraison">
+      <!-- Section Livraison - Conditionnée par case cochée ET showSections -->
+      <div class="col-12" *ngIf="showSections.livraison && projectsForm.get('livraisonChecked')?.value">
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-primary text-white fw-semibold">Livraison</div>
           <div class="card-body">
@@ -247,7 +251,8 @@
                 <label class="form-label">Fin</label>
                 <input type="date" class="form-control" placeholder="dd-MM-yyyy" formControlName="fl" />
               </div>
-              <div class="col-12">
+              <!-- Bouton de sélection de plage conditionné par la case à cocher -->
+              <div class="col-12" *ngIf="projectsForm.get('livraisonChecked')?.value">
                 <button type="button" class="btn btn-outline-info btn-sm" (click)="openDateRangeModal('livraison')">
                   <i class="mdi mdi-calendar-range me-1"></i>Sélectionner la plage de dates
                 </button>

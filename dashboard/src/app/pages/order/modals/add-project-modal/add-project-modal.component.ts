@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl, Validators } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
@@ -10,6 +10,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { frLocale } from 'ngx-bootstrap/locale';
+import { Subscription } from 'rxjs';
 
 // Définir la locale française
 defineLocale('fr', frLocale);
@@ -19,7 +20,7 @@ defineLocale('fr', frLocale);
   templateUrl: './add-project-modal.component.html',
   styleUrls: ['./add-project-modal.component.scss']
 })
-export class AddProjectModalComponent implements OnInit {
+export class AddProjectModalComponent implements OnInit, OnDestroy {
   @Input() idorder!: number;
   @Input() listr: any[] = [];
   @Input() user!: User;
@@ -34,6 +35,7 @@ export class AddProjectModalComponent implements OnInit {
     controle: false,
     livraison: false
   };
+  private valueChangesSubscriptions: Subscription[] = [];
 
   // Propriétés pour le date range picker
   bsConfig: Partial<BsDaterangepickerConfig>;
@@ -104,6 +106,42 @@ export class AddProjectModalComponent implements OnInit {
 
       qte: [0, [Validators.required]]
     }, { validators: this.phasesValidator });
+
+    // Écouter les changements des cases à cocher pour réinitialiser les sections
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('conceptionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.conception = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('methodeChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.methode = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('productionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.production = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('controleChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.controle = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('livraisonChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.livraison = false;
+      }) as Subscription
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Désabonnement pour éviter les fuites de mémoire
+    this.valueChangesSubscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // Ouvrir le modal de sélection de dates
@@ -228,7 +266,7 @@ export class AddProjectModalComponent implements OnInit {
       const startRaw = group.get(phase.startKey)?.value;
       const endRaw = group.get(phase.endKey)?.value;
 
-      // Durée 0 n'est pas champ rempli (condition modifiée ici)
+      // Durée 0 n'est pas champ remplie (condition modifiée ici)
       const durationFilled = durationRaw !== null && durationRaw !== undefined && durationRaw !== '' && Number(durationRaw) !== 0;
       const pilotFilled = pilotRaw !== null && pilotRaw !== undefined && pilotRaw.toString().trim() !== '';
       const startFilled = startRaw !== null && startRaw !== undefined && startRaw !== '';
@@ -312,16 +350,16 @@ export class AddProjectModalComponent implements OnInit {
       finalControlDuration: drcf,
       deliveryComment: f.cdl,
       deliveryDuration: drl,
-      startConception: f.dc ? new Date(formatDate(f.dc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endConception: f.fc ? new Date(formatDate(f.fc, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startMethode: f.dm ? new Date(formatDate(f.dm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endMethode: f.fm ? new Date(formatDate(f.fm, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startProduction: f.dp ? new Date(formatDate(f.dp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endProduction: f.fp ? new Date(formatDate(f.fp, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startFc: f.dcf ? new Date(formatDate(f.dcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endFc: f.fcf ? new Date(formatDate(f.fcf, 'dd-MM-yyyy', 'fr-FR')) : null,
-      startDelivery: f.dl ? new Date(formatDate(f.dl, 'dd-MM-yyyy', 'fr-FR')) : null,
-      endDelivery: f.fl ? new Date(formatDate(f.fl, 'dd-MM-yyyy', 'fr-FR')) : null,
+      startConception: f.dc ? new Date(formatDate(f.dc, 'yyyy-MM-dd', 'en-US')) : null,
+      endConception: f.fc ? new Date(formatDate(f.fc, 'yyyy-MM-dd', 'en-US')) : null,
+      startMethode: f.dm ? new Date(formatDate(f.dm, 'yyyy-MM-dd', 'en-US')) : null,
+      endMethode: f.fm ? new Date(formatDate(f.fm, 'yyyy-MM-dd', 'en-US')) : null,
+      startProduction: f.dp ? new Date(formatDate(f.dp, 'yyyy-MM-dd', 'en-US')) : null,
+      endProduction: f.fp ? new Date(formatDate(f.fp, 'yyyy-MM-dd', 'en-US')) : null,
+      startFc: f.dcf ? new Date(formatDate(f.dcf, 'yyyy-MM-dd', 'en-US')) : null,
+      endFc: f.fcf ? new Date(formatDate(f.fcf, 'yyyy-MM-dd', 'en-US')) : null,
+      startDelivery: f.dl ? new Date(formatDate(f.dl, 'yyyy-MM-dd', 'en-US')) : null,
+      endDelivery: f.fl ? new Date(formatDate(f.fl, 'yyyy-MM-dd', 'en-US')) : null,
       conceptionExist: f.conceptionChecked,
       methodeExist: f.methodeChecked,
       productionExist: f.productionChecked,

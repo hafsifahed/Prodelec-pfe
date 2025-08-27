@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild, OnDestroy } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { formatDate } from '@angular/common';
 import { ProjectDto } from 'src/app/core/models/projectfo/project-dto';
@@ -11,6 +11,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { frLocale } from 'ngx-bootstrap/locale';
+import { Subscription } from 'rxjs';
 
 // Définir la locale française
 defineLocale('fr', frLocale);
@@ -20,7 +21,7 @@ defineLocale('fr', frLocale);
   templateUrl: './project-edit-modal.component.html',
   styleUrls: ['./project-edit-modal.component.scss']
 })
-export class ProjectEditModalComponent implements OnInit {
+export class ProjectEditModalComponent implements OnInit, OnDestroy {
   @Input() project!: Project;
   @Input() listr: any[] = [];
   @Output() projectUpdated = new EventEmitter<void>();
@@ -36,6 +37,7 @@ export class ProjectEditModalComponent implements OnInit {
     livraison: false
   };
   user: User | null = null;
+  private valueChangesSubscriptions: Subscription[] = [];
 
   // Propriétés pour le date range picker
   bsConfig: Partial<BsDaterangepickerConfig>;
@@ -142,6 +144,42 @@ export class ProjectEditModalComponent implements OnInit {
         livraisonChecked: this.project.deliveryExist ?? false,
       });
     }
+
+    // Abonnements aux changements des cases à cocher
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('conceptionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.conception = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('methodeChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.methode = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('productionChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.production = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('controleChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.controle = false;
+      }) as Subscription
+    );
+    
+    this.valueChangesSubscriptions.push(
+      this.projectForm.get('livraisonChecked')?.valueChanges.subscribe((checked) => {
+        if (!checked) this.showSections.livraison = false;
+      }) as Subscription
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Désabonnement pour éviter les fuites de mémoire
+    this.valueChangesSubscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // Ouvrir le modal de sélection de dates
