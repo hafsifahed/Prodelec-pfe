@@ -34,6 +34,10 @@
 
     <div class="row">
       <div class="col-lg-12 mb-3">
+        <label class="form-label">Date de livraison prévue</label>
+        <input bsDatepicker formControlName="dlp" class="form-control" placeholder="dd-MM-yyyy" />
+      </div>
+      <div class="col-lg-12 mb-3">
         <label class="form-label">Ref Client</label>
         <input type="text" formControlName="refc" class="form-control" />
       </div>
@@ -45,10 +49,7 @@
         <label class="form-label">Quantité</label>
         <input type="number" formControlName="qte" class="form-control" />
       </div>
-      <div class="col-lg-12 mb-3">
-        <label class="form-label">Date de livraison prévue</label>
-        <input bsDatepicker formControlName="dlp" class="form-control" placeholder="dd-MM-yyyy" />
-      </div>
+
 
       <!-- Phases - Affichage conditionnel basé sur la case à cocher ET l'état d'affichage -->
 

@@ -122,6 +122,11 @@ export const MENU: MenuItem[] = [
     id: 8, label: 'Réclamation', icon: 'bx-error', link: purl + '/reclamation',
     rolePermissions: [
       { resource: Resource.QUALITY, actions: [Action.MANAGE], roles: [RoleName.ADMIN, RoleName.SUBADMIN] },
+    ]
+  },
+  {
+    id: 8, label: 'Réclamation', icon: 'bx-error', link: purl + '/reclamationUser',
+    rolePermissions: [
       { resource: Resource.QUALITY, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] }
     ]
   },
