@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Reclamation } from '../../models/reclamation';
 import { Observable } from 'rxjs';
 import { User } from '../../models/auth.models';
+import { CreateReclamationDto } from './create-recramation.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -23,9 +24,9 @@ export class ReclamationService {
     return this.http.get<Reclamation>(`${environment.baseUrl}/reclamation/${id}`);
   
   }
- addreclamation(reclamation:Reclamation){
-  return this.http.post(`${environment.baseUrl}/reclamation`,reclamation);
- }
+ addreclamation(reclamation: CreateReclamationDto) {
+  return this.http.post(`${environment.baseUrl}/reclamation`, reclamation);
+}
  archiver(id:number){
   return this.http.put(`${environment.baseUrl}/reclamation/archiver/${id}`,null);
 } 

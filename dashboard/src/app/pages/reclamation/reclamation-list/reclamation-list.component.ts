@@ -205,39 +205,31 @@ export class ReclamationListComponent {
 }
 
 createReclamationWithFile(pieceJointe: string) {
-  const newReclamation: Reclamation = {
-    id_reclamation: 0,
+  // Create object with only necessary fields for backend DTO
+  const reclamationData = {
     type_de_defaut: this.reclamationForm.value.type_de_defaut,
     description: this.reclamationForm.value.description,
-    PieceJointe: pieceJointe,
-    reponse: '',
-    archive: false,
-    archiveU: false,
-    dateDeCreation: new Date(),
-    status: 'En cours',
-    user: {
-      id: this.user?.id,
-      email: this.user?.email,
-      username: this.user?.username,
-      accountStatus: this.user?.accountStatus,
-      firstName: this.user?.firstName,
-      lastName: this.user?.lastName,
-      role: this.user?.role,
-      partner: this.user?.partner,
-      createdAt: this.user?.createdAt,
-      updatedAt: this.user?.updatedAt
-    }
+    PieceJointe: pieceJointe || null, // Send null if empty
   };
 
-  this.reclamationService.addreclamation(newReclamation).subscribe(
+  this.reclamationService.addreclamation(reclamationData).subscribe(
     (response) => {
       Swal.fire('Ajouté!', "La Réclamation a été ajoutée avec succès.", 'success');
-      this.sendmail(['hafsifahed98@gmail.com', 'hafsifahed019@gmail.com'], 'Nouvelle Réclamation', newReclamation);
+      
+      // Create object for email with user info
+      const emailData = {
+        type_de_defaut: reclamationData.type_de_defaut,
+        description: reclamationData.description,
+        user: this.user
+      };
+      
+      this.sendmail(['hafsifahed98@gmail.com', 'hafsifahed019@gmail.com'], 'Nouvelle Réclamation', emailData);
       this.modalRef?.hide();
       this.reclamationForm.reset();
       this.ngOnInit();
     },
     (error) => {
+      console.error('Error details:', error);
       Swal.fire('Erreur!', "Une erreur s'est produite lors de l'ajout de la Réclamation.", 'error');
     }
   );
@@ -245,7 +237,7 @@ createReclamationWithFile(pieceJointe: string) {
 
 
 
-  sendmail(to: string[], subject: string,  reclamation : Reclamation) {
+  sendmail(to: string[], subject: string,  data : any) {
     const emailText = `
 <html>
 <head>
@@ -292,9 +284,12 @@ createReclamationWithFile(pieceJointe: string) {
     </div>
     <div class="content">
       <h1>Nouvelle Réclamation</h1>
-      <p><strong>Probléme:</strong> ${reclamation.type_de_defaut}</p>
-      <p><strong>Email:</strong> ${reclamation.user.email}</p>
-      <p><strong>Client:</strong> ${reclamation.user.partner.name}</p>
+      <p><strong>Probléme:</strong> ${data.type_de_defaut}</p>
+      <p><strong>Email:</strong> ${data.user.email}</p>
+      <p><strong>Partenaire:</strong> ${data.user.partner.name}</p>
+      <p><strong>Client:</strong> ${data.user.username}</p>
+      <p><strong>Description:</strong> ${data.description}</p>
+
     </div>
     <div class="footer">
       <p>Prodelec &copy; 2024</p>
@@ -306,7 +301,7 @@ createReclamationWithFile(pieceJointe: string) {
     this.emailService.sendEmail(to,subject,emailText).subscribe(
       (response) => {
         console.log(response);
-        console.log(reclamation.user);
+        console.log(data.user);
       },
       (error) => {
         console.error(error);
