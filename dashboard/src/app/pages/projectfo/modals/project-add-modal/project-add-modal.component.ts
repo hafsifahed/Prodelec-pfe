@@ -10,6 +10,7 @@ import { BsDaterangepickerConfig, BsLocaleService } from 'ngx-bootstrap/datepick
 import { defineLocale } from 'ngx-bootstrap/chronos';
 import { frLocale } from 'ngx-bootstrap/locale';
 import { Subscription } from 'rxjs';
+import { Project } from 'src/app/core/models/projectfo/project';
 
 // Définir la locale française
 defineLocale('fr', frLocale);
@@ -20,7 +21,7 @@ defineLocale('fr', frLocale);
   styleUrls: ['./project-add-modal.component.scss']
 })
 export class ProjectAddModalComponent implements OnInit, OnDestroy {
-  @Input() project: any;
+  @Input() project!: Project;
   @Input() listr: any[] = [];
   @Output() projectAdded = new EventEmitter<void>();
   @Output() modalClosed = new EventEmitter<void>();
@@ -55,6 +56,7 @@ export class ProjectAddModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userStateService.user$.subscribe(user => {
       this.user = user;
+      console.log("dffdf:",this.project)
     });
 
     // Configuration du datepicker
