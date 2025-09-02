@@ -13,7 +13,8 @@ import { CdcFile } from './entities/cdc-file.entity';
   imports: [
     TypeOrmModule.forFeature([CahierDesCharges, User, CdcFile]), 
     NotificationsModule,
-    forwardRef(() =>WorkflowDiscussionModule)
+    forwardRef(() =>WorkflowDiscussionModule),
+
   ],
   providers: [CahierDesChargesService,CdcFileService],
   controllers: [CahierDesChargesController],

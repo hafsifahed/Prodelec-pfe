@@ -1,4 +1,4 @@
-<div class="container py-4" *ngIf="project">
+<!--<div class="container py-4" *ngIf="project">
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="card shadow-lg">
@@ -7,7 +7,7 @@
         </div>
         <div class="card-body">
 
-          <!-- Informations générales -->
+          //Informations générales 
           <ul class="list-group list-group-flush mb-4">
             <li class="list-group-item"><strong><i class="fas fa-user me-2"></i>Client :</strong> {{ project.order?.user?.username }}</li>
             <li class="list-group-item"><strong><i class="fas fa-calendar-alt me-2"></i>Date Réception BC :</strong> {{ project.order?.createdAt | date:'dd-MM-yyyy' }}</li>
@@ -25,15 +25,15 @@
             <li class="list-group-item"><strong><i class="fas fa-calendar-check me-2"></i>Date de mise à jour :</strong> {{ project.updatedAt | date:'short' }}</li>
           </ul>
 
-          <!-- Progressions détaillées -->
+          // Progressions détaillées 
           <div class="row gy-3 mb-4">
           <h5 class="section-title"><i class="fas fa-tasks me-2"></i>Détail des Progressions</h5>
 
-            <!-- Fonction pour afficher chaque étape -->
+            // Fonction pour afficher chaque étape 
             <ng-container *ngFor="let step of ['conception', 'methode', 'production', 'finalControl', 'delivery']">
               <div class="col-md-6" [ngSwitch]="step">
 
-                <!-- Conception -->
+                // Conception 
                 <div *ngSwitchCase="'conception'">
                   <div class="mb-2 d-flex align-items-center justify-content-between">
                     <span>
@@ -59,7 +59,7 @@
                   </div>
                 </div>
 
-                <!-- Méthode -->
+                // Méthode 
                 <div *ngSwitchCase="'methode'">
                   <div class="mb-2 d-flex align-items-center justify-content-between">
                     <span>
@@ -85,7 +85,7 @@
                   </div>
                 </div>
 
-                <!-- Production -->
+                // Production 
                 <div *ngSwitchCase="'production'">
                   <div class="mb-2 d-flex align-items-center justify-content-between">
                     <span>
@@ -111,7 +111,7 @@
                   </div>
                 </div>
 
-                <!-- Contrôle final -->
+                // Contrôle final 
                 <div *ngSwitchCase="'finalControl'">
                   <div class="mb-2 d-flex align-items-center justify-content-between">
                     <span>
@@ -137,7 +137,7 @@
                   </div>
                 </div>
 
-                <!-- Livraison -->
+                // Livraison 
                 <div *ngSwitchCase="'delivery'">
                   <div class="mb-2 d-flex align-items-center justify-content-between">
                     <span>
@@ -166,7 +166,7 @@
               </div>
             </ng-container>
 
-            <!-- Progression totale -->
+            // Progression totale 
             <div class="col-md-6">
               <div class="mb-2 d-flex align-items-center justify-content-between">
                 <span class="fw-bold">Progression totale</span>
@@ -181,7 +181,7 @@
 
           </div>
 
-          <!-- Actions -->
+          // Actions 
           <div class="d-flex flex-wrap gap-2 mt-4">
             <button class="btn btn-primary" (click)="openEditModal(project)">
               <i class="mdi mdi-pencil"></i> Modifier
@@ -202,6 +202,9 @@
     </div>
   </div>
 </div>
+-->
+
+
 
 
 
@@ -266,8 +269,9 @@
                                             <strong><i class="fas fa-truck me-2 text-primary"></i>Date de livraison prévue :</strong> 
                                             <span [ngClass]="{'overdue': isDateOverdue(project.dlp,project)}">
                                                 {{ project.dlp | date:'dd-MM-yyyy' }}
-                                                <i *ngIf="isDateOverdue(project.dlp,project)" class="fas fa-exclamation-triangle ms-1"></i>
+                                                <i [ngClass]="{'text-danger': isDateOverdue(project.dlp,project)}" *ngIf="isDateOverdue(project.dlp,project)" class="fas fa-exclamation-triangle ms-1"></i>
                                             </span>
+                                            
                                         </li>
                                         <li class="list-group-item">
                                             <strong><i class="fas fa-calendar-plus me-2 text-primary"></i>Date de création :</strong> 
@@ -478,3 +482,7 @@
             </div>
         </div>
     </div>
+
+
+
+    

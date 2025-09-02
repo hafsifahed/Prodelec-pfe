@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import {
-    ArrayUnique,
+  ArrayUnique,
   IsEnum,
   IsString,
   ValidateNested,
@@ -15,6 +15,7 @@ export class CreateRoleDto {
   @ValidateNested()
   @Type(() => Permission)
   permissions: Permission[];
+  
 }
 
 export class Permission {
