@@ -40,7 +40,7 @@ export class SeedService implements OnApplicationBootstrap {
 
   /* --------------------------- RÔLES -------------------------------- */
 
-  private async seedRoles() {
+   async seedRoles() {
     const roleDefinitions = new Map<RoleEnum, { resource: Resource; actions: Action[] }[]>([
       [RoleEnum.ADMIN,              this.fullAccess()],
       [RoleEnum.SUBADMIN,           this.subAdmin()],
@@ -203,7 +203,7 @@ export class SeedService implements OnApplicationBootstrap {
 
   /* ---------------------------- ADMIN -------------------------------- */
 
-  private async seedAdminUser() {
+   async seedAdminUser() {
     const email = this.config.get<string>('ADMIN_EMAIL', 'admin@example.com');
     const password = this.config.get<string>('ADMIN_PASSWORD', 'aaaaaaaaa');
 
@@ -230,7 +230,7 @@ export class SeedService implements OnApplicationBootstrap {
 
   /* ----------------------- UTILISATEURS PROCESS ---------------------- */
 
-  private async seedProcessUsers() {
+   async seedProcessUsers() {
     const configs: Array<{ role: RoleEnum; email: string; first: string }> = [
       { role: RoleEnum.PROCESS_RH,         email: 'rh.process@example.com',         first: 'HR'         },
       { role: RoleEnum.PROCESS_METHOD,     email: 'method.process@example.com',     first: 'Method'     },
@@ -273,7 +273,7 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   /*-------------------------Setting-------------------*/
-  private async seedDefaultSetting() {
+   async seedDefaultSetting() {
     const existing = await this.settingRepo.findOne({ where: { id: 1 } });
     if (!existing) {
       const setting = this.settingRepo.create({ reclamationTarget: 3 });

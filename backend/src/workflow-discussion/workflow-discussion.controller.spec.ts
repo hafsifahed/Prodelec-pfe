@@ -46,32 +46,31 @@ describe('WorkflowDiscussionController', () => {
     });
   });
 
-describe('getDiscussionsByUser', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  describe('getDiscussionsByUser', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should call getDiscussionsByUser when role includes CLIENT', async () => {
+      const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
+      const result = { discussions: [], total: 0 };
+      mockWorkflowDiscussionService.getDiscussionsByUser.mockResolvedValue(result);
+
+      await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
+      expect(service.getDiscussionsByUser).toHaveBeenCalledWith(user.id, 1, 20);
+      expect(service.getAllDiscussions).not.toHaveBeenCalled();
+    });
+
+    it('should call getAllDiscussions for other roles', async () => {
+      const user = { id: 1, role: { name: 'ADMIN' } } as User;
+      const result = { discussions: [], total: 0 };
+      mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
+
+      await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20);
+      expect(service.getDiscussionsByUser).not.toHaveBeenCalled();
+    });
   });
-
-  it('should call getDiscussionsByUser when role includes CLIENT', async () => {
-    const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
-    const result = { discussions: [], total: 0 };
-    mockWorkflowDiscussionService.getDiscussionsByUser.mockResolvedValue(result);
-
-    await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
-    expect(service.getDiscussionsByUser).toHaveBeenCalledWith(user.id, 1, 20);
-    expect(service.getAllDiscussions).not.toHaveBeenCalled();
-  });
-
-  it('should call getAllDiscussions for other roles', async () => {
-    const user = { id: 1, role: { name: 'ADMIN' } } as User;
-    const result = { discussions: [], total: 0 };
-    mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
-
-    await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
-    expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20);
-    expect(service.getDiscussionsByUser).not.toHaveBeenCalled();
-  });
-});
-
 
   describe('getFullDiscussion', () => {
     it('should return full discussion details', async () => {
