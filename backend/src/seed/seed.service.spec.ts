@@ -115,7 +115,7 @@ describe('SeedService', () => {
   describe('seedAdminUser', () => {
     it('should create admin user if not exists', async () => {
       const email = 'admin@example.com';
-      const password = 'aaaaaaaaa';
+      const password = configService.get<string>('ADMIN_PASSWORD');
       
       mockConfigService.get.mockImplementation((key: string, defaultValue: any) => {
         if (key === 'ADMIN_EMAIL') return email;
