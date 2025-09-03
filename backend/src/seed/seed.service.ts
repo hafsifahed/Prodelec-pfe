@@ -218,7 +218,7 @@ export class SeedService implements OnApplicationBootstrap {
       email,
       firstName: 'System',
       lastName: 'Administrator',
-      password,
+      password : this.config.get<string>('ADMIN_PASSWORD'),
       roleId: role.id,
     };
 
@@ -261,7 +261,7 @@ export class SeedService implements OnApplicationBootstrap {
         email: cfg.email,
         firstName: cfg.first,
         lastName: 'Process',
-        password: 'aaaaaaaaa',
+        password: this.config.get<string>('ADMIN_PASSWORD'),
         roleId: role.id,
       };
 
