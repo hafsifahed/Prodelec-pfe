@@ -1,16 +1,17 @@
 module.exports = {
-  moduleFileExtensions: ['js', 'json', 'ts'],
+  preset: 'ts-jest',
+  testEnvironment: 'node',
   rootDir: 'src',
-  testRegex: '.*\\.spec\\.ts$',   // Tests unitaires
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  testRegex: '.*\\.spec\\.ts$', // Unit tests
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
   collectCoverageFrom: [
-    '*/.(t|j)s',
-    '!main.ts',             // Exclure les fichiers de démarrage
-    '!**/node_modules/**',  // Exclure les dépendances
+    '**/*.(t|j)s',
+    '!main.ts',             // Exclude entry point
+    '!**/node_modules/**',  // Exclude dependencies
   ],
   coverageDirectory: '../coverage',
-  testEnvironment: 'node',
-  coverageReporters: ['lcov', 'text', 'json'],
+  coverageReporters: ['text', 'lcov', 'json'],
 };
