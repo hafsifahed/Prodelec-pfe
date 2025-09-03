@@ -129,11 +129,12 @@ export class UsersService {
 
   
 
-  async findMany(dto: FindUsersDto): Promise<User[]> {
+ async findMany(dto: FindUsersDto, user: User): Promise<User[]> {
   const queryBuilder = this.usersRepository.createQueryBuilder('user')
-    .leftJoinAndSelect('user.role', 'role')      // join role relation
+    .leftJoinAndSelect('user.role', 'role')        // join role relation
     .leftJoinAndSelect('user.partner', 'partner'); // join partner relation
 
+  // --- filtres venant du DTO ---
   if (dto.username) {
     queryBuilder.andWhere('user.username LIKE :username', { username: `%${dto.username}%` });
   }
@@ -145,14 +146,19 @@ export class UsersService {
   } else {
     queryBuilder.andWhere('user.accountStatus != :suspendedStatus', { suspendedStatus: 'suspended' });
   }
-
   if (dto.roleId) {
     queryBuilder.andWhere('role.id = :roleId', { roleId: dto.roleId });
   }
 
-  // Exclure les utilisateurs dont le partenaire est inactif
+  // --- exclure les utilisateurs dont le partenaire est inactif ---
   queryBuilder.andWhere('partner.partnerStatus != :inactiveStatus', { inactiveStatus: 'inactive' });
 
+  // --- restriction pour les clients ---
+  if (user.role?.name?.toLowerCase().includes('client')) {
+    queryBuilder.andWhere('partner.name = :partnerName', { partnerName: user.partner?.name });
+  }
+
+  // --- champs sélectionnés ---
   queryBuilder.select([
     'user.id',
     'user.username',
@@ -165,8 +171,8 @@ export class UsersService {
     'user.updatedAt',
     'role.id',
     'role.name',
-    'partner.id',     // include partner id
-    'partner.name',   // include partner name
+    'partner.id',
+    'partner.name',
   ]);
 
   return queryBuilder.getMany();

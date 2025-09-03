@@ -60,9 +60,9 @@ export class UsersController {
   }
 
   @Get()
-  @Permissions({ resource: Resource.USERS, actions: [Action.READ, Action.MANAGE] })
-  async findMany(@Query() query: FindUsersDto) {
-    return this.usersService.findMany(query);
+  //@Permissions({ resource: Resource.USERS, actions: [Action.READ, Action.MANAGE] })
+  async findMany(@Query() query: FindUsersDto,@CurrentUser() user: User) {
+    return this.usersService.findMany(query,user);
   }
 
   @Get('all')
