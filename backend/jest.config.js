@@ -14,12 +14,7 @@ module.exports = {
     '!**/dist/**',              
     '!**/*.strategy.ts',    
             '!**/*.service.ts', // Exclude entry point
-                        '!**/*.dto.ts', // Exclude entry point
-                                                '!**/*.entities.ts', // Exclude entry point
-                        '!**/*.enum.ts', // Exclude entry point
-                        '!**/*.gateway.ts', // Exclude entry point
 
-                        '!**/*.guard.ts', // Exclude entry point
 
     '!**/node_modules/**',  // Exclude dependencies
   ],
