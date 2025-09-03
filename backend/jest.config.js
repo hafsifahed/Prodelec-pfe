@@ -9,9 +9,14 @@ module.exports = {
   },
   collectCoverageFrom: [
     '**/*.(t|j)s',
-    '!main.ts',             // Exclude entry point
+    '!main.ts',     
+    '!**/*.module.ts', 
+    '!**/dist/**',              
+    '!**/*.strategy.ts',    
+            '!**/*.service.ts', // Exclude entry point
     '!**/node_modules/**',  // Exclude dependencies
   ],
   coverageDirectory: '../coverage',
   coverageReporters: ['text', 'lcov', 'json'],
 };
+
