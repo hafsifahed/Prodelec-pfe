@@ -204,8 +204,8 @@ export class SeedService implements OnApplicationBootstrap {
   /* ---------------------------- ADMIN -------------------------------- */
 
    async seedAdminUser() {
-    const email = this.config.get<string>('ADMIN_EMAIL', 'admin@example.com');
-    const password = this.config.get<string>('ADMIN_PASSWORD', 'aaaaaaaaa');
+    const email = this.config.get<string>('ADMIN_EMAIL');
+    const password = this.config.get<string>('ADMIN_PASSWORD');
 
     const exists = await this.userRepo.findOne({ where: { email } });
     if (exists) return;
