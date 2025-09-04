@@ -1,6 +1,7 @@
 // src/reclamation/dto/update-reclamation.dto.ts
 import { PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { ReclamationStatus } from '../enums/reclamation-status.enum';
 import { CreateReclamationDto } from './create-reclamation.dto';
 
 export class UpdateReclamationDto extends PartialType(CreateReclamationDto) {
@@ -8,7 +9,7 @@ export class UpdateReclamationDto extends PartialType(CreateReclamationDto) {
   @IsOptional()
   Reponse?: string;
 
-  @IsString()
+  @IsEnum(ReclamationStatus, { message: 'Status must be En cours, Traité, or Clos' })
   @IsOptional()
-  status?: string;
+  status?: ReclamationStatus;
 }

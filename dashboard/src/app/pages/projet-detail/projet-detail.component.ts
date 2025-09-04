@@ -88,6 +88,7 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
       this.project = data;
       this.loading = false;
       this.errorMessage = '';
+      console.log(data.refProdelec)
     },
     error: (err) => {
       this.errorMessage = 'Erreur lors du chargement du projet';

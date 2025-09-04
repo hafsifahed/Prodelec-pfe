@@ -7,6 +7,7 @@ import { User } from '../users/entities/users.entity';
 import { CreateReclamationDto } from './dto/create-reclamation.dto';
 import { UpdateReclamationDto } from './dto/update-reclamation.dto';
 import { Reclamation } from './entities/reclamation.entity';
+import { ReclamationStatus } from './enums/reclamation-status.enum';
 
 @Injectable()
 export class ReclamationService {
@@ -42,36 +43,46 @@ export class ReclamationService {
   }
 
   async findAll(): Promise<Reclamation[]> {
-    return this.reclamationRepo
-      .createQueryBuilder('reclamation')
-      .leftJoinAndSelect('reclamation.user', 'user')
-      .leftJoinAndSelect('user.partner', 'partner')
-      .select([
-        // List all reclamation columns explicitly:
-        'reclamation.id_reclamation',
-        'reclamation.description',
-        'reclamation.dateDeCreation',
-        'reclamation.PieceJointe',
-        'reclamation.status',
-        'reclamation.Reponse',
-        'reclamation.type_de_defaut',
-        'reclamation.archive',
-        'reclamation.archiveU',
-  
-        // User columns:
-        'user.id',
-        'user.username',
-        'user.firstName',
-        'user.lastName',
-        'user.email',
-        'user.accountStatus',
-  
-        // Partner columns:
-        'partner.id',
-        'partner.name', // adjust as needed
-      ])
-      .getMany();
-  }
+  return this.reclamationRepo
+    .createQueryBuilder('reclamation')
+    .leftJoinAndSelect('reclamation.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
+    .select([
+      // Reclamation columns
+      'reclamation.id_reclamation',
+      'reclamation.description',
+      'reclamation.dateDeCreation',
+      'reclamation.PieceJointe',
+      'reclamation.status',
+      'reclamation.Reponse',
+      'reclamation.type_de_defaut',
+      'reclamation.archive',
+      'reclamation.archiveU',
+      'reclamation.createdAt',
+      'reclamation.updatedAt',
+
+      // User columns
+      'user.id',
+      'user.username',
+      'user.firstName',
+      'user.lastName',
+      'user.email',
+      'user.accountStatus',
+
+      // Partner columns
+      'partner.id',
+      'partner.name',
+    ])
+    .orderBy(`
+      CASE 
+        WHEN reclamation.status = 'En cours' THEN 1 
+        ELSE 2 
+      END
+    `, 'ASC') // "En cours" en premier
+    .addOrderBy('reclamation.createdAt', 'DESC') // ensuite tri du plus récent au plus ancien
+    .getMany();
+}
+
   /* get all columns of partner and user
   async findAll(): Promise<Reclamation[]> {
   return this.reclamationRepo
@@ -140,8 +151,12 @@ async findOne(id: number): Promise<Reclamation> {
   
 
   async findByUser(userId: number): Promise<Reclamation[]> {
-    return this.reclamationRepo.find({ where: { user: { id: userId } } });
-  }
+  return this.reclamationRepo.find({
+    where: { user: { id: userId } },
+    order: { updatedAt: 'DESC' }, // du plus récent au plus ancien
+  });
+}
+
 
   async delete(id: number): Promise<void> {
     await this.reclamationRepo.delete(id);
@@ -171,10 +186,23 @@ async findOne(id: number): Promise<Reclamation> {
     return this.reclamationRepo.save(reclamation);
   }
 
-  async processReclamation(id: number, response: string): Promise<Reclamation> {
+  /*async processReclamation(id: number, response: string): Promise<Reclamation> {
     const reclamation = await this.findOne(id);
     reclamation.status = 'Traité';
     reclamation.Reponse = response;
     return this.reclamationRepo.save(reclamation);
+  }*/
+
+  async processReclamation(id: number, response: string): Promise<Reclamation> {
+  const reclamation = await this.findOne(id);
+
+  if (!reclamation) {
+    throw new NotFoundException(`Reclamation with ID ${id} not found`);
   }
+
+  reclamation.status = ReclamationStatus.TRAITE;
+  reclamation.Reponse = response;
+
+  return await this.reclamationRepo.save(reclamation);
+}
 }

@@ -164,17 +164,20 @@ private async notifyResponsibles(project: Project, title: string, message: strin
    * REQUÊTES DE BASE (using QueryBuilder for clarity and consistency)
    * --------------------------------------------------------------------- */
   private baseQuery() {
-    return this.projectRepo
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.order', 'order')
-      .leftJoinAndSelect('order.user', 'user')
-      .leftJoinAndSelect('user.partner', 'partner') // ajout relation partner
-      .leftJoinAndSelect('project.conceptionResponsible', 'conceptionResponsible')
-      .leftJoinAndSelect('project.methodeResponsible', 'methodeResponsible')
-      .leftJoinAndSelect('project.productionResponsible', 'productionResponsible')
-      .leftJoinAndSelect('project.finalControlResponsible', 'finalControlResponsible')
-      .leftJoinAndSelect('project.deliveryResponsible', 'deliveryResponsible');
-  }
+  return this.projectRepo
+    .createQueryBuilder('project')
+    .leftJoinAndSelect('project.order', 'order')
+    .leftJoinAndSelect('order.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner') // ajout relation partner
+    .leftJoinAndSelect('project.conceptionResponsible', 'conceptionResponsible')
+    .leftJoinAndSelect('project.methodeResponsible', 'methodeResponsible')
+    .leftJoinAndSelect('project.productionResponsible', 'productionResponsible')
+    .leftJoinAndSelect('project.finalControlResponsible', 'finalControlResponsible')
+    .leftJoinAndSelect('project.deliveryResponsible', 'deliveryResponsible')
+    .orderBy('project.updatedAt', 'DESC') // plus récemment modifié en haut
+    .addOrderBy('project.createdAt', 'DESC'); // sinon plus récemment créé
+}
+
 
   findAll() {
     return this.baseQuery().getMany();

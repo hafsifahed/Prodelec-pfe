@@ -57,6 +57,7 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
     this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
+     console.log('edit project :',this.project)
 
     // Configuration du datepicker
     this.bsConfig = Object.assign({}, {
@@ -108,11 +109,11 @@ export class ProjectEditModalComponent implements OnInit, OnDestroy {
       this.projectForm.patchValue({
         refc: this.project.refClient,
         refp: this.project.refProdelec,
-        rc: this.project.conceptionResponsible?.firstName || '',
-        rm: this.project.methodeResponsible?.firstName || '',
-        rp: this.project.productionResponsible?.firstName || '',
-        rcf: this.project.finalControlResponsible?.firstName || '',
-        rl: this.project.deliveryResponsible?.firstName || '',
+        rc: this.project.conceptionResponsible?.username || '',
+        rm: this.project.methodeResponsible?.username || '',
+        rp: this.project.productionResponsible?.username || '',
+        rcf: this.project.finalControlResponsible?.username || '',
+        rl: this.project.deliveryResponsible?.username || '',
         dlp: this.project.dlp ? new Date(this.project.dlp) : null,
         dc: this.project.startConception ? new Date(this.project.startConception) : null,
         fc: this.project.endConception ? new Date(this.project.endConception) : null,

@@ -60,9 +60,27 @@ export class OrderService {
     return this.orderRepo.save(order);
   }
 
-  async getAllOrders(): Promise<Order[]> {
-    return this.orderRepo.find();
-  }
+  /*async getAllOrders(): Promise<Order[]> {
+  return this.orderRepo
+    .createQueryBuilder('order')
+    .orderBy('order.annuler', 'ASC')          // false (0) en haut, true (1) en bas
+    .addOrderBy('order.createdAt', 'DESC')    // plus récentes d'abord
+    .getMany();
+}*/
+
+async getAllOrders(): Promise<Order[]> {
+  return this.orderRepo
+    .createQueryBuilder('order')
+    .leftJoinAndSelect('order.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
+    .leftJoinAndSelect('order.devis', 'devis')
+  //  .leftJoinAndSelect('order.projects', 'projects')
+    .orderBy('order.annuler', 'ASC') // false en haut, true en bas
+ //   .addOrderBy('order.updatedAt', 'DESC') // plus récemment modifiées en haut
+    .addOrderBy('order.createdAt', 'DESC') // sinon plus récemment créées
+    .getMany();
+}
+
 
   async getOrderById(idOrder: number): Promise<Order> {
     const order = await this.orderRepo.findOne({ where: { idOrder } });

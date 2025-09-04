@@ -2,6 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { User } from '../users/entities/users.entity';
+import { UsersModule } from '../users/users.module';
 import { WorkflowDiscussionModule } from '../workflow-discussion/workflow-discussion.module';
 import { CahierDesChargesController } from './cahier-des-charges.controller';
 import { CahierDesChargesService } from './cahier-des-charges.service';
@@ -13,6 +14,7 @@ import { CdcFile } from './entities/cdc-file.entity';
   imports: [
     TypeOrmModule.forFeature([CahierDesCharges, User, CdcFile]), 
     NotificationsModule,
+    forwardRef(() =>UsersModule),
     forwardRef(() =>WorkflowDiscussionModule),
 
   ],

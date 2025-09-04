@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/entities/users.entity';
+import { ReclamationStatus } from '../enums/reclamation-status.enum';
 import { TypeReclamation } from '../enums/type-reclamation.enum';
 
 @Entity()
@@ -16,8 +17,13 @@ export class Reclamation {
   @Column({ nullable: true })
   PieceJointe: string;
 
-  @Column({ default: 'En cours' })
-  status: string;
+@Column({
+  type: 'enum',
+  enum: ReclamationStatus,
+  default: ReclamationStatus.EN_COURS,
+})
+status: ReclamationStatus;
+
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })

@@ -7,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -24,6 +25,7 @@ import { join } from 'path';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/users.entity';
+import { UsersService } from '../users/users.service';
 import { CahierDesChargesService } from './cahier-des-charges.service';
 import { CreateCahierDesChargesDto } from './dto/create-cahier-des-charge.dto';
 import { EmailRequestDto } from './dto/email-request.dto';
@@ -37,6 +39,8 @@ export class CahierDesChargesController {
   constructor(
     private readonly service: CahierDesChargesService,
     private readonly mailerService: MailerService,
+        private readonly userService: UsersService,
+
   ) {}
 
  // ------------------ UPLOAD MULTIPLE FILES ------------------------
@@ -115,9 +119,16 @@ export class CahierDesChargesController {
   }
 
   @Get('user/:userId')
-  findByUser(@Param('userId') userId: number) {
-    return this.service.getCahierDesChargesByUser({ id: userId } as any);
+async findByUser(@Param('userId', ParseIntPipe) userId: number) {
+  // Assuming you have a UserService injected
+  const user = await this.userService.findOneById(userId);
+  if (!user) {
+    throw new NotFoundException(`User with ID ${userId} not found`);
   }
+
+  return this.service.getCahierDesChargesByUser(user);
+}
+
 
   @Put('accept/:id')
   accept(@Param('id') id: number) {
