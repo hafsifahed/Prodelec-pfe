@@ -117,6 +117,7 @@ import { AddProjectModalComponent } from './order/modals/add-project-modal/add-p
 import { ProjectAddModalComponent } from './projectfo/modals/project-add-modal/project-add-modal.component';
 import { ProjectEditModalComponent } from './projectfo/modals/project-edit-modal/project-edit-modal.component';
 import { ProjectPhaseDetailsModalComponent } from './projectfo/modals/project-phase-details-modal/project-phase-details-modal.component';
+import { BulkEmailComponent } from './bulk-email/bulk-email.component';
 
 
 @NgModule({
@@ -205,6 +206,7 @@ import { ProjectPhaseDetailsModalComponent } from './projectfo/modals/project-ph
     ProjectAddModalComponent,
     ProjectEditModalComponent,
     ProjectPhaseDetailsModalComponent,
+    BulkEmailComponent,
 
   ],
   imports: [

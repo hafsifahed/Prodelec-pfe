@@ -53,6 +53,7 @@ import { UserDetailComponent } from './user-detail/user-detail.component';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
 import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-calendar-admin.component';
+import { BulkEmailComponent } from './bulk-email/bulk-email.component';
 
 
 
@@ -129,6 +130,7 @@ const routes: Routes = [
   { path: 'calendrierGlobal', component: ProjectCalendarAdminComponent },
 
 
+  { path: 'bulk-email', component: BulkEmailComponent }
 
 
 

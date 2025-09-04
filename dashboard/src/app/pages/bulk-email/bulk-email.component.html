@@ -1,0 +1,86 @@
+<div class="email-container">
+  <h2>Envoi d'emails groupés</h2>
+  
+  <form [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="email-form">
+    <div class="form-group">
+      <label for="recipientType">Destinataires:</label>
+      <select id="recipientType" formControlName="recipientType" class="form-control">
+        <option value="workers">Employés</option>
+        <option value="clients">Clients</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="subject">Sujet:</label>
+      <input 
+        type="text" 
+        id="subject" 
+        formControlName="subject" 
+        class="form-control" 
+        placeholder="Sujet de l'email"
+      >
+    </div>
+    
+    <div class="form-group">
+      <label for="message">Message:</label>
+      <textarea 
+        id="message" 
+        formControlName="message" 
+        class="form-control" 
+        rows="6"
+        placeholder="Votre message ici..."
+      ></textarea>
+    </div>
+    
+    <div class="recipients-section" *ngIf="!isLoading">
+      <div class="select-all">
+        <label>
+          <input 
+            type="checkbox" 
+            [checked]="selectAll" 
+            (change)="toggleSelectAll()"
+          >
+          Tout sélectionner
+        </label>
+        <span class="selected-count">
+          {{ selectedRecipients.length }} sélectionnés
+        </span>
+      </div>
+      
+      <div class="recipients-list">
+        <div 
+          *ngFor="let recipient of getCurrentRecipients()" 
+          class="recipient-item"
+        >
+          <label>
+            <input 
+              type="checkbox" 
+              [checked]="isRecipientSelected(recipient)" 
+              (change)="toggleRecipientSelection(recipient)"
+            >
+            {{ recipient.firstName }} {{ recipient.lastName }} ({{ recipient.email }})
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="loading" *ngIf="isLoading">
+      Chargement des destinataires...
+    </div>
+    
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn btn-primary"
+        [disabled]="!emailForm.valid || selectedRecipients.length === 0 || isSending"
+      >
+        <span *ngIf="!isSending">Envoyer</span>
+        <span *ngIf="isSending">Envoi en cours...</span>
+      </button>
+    </div>
+    
+    <div class="status-message" *ngIf="sendStatus">
+      {{ sendStatus }}
+    </div>
+  </form>
+</div>

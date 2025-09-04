@@ -181,12 +181,19 @@ export const MENU: MenuItem[] = [
       },
       {
         id: 503, label: 'Notifications', icon: 'bx-bell', link: purl + '/list-notifications',
+        accessOnly: 'WORKER',
         rolePermissions: [
           { resource: Resource.AUDIT_LOGS, actions: [Action.READ,Action.UPDATE] },
         ],
       },
+       {
+        id: 504, label: 'BulkEmail', icon: 'bx-bell', link: purl + '/bulk-email',
+        rolePermissions: [
+          { resource: Resource.AUDIT_LOGS, actions: [Action.UPDATE,Action.MANAGE] },
+        ],
+      },
       {
-        id: 504, label: 'Settings', icon: 'bx-cog', link: purl + '/setting',
+        id: 505, label: 'Settings', icon: 'bx-cog', link: purl + '/setting',
         accessOnly: 'WORKER',
         rolePermissions: [
           { resource: Resource.SETTINGS, actions: [], roles: [RoleName.ADMIN] },
