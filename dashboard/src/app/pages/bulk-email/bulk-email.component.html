@@ -3,11 +3,34 @@
   
   <form [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="email-form">
     <div class="form-group">
-      <label for="recipientType">Destinataires:</label>
+      <label for="recipientType">Type de destinataires:</label>
       <select id="recipientType" formControlName="recipientType" class="form-control">
         <option value="workers">Employés</option>
         <option value="clients">Clients</option>
+        <option value="partner">Utilisateurs d'un partenaire</option>
       </select>
+    </div>
+    
+    <div class="form-group" *ngIf="emailForm.get('recipientType')?.value === 'partner'">
+      <label for="partner">Sélectionner un partenaire:</label>
+      <select id="partner" formControlName="partner" class="form-control" required>
+        <option value="">Choisissez un partenaire</option>
+        <option *ngFor="let partner of partners" [value]="partner.id">
+          {{ partner.name }} ({{ partner.users?.length || 0 }} utilisateurs)
+        </option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="search">Rechercher des destinataires:</label>
+      <input 
+        type="text" 
+        id="search" 
+        formControlName="search" 
+        class="form-control" 
+        placeholder="Nom, prénom ou email..."
+        [disabled]="emailForm.get('recipientType')?.value === 'partner' && !emailForm.get('partner')?.value"
+      >
     </div>
     
     <div class="form-group">
@@ -18,7 +41,11 @@
         formControlName="subject" 
         class="form-control" 
         placeholder="Sujet de l'email"
+        [class.invalid]="emailForm.get('subject')?.invalid && emailForm.get('subject')?.touched"
       >
+      <div class="char-count" *ngIf="emailForm.get('subject')?.value">
+        {{ emailForm.get('subject')?.value?.length }}/150
+      </div>
     </div>
     
     <div class="form-group">
@@ -29,10 +56,14 @@
         class="form-control" 
         rows="6"
         placeholder="Votre message ici..."
+        [class.invalid]="emailForm.get('message')?.invalid && emailForm.get('message')?.touched"
       ></textarea>
+      <div class="char-count" *ngIf="emailForm.get('message')?.value">
+        {{ emailForm.get('message')?.value?.length }} caractères
+      </div>
     </div>
     
-    <div class="recipients-section" *ngIf="!isLoading">
+    <div class="recipients-section" *ngIf="!isLoading && filteredRecipients.length > 0">
       <div class="select-all">
         <label>
           <input 
@@ -43,13 +74,13 @@
           Tout sélectionner
         </label>
         <span class="selected-count">
-          {{ selectedRecipients.length }} sélectionnés
+          {{ selectedRecipients.length }} sélectionnés sur {{ filteredRecipients.length }}
         </span>
       </div>
       
       <div class="recipients-list">
         <div 
-          *ngFor="let recipient of getCurrentRecipients()" 
+          *ngFor="let recipient of filteredRecipients" 
           class="recipient-item"
         >
           <label>
@@ -58,13 +89,32 @@
               [checked]="isRecipientSelected(recipient)" 
               (change)="toggleRecipientSelection(recipient)"
             >
-            {{ recipient.firstName }} {{ recipient.lastName }} ({{ recipient.email }})
+            <span class="recipient-info">
+              <span class="recipient-name">{{ recipient.firstName }} {{ recipient.lastName }}</span>
+              <span class="recipient-email">{{ recipient.email }}</span>
+            </span>
           </label>
         </div>
       </div>
     </div>
     
+    <div class="no-recipients" *ngIf="!isLoading && filteredRecipients.length === 0">
+      <div *ngIf="emailForm.get('recipientType')?.value === 'partner' && !emailForm.get('partner')?.value">
+        Veuillez sélectionner un partenaire pour voir ses utilisateurs
+      </div>
+      <div *ngIf="emailForm.get('recipientType')?.value === 'partner' && emailForm.get('partner')?.value && filteredRecipients.length === 0">
+        Aucun utilisateur trouvé pour ce partenaire
+      </div>
+      <div *ngIf="emailForm.get('recipientType')?.value !== 'partner' && filteredRecipients.length === 0 && emailForm.get('search')?.value">
+        Aucun destinataire trouvé pour "{{ emailForm.get('search')?.value }}"
+      </div>
+      <div *ngIf="emailForm.get('recipientType')?.value !== 'partner' && filteredRecipients.length === 0 && !emailForm.get('search')?.value">
+        Aucun destinataire disponible
+      </div>
+    </div>
+    
     <div class="loading" *ngIf="isLoading">
+      <div class="spinner"></div>
       Chargement des destinataires...
     </div>
     
@@ -79,7 +129,8 @@
       </button>
     </div>
     
-    <div class="status-message" *ngIf="sendStatus">
+    <div class="status-message" [class.success]="sendStatusType === 'success'" 
+         [class.error]="sendStatusType === 'error'" *ngIf="sendStatus">
       {{ sendStatus }}
     </div>
   </form>
