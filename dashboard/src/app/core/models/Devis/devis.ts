@@ -8,6 +8,7 @@ export enum EtatDevis {
   Negociation = 'Négociation'   // Nouvel état
 }
 
+
 export class Devis {
     id: number;
     numdevis : string;

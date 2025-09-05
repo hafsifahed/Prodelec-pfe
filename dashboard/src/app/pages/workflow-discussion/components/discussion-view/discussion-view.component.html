@@ -3,13 +3,13 @@
 
   <div class="discussion-actions" *ngIf="discussion?.cdc" style="padding: 10px; display: flex; gap: 10px;">
    <ng-container *ngIf="discussion?.currentPhase === 'cdc'"> 
-    <button type="button" class="btn btn-success" (click)="onAccept()" title="Accepter">
+    <button *ngIf="!currentUser.role?.name.startsWith('CLIENT') && discussion.cdc.etat == EtatCdc.EnAttente" type="button" class="btn btn-success" (click)="onAccept()" title="Accepter">
       <i class="mdi mdi-check-outline"></i> Accepter
     </button>
-    <button type="button" class="btn btn-danger" (click)="onRefuse()" title="Refuser">
+    <button *ngIf="!currentUser.role?.name.startsWith('CLIENT') && discussion.cdc.etat == EtatCdc.EnAttente" type="button" class="btn btn-danger" (click)="onRefuse()" title="Refuser">
       <i class="mdi mdi-close-outline"></i> Refuser
     </button>
-    <button type="button" class="btn btn-warning" (click)="onMarkIncomplete()" title="Marquer comme À compléter">
+    <button *ngIf="!currentUser.role?.name.startsWith('CLIENT') && discussion.cdc.etat == EtatCdc.EnAttente" type="button" class="btn btn-warning" (click)="onMarkIncomplete()" title="Marquer comme À compléter">
       <i class="mdi mdi-alert-circle-outline"></i> À compléter
     </button>
    </ng-container>
@@ -28,7 +28,7 @@
             title="Refuser">
       <i class="mdi mdi-close-outline"></i> Refuser
     </button>
-    <button *ngIf="discussion.devis.etat === EtatDevis.EnAttente"
+    <button  *ngIf="discussion.devis.etat === EtatDevis.EnAttente && currentUser.role?.name.startsWith('CLIENT')"
             type="button" class="btn btn-outline-warning btn-sm"
             (click)="openNegociationModal(discussion.devis.id)"
             title="Démarrer négociation">
@@ -40,10 +40,10 @@
             title="Archiver">
       <i class="mdi mdi-archive"></i> Archiver
     </button>
-     <button class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(discussion.devis.id)">
+     <button *ngIf="currentUser.role?.name.startsWith('CLIENT')"class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(discussion.devis.id)">
                 <i class="bx bxs-detail me-1"></i> Détails
       </button>
-           <button class="btn btn-outline-primary btn-sm" (click)="openDetailsWorkerModal(discussion.devis.id)">
+           <button *ngIf="!currentUser.role?.name.startsWith('CLIENT')" class="btn btn-outline-primary btn-sm" (click)="openDetailsWorkerModal(discussion.devis.id)">
                 <i class="bx bxs-detail me-1"></i> Détails
       </button>
   </ng-container>

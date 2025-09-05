@@ -35,14 +35,17 @@ export class CdcFileService {
         `Impossible d'ajouter un fichier : l'état du cahier doit être "En attente", "À compléter" ou "Refusé". État actuel : ${cdc.etat}`
       );
     }
+    console.log('cdc',cdc)
 
     const file = this.repository.create({
       nomFichier,
       chemin,
-      cahierDesCharges: { id: cdcId },  // IMPORTANT: objet avec id
+      cahierDesCharges: { id: cdc.id},  // IMPORTANT: objet avec id
     });
+    console.log('file',file)
 
     const savedFile = await this.repository.save(file);
+    console.log('savedFile',savedFile)
 
     // Mettre à jour l'état du cahier à "En attente" si nécessaire
     if (cdc.etat !== EtatCahier.EnAttente) {

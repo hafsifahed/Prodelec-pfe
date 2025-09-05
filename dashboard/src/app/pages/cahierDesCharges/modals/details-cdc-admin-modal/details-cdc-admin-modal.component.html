@@ -16,7 +16,7 @@
       <span class="badge badge-pill font-size-13"
         [ngClass]="{
           'badge-soft-danger': cahier?.etat === 'Refusé',
-          'badge-soft-warning': cahier?.etat?.toLowerCase() === 'en attente',
+          'badge-soft-warning': cahier?.etat === 'En attente',
           'badge-soft-info': cahier?.etat === 'À compléter',
           'badge-soft-success': cahier?.etat === 'Accepté'
         }">

@@ -36,8 +36,14 @@ export enum EtatDevis {
     @Column({ nullable: true })
     pieceJointe: string;
   
-    @Column({ default: EtatDevis.EnAttente })
+    @Column({ 
+       type: 'enum',
+      enum: EtatDevis,
+      default: EtatDevis.EnAttente })
 etat: EtatDevis; // ou utiliser enum: EtatDevis
+
+
+
 
   
     @Column({ nullable: true })

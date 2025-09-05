@@ -35,7 +35,10 @@ export class CahierDesCharges {
   @Column({ nullable: true })
   commentaire?: string;
 
-  @Column({ type: 'varchar', default: EtatCahier.EnAttente })
+  @Column({ 
+     type: 'enum',
+      enum: EtatCahier,
+     default: EtatCahier.EnAttente })
 etat: EtatCahier;
 
 

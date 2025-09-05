@@ -23,6 +23,7 @@ import { EtatDevis } from 'src/app/core/models/Devis/devis';
 import { DetailsDevisAdminModalComponent } from 'src/app/pages/devis/modals/details-devis-admin-modal/details-devis-admin-modal.component';
 import { RefuseDevisAdminModalComponent } from 'src/app/pages/devis/modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
+import { EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 
 @Component({
   selector: 'app-discussion-view',
@@ -66,6 +67,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   private subscriptions = new Subscription();
   private messagesSubject = new BehaviorSubject<WorkflowMessage[]>([]);
   EtatDevis = EtatDevis;
+    EtatCdc = EtatCahier;
   messages$ = this.messagesSubject.asObservable();
 
   constructor(
@@ -92,6 +94,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     this.subscriptions.add(
       this.userStateService.user$.subscribe(user => {
         this.currentUser = user;
+        console.log("current",this.currentUser.role.name)
         this.cdr.detectChanges();
       })
     );
@@ -457,6 +460,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
     }
   );
 }
+
 openDetailsWorkerModal(id: number): void {
   this.devisService.getById(id).subscribe(
     (data) => {
