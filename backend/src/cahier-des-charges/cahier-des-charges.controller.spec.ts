@@ -1,11 +1,15 @@
-import { MailerService } from '@nestjs-modules/mailer'; // or wherever your MailerService is imported from
+import { MailerService } from '@nestjs-modules/mailer';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UsersService } from '../users/users.service';
 import { CahierDesChargesController } from './cahier-des-charges.controller';
 import { CahierDesChargesService } from './cahier-des-charges.service';
 
 const mockMailerService = {
   sendMail: jest.fn(),
-  // add all other methods the service might call
+};
+
+const mockUsersService = {
+  findOneById: jest.fn(id => Promise.resolve({ id, username: 'testuser' })),
 };
 
 describe('CahierDesChargesController', () => {
@@ -34,14 +38,9 @@ describe('CahierDesChargesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CahierDesChargesController],
       providers: [
-        {
-          provide: CahierDesChargesService,
-          useValue: mockService,
-        },
-        {
-          provide: MailerService,
-          useValue: mockMailerService,
-        },
+        { provide: CahierDesChargesService, useValue: mockService },
+        { provide: MailerService, useValue: mockMailerService },
+        { provide: UsersService, useValue: mockUsersService },  // Added this provider
       ],
     }).compile();
 
@@ -52,6 +51,6 @@ describe('CahierDesChargesController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
-  
+
   // Add your controller method tests here...
 });
