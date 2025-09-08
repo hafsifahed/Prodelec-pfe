@@ -35,7 +35,7 @@ RUN npm ci --only=production --force
 COPY --from=builder /app/dist ./dist
 
 # Copier .env
-COPY --from=builder /app/.env ./
+COPY --from=builder /app/.env.example ./
 
 EXPOSE 3000
 
