@@ -22,7 +22,7 @@ RUN npm run build --prod
 FROM nginx:alpine
 
 # Copier build Angular dans Nginx
-COPY --from=builder /app/dist/dashboard /usr/share/nginx/html
+COPY --from=builder /app/dist/Prodelec /usr/share/nginx/html
 
 EXPOSE 80
 
