@@ -1,27 +1,30 @@
-# Étape 1 : Builder Angular
+# Étape 1 : Build Angular
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copier package.json
+# Config DNS + Registry
+RUN npm config set registry https://registry.npmjs.org/
+
+# Copier package.json + package-lock.json
 COPY package*.json ./
 
 # Installer dépendances
-RUN npm install --force
+RUN npm ci --force
 
-# Copier tout le code
+# Copier tout le projet
 COPY . .
 
-# Build Angular (dist/dashboard)
+# Build Angular (production)
 RUN npm run build --prod
 
-# Étape 2 : Servir avec Nginx
+# Étape 2 : Serve avec Nginx
 FROM nginx:alpine
 
-# Copier build Angular dans Nginx
+# Copier build Angular vers Nginx
 COPY --from=builder /app/dist/dashboard /usr/share/nginx/html
 
-# Copier config nginx si besoin
+# (optionnel) copier un fichier nginx.conf custom
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
