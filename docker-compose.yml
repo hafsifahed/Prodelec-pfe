@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: prodelec-db
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: authtest
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - prodelec-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      retries: 10
+      interval: 3s
+      timeout: 30s
+
+  backend:
+    container_name: prodelec-backend
+    image: hafsifahed/prodelec-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/.env
+    networks:
+      - prodelec-network
+    volumes:
+      - ./uploads:/app/uploads
+
+  frontend:
+    container_name: prodelec-frontend
+    image: hafsifahed/prodelec-frontend:latest
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - prodelec-network
+
+volumes:
+  mysql-data:
+
+networks:
+  prodelec-network:
