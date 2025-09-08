@@ -1,28 +1,29 @@
-# Stage 1: Build the Angular application
-FROM node:18-alpine AS build
+# Étape 1 : Builder Angular
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json for installing dependencies
+# Copier package.json
 COPY package*.json ./
 
+# Installer dépendances
+RUN npm install --force
 
-
-# Copy the rest of the application code
+# Copier tout le code
 COPY . .
 
-RUN npm install --force
-RUN npm run build 
+# Build Angular (dist/dashboard)
+RUN npm run build --prod
 
-
-# Stage 2: Serve the application using Nginx
+# Étape 2 : Servir avec Nginx
 FROM nginx:alpine
 
-# Copy the built application from the previous stage
-COPY --from=build /app/dist/Prodelec /usr/share/nginx/html
-COPY default.conf /etc/nginx/conf.d
-# Expose port 80
+# Copier build Angular dans Nginx
+COPY --from=builder /app/dist/dashboard /usr/share/nginx/html
+
+# Copier config nginx si besoin
+# COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 80
 
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
