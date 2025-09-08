@@ -21,6 +21,9 @@ RUN npm run build --prod
 # Étape 2 : Nginx
 FROM nginx:alpine
 
+# Copier la configuration Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copier build Angular dans Nginx
 COPY --from=builder /app/dist/Prodelec /usr/share/nginx/html
 
