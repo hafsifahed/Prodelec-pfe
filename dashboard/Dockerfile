@@ -3,7 +3,7 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Config DNS + Registry
+# Config registry NPM
 RUN npm config set registry https://registry.npmjs.org/
 
 # Copier package.json + package-lock.json
@@ -15,17 +15,14 @@ RUN npm ci --force
 # Copier tout le projet
 COPY . .
 
-# Build Angular (production)
+# Build Angular prod
 RUN npm run build --prod
 
-# Étape 2 : Serve avec Nginx
+# Étape 2 : Nginx
 FROM nginx:alpine
 
-# Copier build Angular vers Nginx
+# Copier build Angular dans Nginx
 COPY --from=builder /app/dist/dashboard /usr/share/nginx/html
-
-# (optionnel) copier un fichier nginx.conf custom
-# COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

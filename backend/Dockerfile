@@ -1,9 +1,9 @@
-# Étape 1 : Build
+# Étape 1 : Builder
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Config DNS + Registry
+# Config registry NPM pour CI/CD stable
 RUN npm config set registry https://registry.npmjs.org/
 
 # Copier package.json + package-lock.json
@@ -15,7 +15,7 @@ RUN npm ci --force
 # Copier le reste du code
 COPY . .
 
-# Build du projet NestJS
+# Build NestJS
 RUN npm run build
 
 # Étape 2 : Run
@@ -28,13 +28,15 @@ RUN npm config set registry https://registry.npmjs.org/
 # Copier package.json + package-lock.json
 COPY package*.json ./
 
-# Installer uniquement les dépendances nécessaires pour la prod
+# Installer dépendances prod
 RUN npm ci --only=production --force
 
-# Copier les fichiers buildés depuis builder
+# Copier le build
 COPY --from=builder /app/dist ./dist
 
-# Exposer le port NestJS
+# Copier .env
+COPY --from=builder /app/.env ./
+
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
