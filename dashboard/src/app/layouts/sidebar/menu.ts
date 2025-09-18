@@ -188,6 +188,7 @@ export const MENU: MenuItem[] = [
       },
        {
         id: 504, label: 'BulkEmail', icon: 'bx-bell', link: purl + '/bulk-email',
+        accessOnly: 'WORKER',
         rolePermissions: [
           { resource: Resource.AUDIT_LOGS, actions: [Action.UPDATE,Action.MANAGE] },
         ],

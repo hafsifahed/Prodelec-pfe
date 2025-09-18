@@ -155,7 +155,7 @@
 <div *ngIf="displayMode === 'grid'" class="row g-4">
   <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let user of users | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
     <div class="card h-100 border-0 shadow-sm">
-      <div class="card-body d-flex flex-column">
+      <div class="user-card card-body d-flex flex-column">
         <!-- User Header -->
         <div class="text-center mb-3">
           <div class="avatar-lg mx-auto mb-3">

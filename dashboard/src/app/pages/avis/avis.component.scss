@@ -3,9 +3,8 @@
   max-width: 900px;
   margin: 2rem auto;
   padding: 2rem;
-  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.99);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -17,7 +16,6 @@
 
 .feedback-header h2 {
   font-size: 2rem;
-  color: #2d3748;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,7 +101,6 @@
 /* Sections */
 .feedback-section {
   padding: 1.5rem;
-  background: #f8fafc;
   border-radius: 10px;
   border-left: 4px solid #4f46e5;
   margin-bottom: 1.5rem;
@@ -123,7 +120,6 @@
 
 .section-header h3 {
   font-size: 1.25rem;
-  color: #2d3748;
   margin: 0;
 }
 
@@ -148,7 +144,6 @@
 
 .rating-label {
   font-weight: 500;
-  color: #475569;
   font-size: 0.95rem;
 }
 
@@ -190,7 +185,6 @@
 
 .comment-field label {
   font-weight: 500;
-  color: #475569;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -233,7 +227,6 @@
 }
 
 .sw-column h4 {
-  color: #2d3748;
   display: flex;
   align-items: center;
   gap: 0.5rem;
