@@ -221,6 +221,18 @@ export const MENU: MenuItem[] = [
           { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
         ],
       },
+       {
+        id: 603, label: 'Archive Cahier de charge err', link: purl + '/cdcUser/cdcArchive',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
+        ],
+      },
+       {
+        id: 604, label: 'Archive devis err', link: purl + '/devisUser/devisArchive',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
+        ],
+      }
     ],
   },
 ];

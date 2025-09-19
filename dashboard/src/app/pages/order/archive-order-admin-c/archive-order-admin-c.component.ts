@@ -46,8 +46,10 @@ export class ArchiveOrderAdminCComponent {
             text: 'Pas de commandes',
           });
         } else {
-          console.log(data);
+          console.log("archive order",data);
           this.list = data.filter((order) => order.archiverc);
+                    console.log("archive list",this.list);
+
         }
       },
       error: () => {

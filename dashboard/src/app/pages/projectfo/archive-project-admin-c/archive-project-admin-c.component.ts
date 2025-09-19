@@ -37,7 +37,11 @@ export class ArchiveProjectAdminCComponent {
         } else {
           console.log('archive',data)
           this.list = data.filter((project) => project.archiverc);
+                    console.log('archive list', this.list )
+
           this.flist=data.filter((project) => project.archiverc);
+                    console.log('archive flist',this.flist)
+
         }
       },
       error: () => {
