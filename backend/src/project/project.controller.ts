@@ -9,11 +9,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Action } from '../roles/enums/action.enum';
 import { Resource } from '../roles/enums/resource.enum';
+import { User } from '../users/entities/users.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Project } from './entities/project.entity';
 import { ProjectService } from './project.service';
@@ -89,6 +91,11 @@ update(
   @Get('partner/:partnerId') getByPartner(@Param('partnerId') partnerId: number) {
   return this.projSrv.getByPartner(Number(partnerId));
 }
+@Get('archive/user')
+getArchiveForCurrentUser(@CurrentUser() user: User): Promise<Project[]> {
+  return this.projSrv.getArchiveByUserRole(user);
+}
+
 
   /* -------- par utilisateur -------- */
   @Get('user/:uid')

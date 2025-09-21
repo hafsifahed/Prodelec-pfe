@@ -19,7 +19,9 @@ import { Response } from 'express';
 import { createReadStream, existsSync, mkdirSync } from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { User } from '../users/entities/users.entity';
 import { Order } from './entities/order.entity';
 import { OrderService } from './order.service';
 
@@ -45,6 +47,8 @@ export class OrderController {
       }),
     }),
   )
+
+
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('username') username: string, // le frontend passera ?username=alice
@@ -142,5 +146,9 @@ export class OrderController {
     return this.orderService.archiverc(id);
   }
 
+  @Get('archive/user')
+getArchiveForCurrentUser(@CurrentUser() user: User): Promise<Order[]> {
+  return this.orderService.getArchiveByUserRole(user);
+}
   
 }

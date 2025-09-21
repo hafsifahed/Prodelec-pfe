@@ -19,13 +19,33 @@ export class CDCListArchiveComponent implements OnInit {
   itemsPerPage: number = 5; // Items per page
   selectedYear: string = 'All'; // Default to 'All' to show all years
   isAscending: boolean = true;
+
   constructor(private cdcService: CdcServiceService, private modalService: BsModalService) {}
 
   ngOnInit(): void {
-    this.cdcService.getAllCdc().subscribe(
-      data => this.cahierDesCharges = data,
-      error => console.error('Erreur lors de la récupération des données', error)
-    );
+    // Use unified service method for getting archives filtered by user role
+    this.cdcService.getArchiveByUserRole().subscribe({
+      next: (data) => {
+        if (!data || data.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Pas de cahiers des charges archivés',
+          });
+        } else {
+          this.cahierDesCharges = data;
+          console.log('Loaded archived CDCs:', this.cahierDesCharges);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching archived CDCs', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Il y a un problème lors du chargement des cahiers des charges archivés!',
+        });
+      }
+    });
   }
 
   sortDevisByDate(): void {
@@ -39,24 +59,30 @@ export class CDCListArchiveComponent implements OnInit {
 
   getArchivedCahiers(): CahierDesCharges[] {
     return this.cahierDesCharges
-      ? this.cahierDesCharges.filter(cdc => cdc.archive && (!this.searchEmail || cdc.user?.email.includes(this.searchEmail)))
+      ? this.cahierDesCharges.filter(cdc =>
+          cdc.archive &&
+          (!this.searchEmail || cdc.user?.email.includes(this.searchEmail))
+        )
       : [];
   }
 
   openDetailsModal(id: number): void {
-    this.cdcService.getById(id).subscribe(
-      data => {
-        this.cahier = data; // Stocker les détails du cahier dans this.cahier
+    this.cdcService.getById(id).subscribe({
+      next: (data) => {
+        this.cahier = data; // store details
         this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-md' });
       },
-      error => console.error('Erreur lors de la récupération des détails du cahier des charges', error)
-    );
+      error: (error) => {
+        console.error('Error fetching cahier des charges details', error);
+      }
+    });
   }
 
   openDeleteModal(id: number, template: TemplateRef<any>): void {
     this.deleteId = id;
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
+
   openRestoreModal(id: number, template: TemplateRef<any>): void {
     this.restoreId = id;
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
@@ -64,48 +90,55 @@ export class CDCListArchiveComponent implements OnInit {
 
   confirmRestore(): void {
     if (this.restoreId !== null) {
-      this.cdcService.restorer(this.restoreId).subscribe(
-        () => {
+      this.cdcService.restorer(this.restoreId).subscribe({
+        next: () => {
           Swal.fire({
             title: 'Restauré!',
-            text: "Le cahier des charges a été restauré avec succès.",
+            text: 'Le cahier des charges a été restauré avec succès.',
             icon: 'success'
-          })
+          });
           this.ngOnInit();
           this.modalRef?.hide();
         },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
+        error: (error) => {
+          console.error('Error restoring cahier des charges', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: "Le cahier des charges n'a pas pu être restauré!",
+          });
           this.deleteId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
 
   confirmDelete(): void {
     if (this.deleteId !== null) {
-      this.cdcService.deleteCdc(this.deleteId).subscribe(
-        () => {
+      this.cdcService.deleteCdc(this.deleteId).subscribe({
+        next: () => {
           Swal.fire({
             title: 'Supprimé!',
-            text: "Le cahier des charges a été supprimé avec succès.",
+            text: 'Le cahier des charges a été supprimé avec succès.',
             icon: 'success'
-          })
-     
+          });
           this.cahierDesCharges = this.cahierDesCharges.filter(cdc => cdc.id !== this.deleteId);
           this.deleteId = null;
-               this.ngOnInit();
+          this.ngOnInit();
           this.modalRef?.hide();
         },
-        error => {
+        error: (error) => {
           console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: "Le cahier des charges n'a pas pu être supprimé!",
+          });
           this.deleteId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
 

@@ -104,4 +104,8 @@ export class CdcServiceService {
   markAsIncomplete(id: number, commentaire: string): Observable<CahierDesCharges> {
     return this.http.put<CahierDesCharges>(`${this.baseUrl}/incomplete/${id}`, { commentaire });
   }
+
+  getArchiveByUserRole(): Observable<CahierDesCharges[]> {
+  return this.http.get<CahierDesCharges[]>(`${this.baseUrl}/archive/user`);
+}
 }

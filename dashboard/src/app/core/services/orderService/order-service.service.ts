@@ -80,6 +80,8 @@ download(fileName: string, username: string): Observable<HttpEvent<Blob>> {
   });
 }
 
-
+getArchiveByUserRole(): Observable<Order[]> {
+  return this.http.get<Order[]>(`${environment.baseUrl}/order/archive/user`);
+}
 
 }

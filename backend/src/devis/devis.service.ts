@@ -305,4 +305,37 @@ async findAcceptedByCurrentUser(user: User): Promise<Devis[]> {
 }
 
 
+async getArchiveByUserRole(user: User): Promise<Devis[]> {
+  if (!user) return [];
+
+  const isClient = user.role?.name.toLowerCase().startsWith('client');
+
+  const qb = this.devisRepo
+    .createQueryBuilder('devis')
+    .leftJoinAndSelect('devis.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
+    .leftJoinAndSelect('devis.cahierDesCharges', 'cdc');
+
+  if (isClient) {
+    qb.where('user.id = :userId', { userId: user.id })
+      .andWhere('devis.archiveU = :archivedU', { archivedU: true });
+  } else {
+    qb.where('devis.archive = :archived', { archived: true });
+  }
+
+  qb.orderBy(`
+    CASE devis.etat
+      WHEN '${EtatDevis.Negociation}' THEN 1
+      WHEN '${EtatDevis.Accepte}' THEN 2
+      WHEN '${EtatDevis.EnAttente}' THEN 3
+      WHEN '${EtatDevis.Refuse}' THEN 4
+      ELSE 5
+    END
+  `, 'ASC')
+  .addOrderBy('devis.createdAt', 'DESC');
+
+  return qb.getMany();
+}
+
+
 }

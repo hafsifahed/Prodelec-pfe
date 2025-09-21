@@ -1,11 +1,8 @@
-import { Component, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 import Swal from 'sweetalert2';
-import { AddCdCComponent } from '../modals/add-cd-c/add-cd-c.component';
-import { UserModel } from 'src/app/core/models/user.models';
-import { UsersService } from 'src/app/core/services/users.service';
 
 @Component({
   selector: 'app-cdc-userlist-archive',
@@ -13,7 +10,7 @@ import { UsersService } from 'src/app/core/services/users.service';
   styleUrls: ['./cdc-userlist-archive.component.scss']
 })
 export class CDCUserlistArchiveComponent {
-  cahierDesCharges: CahierDesCharges[];
+  cahierDesCharges: CahierDesCharges[] = [];
   cahier: CahierDesCharges;
   modalRef?: BsModalRef;
   submitted = false;
@@ -23,60 +20,37 @@ export class CDCUserlistArchiveComponent {
   p: number = 1; // Current page number
   itemsPerPage: number = 5; // Items per page
   isAscending: boolean = true;
-  user: UserModel | null = null;
-  errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
-  constructor(private cdcService: CdcServiceService, private modalService: BsModalService, private usersService: UsersService) { }  
+
+  constructor(
+    private cdcService: CdcServiceService,
+    private modalService: BsModalService
+  ) { }
 
   ngOnInit(): void {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
+    this.cdcService.getArchiveByUserRole().subscribe({
+      next: (data) => {
+        if (!data || data.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Pas de cahiers des charges archivés',
+          });
+        } else {
+          this.cahierDesCharges = data;
+          console.log('Loaded archived CDCs:', this.cahierDesCharges);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching archived CDCs', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Il y a un problème lors du chargement des cahiers des charges!',
+        });
+      }
+    });
+  }
 
-  
-    }
-   
-  }
-  loadCDC(user: UserModel): void {
-    if (user.role === 'CLIENTADMIN') {
-      // Fetch all CDCs and filter them based on the partner
-      this.cdcService.getAllCdc().subscribe(
-        (data) => {
-          // Filter based on the partner and non-archived status
-          this.cahierDesCharges = data.filter(cdc => cdc.user.partner.id === user.partner.id && cdc.archiveU);
-     // Ensure the filter is applied
-          console.log('Loaded and filtered CDCs for partner:', this.cahierDesCharges); // Debug log
-        },
-        (error) => {
-          console.error('Error fetching all CDCs for partner', error);
-        }
-      );
-    } else {
-      // Fetch CDCs for the specific user
-      this.cdcService.getByIdUser(user.id).subscribe(
-        (data) => {
-          this.cahierDesCharges = data.filter(cdc => cdc.archiveU);
-       // Ensure the filter is applied
-          console.log('Loaded and filtered CDCs for user:', this.cahierDesCharges); // Debug log
-        },
-        (error) => {
-          console.error('Error fetching user CDCs', error);
-        }
-      );
-    }
-  }
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadCDC(data);
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.cahierDesCharges.sort((a, b) => {
@@ -87,8 +61,8 @@ export class CDCUserlistArchiveComponent {
   }
 
   getNonArchivedCahiers(): CahierDesCharges[] {
-    return this.cahierDesCharges ? this.cahierDesCharges.filter(cdc => 
-      cdc.archiveU && 
+    return this.cahierDesCharges ? this.cahierDesCharges.filter(cdc =>
+      cdc.archiveU &&
       (!this.searchTitle || cdc.titre.toLowerCase().includes(this.searchTitle.toLowerCase())) &&
       (!this.filterYear || new Date(cdc.createdAt).getFullYear().toString() === this.filterYear)
     ) : [];
@@ -99,7 +73,6 @@ export class CDCUserlistArchiveComponent {
     return Array.from(new Set(years));
   }
 
-
   openDeleteModal(id: number, template: TemplateRef<any>): void {
     this.deleteId = id;
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
@@ -107,45 +80,46 @@ export class CDCUserlistArchiveComponent {
 
   confirmDelete(): void {
     if (this.deleteId !== null) {
-      this.cdcService.restorerU(this.deleteId).subscribe(
-        () => {
+      this.cdcService.restorerU(this.deleteId).subscribe({
+        next: () => {
           Swal.fire({
-            title: 'Restaurer!',
-            text: "Le cahier des charges a été restaurer avec succès.",
+            title: 'Restauré!',
+            text: 'Le cahier des charges a été restauré avec succès.',
             icon: 'success'
           });
-
-        
           this.ngOnInit();
           this.modalRef?.hide();
         },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
+        error: (error) => {
+          console.error('Error restoring cahier des charges', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Le cahier des charges n\'a pas pu être restauré!',
+          });
           this.deleteId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
-
 
   @ViewChild('showModal', { static: false }) showModal?: ModalDirective;
   @ViewChild('removeItemModal', { static: false }) removeItemModal?: ModalDirective;
   @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
-  @ViewChild('addCdcModal') addCdcModal!: TemplateRef<AddCdCComponent>; 
+  @ViewChild('addCdcModal') addCdcModal!: TemplateRef<any>;
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
 
   openDetailsModal(id: number): void {
-    this.cdcService.getById(id).subscribe(
-      data => {
-        this.cahier = data; // Stocker les détails du cahier dans this.cahier
+    this.cdcService.getById(id).subscribe({
+      next: (data) => {
+        this.cahier = data;
         this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-md' });
       },
-      error => {
+      error: (error) => {
         console.error('Error fetching cahier des charges details', error);
       }
-    );
+    });
   }
 
   openViewModal(content: any) {
@@ -159,11 +133,11 @@ export class CDCUserlistArchiveComponent {
   handleCahierDesChargesAdded() {
     Swal.fire({
       title: 'Ajouté!',
-      text: "Le cahier des charges a été ajouté avec succès.",
+      text: 'Le cahier des charges a été ajouté avec succès.',
       icon: 'success'
     }).then(() => {
-      this.modalRef?.hide(); 
-      console.log("from modal !!!!"); // Fermer le modal après l'ajout réussi
+      this.modalRef?.hide();
+      console.log('from modal !!!!');
     });
   }
 }

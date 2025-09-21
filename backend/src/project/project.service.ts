@@ -338,4 +338,30 @@ async computeGlobalProgress(id: number) {
     .where('partner.id = :partnerId', { partnerId })
     .getMany();
 }
+
+async getArchiveByUserRole(user: User): Promise<Project[]> {
+  if (!user) return [];
+
+  const isClient = user.role?.name.toLowerCase().startsWith('client');
+
+  const qb = this.projectRepo
+    .createQueryBuilder('project')
+    .leftJoinAndSelect('project.order', 'order')
+    .leftJoinAndSelect('order.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner');
+
+  if (isClient) {
+    qb.where('user.id = :userId', { userId: user.id })
+      .andWhere('project.archiverc = :archived', { archived: true });
+  } else {
+    qb.where('project.archivera = :archived', { archived: true });
+  }
+
+  qb.orderBy('project.updatedAt', 'DESC')
+    .addOrderBy('project.createdAt', 'DESC');
+
+  return qb.getMany();
+}
+
+
 }

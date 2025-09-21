@@ -22,63 +22,45 @@ export class DevisUserlistArchiveComponent {
   searchQuery: string = '';
   p: number = 1; // Current page number
   itemsPerPage: number = 5; // Items per page
-  isAscending : boolean =true;
-  user: UserModel | null = null;
-  errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
-  constructor(
+  isAscending : boolean = true;
 
+  constructor(
     private devisService: DevisService,
     private modalService: BsModalService,
     private userService: UsersService
   ) {}
 
   ngOnInit(): void { 
- if (this.userEmail) {
-  this.fetchUser(this.userEmail);
- }
-  }
-  loadDevis(user: UserModel): void {
-    if (user.role === 'CLIENTADMIN') {
-      // Fetch all devis for the partner
-      this.devisService.getAlldevis().subscribe(
-        (data) => {
-          // Filter the fetched devis by partner
-          this.devis = data.filter(devis => devis.user.partner.id === user.partner.id && devis.archiveU);
+    // Instead of fetching user and manually fetching + filtering, call unified method
+    this.devisService.getArchiveByUserRole().subscribe({
+      next: (data) => {
+        if (!data || data.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Pas de devis archivés',
+          });
+        } else {
+          this.devis = data;
           this.applyFilter();
-          console.log('Loaded and filtered devis for partner:', this.devis); // Debug log
-        },
-        (error) => {
-          console.error('Error fetching all devis for partner', error);
+          console.log('Loaded archived devis:', this.devis);
         }
-      );
-    } else {
-      // Fetch devis for a specific user
-      this.devisService.getByIdUser(user.id).subscribe(
-        (data) => {
-          this.devis = data.filter(devis => devis.archiveU); // Filter out archived devis
-          this.applyFilter();
-          console.log('Loaded and filtered devis for user:', this.devis); // Debug log
-        },
-        (error) => {
-          console.error('Error fetching user devis', error);
-        }
-      );
-    }
-  }
-  private fetchUser(email: string): void {
-    this.userService.getUserByEmail(email).subscribe(
-      (data) => {
-        this.user = data;
-        this.loadDevis(data);
-        console.log(this.user)
       },
-      (error) => {
-        this.errorMessage = error.message;
-        console.error('Error fetching user:', error);
+      error: (error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Erreur lors du chargement des devis archivés!',
+        });
+        console.error('Error fetching archived devis', error);
       }
-    );
+    });
   }
+
+  loadDevis(user: UserModel): void {
+    // Removed user-based loading logic; merged into ngOnInit
+  }
+
   sortDevisByDate(): void {
     this.isAscending = !this.isAscending;
     this.filteredDevis.sort((a, b) => {
@@ -109,27 +91,16 @@ export class DevisUserlistArchiveComponent {
     return ['All', ...Array.from(new Set(years))];
   }
 
-  onYearChange(): void {
-    this.applyFilter();
-  }
-
-
   accepterDevis(id: number): void {
-    this.devisService.acceptdevis(id).subscribe(
-      (response) => {
-        console.log('Cahier des charges accepté', response);
-      location.reload();// Recharger les données après acceptation
-      },
-      (error) => {
-        console.error('Error accepting cahier des charges', error);
-      }
-    );
+    this.devisService.acceptdevis(id).subscribe({
+      next: () => location.reload(), // Reload after accept
+      error: (error) => console.error('Error accepting devis', error)
+    });
   }
-
 
   telechargerPieceJointe(fileName: string): void {
-    this.devisService.downloadFile(fileName).subscribe(
-      (blob) => {
+    this.devisService.downloadFile(fileName).subscribe({
+      next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -139,10 +110,8 @@ export class DevisUserlistArchiveComponent {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       },
-      (error) => {
-        console.error('Error downloading file', error);
-      }
-    );
+      error: (error) => console.error('Error downloading file', error)
+    });
   }
 
   openDeleteModal(id: number, template: TemplateRef<any>): void {
@@ -152,43 +121,42 @@ export class DevisUserlistArchiveComponent {
 
   confirmDelete(): void {
     if (this.rejectId !== null) {
-      this.devisService.RestorerU(this.rejectId).subscribe(
-        () => {
+      this.devisService.RestorerU(this.rejectId).subscribe({
+        next: () => {
           Swal.fire({
             title: 'Restauré!',
-            text: "Devis a été restauré avec succès.",
+            text: 'Le devis a été restauré avec succès.',
             icon: 'success'
           });
-
-        
           this.ngOnInit();
           this.modalRef?.hide();
         },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
+        error: (error) => {
+          console.error('Error restoring devis', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Le devis n\'a pas pu être restauré!',
+          });
           this.rejectId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
+
   @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
   @ViewChild('commentModal', { static: false }) commentModal?: TemplateRef<any>;
-
-
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
 
   openDetailsModal(id: number): void {
-    this.devisService.getById(id).subscribe(
-      (data) => {
-        this.devisDetails = data; // Stocker les détails du devis dans this.devisDetails
+    this.devisService.getById(id).subscribe({
+      next: (data) => {
+        this.devisDetails = data; // Store details
         this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-md' });
       },
-      (error) => {
-        console.error('Error fetching devis details', error);
-      }
-    );
+      error: (error) => console.error('Error fetching devis details', error)
+    });
   }
 
   openCommentModal(id: number, template: TemplateRef<any>): void {
@@ -199,19 +167,22 @@ export class DevisUserlistArchiveComponent {
 
   confirmRefuserCahier(): void {
     if (this.rejectId !== null && this.commentaire.trim()) {
-      this.devisService.rejectdevis(this.rejectId, this.commentaire).subscribe(
-        (response) => {
-          console.log('Cahier des charges refusé', response);
-          location.reload(); // Recharger les données après refus
+      this.devisService.rejectdevis(this.rejectId, this.commentaire).subscribe({
+        next: () => {
+          location.reload();
           this.modalRef?.hide();
           this.rejectId = null;
           this.commentaire = '';
         },
-        (error) => {
-          console.error('Error rejecting cahier des charges', error);
+        error: (error) => {
+          console.error('Error rejecting devis', error);
           this.modalRef?.hide();
         }
-      );
+      });
     }
+  }
+
+  onYearChange(): void {
+    this.applyFilter();
   }
 }

@@ -103,6 +103,12 @@ export class CahierDesChargesController {
     return this.service.getCahierDesChargesById(id);
   }
 
+  @Get('archive/user')
+async getArchiveForCurrentUser(@CurrentUser() user: User) {
+  return this.service.getArchiveByUserRole(user);
+}
+
+
   @Post()
   async create(@Body() dto: CreateCahierDesChargesDto): Promise<CahierDesCharges> {
     return this.service.saveCahierDesCharges(dto);

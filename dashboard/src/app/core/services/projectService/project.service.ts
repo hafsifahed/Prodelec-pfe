@@ -209,5 +209,7 @@ updateProject(
   getProjectsByPartner(partnerId: number) {
   return this.http.get<Project[]>(`${environment.baseUrl}/projects/partner/${partnerId}`);
 }
-
+getArchiveByUserRole() {
+  return this.http.get<Project[]>(`${environment.baseUrl}/projects/archive/user`);
+}
 }

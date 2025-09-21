@@ -223,4 +223,44 @@ export class CahierDesChargesService {
     cdc.archiveU = false;
     return this.repository.save(cdc);
   }
+
+async getArchiveByUserRole(user: User): Promise<CahierDesCharges[]> {
+  if (!user) return [];
+
+  const isClient = user.role?.name.toLowerCase().startsWith('client');
+
+  const qb = this.repository
+    .createQueryBuilder('cdc')
+    .leftJoinAndSelect('cdc.files', 'file')       // fichiers du cahier
+    .leftJoinAndSelect('cdc.user', 'user')       // utilisateur
+    .leftJoinAndSelect('user.partner', 'partner') // partenaire de l'utilisateur
+
+  if (isClient) {
+    qb.where('user.id = :userId', { userId: user.id })
+      .andWhere('cdc.archiveU = :archiveU', { archiveU: true });
+  } else {
+    qb.where('cdc.archive = :archive', { archive: true });
+  }
+
+  qb.orderBy(`
+    CASE cdc.etat
+      WHEN :aCompleter THEN 1
+      WHEN :accepte THEN 2
+      WHEN :enAttente THEN 3
+      WHEN :refuse THEN 4
+      ELSE 5
+    END
+  `, 'ASC')
+  .addOrderBy('cdc.createdAt', 'DESC')
+  .setParameters({
+    aCompleter: EtatCahier.ACompleter,
+    accepte: EtatCahier.Accepte,
+    enAttente: EtatCahier.EnAttente,
+    refuse: EtatCahier.Refuse,
+  });
+
+  return qb.getMany();
+}
+
+
 }

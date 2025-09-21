@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
   templateUrl: './devis-list-archive.component.html',
   styleUrls: ['./devis-list-archive.component.scss']
 })
-export class DevisListArchiveComponent {
+export class DevisListArchiveComponent implements OnInit {
   modalRef?: BsModalRef;
   devis: Devis[] = [];
   deleteId: number | null = null;
@@ -22,38 +22,54 @@ export class DevisListArchiveComponent {
   p: number = 1; // Current page number
   itemsPerPage: number = 5;
   pdfUrl: string | null = null;
+
   constructor(
     private devisService: DevisService,
     private modalService: BsModalService
   ) {}
-
 
   ngOnInit(): void {
     this.loadDevis();
   }
 
   loadDevis(): void {
-    this.devisService.getAlldevis().subscribe(
-      (data) => {
-        this.devis = data;
-        this.applyFilter(); // Apply filter initially
+    // Use new unified service method to fetch archived devis filtered by user role
+    this.devisService.getArchiveByUserRole().subscribe({
+      next: (data) => {
+        if (!data || data.length === 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Pas de devis archivés',
+          });
+          this.devis = [];
+          this.filteredDevis = [];
+        } else {
+          this.devis = data;
+          this.applyFilter();
+        }
       },
-      (error) => {
-        console.error('Error fetching devis', error);
+      error: (error) => {
+        console.error('Error fetching archived devis', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Erreur lors du chargement des devis archivés!',
+        });
       }
-    );
+    });
   }
+
   loadPDF(): void {
     if (this.devisDetails?.pieceJointe) {
-      this.devisService.getFileUrl(this.devisDetails.pieceJointe).subscribe(
-        (blob: Blob) => {
+      this.devisService.getFileUrl(this.devisDetails.pieceJointe).subscribe({
+        next: (blob: Blob) => {
           this.pdfUrl = URL.createObjectURL(blob);
         },
-        (error) => {
+        error: (error) => {
           console.error('Error loading file', error);
-          // Gérer l'erreur si nécessaire
         }
-      );
+      });
     }
   }
 
@@ -67,7 +83,7 @@ export class DevisListArchiveComponent {
   }
 
   getArchivedDevis(): Devis[] {
-    return this.filteredDevis.filter(devis => devis.archive);
+    return this.filteredDevis; // Already filtered on loadDevis()
   }
 
   applyFilter(): void {
@@ -91,13 +107,11 @@ export class DevisListArchiveComponent {
     this.applyFilter();
   }
 
-
-
-  
   openDeleteModal(id: number, template: TemplateRef<any>): void {
     this.deleteId = id;
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
+
   openRestoreModal(id: number, template: TemplateRef<any>): void {
     this.restoreId = id;
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
@@ -105,48 +119,55 @@ export class DevisListArchiveComponent {
 
   confirmRestore(): void {
     if (this.restoreId !== null) {
-      this.devisService.Restorer(this.restoreId).subscribe(
-        () => {
+      this.devisService.Restorer(this.restoreId).subscribe({
+        next: () => {
           Swal.fire({
             title: 'Restauré!',
             text: "Devis a été restauré avec succès.",
             icon: 'success'
-          })
-          this.ngOnInit();
+          });
+          this.loadDevis();
           this.modalRef?.hide();
         },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
-          this.deleteId = null;
+        error: (error) => {
+          console.error('Error restoring devis', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: "Le devis n'a pas pu être restauré!",
+          });
+          this.restoreId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
 
   confirmDelete(): void {
     if (this.deleteId !== null) {
-      this.devisService.deleteDevis(this.deleteId).subscribe(
-        () => {
+      this.devisService.deleteDevis(this.deleteId).subscribe({
+        next: () => {
           Swal.fire({
             title: 'Supprimé!',
             text: "Devis a été supprimé avec succès.",
             icon: 'success'
-          })
-     
-          this.devis = this.devis.filter(cdc => cdc.id !== this.deleteId);
+          });
+          this.devis = this.devis.filter(d => d.id !== this.deleteId);
           this.deleteId = null;
-               this.ngOnInit();
+          this.loadDevis();
           this.modalRef?.hide();
         },
-        error => {
-          console.error('Error deleting cahier des charges', error);
-          alert('Cahier des charges not deleted!');
+        error: (error) => {
+          console.error('Error deleting devis', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: "Le devis n'a pas pu être supprimé!",
+          });
           this.deleteId = null;
           this.modalRef?.hide();
         }
-      );
+      });
     }
   }
 
@@ -155,15 +176,15 @@ export class DevisListArchiveComponent {
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
 
   openDetailsModal(id: number): void {
-    this.devisService.getById(id).subscribe(
-      (data) => {
+    this.devisService.getById(id).subscribe({
+      next: (data) => {
         this.devisDetails = data;
         this.loadPDF(); 
         this.modalRef = this.modalService.show(this.detailsModal!, { class: 'modal-lg' });
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching devis details', error);
       }
-    );
+    });
   }
 }

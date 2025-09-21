@@ -43,6 +43,8 @@ export class DevisController {
       }),
     }),
   )
+
+
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
     return { filename: file.originalname };
@@ -149,7 +151,10 @@ export class DevisController {
     }
     return this.devisService.updatePieceJointe(id, body.pieceJointe);
   }
-
+  @Get('archive/user')
+getArchiveForCurrentUser(@CurrentUser() user: User): Promise<Devis[]> {
+  return this.devisService.getArchiveByUserRole(user);
+}
 
 
 }

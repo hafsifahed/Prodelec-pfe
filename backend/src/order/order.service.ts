@@ -121,4 +121,31 @@ async getAllOrders(): Promise<Order[]> {
     order.archiverc = !order.archiverc;
     return this.orderRepo.save(order);
   }
+
+async getArchiveByUserRole(user: User): Promise<Order[]> {
+  if (!user) return [];
+
+  const isClient = user.role?.name.toLowerCase().startsWith('client');
+
+  const qb = this.orderRepo
+    .createQueryBuilder('order')
+    .leftJoinAndSelect('order.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
+    .leftJoinAndSelect('order.devis', 'devis');
+    // Ajoutez d'autres jointures nécessaires ici
+
+  if (isClient) {
+    qb.where('user.id = :userId', { userId: user.id })
+      .andWhere('order.archiverc = :archiverc', { archiverc: true });
+  } else {
+    qb.where('order.archivera = :archivera', { archivera: true });
+  }
+
+  qb.orderBy('order.annuler', 'ASC')
+    .addOrderBy('order.createdAt', 'DESC');
+
+  return qb.getMany();
+}
+
+
 }

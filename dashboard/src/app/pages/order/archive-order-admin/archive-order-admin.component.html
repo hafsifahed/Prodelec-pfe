@@ -34,7 +34,7 @@
                 <tbody *ngFor="let data of list | paginate: { itemsPerPage: itemsPerPage, currentPage: p }; let i = index;" id="o_{{data.id}}">
                   <tr *ngIf="data.orderName === search || data.quoteNumber === search || !search">
                     <td>{{data.orderName}}</td>
-                    <td>{{data.quoteNumber}}</td>
+                    <td>{{data.devis.numdevis}}</td>
                     <td>{{data.user.username}}</td>
                     <td>
                         <span class="badge badge-pill font-size-11"

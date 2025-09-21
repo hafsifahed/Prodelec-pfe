@@ -16,69 +16,43 @@ import Swal from 'sweetalert2';
 export class ArchiveProjectUserComponent {
   list: Project[] = [];
   flist: Project[] = [];
-  search!: string;
-  completedDuration = 0;
-  progress: number = 0;
-  searchTerm: string ;
-  submitted = false;
-  project:any;
-  project1:Project;
+  searchTerm: string;
   p: number = 1; // Current page number
   itemsPerPage: number = 3;
-  user: UserModel | null = null;
-  errorMessage: string;
-  userEmail = localStorage.getItem('userMail') || '';
-  constructor(private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder,private usersService : UsersService) {
-  }
+
+  constructor(
+    private router: Router,
+    private orderservice: OrderServiceService,
+    private projectservice: ProjectService,
+    private formBuilder: UntypedFormBuilder,
+    private usersService: UsersService
+  ) {}
+
   ngOnInit() {
-    if (this.userEmail) {
-      this.fetchUser(this.userEmail);
-      
-    }
-    
-
-  }
-
-  loadproject(user:UserModel):void{
-    this.projectservice.getProjectsByUser(user.id).subscribe({
+    this.projectservice.getArchiveByUserRole().subscribe({
       next: (data) => {
-        if (data.length == 0) {
+        if (data.length === 0) {
           Swal.fire({
             icon: 'warning',
             title: 'Oops...',
-            text: 'Pas de projets',
+            text: 'Pas de projets archivés',
           });
         } else {
-          this.list = data.filter((project) => project.archiverc);
-          this.flist=data.filter((project) => project.archiverc);
+          this.list = data;
+          this.flist = data;
         }
       },
       error: () => {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Il y a un probléme!',
+          text: 'Il y a un problème!',
         });
       },
     });
   }
 
-  private fetchUser(email: string): void {
-    this.usersService.getUserByEmail(email).subscribe(
-        (data) => {
-          this.user = data;
-          this.loadproject(data);
-          console.log(this.user)
-        },
-        (error) => {
-          console.error('Error fetching user data', error);
-          this.errorMessage = 'Error fetching user data. Please try again later.';
-        }
-    );
-  }
-
   applySearchFilter(): void {
-    console.log('Search term:', this.searchTerm);
     if (this.searchTerm) {
       this.flist = this.list.filter(project =>
         this.filterByCategory(project)
@@ -86,39 +60,38 @@ export class ArchiveProjectUserComponent {
     } else {
       this.flist = this.list;
     }
-    console.log('Filtered transactions:', this.flist);
   }
 
-  filterByCategory(project: any): boolean {
+  filterByCategory(project: Project): boolean {
+    if (!project.order || !project.order.orderName) return false;
     return project.order.orderName.toLowerCase().includes(this.searchTerm.toLowerCase());
   }
 
-
   restaurer(id: number) {
     Swal.fire({
-      title: 'Vous etes sure?',
-      text: "Vous ne pouvez pas revenir en arriére!",
+      title: 'Vous êtes sûr ?',
+      text: "Vous ne pouvez pas revenir en arrière !",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui!',
+      confirmButtonText: 'Oui !',
     }).then((result) => {
       if (result.isConfirmed) {
         this.projectservice.archiverc(id).subscribe({
-          next: (data) => {
+          next: () => {
             Swal.fire({
-              title: 'Restauré!',
-              text: "Le projet a été Restauré.",
+              title: 'Restauré !',
+              text: "Le projet a été restauré.",
               icon: 'success',
             });
             location.reload();
           },
-          error: (error) => {
+          error: () => {
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Il y a un probléme!',
+              text: 'Il y a un problème!',
             });
           },
         });

@@ -86,5 +86,7 @@ updateDevisPieceJointe(id: number, pieceJointe: string): Observable<Devis> {
 getAcceptedDevisForCurrentUser(): Observable<Devis[]> {
   return this.http.get<Devis[]>(`${environment.baseUrl}/devis/accepted`);
 }
-
+getArchiveByUserRole(): Observable<Devis[]> {
+  return this.http.get<Devis[]>(`${environment.baseUrl}/devis/archive/user`);
+}
 }

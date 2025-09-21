@@ -14,40 +14,43 @@ import Swal from 'sweetalert2';
 export class ArchiveProjectAdminComponent {
   list: Project[] = [];
   flist: Project[] = [];
-  search!: string;
-  completedDuration = 0;
-  progress: number = 0;
-  searchTerm: string ;
+  searchTerm: string;
   submitted = false;
-  project:any;
-  project1:Project;
   p: number = 1; // Current page number
   itemsPerPage: number = 3;
-  constructor(private router: Router, private orderservice: OrderServiceService, private projectservice: ProjectService, private formBuilder: UntypedFormBuilder) {
-  }
+
+  constructor(
+    private router: Router,
+    private orderservice: OrderServiceService,
+    private projectservice: ProjectService,
+    private formBuilder: UntypedFormBuilder
+  ) {}
+
   ngOnInit() {
-    this.projectservice.getAllProjects().subscribe({
+    this.projectservice.getArchiveByUserRole().subscribe({
       next: (data) => {
         if (data.length == 0) {
           Swal.fire({
             icon: 'warning',
             title: 'Oops...',
-            text: 'Pas de projets',
+            text: 'Pas de projets archivés',
           });
         } else {
-          this.list = data.filter((project) => project.archivera);
-          this.flist=data.filter((project) => project.archivera);
+          // The response is already filtered, no need to filter again by archivera
+          this.list = data;
+          this.flist = data;
+          console.log('archive list', this.list);
+          console.log('archive flist', this.flist);
         }
       },
       error: () => {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Il y a un probléme!',
+          text: 'Il y a un problème!',
         });
       },
     });
-
   }
 
   applySearchFilter(): void {
@@ -59,38 +62,39 @@ export class ArchiveProjectAdminComponent {
     } else {
       this.flist = this.list;
     }
-    console.log('Filtered transactions:', this.flist);
+    console.log('Filtered projects:', this.flist);
   }
 
-  filterByCategory(project: any): boolean {
+  filterByCategory(project: Project): boolean {
+    if (!project.order || !project.order.orderName) return false;
     return project.order.orderName.toLowerCase().includes(this.searchTerm.toLowerCase());
   }
 
   delete(id: number) {
     Swal.fire({
-      title: 'Vous etes sure?',
-      text: "Vous ne pouvez pas revenir en arriére!",
+      title: 'Vous êtes sûr ?',
+      text: "Vous ne pouvez pas revenir en arrière !",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui!',
+      confirmButtonText: 'Oui !',
     }).then((result) => {
       if (result.isConfirmed) {
         this.projectservice.deleteProject(id).subscribe({
-          next: (data) => {
+          next: () => {
             Swal.fire({
-              title: 'Supprimé!',
+              title: 'Supprimé !',
               text: "Le projet a été supprimé.",
               icon: 'success',
             });
             location.reload();
           },
-          error: (error) => {
+          error: () => {
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Il y a un probléme!',
+              text: 'Il y a un problème!',
             });
           },
         });
@@ -100,29 +104,29 @@ export class ArchiveProjectAdminComponent {
 
   restaurer(id: number) {
     Swal.fire({
-      title: 'Vous etes sure?',
-      text: "Vous ne pouvez pas revenir en arriére!",
+      title: 'Vous êtes sûr ?',
+      text: "Vous ne pouvez pas revenir en arrière !",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui!',
+      confirmButtonText: 'Oui !',
     }).then((result) => {
       if (result.isConfirmed) {
         this.projectservice.archivera(id).subscribe({
-          next: (data) => {
+          next: () => {
             Swal.fire({
-              title: 'Restauré!',
-              text: "Le projet a été Restauré.",
+              title: 'Restauré !',
+              text: "Le projet a été restauré.",
               icon: 'success',
             });
             location.reload();
           },
-          error: (error) => {
+          error: () => {
             Swal.fire({
               icon: 'error',
               title: 'Oops...',
-              text: 'Il y a un probléme!',
+              text: 'Il y a un problème!',
             });
           },
         });
