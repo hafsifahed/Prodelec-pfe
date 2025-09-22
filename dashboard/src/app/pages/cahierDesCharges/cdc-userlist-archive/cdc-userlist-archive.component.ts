@@ -29,6 +29,7 @@ export class CDCUserlistArchiveComponent {
   ngOnInit(): void {
     this.cdcService.getArchiveByUserRole().subscribe({
       next: (data) => {
+        console.log(data);
         if (!data || data.length === 0) {
           Swal.fire({
             icon: 'warning',

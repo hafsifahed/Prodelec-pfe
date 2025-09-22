@@ -1,118 +1,90 @@
 <div class="container-fluid">
   <app-page-title title="Archive"></app-page-title>
 </div>
+
 <div class="search-container">
-    <input type="text" [(ngModel)]="searchEmail" placeholder="Rechercher par email utilisateur" class="form-control mb-3">
+  <input type="text" [(ngModel)]="searchEmail" placeholder="Rechercher par email utilisateur" class="form-control mb-3" />
+</div>
+
+<div *ngIf="getArchivedCahiers().length > 0; else noCahiers">
+  <div class="table-responsive mb-0">
+    <table class="table table-centered table-nowrap">
+      <thead class="table-light">
+        <tr>
+          <th class="align-middle">Projet</th>
+          <th class="align-middle">Client</th>
+          <th class="align-middle" title="Trier par date" (click)="sortDevisByDate()" style="cursor: pointer;">
+            Date de création
+            <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
+          </th>
+          <th class="align-middle">État</th>
+          <th class="align-middle">Détails</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cahier of getArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
+          <td class="text-body fw-bold">{{ cahier?.titre }}</td>
+          <td>{{ cahier.user?.email }}</td>
+          <td>{{ cahier.createdAt | date:'short' }}</td>
+          <td>
+            <span class="badge badge-pill badge-soft-success font-size-11"
+              [ngClass]="{
+                'badge-soft-danger': cahier.etat === 'Refusé',
+                'badge-soft-warning': cahier.etat === 'en_attente'
+              }">
+              {{ cahier.etat }}
+            </span>
+          </td>
+          <td>
+            <button class="btn detail-custom" (click)="openDetailsModal(cahier.id)">
+              <i class="bx bxs-detail" style="font-size: medium;"></i>
+            </button>
+            <button class="btn" (click)="openRestoreModal(cahier.id, restoreModal)">
+              <i class="fas fa-trash-restore"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-<div *ngIf=" getArchivedCahiers().length > 0; else noCahiers">
-    <div class="table-responsive mb-0">
-      <table class="table table-centered table-nowrap">
-        <thead class="table-light">
-          <tr>
-            <th class="align-middle">Projet</th>
-            <th class="align-middle">Client</th>
-            <th class="align-middle" title="Trier par date" (click)="sortDevisByDate()" style="cursor: pointer;">
-              Date de création
-              <i class="mdi" [ngClass]="{'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending}"></i>
-            </th>
-            <th class="align-middle">Etat</th>
-            <th class="align-middle">Détails</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let cahier of getArchivedCahiers() | paginate: { itemsPerPage: itemsPerPage, currentPage: p }">
-            <td class="text-body fw-bold">{{ cahier?.titre }}</td>
-            <td>{{ cahier.user?.email }}</td>
-            <td>{{ cahier.createdAt | date:'short' }}</td>
-            <td>
-              <span class="badge badge-pill badge-soft-success font-size-11"
-                [ngClass]="{
-                  'badge-soft-danger': cahier.etat === 'Refusé',
-                  'badge-soft-warning': cahier.etat === 'en_attente'
-                }">
-                {{ cahier.etat }}
-              </span>
-            </td>
-            <td>
-              <button class="btn detail-custom" (click)="openDetailsModal(cahier.id)">
-                <i class="bx bxs-detail" style="font-size: medium;"></i>
-              </button>
-
-              <!-- <button class="btn moin-btn"  (click)="openDeleteModal(cahier.id, deleteModal)">
-                <i class="fas fa-trash-alt"></i>
-              </button> -->
-
-              <button class="btn "  (click)="openRestoreModal(cahier.id, restoreModal)">
-                <i class="fas fa-trash-restore"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      
-    </div>
-    <div class="pagination-container">
-      <pagination-controls (pageChange)="p = $event"></pagination-controls>
-    </div>
-  
+  <div class="pagination-container">
+    <pagination-controls (pageChange)="p = $event"></pagination-controls>
   </div>
-  <ng-template #noCahiers>
-    <p>Aucun cahier des charges archivé trouvé.</p>
-  </ng-template>
-  
-  <!-- Modal de détails -->
-  <ng-template #detailsModal>
-    <div class="modal-header">
-      <h5 class="modal-title">Détails du Cahier des Charges</h5>
-      <button type="button" class="close" (click)="modalRef?.hide()">
-        <span>&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <!-- Afficher les détails du cahier des charges ici -->
-      <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
-      <p><strong>Description:</strong> {{ cahier?.description }}</p>
-      <p><strong>Date de création:</strong> {{ cahier?.createdAt | date:'short' }}</p>
-      <p><strong>Etat:</strong> {{ cahier?.etat }}</p>
-      <p><strong>Client:</strong> {{ cahier.user?.partner?.name }}</p>
-      <!-- Ajoutez d'autres détails si nécessaire -->
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
-    </div>
-  </ng-template>
-    <!-- Modal -->
-    <!-- <ng-template #deleteModal>
-        <div class="modal-header">
-          <h4 class="modal-title">Confirmation</h4>
-          <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
-            
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Voulez-vous vraiment supprimer ce cahier des charges ? </p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-          <button type="button" class="btn btn-danger" (click)="confirmDelete()">supprimer</button>
-        </div>
-      </ng-template> -->
-    <!-- end removeItemModal -->
+</div>
 
-        <!-- Modal -->
-        <ng-template #restoreModal>
-            <div class="modal-header">
-              <h4 class="modal-title">Confirmation</h4>
-              <button type="button" class="btn btn-close" aria-label="Close" style="size: 10px;" (click)="modalRef?.hide()">
-                
-              </button>
-            </div>
-            <div class="modal-body">
-              <p>Voulez-vous vraiment restorer ce cahier des charges ? </p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
-              <button type="button" class="btn btn-danger" (click)="confirmRestore()">Restorer</button>
-            </div>
-          </ng-template>
-        <!-- end removeItemModal -->
+<ng-template #noCahiers>
+  <p>Aucun cahier des charges archivé trouvé.</p>
+</ng-template>
+
+<!-- Modal Détails -->
+<ng-template #detailsModal>
+  <div class="modal-header">
+    <h5 class="modal-title">Détails du Cahier des Charges</h5>
+    <button type="button" class="close" (click)="modalRef?.hide()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <p><strong>Titre:</strong> {{ cahier?.titre }}</p>
+    <p><strong>Description:</strong> {{ cahier?.description }}</p>
+    <p><strong>Date de création:</strong> {{ cahier?.createdAt | date:'short' }}</p>
+    <p><strong>État:</strong> {{ cahier?.etat }}</p>
+    <p><strong>Client:</strong> {{ cahier.user?.partner?.name }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Fermer</button>
+  </div>
+</ng-template>
+
+<!-- Modal Restaurer -->
+<ng-template #restoreModal>
+  <div class="modal-header">
+    <h4 class="modal-title">Confirmation</h4>
+    <button type="button" class="btn btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+  </div>
+  <div class="modal-body">
+    <p>Voulez-vous vraiment restaurer ce cahier des charges ?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modalRef?.hide()">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmRestore()">Restaurer</button>
+  </div>
+</ng-template>

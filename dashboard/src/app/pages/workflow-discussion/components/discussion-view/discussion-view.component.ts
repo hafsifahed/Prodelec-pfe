@@ -24,6 +24,8 @@ import { DetailsDevisAdminModalComponent } from 'src/app/pages/devis/modals/deta
 import { RefuseDevisAdminModalComponent } from 'src/app/pages/devis/modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { Project } from 'src/app/core/models/projectfo/project';
+import { ProjectAddModalComponent } from 'src/app/pages/projectfo/modals/project-add-modal/project-add-modal.component';
 
 @Component({
   selector: 'app-discussion-view',
@@ -532,5 +534,21 @@ openDetailsWorkerModal(id: number): void {
         }
       });
     }
+
+/*
+openAddProjectModal(project: Project | null = null) {
+  const initialState = { project }; // passer le projet si édition sinon null
+  this.modalRef = this.modalService.show(ProjectAddModalComponent, {
+    initialState,
+    class: 'modal-xl' // taille large, à adapter
+  });
+
+  // Écoute la fermeture ou la sauvegarde
+  this.modalRef.content.projectAdded.subscribe(() => {
+    this.loadDiscussion(); // recharge données après ajout/modification
+    this.modalRef?.hide();
+  });
+}
+*/
   
 }

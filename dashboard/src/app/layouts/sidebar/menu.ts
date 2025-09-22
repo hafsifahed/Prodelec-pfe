@@ -150,7 +150,7 @@ export const MENU: MenuItem[] = [
       },
       {
         id: 402, label: 'Réclamations (Client)', link: purl + '/reclamationUser',
-            accessOnly: 'CLIENT',
+        accessOnly: 'CLIENT',
         rolePermissions: [
           { resource: Resource.QUALITY, actions: [Action.READ], roles: [RoleName.CLIENT_ADMIN, RoleName.CLIENT_USER] },
         ],
@@ -211,26 +211,57 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         id: 601, label: 'Archive Commandes', link: purl + '/archiveorderadminclient',
+        accessOnly: 'CLIENT',
         rolePermissions: [
           { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
         ],
       },
       {
         id: 602, label: 'Archive Projets', link: purl + '/archiveprojectadminclient',
+        accessOnly: 'CLIENT',
         rolePermissions: [
-          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [ RoleName.CLIENT_ADMIN] },
         ],
       },
        {
         id: 603, label: 'Archive Cahier de charge err', link: purl + '/cdcUser/cdcArchive',
+        accessOnly: 'CLIENT',
         rolePermissions: [
           { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
         ],
       },
        {
         id: 604, label: 'Archive devis err', link: purl + '/devisUser/devisArchive',
+        accessOnly: 'CLIENT',
         rolePermissions: [
-          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN, RoleName.CLIENT_ADMIN] },
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [ RoleName.CLIENT_ADMIN] },
+        ],
+      },
+       {
+        id: 605, label: 'Archive devis', link: purl + '/devis/devisArchive',
+        accessOnly: 'WORKER',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN] },
+        ],
+      },
+       {
+        id: 606, label: 'Archive Cahier de charge', link: purl + '/cdc/cdcArchive',
+        accessOnly: 'WORKER',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN] },
+        ],
+      },
+      {
+        id: 607, label: 'Archive Projets', link: purl + '/archiveprojectadmin',
+        accessOnly: 'WORKER',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [ RoleName.ADMIN] },
+        ],
+      }, {
+        id: 601, label: 'Archive Commandes', link: purl + '/archiveorderadmin',
+        accessOnly: 'WORKER',
+        rolePermissions: [
+          { resource: Resource.ORDERS, actions: [Action.EXPORT], roles: [RoleName.ADMIN] },
         ],
       }
     ],

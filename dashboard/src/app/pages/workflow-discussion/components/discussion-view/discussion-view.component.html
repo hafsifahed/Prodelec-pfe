@@ -1,6 +1,6 @@
 <div class="discussion-container" *ngIf="!isLoading; else loading" style="display:flex; flex-direction: column; height: 100%;">
 
-
+    <!-- Nouveaux boutons pour la phase 'cdc' -->
   <div class="discussion-actions" *ngIf="discussion?.cdc" style="padding: 10px; display: flex; gap: 10px;">
    <ng-container *ngIf="discussion?.currentPhase === 'cdc'"> 
     <button *ngIf="!currentUser.role?.name.startsWith('CLIENT') && discussion.cdc.etat == EtatCdc.EnAttente" type="button" class="btn btn-success" (click)="onAccept()" title="Accepter">
@@ -48,9 +48,15 @@
       </button>
   </ng-container>
 
-  <!--Order-->
+      <!-- Nouveaux boutons pour la phase 'order' -->
   <ng-container *ngIf="discussion.currentPhase === 'order'">
-        <button class="btn btn-success" routerLink="/addorder">+ Ajouter</button>
+        <button class="btn btn-success" routerLink="/addorder">+ Ajouter Commande</button>
+
+  </ng-container>
+
+  <!-- Nouveaux boutons pour la phase 'order' -->
+  <ng-container *ngIf="discussion.currentPhase === 'project'">
+  <!--<button class="btn btn-success" (click)="openAddProjectModal(null)">+ Ajouter Projet</button>-->
 
   </ng-container>
 

@@ -135,7 +135,7 @@ export class DevisService {
 console.log('devi : ',devis.cahierDesCharges)
     await this.discussionService.transitionPhase(
     devis.cahierDesCharges.id ,
-    { targetPhase: WorkflowPhase.DEVIS, targetEntityId: updatedDevis.id }
+    { targetPhase: WorkflowPhase.ORDER, targetEntityId: updatedDevis.id }
   );
 
     return updatedDevis;

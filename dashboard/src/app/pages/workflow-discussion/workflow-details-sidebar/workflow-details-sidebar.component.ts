@@ -80,4 +80,6 @@ export class WorkflowDetailsSidebarComponent implements OnChanges {
   setActiveTab(tab: string): void {
     this.activeTab = tab;
   }
+
+  
 }
