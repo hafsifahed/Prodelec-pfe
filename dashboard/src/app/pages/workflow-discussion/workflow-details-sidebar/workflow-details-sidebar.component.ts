@@ -8,6 +8,9 @@ import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
 import { WorkflowDiscussionService } from '../services/workflow-discussion.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { DevisService } from 'src/app/core/services/Devis/devis.service';
+import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
 
 @Component({
   selector: 'app-workflow-details-sidebar',
@@ -17,6 +20,7 @@ import { WorkflowDiscussionService } from '../services/workflow-discussion.servi
 export class WorkflowDetailsSidebarComponent implements OnChanges ,OnInit {
   @Input() discussion: WorkflowDiscussion | null = null;
   modalRef?: BsModalRef;
+  userr: any;
 
   sections = { cdc: true, devis: true, orders: true, projects: true };
   activeTab: string = 'cdc';
@@ -24,23 +28,26 @@ export class WorkflowDetailsSidebarComponent implements OnChanges ,OnInit {
   constructor(private modalService: BsModalService,    private router: Router,
     private projectservice: ProjectService,
     private orderService: OrderServiceService,
-    private discussionService: WorkflowDiscussionService
+    private discussionService: WorkflowDiscussionService,
+    private userStateService: UserStateService,
+    private cdcservice: CdcServiceService,
+    private devisService:DevisService
   ) {}
 
   ngOnInit(): void {
-    // Si une discussion est déjà définie en entrée au début, on la charge/refraîchit
-    console.log('discussion 0', this.discussion);
-    if (this.discussion?.id) {
-      this.refreshDiscussion();
-    }
-        console.log('discussion 1', this.discussion);
+     this.userStateService.user$.subscribe(user => {
+      this.userr = user;
+    });
 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['discussion'] && this.discussion?.currentPhase) {
       this.setActiveTabBasedOnPhase();
+      this.refreshDiscussion();
+      console.log('discussion side details', this.discussion);
     }
+    
   }
 
   private setActiveTabBasedOnPhase(): void {
@@ -130,26 +137,35 @@ export class WorkflowDetailsSidebarComponent implements OnChanges ,OnInit {
     cancelButtonText: 'Annuler'
   }).then(result => {
     if (result.isConfirmed) {
-      this.projectservice.archivera(projectId).subscribe({
-        next: () => {
-          Swal.fire({
-            title: 'Archivée!',
-            text: 'Le projet a été archivé.',
-            icon: 'success',
-          });
-          this.refreshProjects(); // recharge la liste des projets
-        },
-        error: () => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Erreur',
-            text: 'Impossible d\'archiver le projet',
-          });
-        }
-      });
+      let isClientRole = this.userr?.role?.name?.toLowerCase().startsWith('client');
+
+      if (isClientRole) {
+        // Pour les clients
+        this.projectservice.archiverc(projectId).subscribe({
+          next: () => {
+            Swal.fire('Archivée!', 'Le projet a été archivé côté client.', 'success');
+            this.refreshProjects();
+          },
+          error: () => {
+            Swal.fire('Erreur', 'Impossible d\'archiver le projet côté client', 'error');
+          }
+        });
+      } else {
+        // Pour les workers
+        this.projectservice.archivera(projectId).subscribe({
+          next: () => {
+            Swal.fire('Archivée!', 'Le projet a été archivé côté worker.', 'success');
+            this.refreshProjects();
+          },
+          error: () => {
+            Swal.fire('Erreur', 'Impossible d\'archiver le projet côté worker', 'error');
+          }
+        });
+      }
     }
   });
 }
+
 
 
   deleteProject(projectId: number) {
@@ -249,10 +265,12 @@ export class WorkflowDetailsSidebarComponent implements OnChanges ,OnInit {
 
 
   viewProjectDetails(project: any): void {
-  // Par exemple ouvrir un modal détail ou router vers une page détail
-  console.log('Détails projet', project);
- this.router.navigate(['/listproject', project.idproject]);
+  const url = this.router.serializeUrl(
+    this.router.createUrlTree(['/listproject', project.idproject])
+  );
+  window.open(url, '_blank');
 }
+
 
   refreshDiscussion() {
   if (!this.discussion) return;
@@ -276,6 +294,99 @@ refreshProjects() {
 
 refreshOrders() {
   this.refreshDiscussion();
+}
+
+
+archiveDevis(devisId: number) {
+  Swal.fire({
+    title: 'Confirmer archivage',
+    text: 'Cette action va archiver le devis.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Archiver',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.devisService.archiver(devisId).subscribe({
+        next: () => {
+          Swal.fire('Archivé!', 'Le devis a été archivé.', 'success');
+          this.refreshDiscussion();
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Impossible d\'archiver le devis.', 'error');
+        }
+      });
+    }
+  });
+}
+
+deleteDevis(devisId: number) {
+  Swal.fire({
+    title: 'Confirmer suppression',
+    text: 'Cette action est irréversible.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Supprimer',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.devisService.deleteDevis(devisId).subscribe({
+        next: () => {
+          Swal.fire('Supprimé!', 'Le devis a été supprimé.', 'success');
+          this.refreshDiscussion();
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Impossible de supprimer le devis.', 'error');
+        }
+      });
+    }
+  });
+}
+
+archiveCdc(cdcId: number) {
+  Swal.fire({
+    title: 'Confirmer archivage',
+    text: 'Cette action va archiver le cahier des charges.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Archiver',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.cdcservice.archiver(cdcId).subscribe({
+        next: () => {
+          Swal.fire('Archivé!', 'Le cahier des charges a été archivé.', 'success');
+          this.refreshDiscussion();
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Impossible d\'archiver le cahier des charges.', 'error');
+        }
+      });
+    }
+  });
+}
+
+deleteCdc(cdcId: number) {
+  Swal.fire({
+    title: 'Confirmer suppression',
+    text: 'Cette action est irréversible.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Supprimer',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.cdcservice.deleteCdc(cdcId).subscribe({
+        next: () => {
+          Swal.fire('Supprimé!', 'Le cahier des charges a été supprimé.', 'success');
+          this.refreshDiscussion();
+        },
+        error: () => {
+          Swal.fire('Erreur', 'Impossible de supprimer le cahier des charges.', 'error');
+        }
+      });
+    }
+  });
 }
 
 }

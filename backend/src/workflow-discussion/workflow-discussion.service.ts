@@ -310,6 +310,7 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
     .leftJoinAndSelect('devis.user', 'devisUser')
     .leftJoinAndSelect('discussion.orders', 'orders')
     .leftJoinAndSelect('orders.user', 'orderUser')
+    .leftJoinAndSelect('orders.projects', 'orderProjects')
     .leftJoinAndSelect('discussion.projects', 'projects')
     .leftJoinAndSelect('projects.order', 'projectOrder')
     .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')

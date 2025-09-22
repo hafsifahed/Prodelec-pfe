@@ -10,29 +10,28 @@
       class="tab-button" 
       [class.active]="activeTab === 'cdc'" 
       (click)="setActiveTab('cdc')"
-      *ngIf="discussion.cdc">
+      *ngIf="discussion?.cdc">
       Cahier des charges
     </button>
     <button 
       class="tab-button" 
       [class.active]="activeTab === 'devis'" 
       (click)="setActiveTab('devis')"
-      *ngIf="discussion.devis">
+      *ngIf="discussion?.devis">
       Devis
     </button>
     <button 
       class="tab-button" 
       [class.active]="activeTab === 'orders'" 
       (click)="setActiveTab('orders')"
-      *ngIf="discussion.orders && discussion.orders.length > 0">
+      *ngIf="discussion?.orders?.length > 0">
       Commandes
     </button>
     <button 
       class="tab-button" 
       [class.active]="activeTab === 'projects'" 
       (click)="setActiveTab('projects')"
-      *ngIf="discussion.projects && discussion.projects.length > 0"
-      >
+      *ngIf="discussion?.projects?.length > 0">
       Projets
     </button>
   </nav>
@@ -40,7 +39,7 @@
   <!-- Tab Content -->
   <div class="tab-content">
     <!-- Cahier des charges -->
-    <div class="sidebar-section" *ngIf="discussion.cdc && activeTab === 'cdc'">
+    <div class="sidebar-section" *ngIf="discussion?.cdc && activeTab === 'cdc'">
       <div class="section-header" (click)="toggleSection('cdc')">
         <h5>Cahier des charges</h5>
         <span class="toggle-icon">{{ sections.cdc ? '−' : '+' }}</span>
@@ -59,14 +58,11 @@
         </p>
         <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
         <p *ngIf="discussion.cdc.user"><strong>Créé par:</strong> {{ discussion.cdc.user.username }}</p>
-
-        <!-- Boutons actions cdc si besoin (exemple) -->
-        <!-- <button class="btn btn-sm btn-primary">Modifier CDC</button> -->
       </div>
     </div>
 
     <!-- Devis -->
-    <div class="sidebar-section" *ngIf="discussion.devis && activeTab === 'devis'">
+    <div class="sidebar-section" *ngIf="discussion?.devis && activeTab === 'devis'">
       <div class="section-header" (click)="toggleSection('devis')">
         <h5>Devis</h5>
         <span class="toggle-icon">{{ sections.devis ? '−' : '+' }}</span>
@@ -85,14 +81,11 @@
           </span>
         </p>
         <p><strong>Date de création:</strong> {{ discussion.devis.createdAt | date }}</p>
-
-        <!-- Boutons actions devis si besoin -->
-        <!-- <button class="btn btn-sm btn-primary">Modifier Devis</button> -->
       </div>
     </div>
 
     <!-- Commandes avec boutons d'actions -->
-    <div *ngIf="discussion.orders && discussion.orders.length > 0 && activeTab === 'orders'">
+    <div *ngIf="discussion?.orders?.length > 0 && activeTab === 'orders'">
       <div class="sidebar-section">
         <div class="section-header" (click)="toggleSection('orders')">
           <h5>Commandes ({{ discussion.orders.length }})</h5>
@@ -145,7 +138,50 @@
                     <p><strong>Progression:</strong> {{ project.progress }}%</p>
                     <p><strong>Durée estimée:</strong> {{ project.duree }} jours</p>
                   </div>
-                   <div class="btn-group" role="group">
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-info me-2" (click)="duplicateProject(project)">
+                      Dupliquer
+                    </button>
+                    <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning me-2" (click)="archiveProject(project.idproject)">
+                      Archiver
+                    </button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteProject(project.idproject)">
+                      Supprimer
+                    </button>
+                    <button class="btn btn-sm btn-secondary" (click)="viewProjectDetails(project)">
+                      Détails
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projets avec boutons -->
+    <div class="sidebar-section" *ngIf="discussion?.projects?.length > 0 && activeTab === 'projects'">
+      <div class="section-header" (click)="toggleSection('projects')">
+        <h5>Projets ({{ discussion.projects.length }})</h5>
+        <span class="toggle-icon">{{ sections.projects ? '−' : '+' }}</span>
+      </div>
+      <div class="section-content" *ngIf="sections.projects">
+        <div *ngFor="let project of discussion.projects" class="project-item mb-3">
+          <h6> <strong>Commande:</strong>{{ project.order.orderName }} </h6>
+          <h6>{{ project.refClient }} - {{ project.refProdelec }}</h6>
+          <p><strong>Quantité:</strong> {{ project.qte }}</p>
+          <p><strong>Progression:</strong> {{ project.progress }}%</p>
+          <p><strong>Durée estimée:</strong> {{ project.duree }} jours</p>
+          <p><strong>Date limite:</strong> {{ project.dlp | date }}</p>
+          <p><strong>Statut:</strong>
+            <span class="badge" [ngClass]="getProjectStatusClass(project)">
+              {{ getProjectStatus(project) }}
+            </span>
+          </p>
+
+          <div class="btn-group" role="group">
             <button class="btn btn-sm btn-info me-2" (click)="duplicateProject(project)">
               Dupliquer
             </button>
@@ -159,32 +195,6 @@
               Détails
             </button>
           </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Projets avec boutons -->
-    <div class="sidebar-section" *ngIf="discussion.projects && discussion.projects.length > 0 && activeTab === 'projects'">
-      <div class="section-header" (click)="toggleSection('projects')">
-        <h5>Projets ({{ discussion.projects.length }})</h5>
-        <span class="toggle-icon">{{ sections.projects ? '−' : '+' }}</span>
-      </div>
-      <div class="section-content" *ngIf="sections.projects">
-        <div *ngFor="let project of discussion.projects" class="project-item mb-3">
-          <h6>{{ project.refClient }} - {{ project.refProdelec }}</h6>
-          <p><strong>Quantité:</strong> {{ project.qte }}</p>
-          <p><strong>Progression:</strong> {{ project.progress }}%</p>
-          <p><strong>Durée estimée:</strong> {{ project.duree }} jours</p>
-          <p><strong>Date limite:</strong> {{ project.dlp | date }}</p>
-          <span class="badge me-2" [ngClass]="getProjectStatusClass(project)">
-            {{ getProjectStatus(project) }}
-          </span>
-
         </div>
       </div>
     </div>
