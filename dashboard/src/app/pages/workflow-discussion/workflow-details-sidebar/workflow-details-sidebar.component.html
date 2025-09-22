@@ -39,50 +39,69 @@
   <!-- Tab Content -->
   <div class="tab-content">
     <!-- Cahier des charges -->
-    <div class="sidebar-section" *ngIf="discussion?.cdc && activeTab === 'cdc'">
-      <div class="section-header" (click)="toggleSection('cdc')">
-        <h5>Cahier des charges</h5>
-        <span class="toggle-icon">{{ sections.cdc ? '−' : '+' }}</span>
-      </div>
-      <div class="section-content" *ngIf="sections.cdc">
-        <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
-        <p><strong>État:</strong> 
-          <span class="badge" [ngClass]="{
-            'badge-soft-danger': discussion.cdc.etat === 'Refusé',
-            'badge-soft-warning': discussion.cdc.etat === 'En attente',
-            'badge-soft-info': discussion.cdc.etat === 'À compléter',
-            'badge-soft-success': discussion.cdc.etat === 'Accepté'
-          }">
-            {{ discussion.cdc.etat }}
-          </span>
-        </p>
-        <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
-        <p *ngIf="discussion.cdc.user"><strong>Créé par:</strong> {{ discussion.cdc.user.username }}</p>
-      </div>
-    </div>
+<div class="sidebar-section" *ngIf="discussion?.cdc && activeTab === 'cdc'">
+  <div class="section-header" (click)="toggleSection('cdc')">
+    <h5>Cahier des charges</h5>
+    <span class="toggle-icon">{{ sections.cdc ? '−' : '+' }}</span>
+  </div>
+  <div class="section-content" *ngIf="sections.cdc">
+    <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
+    <p><strong>État:</strong> 
+      <span class="badge" [ngClass]="{
+        'badge-soft-danger': discussion.cdc.etat === 'Refusé',
+        'badge-soft-warning': discussion.cdc.etat === 'En attente',
+        'badge-soft-info': discussion.cdc.etat === 'À compléter',
+        'badge-soft-success': discussion.cdc.etat === 'Accepté'
+      }">
+        {{ discussion.cdc.etat }}
+      </span>
+    </p>
+    <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
+    <p *ngIf="discussion.cdc.user"><strong>Créé par:</strong> {{ discussion.cdc.user.username }}</p>
 
-    <!-- Devis -->
-    <div class="sidebar-section" *ngIf="discussion?.devis && activeTab === 'devis'">
-      <div class="section-header" (click)="toggleSection('devis')">
-        <h5>Devis</h5>
-        <span class="toggle-icon">{{ sections.devis ? '−' : '+' }}</span>
-      </div>
-      <div class="section-content" *ngIf="sections.devis">
-        <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
-        <p><strong>Projet:</strong> {{ discussion.devis.projet }}</p>
-        <p><strong>État:</strong> 
-          <span class="badge" [ngClass]="{
-            'badge-soft-danger': discussion.devis.etat === 'Refusé',
-            'badge-soft-warning': discussion.devis.etat === 'En attente',
-            'badge-soft-info': discussion.devis.etat === 'Négociation',
-            'badge-soft-success': discussion.devis.etat === 'Accepté'
-          }">
-            {{ discussion.devis.etat }}
-          </span>
-        </p>
-        <p><strong>Date de création:</strong> {{ discussion.devis.createdAt | date }}</p>
-      </div>
+    <div class="btn-group" role="group">
+      <button class="btn btn-sm btn-warning" (click)="archiveCdc(discussion.cdc.id)">
+        Archiver
+      </button>
+      <button class="btn btn-sm btn-danger" (click)="deleteCdc(discussion.cdc.id)">
+        Supprimer
+      </button>
     </div>
+  </div>
+</div>
+
+<!-- Devis -->
+<div class="sidebar-section" *ngIf="discussion?.devis && activeTab === 'devis'">
+  <div class="section-header" (click)="toggleSection('devis')">
+    <h5>Devis</h5>
+    <span class="toggle-icon">{{ sections.devis ? '−' : '+' }}</span>
+  </div>
+  <div class="section-content" *ngIf="sections.devis">
+    <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
+    <p><strong>Projet:</strong> {{ discussion.devis.projet }}</p>
+    <p><strong>État:</strong> 
+      <span class="badge" [ngClass]="{
+        'badge-soft-danger': discussion.devis.etat === 'Refusé',
+        'badge-soft-warning': discussion.devis.etat === 'En attente',
+        'badge-soft-info': discussion.devis.etat === 'Négociation',
+        'badge-soft-success': discussion.devis.etat === 'Accepté'
+      }">
+        {{ discussion.devis.etat }}
+      </span>
+    </p>
+    <p><strong>Date de création:</strong> {{ discussion.devis.createdAt | date }}</p>
+
+    <div class="btn-group" role="group">
+      <button class="btn btn-sm btn-warning" (click)="archiveDevis(discussion.devis.id)">
+        Archiver
+      </button>
+      <button class="btn btn-sm btn-danger" (click)="deleteDevis(discussion.devis.id)">
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>
+
 
     <!-- Commandes avec boutons d'actions -->
     <div *ngIf="discussion?.orders?.length > 0 && activeTab === 'orders'">

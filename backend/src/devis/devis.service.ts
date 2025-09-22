@@ -181,7 +181,7 @@ console.log('devi : ',devis.cahierDesCharges)
   async archiver(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({ where: { id } });
     if (!devis) throw new NotFoundException("Ce devis n'existe pas");
-    devis.archive = true;
+    devis.archive = !devis.archive;
     return this.devisRepo.save(devis);
   }
 
@@ -195,7 +195,7 @@ console.log('devi : ',devis.cahierDesCharges)
   async archiverU(id: number): Promise<Devis> {
     const devis = await this.devisRepo.findOne({ where: { id } });
     if (!devis) throw new NotFoundException("Ce devis n'existe pas");
-    devis.archiveU = true;
+    devis.archiveU = !devis.archiveU;
     return this.devisRepo.save(devis);
   }
 

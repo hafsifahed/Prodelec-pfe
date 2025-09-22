@@ -199,7 +199,7 @@ export class CahierDesChargesService {
   async archiver(id: number): Promise<CahierDesCharges> {
     const cdc = await this.repository.findOne({ where: { id } });
     if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
-    cdc.archive = true;
+    cdc.archive = !cdc.archive;
     return this.repository.save(cdc);
   }
 
@@ -213,7 +213,7 @@ export class CahierDesChargesService {
   async archiverU(id: number): Promise<CahierDesCharges> {
     const cdc = await this.repository.findOne({ where: { id } });
     if (!cdc) throw new NotFoundException("Ce Cahier n'existe pas");
-    cdc.archiveU = true;
+    cdc.archiveU = !cdc.archiveU;
     return this.repository.save(cdc);
   }
 
