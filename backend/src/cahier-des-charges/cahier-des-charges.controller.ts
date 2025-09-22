@@ -12,6 +12,7 @@ import {
   Put,
   Query,
   Res,
+  UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -147,8 +148,17 @@ async findByUser(@Param('userId', ParseIntPipe) userId: number) {
   }
 
   @Put('archiver/:id')
-  archiver(@Param('id') id: number) {
+  archiver(@Param('id') id: number,  @CurrentUser() user: User) {
+    // Exemple rôle accessible à user.role.name
+  if (!user || !user.role || !user.role.name) {
+    throw new UnauthorizedException('Non authentifié');
+  }
+
+  if (user.role.name.toUpperCase().startsWith('CLIENT')) {
+    return this.service.archiverU(id);
+  } else {
     return this.service.archiver(id);
+  }
   }
 
   @Put('restorer/:id')
@@ -157,8 +167,17 @@ async findByUser(@Param('userId', ParseIntPipe) userId: number) {
   }
 
   @Put('archiverU/:id')
-  archiverU(@Param('id') id: number) {
+  archiverU(@Param('id') id: number,  @CurrentUser() user: User) {
+    // Exemple rôle accessible à user.role.name
+  if (!user || !user.role || !user.role.name) {
+    throw new UnauthorizedException('Non authentifié');
+  }
+
+  if (user.role.name.toUpperCase().startsWith('CLIENT')) {
     return this.service.archiverU(id);
+  } else {
+    return this.service.archiver(id);
+  }
   }
 
   @Put('restorerU/:id')

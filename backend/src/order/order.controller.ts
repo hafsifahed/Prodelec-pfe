@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   Res,
+  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -137,14 +138,38 @@ export class OrderController {
   }
 
   @Put('/archivera/:id')
-  async archivera(@Param('id') id: number): Promise<Order> {
-    return this.orderService.archivera(id);
+  async archivera(@Param('id') id: number,@CurrentUser() user: User): Promise<Order> {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('User non authentifié');
+    }
+    const roleName = user.role.name.toUpperCase();
+
+    if (roleName.startsWith('CLIENT')) {
+      // Archivage client
+      return this.orderService.archiverc(id);
+    } else {
+      // Archivage admin/ autre rôle
+      return this.orderService.archivera(id);
+    }
   }
+  
 
   @Put('/archiverc/:id')
-  async archiverc(@Param('id') id: number): Promise<Order> {
-    return this.orderService.archiverc(id);
+  async archiverc(@Param('id') id: number,@CurrentUser() user: User): Promise<Order> {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('User non authentifié');
+    }
+    const roleName = user.role.name.toUpperCase();
+
+    if (roleName.startsWith('CLIENT')) {
+      // Archivage client
+      return this.orderService.archiverc(id);
+    } else {
+      // Archivage admin/ autre rôle
+      return this.orderService.archivera(id);
+    }
   }
+  
 
   @Get('archive/user')
 getArchiveForCurrentUser(@CurrentUser() user: User): Promise<Order[]> {

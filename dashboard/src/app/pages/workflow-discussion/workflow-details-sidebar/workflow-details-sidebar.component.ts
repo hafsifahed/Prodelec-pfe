@@ -1,24 +1,41 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { WorkflowDiscussion } from '../models/workflow-discussion.model';
+import Swal from 'sweetalert2';
+import { ProjectAddModalComponent } from '../../projectfo/modals/project-add-modal/project-add-modal.component';
+import { AddProjectModalComponent } from '../../order/modals/add-project-modal/add-project-modal.component';
+import { Router } from '@angular/router';
+import { ProjectService } from 'src/app/core/services/projectService/project.service';
+import { OrderServiceService } from 'src/app/core/services/orderService/order-service.service';
+import { WorkflowDiscussionService } from '../services/workflow-discussion.service';
 
 @Component({
   selector: 'app-workflow-details-sidebar',
   templateUrl: './workflow-details-sidebar.component.html',
   styleUrls: ['./workflow-details-sidebar.component.scss']
 })
-export class WorkflowDetailsSidebarComponent implements OnChanges {
+export class WorkflowDetailsSidebarComponent implements OnChanges ,OnInit {
   @Input() discussion: WorkflowDiscussion | null = null;
-  
-  // State for collapsible sections
-  sections = {
-    cdc: true,
-    devis: true,
-    orders: true,
-    projects: true
-  };
+  modalRef?: BsModalRef;
 
-  // Active tab state
+  sections = { cdc: true, devis: true, orders: true, projects: true };
   activeTab: string = 'cdc';
+
+  constructor(private modalService: BsModalService,    private router: Router,
+    private projectservice: ProjectService,
+    private orderService: OrderServiceService,
+    private discussionService: WorkflowDiscussionService
+  ) {}
+
+  ngOnInit(): void {
+    // Si une discussion est déjà définie en entrée au début, on la charge/refraîchit
+    console.log('discussion 0', this.discussion);
+    if (this.discussion?.id) {
+      this.refreshDiscussion();
+    }
+        console.log('discussion 1', this.discussion);
+
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['discussion'] && this.discussion?.currentPhase) {
@@ -38,27 +55,29 @@ export class WorkflowDetailsSidebarComponent implements OnChanges {
         break;
       case 'order':
       case 'orders':
+        if (this.discussion.orders?.length > 0) this.activeTab = 'orders';
+        break;
       case 'project':
       case 'projects':
-        if (this.discussion.orders && this.discussion.orders.length > 0) {
-          this.activeTab = 'orders';
-        }
+        if (this.discussion.projects?.length > 0) this.activeTab = 'projects';
         break;
       default:
-        // Fallback logic
-        if (this.discussion.devis) {
-          this.activeTab = 'devis';
-        } else if (this.discussion.orders && this.discussion.orders.length > 0) {
-          this.activeTab = 'orders';
-        } else {
-          this.activeTab = 'cdc';
-        }
+        if (this.discussion.devis) this.activeTab = 'devis';
+        else if (this.discussion.orders?.length > 0) this.activeTab = 'orders';
+        else this.activeTab = 'cdc';
     }
   }
 
+  toggleSection(section: string): void {
+    this.sections[section] = !this.sections[section];
+  }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+  }
+
   getOrderStatusClass(order: any): string {
-    if (order.annuler) return 'badge-soft-danger';
-    return 'badge-soft-success';
+    return order.annuler ? 'badge-soft-danger' : 'badge-soft-success';
   }
 
   getProjectStatus(project: any): string {
@@ -73,13 +92,190 @@ export class WorkflowDetailsSidebarComponent implements OnChanges {
     return 'badge-soft-warning';
   }
 
-  toggleSection(section: string): void {
-    this.sections[section] = !this.sections[section];
+  duplicateProject(project: any) {
+    const duplicatedProject = { ...project };
+    delete duplicatedProject.idproject;
+    duplicatedProject.refClient += ' - copie';
+
+    this.modalRef = this.modalService.show(ProjectAddModalComponent, {
+      initialState: { project: duplicatedProject },
+      class: 'modal-xl'
+    });
+
+    this.modalRef.content.projectAdded.subscribe(() => {
+      this.modalRef?.hide();
+      this.refreshProjects();
+    });
   }
 
-  setActiveTab(tab: string): void {
-    this.activeTab = tab;
+  addProjectToOrder(order: any) {
+    this.modalRef = this.modalService.show(AddProjectModalComponent, {
+      initialState: { idorder: order.idOrder},
+      class: 'modal-xl'
+    });
+
+    this.modalRef.content.projectAdded.subscribe(() => {
+      this.modalRef?.hide();
+      this.refreshProjects();
+    });
   }
 
-  
+  archiveProject(projectId: number) {
+  Swal.fire({
+    title: 'Confirmer archivage',
+    text: 'Cette action va archiver le projet.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Archiver',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.projectservice.archivera(projectId).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Archivée!',
+            text: 'Le projet a été archivé.',
+            icon: 'success',
+          });
+          this.refreshProjects(); // recharge la liste des projets
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Impossible d\'archiver le projet',
+          });
+        }
+      });
+    }
+  });
+}
+
+
+  deleteProject(projectId: number) {
+  Swal.fire({
+    title: 'Confirmer suppression',
+    text: 'Cette action est irréversible.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Supprimer',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.projectservice.deleteProject(projectId).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Supprimé!',
+            text: 'Le projet a été supprimé.',
+            icon: 'success',
+          });
+          this.refreshProjects(); // recharge la liste projets
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Impossible de supprimer le projet.',
+          });
+        }
+      });
+    }
+  });
+}
+
+
+  archiveOrder(orderId: number) {
+  Swal.fire({
+    title: 'Confirmer archivage',
+    text: 'Cette action va archiver la commande.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Archiver',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.orderService.archivera(orderId).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Archivée !',
+            text: 'La commande a été archivée.',
+            icon: 'success',
+          });
+          this.refreshOrders(); // recharge la liste des commandes
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Impossible d\'archiver la commande.',
+          });
+        }
+      });
+    }
+  });
+}
+
+
+  deleteOrder(orderId: number) {
+  Swal.fire({
+    title: 'Confirmer suppression',
+    text: 'Cette action est irréversible.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Supprimer',
+    cancelButtonText: 'Annuler'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.orderService.deleteOrder(orderId).subscribe({
+        next: () => {
+          Swal.fire({
+            title: 'Supprimé !',
+            text: 'La commande a été supprimée.',
+            icon: 'success',
+          });
+          this.refreshOrders(); // recharge la liste commandes
+        },
+        error: () => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Impossible de supprimer la commande.',
+          });
+        }
+      });
+    }
+  });
+}
+
+
+  viewProjectDetails(project: any): void {
+  // Par exemple ouvrir un modal détail ou router vers une page détail
+  console.log('Détails projet', project);
+ this.router.navigate(['/listproject', project.idproject]);
+}
+
+  refreshDiscussion() {
+  if (!this.discussion) return;
+  this.discussionService.getDiscussion(this.discussion.id).subscribe({
+    next: (discussion) => {
+      this.discussion = discussion;
+      this.setActiveTabBasedOnPhase();
+      console.log('Discussion rafraîchie', discussion);
+      // vous avez maintenant la discussion complète rafraîchie,
+      // y compris projects, orders, devis, etc.
+    },
+    error: (err) => {
+      Swal.fire('Erreur', 'Impossible de charger les détails de la discussion.', 'error');
+    }
+  });
+}
+
+refreshProjects() {
+  this.refreshDiscussion();
+}
+
+refreshOrders() {
+  this.refreshDiscussion();
+}
+
 }

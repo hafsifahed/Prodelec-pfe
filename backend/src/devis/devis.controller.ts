@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Res,
+  UnauthorizedException,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -107,8 +108,16 @@ export class DevisController {
   }
 
   @Put('archiver/:id')
-  archiver(@Param('id') id: number): Promise<Devis> {
-    return this.devisService.archiver(id);
+  archiver(@Param('id') id: number,    @CurrentUser() user: User): Promise<Devis> {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+
+    if (user.role.name.toUpperCase().startsWith('CLIENT')) {
+      return this.devisService.archiverU(id);
+    } else {
+      return this.devisService.archiver(id);
+    }
   }
 
   @Put('restorer/:id')
@@ -117,8 +126,16 @@ export class DevisController {
   }
 
   @Put('archiverU/:id')
-  archiverU(@Param('id') id: number): Promise<Devis> {
-    return this.devisService.archiverU(id);
+  archiverU(@Param('id') id: number,    @CurrentUser() user: User): Promise<Devis> {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+
+    if (user.role.name.toUpperCase().startsWith('CLIENT')) {
+      return this.devisService.archiverU(id);
+    } else {
+      return this.devisService.archiver(id);
+    }
   }
 
   @Put('restorerU/:id')

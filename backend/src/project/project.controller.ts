@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -128,9 +129,29 @@ getArchiveForCurrentUser(@CurrentUser() user: User): Promise<Project[]> {
   compute(@Param('id') id: number) { return this.projSrv.computeGlobalProgress(+id); }
 
   /* ------------------- Archivage ------------------------ */
-  @Put('archivera/:id') toggleA(@Param('id') id: number) { return this.projSrv.toggleArchive(+id, 'archivera'); }
-  @Put('archiverc/:id') toggleC(@Param('id') id: number) { return this.projSrv.toggleArchive(+id, 'archiverc'); }
+ @Put('archivera/:id')
+  async toggleA(@Param('id') id: number, @CurrentUser() user: User) {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+    // Si rôle commence par CLIENT, bloque ou réagit en fonction
+    if (user.role.name.toUpperCase().startsWith('CLIENT')) {
+      throw new UnauthorizedException('Accès refusé pour ce rôle');
+    }
+    return this.projSrv.toggleArchive(+id, 'archivera');
+  }
 
+  @Put('archiverc/:id')
+  async toggleC(@Param('id') id: number, @CurrentUser() user: User) {
+    if (!user || !user.role || !user.role.name) {
+      throw new UnauthorizedException('Utilisateur non authentifié');
+    }
+    // Si rôle commence par CLIENT, autorisé à archiverc, sinon interdit
+    if (!user.role.name.toUpperCase().startsWith('CLIENT')) {
+      throw new UnauthorizedException('Accès refusé pour ce rôle');
+    }
+    return this.projSrv.toggleArchive(+id, 'archiverc');
+  }
   /* ------------------- Dates réelles -------------------- */
   @Put('realc/:id')  realC (@Param('id') id: number) { return this.projSrv.setProgress(+id, 'realendConception',  new Date() as any); }
   @Put('realm/:id')  realM (@Param('id') id: number) { return this.projSrv.setProgress(+id, 'realendMethode',     new Date() as any); }

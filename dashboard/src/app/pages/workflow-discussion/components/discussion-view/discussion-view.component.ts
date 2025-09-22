@@ -140,6 +140,7 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
           this.isLoading = false;
           this.cdr.detectChanges();
           setTimeout(() => this.scrollToBottom(), 100);
+          console.log('discussion', this.discussion);
         },
         error: (err) => {
           this.error = err.message || 'Failed to load discussion';
