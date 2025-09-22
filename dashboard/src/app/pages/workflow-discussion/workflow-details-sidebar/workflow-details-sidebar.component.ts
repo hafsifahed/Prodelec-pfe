@@ -389,4 +389,13 @@ deleteCdc(cdcId: number) {
   });
 }
 
+isWorker(): boolean {
+  return !!this.userr && !this.userr.role?.name.toLowerCase().startsWith('client');
+}
+
+getArchiveButtonText(isArchived: boolean): string {
+  return isArchived ? 'Restauration' : 'Archiver';
+}
+
+
 }

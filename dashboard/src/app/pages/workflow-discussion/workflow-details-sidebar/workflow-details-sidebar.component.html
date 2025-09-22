@@ -42,7 +42,7 @@
 <div class="sidebar-section" *ngIf="discussion?.cdc && activeTab === 'cdc'">
   <div class="section-header" (click)="toggleSection('cdc')">
     <h5>Cahier des charges</h5>
-    <span class="toggle-icon">{{ sections.cdc ? '−' : '+' }}</span>
+    <i class="bx" [ngClass]="sections.cdc ? 'bx-minus-circle' : 'bx-plus-circle'" style="font-size: 1.5rem; color: #3b82f6;"></i>
   </div>
   <div class="section-content" *ngIf="sections.cdc">
     <p><strong>Titre:</strong> {{ discussion.cdc.titre }}</p>
@@ -59,14 +59,14 @@
     <p><strong>Date de création:</strong> {{ discussion.cdc.createdAt | date }}</p>
     <p *ngIf="discussion.cdc.user"><strong>Créé par:</strong> {{ discussion.cdc.user.username }}</p>
 
-    <div class="btn-group" role="group">
-      <button class="btn btn-sm btn-warning" (click)="archiveCdc(discussion.cdc.id)">
-        Archiver
-      </button>
-      <button class="btn btn-sm btn-danger" (click)="deleteCdc(discussion.cdc.id)">
-        Supprimer
-      </button>
-    </div>
+    <div class="btn-group" role="group" *ngIf="userr">
+  <button class="btn btn-sm btn-warning" (click)="archiveCdc(discussion.cdc.id)">
+    {{ isWorker() ? 
+      (discussion.cdc.archive ? 'Restauration' : 'Archiver') 
+      : (discussion.cdc.archiveU ? 'Restauration' : 'Archiver') }}
+  </button>
+  <button class="btn btn-sm btn-danger" (click)="deleteCdc(discussion.cdc.id)">Supprimer</button>
+</div>
   </div>
 </div>
 
@@ -74,7 +74,7 @@
 <div class="sidebar-section" *ngIf="discussion?.devis && activeTab === 'devis'">
   <div class="section-header" (click)="toggleSection('devis')">
     <h5>Devis</h5>
-    <span class="toggle-icon">{{ sections.devis ? '−' : '+' }}</span>
+    <i class="bx" [ngClass]="sections.devis ? 'bx-minus-circle' : 'bx-plus-circle'" style="font-size: 1.5rem; color: #3b82f6;"></i>
   </div>
   <div class="section-content" *ngIf="sections.devis">
     <p><strong>Numéro:</strong> {{ discussion.devis.numdevis }}</p>
@@ -91,14 +91,14 @@
     </p>
     <p><strong>Date de création:</strong> {{ discussion.devis.createdAt | date }}</p>
 
-    <div class="btn-group" role="group">
-      <button class="btn btn-sm btn-warning" (click)="archiveDevis(discussion.devis.id)">
-        Archiver
-      </button>
-      <button class="btn btn-sm btn-danger" (click)="deleteDevis(discussion.devis.id)">
-        Supprimer
-      </button>
-    </div>
+    <div class="btn-group" role="group" *ngIf="userr">
+  <button class="btn btn-sm btn-warning" (click)="archiveDevis(discussion.devis.id)">
+    {{ isWorker() ? 
+      (discussion.devis.archive ? 'Restauration' : 'Archiver') 
+      : (discussion.devis.archiveU ? 'Restauration' : 'Archiver') }}
+  </button>
+  <button class="btn btn-sm btn-danger" (click)="deleteDevis(discussion.devis.id)">Supprimer</button>
+</div>
   </div>
 </div>
 
@@ -108,7 +108,7 @@
       <div class="sidebar-section">
         <div class="section-header" (click)="toggleSection('orders')">
           <h5>Commandes ({{ discussion.orders.length }})</h5>
-          <span class="toggle-icon">{{ sections.orders ? '−' : '+' }}</span>
+          <i class="bx" [ngClass]="sections.orders ? 'bx-minus-circle' : 'bx-plus-circle'" style="font-size: 1.5rem; color: #3b82f6;"></i>
         </div>
         <div class="section-content" *ngIf="sections.orders">
           <div *ngFor="let order of discussion.orders" class="order-item">
@@ -131,8 +131,10 @@
                   Ajouter Projet
                 </button>
                 <button class="btn btn-sm btn-warning" (click)="archiveOrder(order.idOrder)">
-                  Archiver
-                </button>
+    {{ isWorker() ? 
+      (order.archivera ? 'Restauration' : 'Archiver') 
+      : (order.archiverc ? 'Restauration' : 'Archiver') }}
+  </button>
                 <button class="btn btn-sm btn-danger" (click)="deleteOrder(order.idOrder)">
                   Supprimer
                 </button>
@@ -161,9 +163,14 @@
                     <button class="btn btn-sm btn-info me-2" (click)="duplicateProject(project)">
                       Dupliquer
                     </button>
-                    <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning me-2" (click)="archiveProject(project.idproject)">
+                 <!--   <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning me-2" (click)="archiveProject(project.idproject)">
                       Archiver
-                    </button>
+                    </button>-->
+                     <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning" (click)="archiveProject(project.idproject)">
+    {{ isWorker() ? 
+      (project.archivera ? 'Restauration' : 'Archiver') 
+      : (project.archiverc ? 'Restauration' : 'Archiver') }}
+  </button>
                     <button class="btn btn-sm btn-danger" (click)="deleteProject(project.idproject)">
                       Supprimer
                     </button>
@@ -184,12 +191,12 @@
     <div class="sidebar-section" *ngIf="discussion?.projects?.length > 0 && activeTab === 'projects'">
       <div class="section-header" (click)="toggleSection('projects')">
         <h5>Projets ({{ discussion.projects.length }})</h5>
-        <span class="toggle-icon">{{ sections.projects ? '−' : '+' }}</span>
+        <i class="bx" [ngClass]="sections.projects ? 'bx-minus-circle' : 'bx-plus-circle'" style="font-size: 1.5rem; color: #3b82f6;"></i>
       </div>
       <div class="section-content" *ngIf="sections.projects">
         <div *ngFor="let project of discussion.projects" class="project-item mb-3">
-          <h6> <strong>Commande:</strong>{{ project.order.orderName }} </h6>
-          <h6>{{ project.refClient }} - {{ project.refProdelec }}</h6>
+          <p> <strong>Commande:</strong>{{ project.order.orderName }} </p>
+          <p><strong>{{ project.refClient }} - {{ project.refProdelec }}</strong></p>
           <p><strong>Quantité:</strong> {{ project.qte }}</p>
           <p><strong>Progression:</strong> {{ project.progress }}%</p>
           <p><strong>Durée estimée:</strong> {{ project.duree }} jours</p>
@@ -204,9 +211,15 @@
             <button class="btn btn-sm btn-info me-2" (click)="duplicateProject(project)">
               Dupliquer
             </button>
-            <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning me-2" (click)="archiveProject(project.idproject)">
+           <!-- <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning me-2" (click)="archiveProject(project.idproject)">
               Archiver
-            </button>
+            </button>-->
+            <button *ngIf="getProjectStatus(project) == 'Terminé'" class="btn btn-sm btn-warning" (click)="archiveProject(project.idproject)">
+    {{ isWorker() ? 
+      (project.archivera ? 'Restauration' : 'Archiver') 
+      : (project.archiverc ? 'Restauration' : 'Archiver') }}
+  </button>
+            
             <button class="btn btn-sm btn-danger" (click)="deleteProject(project.idproject)">
               Supprimer
             </button>
