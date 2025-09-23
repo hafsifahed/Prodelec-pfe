@@ -184,11 +184,11 @@
     </div>
     <ngx-simplebar style="position: relative; height: 230px;">
       <a href="#" class="text-reset notification-item" *ngFor="let notification of notifications" (click)="markAsRead(notification); $event.preventDefault();" tabindex="0">
-        <div class="d-flex" [ngStyle]="{ 'background-color': notification.read ? '#f8f9fa' : 'transparent' }">
+        <div class="d-flex" [ngStyle]="{ 'background-color': notification.read ? 'transparent' : 'transparent' }">
           <div class="avatar-xs me-3">
             <span class="avatar-title rounded-circle font-size-16"
                   [ngStyle]="{ 'background-color': getNotificationColor(notification.title) }">
-              <i [class]="getNotificationIcon(notification.title)" style="color: white;"></i>
+              <i [class]="getNotificationIcon(notification.title)" ></i>
             </span>
           </div>
           <div class="flex-grow-1">

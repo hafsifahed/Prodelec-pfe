@@ -100,7 +100,18 @@ export class TopbarComponent implements OnInit {
     }
 
 
- this.userSubscription = this.userStateService.user$.subscribe(user => {
+this.getListNotifications();
+
+
+
+  }
+ ngOnDestroy() {
+    this.notificationsSubscription?.unsubscribe();
+        this.userSubscription?.unsubscribe();
+
+  }
+  getListNotifications() {
+     this.userSubscription = this.userStateService.user$.subscribe(user => {
       this.user = user;
 
       if (user) {
@@ -121,14 +132,6 @@ export class TopbarComponent implements OnInit {
         this.webSocketService.disconnect();
       }
     });
-
-
-
-  }
- ngOnDestroy() {
-    this.notificationsSubscription?.unsubscribe();
-        this.userSubscription?.unsubscribe();
-
   }
 
  onSearchChange(keyword: string) {
@@ -179,6 +182,7 @@ export class TopbarComponent implements OnInit {
       this.webSocketService.markAsRead(notification.id);
       notification.read = true;
       this.unreadCount = this.notifications.filter(n => !n.read).length;
+      this.getListNotifications();
     }
   }
 
