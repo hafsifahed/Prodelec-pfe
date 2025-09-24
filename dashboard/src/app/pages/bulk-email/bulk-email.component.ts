@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from 'src/app/core/models/auth.models';
 import { Partner } from 'src/app/core/models/partner.models';
+import { Action, Resource } from 'src/app/core/models/role.model';
 import { EmailService } from 'src/app/core/services/email.service';
 import { PartnersService } from 'src/app/core/services/partners.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 import { UsersService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -24,12 +26,15 @@ export class BulkEmailComponent implements OnInit {
   selectedRecipients: User[] = [];
   selectAll = false;
   searchTerm: string = '';
+    Resource = Resource; // pour utiliser Resource dans le template
+  Action = Action;
 
   constructor(
     private fb: FormBuilder,
     private emailService: EmailService,
     private usersService: UsersService,
-    private partnerService: PartnersService
+    private partnerService: PartnersService,
+        public userState: UserStateService // <-- injecté ici
   ) {
     this.emailForm = this.fb.group({
       recipientType: ['workers', Validators.required],

@@ -54,6 +54,9 @@ import { PartnerDetailComponent } from './partner-detail/partner-detail.componen
 import { ProjectCalendarComponent } from './project-calendar/project-calendar.component';
 import { ProjectCalendarAdminComponent } from './project-calendar-admin/project-calendar-admin.component';
 import { BulkEmailComponent } from './bulk-email/bulk-email.component';
+import { PermissionGuard } from '../core/guards/permission.guard';
+import { Action, Resource } from '../core/models/role.model';
+import { RoleGuard } from '../core/guards/role.guard';
 
 
 
@@ -130,8 +133,15 @@ const routes: Routes = [
   { path: 'calendrierGlobal', component: ProjectCalendarAdminComponent },
 
 
-  { path: 'bulk-email', component: BulkEmailComponent }
+  { path: 'bulk-email', component: BulkEmailComponent ,
+    canActivate: [RoleGuard,PermissionGuard], 
+    data: {
+      allowedRoles: ['WORKER'],
+      permissions: [{ resource: Resource.AUDIT_LOGS, actions: [Action.READ,Action.MANAGE] }] 
+    } 
+  }
 
+//  { path: 'client-dashboard', component: ClientDashboardComponent, canActivate: [RoleGuard], data: { allowedRoles: ['CLIENT'] } },
 
 
 

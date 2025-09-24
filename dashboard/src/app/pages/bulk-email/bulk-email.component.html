@@ -119,14 +119,14 @@
     </div>
     
     <div class="form-actions">
-      <button 
+      <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"
         type="submit" 
         class="btn btn-primary"
-        [disabled]="!emailForm.valid || selectedRecipients.length === 0 || isSending"
-      >
-        <span *ngIf="!isSending">Envoyer</span>
-        <span *ngIf="isSending">Envoi en cours...</span>
-      </button>
+        [disabled]="!emailForm.valid || selectedRecipients.length === 0 || isSending">
+  <span *ngIf="!isSending">Envoyer</span>
+  <span *ngIf="isSending">Envoi en cours...</span>
+</button>
+
     </div>
     
     <div class="status-message" [class.success]="sendStatusType === 'success'" 
