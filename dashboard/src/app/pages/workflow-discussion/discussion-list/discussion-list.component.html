@@ -29,7 +29,7 @@
         <div class="item-avatar">
           <div class="phase-indicator" [ngClass]="discussion.currentPhase"></div>
           <!-- Afficher le badge seulement s'il y a des messages non lus d'autres utilisateurs -->
-          <div *ngIf="discussion.unreadCount && !isCurrentUserAuthorOfLastMessage(discussion) > 0" class="unread-badge">
+          <div *ngIf="discussion.unreadCount && !isCurrentUserAuthorOfLastMessage(discussion) " class="unread-badge">
             {{ discussion.unreadCount > 99 ? '99+' : discussion.unreadCount }}
           </div>
         </div>
