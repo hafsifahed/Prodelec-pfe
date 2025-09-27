@@ -1,12 +1,13 @@
 <div class="chat-app-container">
-
+  <!-- Left Panel: Discussion List -->
   <aside class="left-panel" [class.open]="!isMobileView || !selectedDiscussionId">
-    <app-discussion-list 
-      (discussionSelected)="onDiscussionSelected($event)" 
+    <app-discussion-list
+      (discussionSelected)="onDiscussionSelected($event)"
       [selectedDiscussionId]="selectedDiscussionId">
     </app-discussion-list>
   </aside>
 
+  <!-- Main Chat Section -->
   <main class="chat-section">
     <ng-container *ngIf="selectedDiscussionId; else emptyState">
       <div class="chat-header">
@@ -30,11 +31,11 @@
     </ng-template>
   </main>
 
+  <!-- Right Panel: Workflow Details -->
   <aside class="right-panel" [class.open]="detailsOpen">
     <div (click)="toggleDetailsPanel()">
-        <i class="fas fa-times"></i>
+      <i class="fas fa-times"></i>
     </div>
     <app-workflow-details-sidebar [discussion]="currentDiscussion"></app-workflow-details-sidebar>
   </aside>
-
 </div>

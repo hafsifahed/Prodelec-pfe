@@ -17,7 +17,7 @@ body, html, app-workflow-discussions-page {
 
 .chat-app-container {
   display: flex;
-  height: 100vh; // full viewport height
+  height: 100vh;
   position: relative;
 
   .chat-section {
@@ -27,123 +27,41 @@ body, html, app-workflow-discussions-page {
     z-index: 10;
     position: relative;
 
-    // Add this to make inner content flex and scroll-able
     > app-discussion-view {
-      flex: 1 1 auto; // fills available height
-      overflow-y: auto; // scrolling inside main chat content
+      flex: 1 1 auto;
+      overflow-y: auto;
     }
   }
 }
 
-.left-panel, .right-panel {
+// Shared panel base
+.panel-base {
   flex-shrink: 0;
-  width: 350px;
   background-color: $bg-light;
-  border-right: 1px solid #3e4450;
-  border-left: 1px solid #3e4450;
+  border: 1px solid #3e4450;
   transition: transform 0.3s ease-in-out;
   overflow-y: auto;
   z-index: 20;
 }
 
 .left-panel {
+  @extend .panel-base;
+  width: 350px;
   border-right: none;
-
 }
 
 .right-panel {
+  @extend .panel-base;
+  width: 40%;
   border-left: none;
-    width: 40% !important;
-  
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background-color: $bg-light;
-  border-bottom: 1px solid #3e4450;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-  }
-}
-
-
-.back-button, .details-toggle {
-  background: none;
-  border: none;
-  color: #a0a0a0;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: color 0.2s;
-  
-  &:hover {
-    color: $blue-accent;
-  }
-}
-
-.empty-chat {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: $gray-light;
-  
-  i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    color: #4b515c;
-  }
-  h3 { font-size: 1.5rem; margin: 0.5rem 0; color: #060af0; }
-  p { font-size: 1rem; margin: 0; }
-}
-
-/* --- Mobile Responsiveness --- */
-@media (max-width: 992px) {
-  .chat-app-container {
-    flex-direction: column;
-  }
-  
-  .left-panel, .right-panel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    transform: translateX(-100%);
-    border-right: none;
-    &.open {
-      transform: translateX(0);
-    }
-  }
-
-  .right-panel {
-    transform: translateX(100%);
-    &.open {
-      transform: translateX(0);
-    }
-  }
-}
-.right-panel {
   position: fixed;
   top: 0;
   right: 0;
-  width: 360px;
   height: 100vh;
-  background-color: #f9fafb;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s ease-in-out;
   z-index: 1000;
 
   &.open {
@@ -172,22 +90,104 @@ body, html, app-workflow-discussions-page {
       font-size: 1.25rem;
       color: #2563eb;
     }
+
+    .fas.fa-times {
+      font-size: 1.5rem;
+      color: #6b7280;
+    }
   }
 
   app-workflow-details-sidebar {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 1rem 1.5rem;
     color: #374151;
-
-    /* Style interne customisable selon contenu */
   }
 }
 
-/* Responsive : cacher le panneau sur mobile par défaut */
-@media (max-width: 768px) {
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: $bg-light;
+  border-bottom: 1px solid #3e4450;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+}
+
+.back-button, .details-toggle {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $blue-accent;
+  }
+}
+
+.empty-chat {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: $gray-light;
+
+  i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #4b515c;
+  }
+  h3 {
+    font-size: 1.5rem;
+    margin: 0.5rem 0;
+    color: $blue-accent; // Fixed: was #060af0 (invalid)
+  }
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 992px) {
+  .chat-app-container {
+    flex-direction: column;
+  }
+
+  .left-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    transform: translateX(-100%);
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
   .right-panel {
     width: 100%;
-    
+    transform: translateX(100%);
+    &.open {
+      transform: translateX(0);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .left-panel, .right-panel {
+    width: 100%;
   }
 }
