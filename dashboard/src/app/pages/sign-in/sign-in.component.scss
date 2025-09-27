@@ -277,31 +277,138 @@ input {
   }
 }
 
-// Section de droite cachée sur mobile
+// Section de droite avec animation fluide sans fond blanc
 .login-right {
   display: none;
 
   @media (min-width: 769px) {
     display: block;
     flex: 1.2;
-    background-image: url('/assets/images/PRODELEC-North-AFRICA.png');
-    background-size: cover;
-    background-position: center;
     position: relative;
+    overflow: hidden;
+    background-image: linear-gradient(135deg, #df74e9 0%, #cc4d4d 50%); // Fond noir pour éviter le blanc pendant les transitions
     
-    &::before {
-      content: '';
+    .slideshow {
       position: absolute;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      //background: linear-gradient(45deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+      width: 100%;
+      height: 100%;
+      
+      .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        animation: smoothSlide 20s infinite;
+        
+        // Utilisez vos 4 images différentes ici
+        &:nth-child(1) {
+          background-image: url('/assets/images/PRODELEC-North-AFRICA.png');
+          animation-delay: 0s;
+        }
+        
+        &:nth-child(2) {
+          background-image: url('/assets/images/logo-light.png');
+          animation-delay: 5s;
+        }
+        
+        &:nth-child(3) {
+          background-image: url('/assets/images/PRODELEC-North-AFRICA.png');
+          animation-delay: 10s;
+        }
+        
+        &:nth-child(4) {
+          background-image: url('/assets/images/logo-dark.png');
+          animation-delay: 15s;
+        }
+        
+        // Overlay pour améliorer la lisibilité
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+            45deg, 
+            rgba(0, 0, 0, 0.4) 0%, 
+            rgba(0, 0, 0, 0.2) 50%,
+            rgba(0, 0, 0, 0.4) 100%
+          );
+        }
+      }
+    }
+    
+    // Indicateurs de progression
+    .slide-progress {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 3;
+      
+      .progress-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        animation: progressAnimation 20s infinite linear;
+        
+        &:nth-child(1) { animation-delay: 0s; }
+        &:nth-child(2) { animation-delay: -5s; }
+        &:nth-child(3) { animation-delay: -10s; }
+        &:nth-child(4) { animation-delay: -15s; }
+      }
     }
   }
 }
 
-// Animations
+// Animation fluide sans fond blanc
+@keyframes smoothSlide {
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  3% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+}
+
+// Animation pour les indicateurs de progression
+@keyframes progressAnimation {
+  0%, 25% {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.2);
+  }
+  26%, 100% {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1);
+  }
+}
+
+// Animations générales
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
