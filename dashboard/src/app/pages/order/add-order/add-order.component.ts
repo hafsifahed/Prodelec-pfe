@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { User } from 'src/app/core/models/auth.models';
 
@@ -24,6 +24,7 @@ export class AddOrderComponent implements OnInit {
   fileStatus = { status: '', requestType: '', percent: 0 };
   showProductSection = false;
   user: User | null = null;
+  
 
   // Sélection dans 1ère méthode (template-driven)
   selectedDevis1: Devis | null = null;
@@ -50,19 +51,36 @@ export class AddOrderComponent implements OnInit {
     private userStateService: UserStateService,
     private fileService: OrderServiceService,
     private devisService: DevisService,
+    private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    this.userStateService.user$.subscribe((user) => {
+   ngOnInit() {
+    let selectedDevisId: number | null = null;
+
+    // 1) Récupérer le paramètre devisId dans l'URL (queryParam)
+    this.route.queryParamMap.subscribe(params => {
+      const idStr = params.get('devisId');
+      selectedDevisId = idStr ? +idStr : null;
+    });
+
+    // 2) Charger les devis acceptés
+    this.userStateService.user$.subscribe(user => {
       this.user = user;
       if (user) {
         this.devisService.getAcceptedDevisForCurrentUser().subscribe({
           next: (devisArray) => {
             this.devisList = devisArray;
+
+            // 3) Si devisId trouvé, sélectionner le devis correspondant
+            if (selectedDevisId != null) {
+              const found = this.devisList.find(d => d.id === selectedDevisId);
+              if (found) {
+                this.selectedDevis1 = found;
+                this.addForm.get('devis')?.setValue(found);
+              }
+            }
           },
-          error: (err) => {
-            console.error('Erreur chargement devis acceptés:', err);
-          },
+          error: (err) => console.error('Erreur chargement devis acceptés:', err),
         });
       }
     });

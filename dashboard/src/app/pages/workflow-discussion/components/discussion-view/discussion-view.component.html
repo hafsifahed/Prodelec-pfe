@@ -49,10 +49,15 @@
   </ng-container>
 
       <!-- Nouveaux boutons pour la phase 'order' -->
-  <ng-container *ngIf="userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE]) && (discussion.currentPhase === 'order' || discussion.currentPhase === 'project' )" >
-        <button class="btn btn-success" routerLink="/addorder">+ Ajouter Commande</button>
+  <ng-container *ngIf="userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE]) 
+                    && (discussion.currentPhase === 'order' || discussion.currentPhase === 'project')">
+  <button class="btn btn-success" 
+          [routerLink]="['/addorder']" 
+          [queryParams]="{ devisId: discussion.devis?.id }">
+    + Ajouter Commande
+  </button>
+</ng-container>
 
-  </ng-container>
 
   <!-- Nouveaux boutons pour la phase 'order' -->
   <ng-container *ngIf="discussion.currentPhase === 'project'">
