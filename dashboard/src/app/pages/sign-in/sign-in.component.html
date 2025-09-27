@@ -1,60 +1,78 @@
 <div class="login-container">
   <div class="login-left">
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
-      <img src="assets/images/logoprodelec2024.png" alt="Logo Prodelec 2024" />
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate class="login-form">
+      <img src="assets/images/logoprodelec2024.png" alt="Logo Prodelec 2024" class="logo" />
 
-      <label for="username">Nom d'utilisateur</label>
-      <input
-        type="text"
-        id="username"
-        name="username"
-        placeholder="Nom d'utilisateur"
-        [(ngModel)]="signInData.username"
-        #username="ngModel"
-        required
-        autocomplete="username"
-        aria-describedby="usernameError"
-      />
-      <div *ngIf="username.invalid && username.touched" id="usernameError" class="error-message">
-        Le nom d'utilisateur est requis.
+      <h1 class="login-title">Connexion</h1>
+
+      <div class="form-group">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Votre nom d'utilisateur"
+            [(ngModel)]="signInData.username"
+            #username="ngModel"
+            required
+            autocomplete="username"
+            aria-describedby="usernameError"
+          />
+          <label for="username">Nom d'utilisateur</label>
+        </div>
+        <div *ngIf="username.invalid && username.touched" id="usernameError" class="error-message" role="alert">
+          Le nom d'utilisateur est requis.
+        </div>
       </div>
 
-      <label for="password">Mot de passe</label>
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="******"
-        [(ngModel)]="signInData.password"
-        #password="ngModel"
-        required
-        autocomplete="current-password"
-        aria-describedby="passwordError"
-      />
-      <div *ngIf="password.invalid && password.touched" id="passwordError" class="error-message">
-        Le mot de passe est requis.
+      <div class="form-group">
+        <div class="input-wrapper">
+          <div class="password-wrapper">
+            <input
+              [type]="hidePassword ? 'password' : 'text'"
+              id="password"
+              name="password"
+              placeholder="Votre mot de passe"
+              [(ngModel)]="signInData.password"
+              #password="ngModel"
+              required
+              autocomplete="current-password"
+              aria-describedby="passwordError"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+            >
+              {{ hidePassword ? '👁️' : '🔒' }}
+            </button>
+          </div>
+          <label for="password">Mot de passe</label>
+        </div>
+        <div *ngIf="password.invalid && password.touched" id="passwordError" class="error-message" role="alert">
+          Le mot de passe est requis.
+        </div>
       </div>
 
-
-
-
-      <button type="submit" class="btn btn-signin" [disabled]="isSubmitting || loginForm.invalid ">
-        {{ isSubmitting ? 'Connexion en cours...' : 'Se connecter' }}
+      <button
+        type="submit"
+        class="btn btn-signin"
+        [disabled]="isSubmitting || loginForm.invalid"
+        [attr.aria-busy]="isSubmitting"
+      >
+        <span *ngIf="!isSubmitting">Se connecter</span>
+        <div *ngIf="isSubmitting" class="loading-content">
+          <span class="spinner"></span>
+          <span>Connexion en cours...</span>
+        </div>
       </button>
     </form>
 
-    <p *ngIf="error" class="error-message">{{ error }}</p>
+    <p *ngIf="error" class="error-message" role="alert" aria-live="polite">{{ error }}</p>
   </div>
 
-  <div
-    class="login-right"
-    style="
-      background-color: white;
-      background-image: url('assets/images/PRODELEC-North-AFRICA.png');
-      background-size: cover;
-      background-position: center;
-    "
-  >
-    <!-- Section décorative ou info -->
+  <div class="login-right">
+    <!-- Background image handled via CSS -->
   </div>
 </div>

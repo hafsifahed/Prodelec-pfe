@@ -25,6 +25,8 @@ export class SignInComponent implements OnInit {
   error = '';
   isSubmitting = false;
   captchaResponse: string | null = null; // Stocke la réponse reCAPTCHA
+    hidePassword = true; // 👈 for password toggle
+
 
   constructor(
     private authService: AuthService,
@@ -80,6 +82,10 @@ export class SignInComponent implements OnInit {
         }
       }
     });
+  }
+
+   togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
   }
 
   private handleLoginSuccess(response: any): void {
