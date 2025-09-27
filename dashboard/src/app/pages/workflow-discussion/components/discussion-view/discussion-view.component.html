@@ -16,19 +16,19 @@
 
     <!-- Nouveaux boutons pour la phase 'devis' -->
   <ng-container *ngIf="discussion.currentPhase === 'devis'">
-    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse"
+    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse && userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"
             type="button" class="btn btn-success btn-sm"
             (click)="accepterDevis(discussion.devis.id)"
             title="Accepter">
       <i class="mdi mdi-check-outline"></i> Accepter
     </button>
-    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse"
+    <button *ngIf="discussion.devis.etat !== EtatDevis.Accepte && discussion.devis.etat !== EtatDevis.Refuse && userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"
             type="button" class="btn btn-danger btn-sm"
             (click)="openCommentModal(discussion.devis.id)"
             title="Refuser">
       <i class="mdi mdi-close-outline"></i> Refuser
     </button>
-    <button  *ngIf="discussion.devis.etat === EtatDevis.EnAttente && currentUser.role?.name.startsWith('CLIENT')"
+    <button  *ngIf="discussion.devis.etat === EtatDevis.EnAttente && userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"
             type="button" class="btn btn-outline-warning btn-sm"
             (click)="openNegociationModal(discussion.devis.id)"
             title="Démarrer négociation">
@@ -40,16 +40,16 @@
             title="Archiver">
       <i class="mdi mdi-archive"></i> Archiver
     </button>
-     <button *ngIf="currentUser.role?.name.startsWith('CLIENT')"class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(discussion.devis.id)">
+     <button *ngIf="userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(discussion.devis.id)">
                 <i class="bx bxs-detail me-1"></i> Détails
       </button>
-           <button *ngIf="!currentUser.role?.name.startsWith('CLIENT')" class="btn btn-outline-primary btn-sm" (click)="openDetailsWorkerModal(discussion.devis.id)">
-                <i class="bx bxs-detail me-1"></i> Détails
+           <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])" class="btn btn-outline-primary btn-sm" (click)="openDetailsWorkerModal(discussion.devis.id)">
+                <i class="bx bxs-detail me-1"></i> Détails {{discussion.devis.etat === EtatDevis.Negociation ? 'négociation' : '' }}
       </button>
   </ng-container>
 
       <!-- Nouveaux boutons pour la phase 'order' -->
-  <ng-container *ngIf="currentUser.role?.name.startsWith('CLIENT') && (discussion.currentPhase === 'order' || discussion.currentPhase === 'project' )" >
+  <ng-container *ngIf="userStateService.isClient() && userStateService.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE]) && (discussion.currentPhase === 'order' || discussion.currentPhase === 'project' )" >
         <button class="btn btn-success" routerLink="/addorder">+ Ajouter Commande</button>
 
   </ng-container>

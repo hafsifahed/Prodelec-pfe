@@ -26,6 +26,7 @@ import { OrderServiceService } from 'src/app/core/services/orderService/order-se
 import { EtatCahier } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
 import { Project } from 'src/app/core/models/projectfo/project';
 import { ProjectAddModalComponent } from 'src/app/pages/projectfo/modals/project-add-modal/project-add-modal.component';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-discussion-view',
@@ -37,6 +38,8 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
 
   modalRef?: BsModalRef;
 
+      Resource = Resource; // pour utiliser Resource dans le template
+    Action = Action;
   private _discussionId: number;
   @Input()
   set discussionId(id: number) {
@@ -397,13 +400,14 @@ export class DiscussionViewComponent implements OnInit, OnDestroy, AfterViewInit
   //devis 
 
    accepterDevis(id: number): void {
-    this.devisService.acceptdevis(this.discussion.devis.id).subscribe(
+    this.devisService.acceptdevis(id).subscribe(
       (response) => {
         Swal.fire('Succès', 'Le devis a été accepté avec succès.', 'success');
+        console.log('Devis accepted successfully', response);
              this.loadDiscussion();
       },
       (error) => {
-        console.error('Error accepting devis', error);
+        console.error(' aaaaa Error accepting devis ', error.status);
         Swal.fire('Erreur', 'Une erreur est survenue lors de l\'acceptation du devis', 'error');
       }
     );

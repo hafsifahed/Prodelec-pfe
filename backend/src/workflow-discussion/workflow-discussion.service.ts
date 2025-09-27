@@ -165,7 +165,7 @@ async markMessagesAsRead(discussionId: number, userId: number): Promise<void> {
 
         case WorkflowPhase.ORDER:
           const order = await this.orderRepo.findOne({ where: { idOrder: dto.targetEntityId } });
-          if (!order) throw new NotFoundException('Order not found');
+          //if (!order) throw new NotFoundException('Order not found');
           if (!discussion.orders) discussion.orders = [];
           // Avoid duplicates
           if (!discussion.orders.find((o) => o.idOrder === order.idOrder)) {
