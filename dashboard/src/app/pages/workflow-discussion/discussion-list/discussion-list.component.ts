@@ -51,7 +51,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
       this.itemsPerPage
     ).subscribe({
       next: (response) => {
-        console.log("disc from",response.discussions)
+        console.log("disc from response",response.discussions)
                 console.log("disc from total",response.total)
 
         this.discussions = response.discussions;
@@ -105,5 +105,30 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+   isCurrentUserAuthorOfLastMessage(discussion: WorkflowDiscussionSidebar): boolean {
+    if (!discussion.lastMessage || !this.currentUser) return false;
+    console.log("lememe last one",discussion.lastMessage.author.id, this.currentUser.id);
+    return discussion.lastMessage.author.id === this.currentUser.id;
+  }
+
+ isLastMessageUnread(discussion: WorkflowDiscussionSidebar): boolean {
+    if (!discussion.lastMessage.author.id || !this.currentUser.id) return false;
+    
+    // Le message est non lu ET l'auteur n'est pas l'utilisateur courant
+    return !discussion.lastMessage.read && discussion.lastMessage.author.id !== this.currentUser.id;
+  }
+    getLastMessageClass(discussion: WorkflowDiscussionSidebar): string {
+    if (!discussion.lastMessage) return 'item-preview';
+    
+    const baseClass = 'item-preview';
+    
+    if (this.isLastMessageUnread(discussion)) {
+      return `${baseClass} unread`;
+    } else if (this.isCurrentUserAuthorOfLastMessage(discussion)) {
+      return `${baseClass} own-message`;
+    }
+    
+    return baseClass;
   }
 }

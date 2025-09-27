@@ -1,9 +1,9 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/users.entity';
 import { WorkflowDiscussion } from './workflow-discussion.entity';
@@ -48,6 +48,10 @@ export class WorkflowMessage {
     nullable: true,
   })
   phase: WorkflowPhase;
+
+  @Column({ default: false })
+  read: boolean; // Nouveau champ
+
 
   @CreateDateColumn()
   createdAt: Date;

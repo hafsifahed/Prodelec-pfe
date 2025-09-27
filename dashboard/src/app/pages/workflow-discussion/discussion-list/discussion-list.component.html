@@ -28,6 +28,10 @@
       >
         <div class="item-avatar">
           <div class="phase-indicator" [ngClass]="discussion.currentPhase"></div>
+          <!-- Afficher le badge seulement s'il y a des messages non lus d'autres utilisateurs -->
+          <div *ngIf="discussion.unreadCount && !isCurrentUserAuthorOfLastMessage(discussion) > 0" class="unread-badge">
+            {{ discussion.unreadCount > 99 ? '99+' : discussion.unreadCount }}
+          </div>
         </div>
         
         <div class="item-content">
@@ -35,13 +39,20 @@
             <h4>{{ getDiscussionTitle(discussion) }}</h4>
             <span class="item-time">{{ discussion.createdAt | date:'shortDate' }}</span>
           </div>
-          <div class="item-preview">
+          <!-- Utiliser la nouvelle méthode getLastMessageClass -->
+          <div [class]="getLastMessageClass(discussion)">
             {{ getLastMessagePreview(discussion) }}
+            <!-- Indicateur pour les messages envoyés par l'utilisateur courant -->
+            <span *ngIf="isCurrentUserAuthorOfLastMessage(discussion)" class="message-indicator own">
+              ✓
+            </span>
           </div>
           <div class="item-footer">
             <span class="badge" [ngClass]="discussion.currentPhase">
               {{ discussion.currentPhase | uppercase }}
             </span>
+            <!-- Afficher l'indicateur seulement si le dernier message est non lu ET n'est pas de l'utilisateur courant -->
+            <span *ngIf="isLastMessageUnread(discussion)" class="unread-indicator"></span>
           </div>
         </div>
       </div>

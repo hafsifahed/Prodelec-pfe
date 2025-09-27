@@ -100,28 +100,49 @@ export class WorkflowDiscussionService {
   }
 
   async addMessage(
-    discussionId: number,
-    dto: CreateMessageDto,
-    author: User,
-  ): Promise<WorkflowMessage> {
-    await this.validateParticipant(discussionId, author.id);
+  discussionId: number,
+  dto: CreateMessageDto,
+  author: User,
+): Promise<WorkflowMessage> {
+  await this.validateParticipant(discussionId, author.id);
 
-    const discussion = await this.discussionRepo.findOne({ where: { id: discussionId } });
-    if (!discussion) throw new NotFoundException('Discussion not found');
+  const discussion = await this.discussionRepo.findOne({ where: { id: discussionId } });
+  if (!discussion) throw new NotFoundException('Discussion not found');
 
-    const content = dto.content?.trim();
-    if (!content) throw new BadRequestException('Message content cannot be empty');
+  const content = dto.content?.trim();
+  if (!content) throw new BadRequestException('Message content cannot be empty');
 
-    const message = this.messageRepo.create({
-      content,
-      author,
-      discussion,
-      type: WorkflowMessageType.MESSAGE,
-      phase: discussion.currentPhase 
-    });
+  const message = this.messageRepo.create({
+    content,
+    author,
+    discussion,
+    type: WorkflowMessageType.MESSAGE,
+    phase: discussion.currentPhase,
+          read: false 
+  });
 
-    return this.messageRepo.save(message);
+  const saved = await this.messageRepo.save(message);
+
+  // 🔥 Recharger avec relation auteur complète
+  return this.messageRepo.findOne({
+    where: { id: saved.id },
+    relations: ['author'],
+  });
+}
+
+async markMessagesAsRead(discussionId: number, userId: number): Promise<void> {
+    await this.messageRepo
+      .createQueryBuilder()
+      .update(WorkflowMessage)
+      .set({ read: true })
+      .where('discussionId = :discussionId', { discussionId })
+      .andWhere('authorId != :userId', { userId }) // Seulement les messages des autres
+      .andWhere('read = false')
+      .execute();
   }
+
+ 
+
 
   async transitionPhase(
     cdcId: number,
@@ -173,6 +194,7 @@ export class WorkflowDiscussionService {
 async getAllDiscussions(
   page = 1,
   limit = 20,
+      currentUserId?: number // Ajouter ce paramètre optionnel
 ): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
   // QueryBuilder pour charger discussions + relations usuelles
   const qb = this.discussionRepo
@@ -201,7 +223,8 @@ async getAllDiscussions(
   const [discussions, total] = await qb.getManyAndCount();
 
   // Formater chaque discussion avec la méthode private
-  const formatted = discussions.map(d => this.formatForSidebar(d));
+      const formatted = discussions.map(d => this.formatForSidebar(d, currentUserId));
+
 
   return {
     discussions: formatted,
@@ -251,7 +274,7 @@ async getDiscussionsByUser(
   const [discussions, total] = await qb.getManyAndCount();
 
   return {
-    discussions: discussions.map(d => this.formatForSidebar(d)),
+          discussions: discussions.map(d => this.formatForSidebar(d, userId)),
     total,
   };
 }
@@ -259,39 +282,47 @@ async getDiscussionsByUser(
 
 
 
-private formatForSidebar(discussion: WorkflowDiscussion): WorkflowDiscussionSidebar {
-  return {
-    id: discussion.id,
-    currentPhase: discussion.currentPhase,
-    createdAt: discussion.createdAt,
-    cdc: {
-      id: discussion.cdc.id,
-      titre: discussion.cdc.titre
-    },
-    devis: discussion.devis ? {
-      id: discussion.devis.id,
-      numdevis: discussion.devis.numdevis
-    } : undefined,
-    orders: discussion.orders?.map(order => ({
-      idOrder: order.idOrder,
-      orderName: order.orderName
-    })),
-    projects: discussion.projects?.map(project => ({
-      idproject: project.idproject,
-      refClient: project.refClient
-    })),
-    lastMessage: discussion.messages?.[0] ? {
-      id: discussion.messages[0].id,
-      content: discussion.messages[0].content,
-      author: {
-        id: discussion.messages[0].author.id,
-        firstName: discussion.messages[0].author.firstName,
-        lastName: discussion.messages[0].author.lastName
+
+private formatForSidebar(discussion: WorkflowDiscussion, currentUserId?: number): WorkflowDiscussionSidebar {
+    const unreadCount = discussion.messages?.filter(
+      msg => !msg.read && msg.author.id !== currentUserId
+    ).length || 0;
+    console.log('unreadCount', unreadCount);
+
+    return {
+      id: discussion.id,
+      currentPhase: discussion.currentPhase,
+      createdAt: discussion.createdAt,
+      cdc: {
+        id: discussion.cdc.id,
+        titre: discussion.cdc.titre
       },
-      createdAt: discussion.messages[0].createdAt
-    } : null
-  };
-}
+      devis: discussion.devis ? {
+        id: discussion.devis.id,
+        numdevis: discussion.devis.numdevis
+      } : undefined,
+      orders: discussion.orders?.map(order => ({
+        idOrder: order.idOrder,
+        orderName: order.orderName
+      })),
+      projects: discussion.projects?.map(project => ({
+        idproject: project.idproject,
+        refClient: project.refClient
+      })),
+      lastMessage: discussion.messages?.[0] ? {
+        id: discussion.messages[0].id,
+        content: discussion.messages[0].content,
+        author: {
+          id: discussion.messages[0].author.id,
+          firstName: discussion.messages[0].author.firstName,
+          lastName: discussion.messages[0].author.lastName
+        },
+        createdAt: discussion.messages[0].createdAt,
+        read: discussion.messages[0].read // Ajouter l'état de lecture
+      } : null,
+      unreadCount // Ajouter le compteur
+    };
+  }
 
 async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
   return this.messageRepo.findOne({
@@ -301,31 +332,32 @@ async getLastMessage(discussionId: number): Promise<WorkflowMessage | null> {
   });
 }
 
-  async getDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
-  return this.discussionRepo
-    .createQueryBuilder('discussion')
-    .leftJoinAndSelect('discussion.cdc', 'cdc')
-    .leftJoinAndSelect('cdc.user', 'cdcUser')
-    .leftJoinAndSelect('discussion.devis', 'devis')
-    .leftJoinAndSelect('devis.user', 'devisUser')
-    .leftJoinAndSelect('discussion.orders', 'orders')
-    .leftJoinAndSelect('orders.user', 'orderUser')
-    .leftJoinAndSelect('orders.projects', 'orderProjects')
-    .leftJoinAndSelect('discussion.projects', 'projects')
-    .leftJoinAndSelect('projects.order', 'projectOrder')
-    .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
-    .leftJoinAndSelect(
-      'discussion.messages', 
-      'messages', 
-      'messages.phase = discussion.currentPhase'
-    )
-    .leftJoinAndSelect('messages.author', 'messageAuthor')
-    .where('discussion.id = :id', { id: discussionId })
-    .orderBy('messages.createdAt', 'ASC')
-    .addOrderBy('orders.idOrder', 'ASC')
-    .addOrderBy('projects.idproject', 'ASC')
-    .getOne();
-}
+  async getDiscussion(discussionId: number, currentUserId?: number): Promise<WorkflowDiscussion> {
+    // Marquer les messages comme lus quand l'utilisateur ouvre la discussion
+    if (currentUserId) {
+      await this.markMessagesAsRead(discussionId, currentUserId);
+    }
+
+    return this.discussionRepo
+      .createQueryBuilder('discussion')
+      .leftJoinAndSelect('discussion.cdc', 'cdc')
+      .leftJoinAndSelect('cdc.user', 'cdcUser')
+      .leftJoinAndSelect('discussion.devis', 'devis')
+      .leftJoinAndSelect('devis.user', 'devisUser')
+      .leftJoinAndSelect('discussion.orders', 'orders')
+      .leftJoinAndSelect('orders.user', 'orderUser')
+      .leftJoinAndSelect('orders.projects', 'orderProjects')
+      .leftJoinAndSelect('discussion.projects', 'projects')
+      .leftJoinAndSelect('projects.order', 'projectOrder')
+      .leftJoinAndSelect('projectOrder.user', 'projectOrderUser')
+      .leftJoinAndSelect('discussion.messages', 'messages')
+      .leftJoinAndSelect('messages.author', 'messageAuthor')
+      .where('discussion.id = :id', { id: discussionId })
+      .orderBy('messages.createdAt', 'ASC')
+      .addOrderBy('orders.idOrder', 'ASC')
+      .addOrderBy('projects.idproject', 'ASC')
+      .getOne();
+  }
 
     async getFullDiscussion(discussionId: number): Promise<WorkflowDiscussion> {
   return this.discussionRepo

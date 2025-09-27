@@ -1,12 +1,12 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    JoinColumn,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { CahierDesCharges } from '../../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../../devis/entities/devi.entity';
@@ -51,6 +51,7 @@ export class WorkflowDiscussion {
     default: WorkflowPhase.CDC,
   })
   currentPhase: WorkflowPhase;
+
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { WorkflowDiscussion } from '../models/workflow-discussion.model';
 import { WorkflowMessage } from '../models/workflow-message.model';
@@ -36,6 +36,8 @@ export class WorkflowDiscussionService {
     return this.http.get<WorkflowDiscussion>(`${this.apiUrl}/${discussionId}`, {
       headers: this.getAuthHeaders()
     }).pipe(
+      // Marquer comme lu automatiquement quand on récupère la discussion
+      tap(() => this.markAsRead(discussionId).subscribe()),
       catchError(error => {
         console.error('Error loading discussion', error);
         return throwError(() => new Error('Failed to load discussion'));
@@ -43,6 +45,11 @@ export class WorkflowDiscussionService {
     );
   }
 
+  markAsRead(discussionId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${discussionId}/mark-as-read`, {}, {
+      headers: this.getAuthHeaders()
+    });
+  }
     getAllDiscussions(page = 1, limit = 20): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
     const params = new HttpParams()
       .set('page', page.toString())

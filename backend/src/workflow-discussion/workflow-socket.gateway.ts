@@ -1,11 +1,11 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
-    OnGatewayConnection,
-    OnGatewayDisconnect,
-    SubscribeMessage,
-    WebSocketGateway,
-    WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { User } from '../users/entities/users.entity';
@@ -74,38 +74,45 @@ export class WorkflowSocketGateway implements OnGatewayConnection, OnGatewayDisc
   }
 
   @SubscribeMessage('new_message')
-  async handleNewMessage(
-    client: Socket,
-    payload: { discussionId: number; content: string },
-  ) {
-    try {
-      const userPayload = client.data.user;
-      if (!userPayload) throw new Error('Unauthorized');
+async handleNewMessage(
+  client: Socket,
+  payload: { discussionId: number; content: string },
+) {
+  try {
+    const userPayload = client.data.user;
+    if (!userPayload) throw new Error('Unauthorized');
 
-      const author: User = { id: userPayload.sub } as User;
+    const author: User = { id: userPayload.sub } as User;
 
-      const message = await this.discussionService.addMessage(
-        payload.discussionId,
-        { content: payload.content },
-        author,
-      );
+    const message = await this.discussionService.addMessage(
+      payload.discussionId,
+      { content: payload.content },
+      author,
+    );
 
-      this.server.to(`discussion_${payload.discussionId}`).emit('message_created', {
-        id: message.id,
-        content: message.content,
-        createdAt: message.createdAt,
-        type: message.type,
-        author: {
-          id: userPayload.sub,
-          firstName: userPayload.firstName,
-          lastName: userPayload.lastName,
-          image: userPayload.image,
-        },
-      });
-    } catch (err) {
-      client.emit('error', { message: err.message });
-    }
+    // 🔥 Pas besoin de reconstruire, tu envoies tout l’objet propre
+    this.server.to(`discussion_${payload.discussionId}`).emit('message_created', {
+      id: message.id,
+      content: message.content,
+      createdAt: message.createdAt,
+      type: message.type,
+      phase: message.phase,
+      author: {
+        id: message.author.id,
+        firstName: message.author.firstName,
+        lastName: message.author.lastName,
+        email: message.author.email,
+        image: message.author.image,
+        role: message.author.role?.name,
+      },
+    });
+  } catch (err) {
+    client.emit('error', { message: err.message });
   }
+}
+
+ 
+
 
   @SubscribeMessage('typing')
   handleTyping(client: Socket, payload: { discussionId: number }) {

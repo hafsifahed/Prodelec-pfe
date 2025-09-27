@@ -34,5 +34,10 @@ export interface WorkflowDiscussionSidebar {
       lastName: string;
     };
     createdAt: Date;
+            read: boolean; // Ajouter ce champ
+
   } | null;
+      unreadCount: number; // Nouveau champ pour le nombre de messages non lus
+
 }
+

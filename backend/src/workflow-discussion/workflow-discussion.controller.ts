@@ -27,9 +27,10 @@ export class WorkflowDiscussionController {
   @Get()
  async getAllDiscussions(
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
+        @CurrentUser() user: User // Ajouter l'utilisateur courant
   ) {
-    return this.service.getAllDiscussions(page, limit);
+    return this.service.getAllDiscussions(page, limit, user.id);
   }
 
 @Get('my-discussions')
@@ -53,8 +54,20 @@ async getDiscussionsByUser(
   }
 
   @Get(':id')
-  async getDiscussion(@Param('id', ParseIntPipe) id: number):Promise<WorkflowDiscussion> {
-    return this.service.getDiscussion(id);
+  async getDiscussion(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User // Ajouter l'utilisateur courant
+  ): Promise<WorkflowDiscussion> {
+    return this.service.getDiscussion(id, user.id);
+  }
+
+  @Post(':id/mark-as-read')
+  async markAsRead(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User
+  ) {
+    await this.service.markMessagesAsRead(id, user.id);
+    return { success: true };
   }
 
   @Post(':id/messages')

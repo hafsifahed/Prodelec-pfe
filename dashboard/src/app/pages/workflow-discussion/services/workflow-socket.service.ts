@@ -13,6 +13,7 @@ export class WorkflowSocketService {
 
     private sentMessages = new Set<string>();
 
+
   connect(discussionId: number, token: string): void {
     if (this.socket?.connected) return;
 

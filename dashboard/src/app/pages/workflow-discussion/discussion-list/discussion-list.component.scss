@@ -453,3 +453,57 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }
+
+.discussion-item {
+  &.unread {
+    background-color: #f0f7ff;
+    border-left: 3px solid #1890ff;
+    font-weight: 500;
+  }
+
+  .unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ff4d4f;
+    color: white;
+    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+
+  .item-preview {
+    &.unread {
+      font-weight: 600;
+      color: #1890ff;
+    }
+    
+    &.own-message {
+      color: #666;
+      font-style: italic;
+    }
+  }
+
+  .unread-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #1890ff;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 8px;
+  }
+
+  .message-indicator {
+    margin-left: 5px;
+    font-size: 12px;
+    
+    &.own {
+      color: #52c41a;
+    }
+  }
+}
