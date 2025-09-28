@@ -40,14 +40,14 @@ export class ChartsSectionComponent implements OnInit {
   chartOptionsReclamations: Partial<ApexOptions> | null = null;
   chartOptionsCahiersDesCharges: Partial<ApexOptions> | null = null;
   chartOptionsDevis: Partial<ApexOptions> | null = null;
-  chartOptionsProjects: Partial<ApexOptions> | null = null; // Corrigé le nom
+  chartOptionsProjects: Partial<ApexOptions> | null = null;
   chartOptionsAvis: Partial<ApexOptions> | null = null;
 
   // Propriétés pour l'état des données
   hasReclamationData = true;
   hasCdcData = true;
   hasDevisData = true;
-  hasProjectData = true; // Corrigé le nom
+  hasProjectData = true;
   hasAvisData = true;
 
   // Propriétés pour les avis
@@ -69,14 +69,11 @@ export class ChartsSectionComponent implements OnInit {
     try {
       const filterOptions = await this.chartsStatsService.getFilterOptions(partnerId).toPromise();
       this.allUsers = filterOptions?.users || [];
-      this.filteredUsers = this.allUsers; // Initialise avec tous les utilisateurs
       this.partners = filterOptions?.partners || [];
       this.years = filterOptions?.years || [];
       
-      // Filtre les utilisateurs si un partenaire est sélectionné
-      if (this.selectedPartner) {
-        this.filterUsersByPartner(this.selectedPartner);
-      }
+      // Filtre les utilisateurs basé sur la sélection actuelle du partenaire
+      this.filterUsersByPartner(this.selectedPartner);
     } catch (error) {
       console.error('Error loading filter options', error);
       this.allUsers = [];
@@ -86,10 +83,14 @@ export class ChartsSectionComponent implements OnInit {
     }
   }
 
-  private filterUsersByPartner(partnerId: number) {
-    this.filteredUsers = this.allUsers.filter(user => 
-      user.partner && user.partner.id === partnerId
-    );
+  private filterUsersByPartner(partnerId: number | null) {
+    if (partnerId) {
+      this.filteredUsers = this.allUsers.filter(user => 
+        user.partner && user.partner.id === partnerId
+      );
+    } else {
+      this.filteredUsers = this.allUsers; // Tous les utilisateurs si aucun partenaire sélectionné
+    }
     
     // Réinitialise la sélection d'utilisateur si l'utilisateur sélectionné n'appartient pas au partenaire
     if (this.selectedUser && !this.filteredUsers.some(u => u.id === this.selectedUser)) {
@@ -114,7 +115,7 @@ export class ChartsSectionComponent implements OnInit {
       this.updateChartWithState('reclamations', data.reclamations);
       this.updateChartWithState('cahiersDesCharges', data.cahiersDesCharges);
       this.updateChartWithState('devis', data.devis);
-      this.updateChartWithState('projects', data.projects); // Corrigé le nom
+      this.updateChartWithState('projects', data.projects);
       
       // Special handling for avis
       this.updateAvisChartWithState(data.avis);
@@ -240,23 +241,28 @@ export class ChartsSectionComponent implements OnInit {
 
   // Filter change handlers
   onUserChange(event: Event) {
-    this.selectedUser = this.parseValue(event);
+    const target = event.target as HTMLSelectElement;
+    this.selectedUser = target.value ? +target.value : null;
     this.loadChartsData();
   }
 
   onPartnerChange(event: Event) {
-    const partnerId = this.parseValue(event);
+    const target = event.target as HTMLSelectElement;
+    const partnerId = target.value ? +target.value : null;
+    
     this.selectedPartner = partnerId;
     this.selectedUser = null; // Reset user selection
     
-    // Recharge les options de filtre avec le partenaire sélectionné
-    this.loadFilterOptions(partnerId).then(() => {
-      this.loadChartsData();
-    });
+    // Met à jour la liste des utilisateurs filtrés
+    this.filterUsersByPartner(partnerId);
+    
+    // Recharge les données des charts
+    this.loadChartsData();
   }
 
   onYearChange(event: Event) {
-    this.selectedYear = this.parseValue(event);
+    const target = event.target as HTMLSelectElement;
+    this.selectedYear = target.value ? +target.value : null;
     this.loadChartsData();
   }
 
@@ -264,13 +270,11 @@ export class ChartsSectionComponent implements OnInit {
     this.selectedUser = null;
     this.selectedPartner = null;
     this.selectedYear = null;
-    this.loadFilterOptions().then(() => {
-      this.loadChartsData();
-    });
-  }
-
-  private parseValue(event: Event): number | null {
-    const value = (event.target as HTMLSelectElement).value;
-    return value ? +value : null;
+    
+    // Réinitialise la liste des utilisateurs filtrés
+    this.filterUsersByPartner(null);
+    
+    // Recharge les données
+    this.loadChartsData();
   }
 }

@@ -4,26 +4,32 @@
       <label class="form-label">Partenaire</label>
       <select class="form-select" (change)="onPartnerChange($event)" [value]="selectedPartner || ''">
         <option value="">Tous les partenaires</option>
-        <option *ngFor="let p of partners" [value]="p.id">{{ p.name }}</option>
+        <option *ngFor="let p of partners" [value]="p.id" [selected]="p.id === selectedPartner">
+          {{ p.name }}
+        </option>
       </select>
     </div>
     
     <div class="col-md-4">
-  <label class="form-label">Utilisateur</label>
-  <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && filteredUsers.length === 0">
-    <option value="">Tous les utilisateurs</option>
-    <option *ngFor="let u of filteredUsers" [value]="u.id">{{ u.username }}</option>
-  </select>
-  <small *ngIf="selectedPartner && filteredUsers.length === 0" class="text-muted d-block mt-1">
-    <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
-  </small>
-</div>
+      <label class="form-label">Utilisateur</label>
+      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && filteredUsers.length === 0">
+        <option value="">Tous les utilisateurs</option>
+        <option *ngFor="let u of filteredUsers" [value]="u.id" [selected]="u.id === selectedUser">
+          {{ u.username }}
+        </option>
+      </select>
+      <small *ngIf="selectedPartner && filteredUsers.length === 0" class="text-muted d-block mt-1">
+        <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
+      </small>
+    </div>
     
     <div class="col-md-4">
       <label class="form-label">Année</label>
       <select class="form-select" (change)="onYearChange($event)" [value]="selectedYear || ''">
         <option value="">Toutes les années</option>
-        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        <option *ngFor="let y of years" [value]="y" [selected]="y === selectedYear">
+          {{ y }}
+        </option>
       </select>
     </div>
     
@@ -59,8 +65,7 @@
             [colors]="chartOptionsReclamations.colors"
             [responsive]="chartOptionsReclamations.responsive"
             [dataLabels]="chartOptionsReclamations.dataLabels"
-            [plotOptions]="chartOptionsReclamations.plotOptions"
-            [tooltip]="chartOptionsReclamations.tooltip">
+            [plotOptions]="chartOptionsReclamations.plotOptions">
           </apx-chart>
         </div>
         <ng-template #noReclamation>
@@ -87,8 +92,7 @@
             [colors]="chartOptionsCahiersDesCharges.colors"
             [responsive]="chartOptionsCahiersDesCharges.responsive"
             [dataLabels]="chartOptionsCahiersDesCharges.dataLabels"
-            [plotOptions]="chartOptionsCahiersDesCharges.plotOptions"
-            [tooltip]="chartOptionsCahiersDesCharges.tooltip">
+            [plotOptions]="chartOptionsCahiersDesCharges.plotOptions">
           </apx-chart>
         </div>
         <ng-template #noCdc>
@@ -115,8 +119,7 @@
             [colors]="chartOptionsDevis.colors"
             [responsive]="chartOptionsDevis.responsive"
             [dataLabels]="chartOptionsDevis.dataLabels"
-            [plotOptions]="chartOptionsDevis.plotOptions"
-            [tooltip]="chartOptionsDevis.tooltip">
+            [plotOptions]="chartOptionsDevis.plotOptions">
           </apx-chart>
         </div>
         <ng-template #noDevis>
@@ -130,32 +133,31 @@
   </div>
 
   <!-- Projets -->
-<div class="col-lg-6">
-  <div class="card h-100">
-    <div class="card-body">
-      <h4 class="card-title mb-4">Projets</h4>
-      <div class="chart-container" *ngIf="hasProjectData && chartOptionsProjects; else noProject">
-        <apx-chart 
-          [series]="chartOptionsProjects.series"
-          [chart]="chartOptionsProjects.chart"
-          [labels]="chartOptionsProjects.labels"
-          [legend]="chartOptionsProjects.legend"
-          [colors]="chartOptionsProjects.colors"
-          [responsive]="chartOptionsProjects.responsive"
-          [dataLabels]="chartOptionsProjects.dataLabels"
-          [plotOptions]="chartOptionsProjects.plotOptions"
-          [tooltip]="chartOptionsProjects.tooltip">
-        </apx-chart>
-      </div>
-      <ng-template #noProject>
-        <div class="text-center py-4 text-muted">
-          <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-          <p class="mt-2 mb-0">Aucun projet trouvé pour cette sélection</p>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h4 class="card-title mb-4">Projets</h4>
+        <div class="chart-container" *ngIf="hasProjectData && chartOptionsProjects; else noProject">
+          <apx-chart 
+            [series]="chartOptionsProjects.series"
+            [chart]="chartOptionsProjects.chart"
+            [labels]="chartOptionsProjects.labels"
+            [legend]="chartOptionsProjects.legend"
+            [colors]="chartOptionsProjects.colors"
+            [responsive]="chartOptionsProjects.responsive"
+            [dataLabels]="chartOptionsProjects.dataLabels"
+            [plotOptions]="chartOptionsProjects.plotOptions">
+          </apx-chart>
         </div>
-      </ng-template>
+        <ng-template #noProject>
+          <div class="text-center py-4 text-muted">
+            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0">Aucun projet trouvé pour cette sélection</p>
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Avis -->
   <div class="col-lg-6">
@@ -171,8 +173,7 @@
             [colors]="chartOptionsAvis.colors"
             [responsive]="chartOptionsAvis.responsive"
             [dataLabels]="chartOptionsAvis.dataLabels"
-            [plotOptions]="chartOptionsAvis.plotOptions"
-            [tooltip]="chartOptionsAvis.tooltip">
+            [plotOptions]="chartOptionsAvis.plotOptions">
           </apx-chart>
 
           <div class="avg-display mt-4 text-center" *ngIf="totalAvis > 0">
