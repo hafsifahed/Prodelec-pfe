@@ -8,12 +8,12 @@
   </div>
 
   <div class="list-content" (scroll)="onScroll($event)">
-    <!--<div class="loader" *ngIf="isLoading">Loading...</div>-->
     <div class="error-state" *ngIf="error">
       <i class="fas fa-exclamation-triangle"></i>
       <p>Failed to load discussions.</p>
       <button (click)="loadDiscussions()">Retry</button>
     </div>
+    
     <div class="empty-list" *ngIf="!isLoading && !error && discussions.length === 0">
       <i class="fas fa-inbox"></i>
       <p>No discussions found.</p>
@@ -28,8 +28,7 @@
       >
         <div class="item-avatar">
           <div class="phase-indicator" [ngClass]="discussion.currentPhase"></div>
-          <!-- Afficher le badge seulement s'il y a des messages non lus d'autres utilisateurs -->
-          <div *ngIf="discussion.unreadCount && !isCurrentUserAuthorOfLastMessage(discussion) " class="unread-badge">
+          <div *ngIf="discussion.unreadCount && !isCurrentUserAuthorOfLastMessage(discussion)" class="unread-badge">
             {{ discussion.unreadCount > 99 ? '99+' : discussion.unreadCount }}
           </div>
         </div>
@@ -39,33 +38,32 @@
             <h4>{{ getDiscussionTitle(discussion) }}</h4>
             <span class="item-time">{{ discussion.createdAt | date:'shortDate' }}</span>
           </div>
-          <!-- Utiliser la nouvelle méthode getLastMessageClass -->
+          
           <div [class]="getLastMessageClass(discussion)">
             {{ getLastMessagePreview(discussion) }}
-            <!-- Indicateur pour les messages envoyés par l'utilisateur courant -->
             <span *ngIf="isCurrentUserAuthorOfLastMessage(discussion)" class="message-indicator own">
               ✓
             </span>
           </div>
+          
           <div class="item-footer">
             <span class="badge" [ngClass]="discussion.currentPhase">
               {{ discussion.currentPhase | uppercase }}
             </span>
-            <!-- Afficher l'indicateur seulement si le dernier message est non lu ET n'est pas de l'utilisateur courant -->
             <span *ngIf="isLastMessageUnread(discussion)" class="unread-indicator"></span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Indicateur de chargement pour le scroll infini -->
+    <!-- Indicateur de chargement -->
     <div class="load-more-indicator" *ngIf="isLoadingMore">
-      <i class="fas fa-spinner fa-spin"></i> Chargement...
+      <i class="fas fa-spinner fa-spin"></i> Chargement des discussions...
     </div>
 
-    <!-- Message quand il n'y a plus de discussions -->
+    <!-- Message quand tout est chargé -->
     <div class="no-more-results" *ngIf="!hasMore && discussions.length > 0">
-      <p>Toutes les discussions ont été chargées</p>
+      <p>Toutes vos discussions ont été chargées</p>
     </div>
   </div>
 </div>

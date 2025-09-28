@@ -14,7 +14,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   discussions: WorkflowDiscussionSidebar[] = [];
   currentUser: User | null = null;
   isLoading = true;
-  isLoadingMore = false; // Nouveau flag pour le chargement supplémentaire
+  isLoadingMore = false;
   error: string | null = null;
   @Input() selectedDiscussionId: number | null = null;
   @Output() discussionSelected = new EventEmitter<number>();
@@ -23,7 +23,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   currentPage = 1;
   itemsPerPage = 20;
   totalItems = 0;
-  hasMore = true; // Pour savoir s'il y a plus de données à charger
+  hasMore = true;
 
   private subscriptions = new Subscription();
 
@@ -66,7 +66,8 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
           this.discussions = response.discussions;
           this.totalItems = response.total;
           this.isLoading = false;
-          this.hasMore = this.discussions.length < this.totalItems;
+          // Calculer s'il y a plus de données à charger
+          this.hasMore = (this.currentPage * this.itemsPerPage) < this.totalItems;
         },
         error: (err) => {
           console.error('Failed to load discussions', err);
@@ -77,17 +78,17 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Rafraîchir les discussions sans réinitialiser
+  // Rafraîchir les discussions (pour l'auto-refresh)
   refreshDiscussions(): void {
     this.subscriptions.add(
       this.discussionService.getDiscussionsByUser(
-        1, // Toujours charger la première page pour le refresh
-        this.currentPage * this.itemsPerPage // Charger tout ce qu'on a déjà + potentiellement du nouveau
+        1,
+        this.currentPage * this.itemsPerPage
       ).subscribe({
         next: (response) => {
           this.discussions = response.discussions;
           this.totalItems = response.total;
-          this.hasMore = this.discussions.length < this.totalItems;
+          this.hasMore = (this.currentPage * this.itemsPerPage) < this.totalItems;
         },
         error: (err) => {
           console.error('Failed to refresh discussions', err);
@@ -101,32 +102,33 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     if (this.isLoadingMore || !this.hasMore) return;
 
     this.isLoadingMore = true;
-    this.currentPage++;
+    const nextPage = this.currentPage + 1;
 
     this.subscriptions.add(
       this.discussionService.getDiscussionsByUser(
-        this.currentPage,
+        nextPage,
         this.itemsPerPage
       ).subscribe({
         next: (response) => {
+          // Ajouter les nouvelles discussions à la liste existante
           this.discussions = [...this.discussions, ...response.discussions];
           this.totalItems = response.total;
+          this.currentPage = nextPage;
           this.isLoadingMore = false;
-          this.hasMore = this.discussions.length < this.totalItems;
+          // Vérifier s'il y a encore plus de données
+          this.hasMore = (this.currentPage * this.itemsPerPage) < this.totalItems;
         },
         error: (err) => {
           console.error('Failed to load more discussions', err);
           this.isLoadingMore = false;
-          this.currentPage--; // Revenir à la page précédente en cas d'erreur
         }
       })
     );
   }
 
-  // Écouter le scroll
+  // Écouter le scroll de la fenêtre
   @HostListener('window:scroll', ['$event'])
   onWindowScroll(): void {
-    // Vérifier si on est près du bas de la page
     const scrollPosition = window.pageYOffset;
     const windowSize = window.innerHeight;
     const bodyHeight = document.body.offsetHeight;
@@ -137,7 +139,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Ou bien, si vous préférez écouter le scroll sur un conteneur spécifique :
+  // Ou utiliser cette méthode si vous préférez le scroll sur un conteneur spécifique
   onScroll(event: any): void {
     const element = event.target;
     const atBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 100;

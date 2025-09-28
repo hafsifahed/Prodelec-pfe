@@ -217,6 +217,7 @@ async getAllDiscussions(
     .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
 
     .orderBy('discussion.createdAt', 'DESC')
+    .orderBy('lastMessage.createdAt', 'DESC')
     .skip((page - 1) * limit)
     .take(limit);
 
@@ -268,6 +269,7 @@ async getDiscussionsByUser(
     .orWhere('projectOrderUser.id = :userId', { userId })
 
     .orderBy('discussion.createdAt', 'DESC')
+    .orderBy('lastMessage.createdAt', 'DESC')
     .skip((page - 1) * limit)
     .take(limit);
 

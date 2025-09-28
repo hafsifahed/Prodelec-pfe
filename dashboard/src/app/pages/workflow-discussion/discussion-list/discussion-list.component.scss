@@ -526,10 +526,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .list-content {
-  height: 70vh; // ou la hauteur que vous souhaitez
+  height: 70vh;
   overflow-y: auto;
   
-  // Style pour la scrollbar personnalisée si souhaité
   &::-webkit-scrollbar {
     width: 6px;
   }
