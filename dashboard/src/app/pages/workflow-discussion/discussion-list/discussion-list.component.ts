@@ -20,7 +20,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
 
   // Pagination
   currentPage = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 20;
   totalItems = 0;
 
   private subscriptions = new Subscription();
@@ -117,10 +117,11 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   }
 
   isLastMessageUnread(discussion: WorkflowDiscussionSidebar): boolean {
-    if (!discussion.lastMessage.author.id || !this.currentUser?.id) return false;
+  if (!discussion.lastMessage || !discussion.lastMessage.author || !this.currentUser?.id) return false;
 
-    return !discussion.lastMessage.read && discussion.lastMessage.author.id !== this.currentUser.id;
-  }
+  return !discussion.lastMessage.read && discussion.lastMessage.author.id !== this.currentUser.id;
+}
+
 
   getLastMessageClass(discussion: WorkflowDiscussionSidebar): string {
     if (!discussion.lastMessage) return 'item-preview';

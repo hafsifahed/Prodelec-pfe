@@ -156,7 +156,7 @@
       </div>-->
 
       <!-- Fullscreen Toggle -->
-      <div class="dropdown d-none d-lg-inline-block ms-1">
+      <div class="dropdown d-none d-lg-inline-block ms-1" >
         <button type="button" class="btn header-item noti-icon" data-toggle="fullscreen" (click)="fullscreen()">
           <i class="bx bx-fullscreen"></i>
         </button>
@@ -169,8 +169,8 @@
     <i class="bx bx-bell bx-tada"></i>
     <span class="badge bg-danger rounded-pill" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
   </button>
-  <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-       aria-labelledby="page-header-notifications-dropdown" *dropdownMenu>
+  <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" style="width: 400px !important;"
+       aria-labelledby="page-header-notifications-dropdown" *dropdownMenu >
     <div class="p-3">
       <div class="row align-items-center">
         <div class="col">
