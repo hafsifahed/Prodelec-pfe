@@ -507,3 +507,43 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }
+
+.load-more-indicator {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  
+  .fa-spinner {
+    margin-right: 0.5rem;
+  }
+}
+
+.no-more-results {
+  text-align: center;
+  padding: 1rem;
+  color: #999;
+  font-style: italic;
+}
+
+.list-content {
+  height: 70vh; // ou la hauteur que vous souhaitez
+  overflow-y: auto;
+  
+  // Style pour la scrollbar personnalisée si souhaité
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}

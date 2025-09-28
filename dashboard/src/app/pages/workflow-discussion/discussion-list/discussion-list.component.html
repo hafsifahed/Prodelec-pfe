@@ -7,7 +7,7 @@
     </div>
   </div>
 
-  <div class="list-content">
+  <div class="list-content" (scroll)="onScroll($event)">
     <!--<div class="loader" *ngIf="isLoading">Loading...</div>-->
     <div class="error-state" *ngIf="error">
       <i class="fas fa-exclamation-triangle"></i>
@@ -56,6 +56,16 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Indicateur de chargement pour le scroll infini -->
+    <div class="load-more-indicator" *ngIf="isLoadingMore">
+      <i class="fas fa-spinner fa-spin"></i> Chargement...
+    </div>
+
+    <!-- Message quand il n'y a plus de discussions -->
+    <div class="no-more-results" *ngIf="!hasMore && discussions.length > 0">
+      <p>Toutes les discussions ont été chargées</p>
     </div>
   </div>
 </div>
