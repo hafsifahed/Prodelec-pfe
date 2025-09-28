@@ -8,8 +8,11 @@ import { Reclamation } from '../reclamation/entities/reclamation.entity';
 import { UserSession } from '../user-session/entities/user-session.entity';
 import { User } from '../users/entities/users.entity';
 
+import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../devis/entities/devi.entity';
 import { Partner } from '../partners/entities/partner.entity';
+import { ChartsStatisticsController } from './charts-statistics.controller';
+import { ChartsStatisticsService } from './charts-statistics.service';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
 
@@ -23,10 +26,11 @@ import { StatisticsService } from './statistics.service';
       UserSession,
       User,
       Devis,
-      Partner
+      Partner,
+      CahierDesCharges
     ]),
   ],
-  providers: [StatisticsService],
-  controllers: [StatisticsController],
+  providers: [StatisticsService,ChartsStatisticsService],
+  controllers: [StatisticsController,ChartsStatisticsController],
 })
 export class StatisticsModule {}

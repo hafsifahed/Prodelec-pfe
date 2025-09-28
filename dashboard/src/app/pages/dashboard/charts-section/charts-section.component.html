@@ -1,5 +1,4 @@
 <div class="global-filters mb-4">
-  <!-- (tes filtres Partner, User, Year + bouton reset inchangés) -->
   <div class="row g-3 align-items-end">
     <div class="col-md-4">
       <label class="form-label">Partenaire</label>
@@ -10,15 +9,15 @@
     </div>
     
     <div class="col-md-4">
-      <label class="form-label">Utilisateur</label>
-      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && users.length === 0">
-        <option value="">Tous les utilisateurs</option>
-        <option *ngFor="let u of users" [value]="u.id">{{ u.username }}</option>
-      </select>
-      <small *ngIf="selectedPartner && users.length === 0" class="text-muted d-block mt-1">
-        <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
-      </small>
-    </div>
+  <label class="form-label">Utilisateur</label>
+  <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''" [disabled]="selectedPartner && filteredUsers.length === 0">
+    <option value="">Tous les utilisateurs</option>
+    <option *ngFor="let u of filteredUsers" [value]="u.id">{{ u.username }}</option>
+  </select>
+  <small *ngIf="selectedPartner && filteredUsers.length === 0" class="text-muted d-block mt-1">
+    <i class="bx bx-info-circle"></i> Aucun utilisateur pour ce partenaire
+  </small>
+</div>
     
     <div class="col-md-4">
       <label class="form-label">Année</label>
@@ -36,20 +35,32 @@
   </div>
 </div>
 
-<div class="row g-4 mt-1">
+<!-- Loading State -->
+<div *ngIf="isLoading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+  <p class="mt-2 text-muted">Chargement des statistiques...</p>
+</div>
+
+<!-- Charts Section -->
+<div *ngIf="!isLoading" class="row g-4 mt-1">
   <!-- Réclamations -->
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Réclamations</h4>
-        <div class="chart-container" *ngIf="hasReclamationData; else noReclamation">
-          <apx-chart class="apex-charts w-100" dir="ltr"
-                    [series]="chartOptionsReclamations?.series"
-                    [chart]="chartOptionsReclamations?.chart"
-                    [labels]="chartOptionsReclamations?.labels"
-                    [legend]="chartOptionsReclamations?.legend"
-                    [colors]="chartOptionsReclamations?.colors"
-                    [responsive]="chartOptionsReclamations?.responsive">
+        <div class="chart-container" *ngIf="hasReclamationData && chartOptionsReclamations; else noReclamation">
+          <apx-chart 
+            [series]="chartOptionsReclamations.series"
+            [chart]="chartOptionsReclamations.chart"
+            [labels]="chartOptionsReclamations.labels"
+            [legend]="chartOptionsReclamations.legend"
+            [colors]="chartOptionsReclamations.colors"
+            [responsive]="chartOptionsReclamations.responsive"
+            [dataLabels]="chartOptionsReclamations.dataLabels"
+            [plotOptions]="chartOptionsReclamations.plotOptions"
+            [tooltip]="chartOptionsReclamations.tooltip">
           </apx-chart>
         </div>
         <ng-template #noReclamation>
@@ -67,14 +78,17 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Cahier des charges</h4>
-        <div class="chart-container" *ngIf="hasCdcData; else noCdc">
-          <apx-chart class="apex-charts w-100" dir="ltr"
-                    [series]="chartOptionsCahiersDesCharges?.series"
-                    [chart]="chartOptionsCahiersDesCharges?.chart"
-                    [labels]="chartOptionsCahiersDesCharges?.labels"
-                    [legend]="chartOptionsCahiersDesCharges?.legend"
-                    [colors]="chartOptionsCahiersDesCharges?.colors"
-                    [responsive]="chartOptionsCahiersDesCharges?.responsive">
+        <div class="chart-container" *ngIf="hasCdcData && chartOptionsCahiersDesCharges; else noCdc">
+          <apx-chart 
+            [series]="chartOptionsCahiersDesCharges.series"
+            [chart]="chartOptionsCahiersDesCharges.chart"
+            [labels]="chartOptionsCahiersDesCharges.labels"
+            [legend]="chartOptionsCahiersDesCharges.legend"
+            [colors]="chartOptionsCahiersDesCharges.colors"
+            [responsive]="chartOptionsCahiersDesCharges.responsive"
+            [dataLabels]="chartOptionsCahiersDesCharges.dataLabels"
+            [plotOptions]="chartOptionsCahiersDesCharges.plotOptions"
+            [tooltip]="chartOptionsCahiersDesCharges.tooltip">
           </apx-chart>
         </div>
         <ng-template #noCdc>
@@ -92,14 +106,17 @@
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Devis</h4>
-        <div class="chart-container" *ngIf="hasDevisData; else noDevis">
-          <apx-chart class="apex-charts w-100" dir="ltr"
-                    [series]="chartOptionsDevis?.series"
-                    [chart]="chartOptionsDevis?.chart"
-                    [labels]="chartOptionsDevis?.labels"
-                    [legend]="chartOptionsDevis?.legend"
-                    [colors]="chartOptionsDevis?.colors"
-                    [responsive]="chartOptionsDevis?.responsive">
+        <div class="chart-container" *ngIf="hasDevisData && chartOptionsDevis; else noDevis">
+          <apx-chart 
+            [series]="chartOptionsDevis.series"
+            [chart]="chartOptionsDevis.chart"
+            [labels]="chartOptionsDevis.labels"
+            [legend]="chartOptionsDevis.legend"
+            [colors]="chartOptionsDevis.colors"
+            [responsive]="chartOptionsDevis.responsive"
+            [dataLabels]="chartOptionsDevis.dataLabels"
+            [plotOptions]="chartOptionsDevis.plotOptions"
+            [tooltip]="chartOptionsDevis.tooltip">
           </apx-chart>
         </div>
         <ng-template #noDevis>
@@ -113,47 +130,56 @@
   </div>
 
   <!-- Projets -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Projets</h4>
-        <div class="chart-container" *ngIf="hasProjectData; else noProject">
-          <apx-chart class="apex-charts w-100" dir="ltr"
-                    [series]="chartOptionsProjet?.series"
-                    [chart]="chartOptionsProjet?.chart"
-                    [labels]="chartOptionsProjet?.labels"
-                    [legend]="chartOptionsProjet?.legend"
-                    [colors]="chartOptionsProjet?.colors"
-                    [responsive]="chartOptionsProjet?.responsive">
-          </apx-chart>
-        </div>
-        <ng-template #noProject>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucun projet trouvé pour cette sélection</p>
-          </div>
-        </ng-template>
+<div class="col-lg-6">
+  <div class="card h-100">
+    <div class="card-body">
+      <h4 class="card-title mb-4">Projets</h4>
+      <div class="chart-container" *ngIf="hasProjectData && chartOptionsProjects; else noProject">
+        <apx-chart 
+          [series]="chartOptionsProjects.series"
+          [chart]="chartOptionsProjects.chart"
+          [labels]="chartOptionsProjects.labels"
+          [legend]="chartOptionsProjects.legend"
+          [colors]="chartOptionsProjects.colors"
+          [responsive]="chartOptionsProjects.responsive"
+          [dataLabels]="chartOptionsProjects.dataLabels"
+          [plotOptions]="chartOptionsProjects.plotOptions"
+          [tooltip]="chartOptionsProjects.tooltip">
+        </apx-chart>
       </div>
+      <ng-template #noProject>
+        <div class="text-center py-4 text-muted">
+          <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
+          <p class="mt-2 mb-0">Aucun projet trouvé pour cette sélection</p>
+        </div>
+      </ng-template>
     </div>
   </div>
+</div>
 
   <!-- Avis -->
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body">
         <h4 class="card-title mb-4">Avis</h4>
-        <div class="chart-container" *ngIf="hasAvisData; else noAvis">
-          <apx-chart class="apex-charts w-100" dir="ltr"
-            [series]="chartOptionsAvis?.series"
-            [chart]="chartOptionsAvis?.chart"
-            [labels]="chartOptionsAvis?.labels"
-            [legend]="chartOptionsAvis?.legend"
-            [colors]="chartOptionsAvis?.colors"
-            [responsive]="chartOptionsAvis?.responsive">
+        <div class="chart-container" *ngIf="hasAvisData && chartOptionsAvis; else noAvis">
+          <apx-chart 
+            [series]="chartOptionsAvis.series"
+            [chart]="chartOptionsAvis.chart"
+            [labels]="chartOptionsAvis.labels"
+            [legend]="chartOptionsAvis.legend"
+            [colors]="chartOptionsAvis.colors"
+            [responsive]="chartOptionsAvis.responsive"
+            [dataLabels]="chartOptionsAvis.dataLabels"
+            [plotOptions]="chartOptionsAvis.plotOptions"
+            [tooltip]="chartOptionsAvis.tooltip">
           </apx-chart>
 
-          <div class="avg-display mt-4" *ngIf="avisList.length > 0">
-            <p class="mb-0"><strong>{{ avgTotal }}%</strong> moyenne de satisfaction sur {{ avisList.length }} avis.</p>
+          <div class="avg-display mt-4 text-center" *ngIf="totalAvis > 0">
+            <p class="mb-0">
+              <strong>{{ averageAvis | number:'1.0-2' }}%</strong> 
+              moyenne de satisfaction sur {{ totalAvis }} avis.
+            </p>
           </div>
         </div>
         <ng-template #noAvis>
@@ -162,37 +188,6 @@
             <p class="mt-2 mb-0">Aucun avis trouvé pour cette sélection</p>
           </div>
         </ng-template>
-
-        <div class="card mt-4 border-0 shadow-sm" *ngIf="hasAvisData && filteredAvis.length > 0">
-          <div class="card-body">
-            <h5 class="card-title d-flex align-items-center">
-              <i class="bx bx-detail me-2"></i> Détail des avis
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Utilisateur</th>
-                    <th>Partenaire</th>
-                    <th class="text-end">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let a of filteredAvis">
-                    <td>{{ a.user?.username || '-' }}</td>
-                    <td>{{ a.user?.partner?.name || '-' }}</td>
-                    <td class="text-end">
-                      <span class="badge bg-primary bg-opacity-10 text-primary">
-                        {{ a.avg ?? 0 | number:'1.0-2' }}%
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
