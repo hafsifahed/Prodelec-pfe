@@ -1,210 +1,560 @@
-// Variables
-$card-radius: 10px;
-$card-padding: 1.5rem;
-$transition-speed: 0.3s;
+// Variables Neumorphic
+:root {
+  // Light theme - Neumorphic
+  --neu-bg: #f0f0f3;
+  --neu-shadow-light: #ffffff;
+  --neu-shadow-dark: #d1d9e6;
+  --neu-text-primary: #2d3748;
+  --neu-text-secondary: #718096;
+  --neu-text-muted: #a0aec0;
+  --neu-border: #e2e8f0;
+  
+  // Couleurs d'accent
+  --primary: #3b82f6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #8b5cf6;
+}
 
-// Base styles
+.dark-theme {
+  // Dark theme - Neumorphic
+  --neu-bg: #1a202c;
+  --neu-shadow-light: #2d3748;
+  --neu-shadow-dark: #0f141e;
+  --neu-text-primary: #f7fafc;
+  --neu-text-secondary: #cbd5e0;
+  --neu-text-muted: #718096;
+  --neu-border: #2d3748;
+    --neu-shadow-space: #5e92ec;
+
+}
+
+// Mixins Neumorphic
+@mixin neu-shadow {
+  box-shadow: 
+    8px 8px 16px var(--neu-shadow-dark),
+    -8px -8px 16px var(--neu-shadow-light);
+}
+
+@mixin neu-shadow-inset {
+  box-shadow: 
+    inset 4px 4px 8px var(--neu-shadow-dark),
+    inset -4px -4px 8px var(--neu-shadow-light);
+}
+
+@mixin neu-shadow-pressed {
+  box-shadow: 
+    inset 4px 4px 8px var(--neu-shadow-dark),
+    inset -4px -4px 8px var(--neu-shadow-light);
+}
+
+@mixin neu-card-base {
+  background: var(--neu-bg);
+  border-radius: 20px;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+// Styles de base
 :host {
   display: block;
-  padding: 1rem;
+  padding: 1.5rem;
+  background: var(--neu-bg);
+ // min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
-// Card styles
-.card {
-  border-radius: $card-radius;
-  border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all $transition-speed ease;
-  overflow: hidden;
+.dashboard-cards {
+  .row {
+   // margin: 0 -0.75rem;
+  }
+}
+
+// Cartes Neumorphiques individuelles
+.neu-card {
+  @include neu-card-base;
+  @include neu-shadow;
+  padding: 0.5rem;
   height: 100%;
-  position: relative;
-  color: white;
   
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    @include neu-shadow;
   }
-
-  &-block {
-    padding: $card-padding;
-    position: relative;
-    z-index: 2;
-  }
-
-  h6 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 1.25rem;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
-  h2 {
-    font-size: 2.25rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-  }
-
-  .sub-metric {
-    font-size: 0.95rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
+  
+  &.client-neu .neu-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  &.employee-neu .neu-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  &.satisfaction-neu .neu-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  
+  &.reclamation-neu {
+    .neu-icon { background: linear-gradient(135deg, #10b981, #047857); }
     
-    .f-right {
-      float: right;
+    &.exceeded .neu-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  }
+  
+  .neu-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .neu-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include neu-shadow;
+    
+    i {
+      font-size: 1.75rem;
+      color: white;
     }
   }
-
-  // Background patterns
-  &::before {
-    content: "";
+  
+  .neu-data {
+    flex: 1;
+    
+    .neu-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--neu-text-primary);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    
+    .neu-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--neu-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .neu-sub {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--neu-text-muted);
+    }
+    
+    .neu-rating {
+      .stars {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 0.25rem;
+        
+        i {
+          font-size: 0.9rem;
+          color: var(--neu-text-muted);
+          
+          &.active {
+            color: #f59e0b;
+          }
+        }
+      }
+      
+      .rating-count {
+        font-size: 0.75rem;
+        color: var(--neu-text-muted);
+      }
+    }
+  }
+  
+  .neu-trend {
     position: absolute;
-    top: -40%;
-    right: -40%;
-    width: 150%;
-    height: 150%;
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-    z-index: 1;
-    opacity: 0.7;
-  }
-}
-
-// Gradient backgrounds
-.bg-c-blue {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
-
-.bg-c-green {
-  background: linear-gradient(135deg, #10b981, #047857);
-}
-
-.bg-c-yellow {
-  background: linear-gradient(135deg, #f59e0b, #b45309);
-}
-
-.bg-c-pink {
-  background: linear-gradient(135deg, #ec4899, #be185d);
-}
-
-/* Styles pour les nouvelles cartes combinées */
-.combined-card {
-  background: #2a3042;
-  
-  .card-block {
-    padding: 1.5rem;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--neu-bg);
+    @include neu-shadow;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 1rem;
+      color: var(--success);
+    }
   }
   
-  h6 {
-    font-size: 1rem;
+  .neu-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    
+    .indicator-dot {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+    
+    &.exceeded .indicator-dot {
+      background: var(--danger);
+    }
   }
 }
 
-.metric-card {
-  border-radius: 8px;
-  transition: all 0.2s ease;
+// Points en ligne animés
+.online-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  animation: pulse 2s infinite;
+}
+
+// Cartes combinées Neumorphiques
+.neu-combined {
+  @include neu-card-base;
+  @include neu-shadow;
+//  padding: 1.5rem;
+  height: 100%;
   
   &:hover {
-    transform: scale(1.02);
+    transform: translateY(-2px);
+    @include neu-shadow;
   }
   
-  .card-block {
+  .combined-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      
+      i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--neu-bg);
+        @include neu-shadow;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--neu-text-primary);
+        margin: 0;
+      }
+    }
+    
+    .header-stats {
+      .stat-pill {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        
+        &.positive {
+        //  background: var(--success);
+          color: var(--success);
+        }
+        
+        &.success {
+          background: var(--success);
+          color: var(--success);
+        }
+        
+        &.warning {
+          background: var(--warning);
+          color:var(--warning);
+        }
+        
+        &.danger {
+          background: var(--danger);
+          color:var(--danger);
+        }
+      }
+    }
+  }
+  
+  .combined-body {
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      
+      .metric-col {
+        .metric-card {
+          @include neu-shadow-inset;
+          padding: 1rem;
+          border-radius: 16px;
+          background: var(--neu-bg);
+          
+          &.success {
+            border-left: 4px solid var(--success);
+          }
+          
+          &.danger {
+            border-left: 4px solid var(--danger);
+          }
+          
+          .metric-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            
+            i {
+              font-size: 1rem;
+              color: var(--neu-text-secondary);
+            }
+            
+            .metric-title {
+              font-size: 0.8rem;
+              font-weight: 600;
+              color: var(--neu-text-secondary);
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+          }
+          
+          .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neu-text-primary);
+            margin-bottom: 0.5rem;
+          }
+          
+          .metric-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            
+            .neu-progress {
+              flex: 1;
+              height: 6px;
+              border-radius: 3px;
+              @include neu-shadow-inset;
+              overflow: hidden;
+              
+              .progress-fill {
+                height: 100%;
+                border-radius: 3px;
+                background: var(--primary);
+                transition: width 0.5s ease;
+                
+                &.success {
+                  background: var(--success);
+                }
+                
+                &.danger {
+                  background: var(--danger);
+                }
+              }
+            }
+            
+            .progress-text {
+              font-size: 0.75rem;
+              font-weight: 600;
+              color: var(--neu-text-secondary);
+              min-width: 3rem;
+            }
+          }
+        }
+      }
+    }
+    
+    .project-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      
+      .project-metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        
+        .metric-visual {
+          margin-bottom: 0.75rem;
+          
+          .neu-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            @include neu-shadow;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            
+            &.active {
+              border: 3px solid var(--primary);
+            }
+            
+            &.completed {
+              border: 3px solid var(--success);
+            }
+            
+            &.delayed {
+              border: 3px solid var(--warning);
+            }
+            
+            .circle-value {
+              font-size: 1.25rem;
+              font-weight: 700;
+              color: var(--neu-text-primary);
+            }
+          }
+        }
+        
+        .metric-info {
+          .metric-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--neu-text-primary);
+            margin-bottom: 0.25rem;
+          }
+          
+          .metric-desc {
+            font-size: 0.75rem;
+            color: var(--neu-text-muted);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+// Effets interactifs
+.neu-card:hover .neu-icon,
+.neu-combined:hover .header-title i {
+  animation: float 2s ease-in-out infinite;
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .combined-body .metric-row,
+  .combined-body .project-stats {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+  
+  .neu-card {
     padding: 1.25rem;
     
-    h2 {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
+    .neu-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.75rem;
     }
     
-    h6 {
-      margin-bottom: 0.5rem;
-      font-size: 0.85rem;
-    }
-  }
-}
-
-.progress {
-  height: 6px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
-  
-  &-bar {
-    border-radius: 3px;
-  }
-}
-
-/* Adaptation des couleurs pour le mode clair */
-.combined-card {
-  .card-orders {
-    background: linear-gradient(135deg, #93bbe6, #3b82f6);
-  }
-  
-  .card-cancelled {
-    background: linear-gradient(135deg, #e29fa9, #ef4444);
-  }
-  
-  .card-projects {
-    background: linear-gradient(135deg, #e2d099, #f59e0b);
-  }
-  
-  .card-completed {
-    background: linear-gradient(135deg, #a5e4aa, #22c55e);
-  }
-  
-  .card-delayed {
-    background: linear-gradient(135deg, #e9c893, #f59e0b);
-  }
-}
-
-// Status cards
-.card-orders {
-  background: linear-gradient(135deg, #93c5fd, #3b82f6);
-  color: #1e3a8a;
-}
-
-.card-projects {
-  background: linear-gradient(135deg, #fde68a, #f59e0b);
-  color: #7c2d12;
-}
-
-.card-cancelled {
-  background: linear-gradient(135deg, #fca5a5, #ef4444);
-  color: #7f1d1d;
-}
-
-.card-completed {
-  background: linear-gradient(135deg, #86efac, #22c55e);
-  color: #14532d;
-}
-
-.card-delayed {
-  background: linear-gradient(135deg, #fcd34d, #f59e0b);
-  color: #7c2d12;
-}
-
-// Status card specific styles
-.card[class*="card-"] {
-  h5, .card-text {
-    color: inherit;
-  }
-  
-  .bx {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 8px;
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .card {
-    h2 {
+    .neu-data .neu-value {
       font-size: 1.75rem;
     }
+  }
+  
+  .neu-combined {
+    padding: 1.25rem;
     
-    &-block {
-      padding: 1.25rem;
+    .combined-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
     }
+    
+    .combined-body .metric-row,
+    .combined-body .project-stats {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  
+  .metric-row .metric-col .metric-card {
+    padding: 0.875rem;
+  }
+}
+
+// Améliorations pour le dark mode
+.dark-theme {
+  .neu-card,
+  .neu-combined {
+    @include neu-shadow;
+    
+    &:hover {
+      @include neu-shadow;
+    }
+  }
+  
+  .metric-card {
+    @include neu-shadow-inset;
+  }
+  
+  .neu-progress {
+    @include neu-shadow-inset;
+  }
+}
+
+// Effets de profondeur supplémentaires
+.neu-card::before,
+.neu-combined::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgb(252, 2, 2) 50%, 
+    transparent 100%);
+  z-index: 1;
+}
+
+.dark-theme {
+  .neu-card::before,
+  .neu-combined::before {
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(255,255,255,0.1) 50%, 
+      transparent 100%);
   }
 }

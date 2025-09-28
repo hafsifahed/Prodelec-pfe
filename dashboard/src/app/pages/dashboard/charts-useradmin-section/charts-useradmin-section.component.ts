@@ -30,13 +30,14 @@ export class ChartsUseradminSectionComponent implements OnInit {
   selectedUser: number | null = null;
   selectedYear: number | null = null;
 
-  users: any[] = [];
+  allUsers: any[] = []; // Tous les utilisateurs du partenaire
+  filteredUsers: any[] = []; // Utilisateurs filtrés (tous par défaut)
   years: number[] = [];
 
   chartOptionsReclamations: Partial<ApexOptions> | null = null;
   chartOptionsCahiersDesCharges: Partial<ApexOptions> | null = null;
   chartOptionsDevis: Partial<ApexOptions> | null = null;
-  chartOptionsProjet: Partial<ApexOptions> | null = null;
+  chartOptionsProjects: Partial<ApexOptions> | null = null;
   chartOptionsAvis: Partial<ApexOptions> | null = null;
 
   reclamations: Reclamation[] = [];
@@ -47,8 +48,6 @@ export class ChartsUseradminSectionComponent implements OnInit {
   avisList: AvisModels[] = [];
 
   filteredAvis: AvisModels[] = [];
-  projectsCompleted: Project[] = [];
-  projectsLate: Project[] = [];
   avgTotal = 0;
 
   hasReclamationData = true;
@@ -56,6 +55,8 @@ export class ChartsUseradminSectionComponent implements OnInit {
   hasDevisData = true;
   hasProjectData = true;
   hasAvisData = true;
+
+  isLoading = true;
 
   constructor(
     private avisSrv: AvisService,
@@ -80,25 +81,37 @@ export class ChartsUseradminSectionComponent implements OnInit {
   }
 
   private async initData() {
-    if (this.roleName === 'CLIENTADMIN') {
-      // Charger tous les utilisateurs du partenaire
-      const allUsers = await this.usersSrv.getClients().toPromise();
-      this.users = allUsers.filter(u => u.partner?.id === this.partnerId);
-    } else {
-      // Uniquement l'utilisateur connecté
-      this.users = [this.user];
-      this.selectedUser = this.user?.id;
-    }
+    this.isLoading = true;
+    
+    try {
+      if (this.roleName === 'CLIENTADMIN') {
+        // Charger tous les utilisateurs du partenaire
+        const allUsers = await this.usersSrv.getClients().toPromise();
+        this.allUsers = allUsers.filter(u => u.partner?.id === this.partnerId);
+        this.filteredUsers = this.allUsers; // Initialise avec tous les utilisateurs
+        this.selectedUser = null; // Par défaut, tous les utilisateurs
+      } else {
+        // Uniquement l'utilisateur connecté
+        this.allUsers = [this.user];
+        this.filteredUsers = [this.user];
+        this.selectedUser = this.user?.id;
+      }
 
-    await Promise.all([
-      this.loadAvis(),
-      this.loadReclamations(),
-      this.loadCdc(),
-      this.loadDevis(),
-      this.loadOrdersAndProjects(),
-    ]);
-    this.generateYears();
-    this.updateAllCharts();
+      await Promise.all([
+        this.loadAvis(),
+        this.loadReclamations(),
+        this.loadCdc(),
+        this.loadDevis(),
+        this.loadOrdersAndProjects(),
+      ]);
+      
+      this.generateYears();
+      this.updateAllCharts();
+    } catch (error) {
+      console.error('Error initializing data', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private generateYears() {
@@ -140,29 +153,28 @@ export class ChartsUseradminSectionComponent implements OnInit {
       this.projectSrv.getAllProjects().toPromise(),
     ]);
     this.projects = this.projects.filter(p => p.order?.user?.partner?.id === this.partnerId);
-    this.projectsCompleted = this.projects.filter(p => p.progress === 100);
-    this.projectsLate = this.projects.filter(p => this.isLate(p));
   }
 
-  onUserChange(e: Event) {
-    this.selectedUser = this.parseValue(e);
+  onUserChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedUser = target.value ? +target.value : null;
     this.updateAllCharts();
   }
 
-  onYearChange(e: Event) {
-    this.selectedYear = this.parseValue(e);
+  onYearChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedYear = target.value ? +target.value : null;
     this.updateAllCharts();
   }
 
   resetFilters() {
-    this.selectedUser = this.roleName === 'CLIENTADMIN' ? null : this.user?.id;
+    if (this.roleName === 'CLIENTADMIN') {
+      this.selectedUser = null;
+    } else {
+      this.selectedUser = this.user?.id;
+    }
     this.selectedYear = null;
     this.updateAllCharts();
-  }
-
-  private parseValue(e: Event): number | null {
-    const v = (e.target as HTMLSelectElement).value;
-    return v ? +v : null;
   }
 
   private updateAllCharts() {
@@ -178,20 +190,21 @@ export class ChartsUseradminSectionComponent implements OnInit {
       const userMatch = this.selectedUser
         ? r.user.id === this.selectedUser
         : true;
-      return (
-        (this.selectedYear ? new Date(r.dateDeCreation).getFullYear() === this.selectedYear : true) &&
-        userMatch
-      );
+      const yearMatch = this.selectedYear 
+        ? new Date(r.dateDeCreation).getFullYear() === this.selectedYear 
+        : true;
+      return userMatch && yearMatch;
     });
+    
     const treated = filtered.filter(r => r.status === 'Traité').length;
     const ongoing = filtered.filter(r => r.status === 'En cours').length;
 
     if (treated + ongoing === 0) {
       this.hasReclamationData = false;
-      this.chartOptionsReclamations = null!;
+      this.chartOptionsReclamations = null;
     } else {
       this.hasReclamationData = true;
-      this.chartOptionsReclamations = this.buildPie(
+      this.chartOptionsReclamations = this.buildPieChart(
         [treated, ongoing],
         ['Traité', 'En cours'],
         ['#00E396', '#FFCC00']
@@ -204,10 +217,10 @@ export class ChartsUseradminSectionComponent implements OnInit {
       const userMatch = this.selectedUser
         ? c.user.id === this.selectedUser
         : true;
-      return (
-        (this.selectedYear ? new Date(c.createdAt).getFullYear() === this.selectedYear : true) &&
-        userMatch
-      );
+      const yearMatch = this.selectedYear 
+        ? new Date(c.createdAt).getFullYear() === this.selectedYear 
+        : true;
+      return userMatch && yearMatch;
     });
 
     const accepted = filtered.filter(c => c.etat === EtatCahier.Accepte).length;
@@ -216,10 +229,10 @@ export class ChartsUseradminSectionComponent implements OnInit {
 
     if (accepted + refused + pending === 0) {
       this.hasCdcData = false;
-      this.chartOptionsCahiersDesCharges = null!;
+      this.chartOptionsCahiersDesCharges = null;
     } else {
       this.hasCdcData = true;
-      this.chartOptionsCahiersDesCharges = this.buildPie(
+      this.chartOptionsCahiersDesCharges = this.buildPieChart(
         [accepted, refused, pending],
         [EtatCahier.Accepte, EtatCahier.Refuse, EtatCahier.EnAttente],
         ['#00E396', '#FF4560', '#0096FF']
@@ -232,10 +245,10 @@ export class ChartsUseradminSectionComponent implements OnInit {
       const userMatch = this.selectedUser
         ? d.user.id === this.selectedUser
         : true;
-      return (
-        (this.selectedYear ? new Date(d.dateCreation).getFullYear() === this.selectedYear : true) &&
-        userMatch
-      );
+      const yearMatch = this.selectedYear 
+        ? new Date(d.dateCreation).getFullYear() === this.selectedYear 
+        : true;
+      return userMatch && yearMatch;
     });
 
     const accepted = filtered.filter(d => d.etat === EtatDevis.Accepte).length;
@@ -244,46 +257,38 @@ export class ChartsUseradminSectionComponent implements OnInit {
 
     if (accepted + refused + pending === 0) {
       this.hasDevisData = false;
-      this.chartOptionsDevis = null!;
+      this.chartOptionsDevis = null;
     } else {
       this.hasDevisData = true;
-      this.chartOptionsDevis = this.buildPie(
+      this.chartOptionsDevis = this.buildPieChart(
         [accepted, refused, pending],
-        [EtatDevis.Accepte, EtatDevis.Refuse,EtatDevis.EnAttente],
+        [EtatDevis.Accepte, EtatDevis.Refuse, EtatDevis.EnAttente],
         ['#00E396', '#FF4560', '#0096FF']
       );
     }
   }
 
   private updateProjectChart() {
-    const deliveredCount = this.projectsCompleted.filter(p => {
+    const filteredProjects = this.projects.filter(p => {
       const userId = p.order?.user?.id;
       const userMatch = this.selectedUser
         ? userId === this.selectedUser
         : true;
-      return (
-        (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
-        userMatch
-      );
-    }).length;
+      const yearMatch = this.selectedYear 
+        ? new Date(p.createdAt).getFullYear() === this.selectedYear 
+        : true;
+      return userMatch && yearMatch;
+    });
 
-    const lateCount = this.projectsLate.filter(p => {
-      const userId = p.order?.user?.id;
-      const userMatch = this.selectedUser
-        ? userId === this.selectedUser
-        : true;
-      return (
-        (this.selectedYear ? new Date(p.createdAt).getFullYear() === this.selectedYear : true) &&
-        userMatch
-      );
-    }).length;
+    const deliveredCount = filteredProjects.filter(p => p.progress === 100).length;
+    const lateCount = filteredProjects.filter(p => this.isLate(p)).length;
 
     if (deliveredCount + lateCount === 0) {
       this.hasProjectData = false;
-      this.chartOptionsProjet = null!;
+      this.chartOptionsProjects = null;
     } else {
       this.hasProjectData = true;
-      this.chartOptionsProjet = this.buildPie(
+      this.chartOptionsProjects = this.buildPieChart(
         [deliveredCount, lateCount],
         ['Livré', 'Retard'],
         ['#00E396', '#FF4560']
@@ -303,28 +308,71 @@ export class ChartsUseradminSectionComponent implements OnInit {
     const nbMoyens = this.filteredAvis.filter(a => (a.avg ?? 0) >= 50 && (a.avg ?? 0) < 70).length;
     const nbNegatifs = this.filteredAvis.filter(a => (a.avg ?? 0) < 50).length;
 
+    // Recalculer la moyenne pour les avis filtrés
+    const filteredAvgTotal = this.filteredAvis.length
+      ? +(this.filteredAvis.reduce((s, a) => s + (a.avg ?? 0), 0) / this.filteredAvis.length).toFixed(2)
+      : 0;
+
     if (this.filteredAvis.length === 0) {
       this.hasAvisData = false;
-      this.chartOptionsAvis = null!;
+      this.chartOptionsAvis = null;
       return;
     }
 
     this.hasAvisData = true;
-    this.chartOptionsAvis = this.buildPie(
+    this.chartOptionsAvis = this.buildPieChart(
       [nbPositifs, nbMoyens, nbNegatifs],
       ['Satisfaits (≥70%)', 'Moyens (50-69%)', 'Insatisfaits (<50%)'],
       ['#00E396', '#FFCC00', '#FF4560']
     );
+
+    // Mettre à jour la moyenne pour l'affichage
+    this.avgTotal = filteredAvgTotal;
   }
 
-  private buildPie(series: number[], labels: string[], colors: string[]): Partial<ApexOptions> {
+  private buildPieChart(series: number[], labels: string[], colors: string[]): Partial<ApexOptions> {
     return {
       series,
-      chart: { type: 'pie', width: 380 },
+      chart: {
+        type: 'pie',
+        width: 380,
+        animations: { enabled: true, speed: 800 },
+        foreColor: '#373d3f'
+      },
       labels,
-      legend: { position: 'bottom' },
+      legend: {
+        position: 'bottom',
+        fontSize: '14px',
+        fontFamily: 'Inter, sans-serif',
+        markers: { radius: 12 }
+      },
       colors,
-      responsive: [{ breakpoint: 480, options: { chart: { width: 200 }, legend: { position: 'bottom' } } }]
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: { width: 300 },
+          legend: { position: 'bottom' }
+        }
+      }],
+      dataLabels: {
+        enabled: true,
+        style: { fontSize: '14px', fontFamily: 'Inter, sans-serif' }
+      },
+      plotOptions: {
+        pie: {
+          donut: { 
+            labels: { 
+              show: true, 
+              total: { 
+                show: true, 
+                fontSize: '16px',
+                label: 'Total'
+              } 
+            } 
+          },
+          expandOnClick: true
+        }
+      }
     };
   }
 

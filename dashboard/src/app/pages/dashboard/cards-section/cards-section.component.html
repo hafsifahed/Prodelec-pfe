@@ -1,138 +1,212 @@
 <div class="dashboard-cards">
   <div class="row g-4">
     <!-- Clients -->
-<!-- Clients -->
-<div class="col-md-6 col-xl-3" *ngIf="stats">
-  <div class="card bg-c-blue">
-    <div class="card-block">
-      <h6 class="m-b-20">Clients</h6>
-      <h2 class="text-right"><span>{{ stats.totalClients }}</span></h2>
-      <div class="sub-metric">
-        Connectés <span class="f-right">{{ stats.connectedClients }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Employés -->
-<div class="col-md-6 col-xl-3" *ngIf="stats">
-  <div class="card bg-c-blue">
-    <div class="card-block">
-      <h6 class="m-b-20">Employés</h6>
-      <h2 class="text-right"><span>{{ stats.totalEmployees }}</span></h2>
-      <div class="sub-metric">
-        Connectés <span class="f-right">{{ stats.connectedEmployees }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-    <!-- Pourcentage réclamations -->
-    <div class="col-md-6 col-xl-3">
-      <div class="card" [ngClass]="reclamationPercentage > setting?.reclamationTarget ? 'bg-c-pink' : 'bg-c-green'">
-        <div class="card-block">
-          <h6 class="m-b-20">Réclamations / Projets</h6>
-          <h2 class="text-right">
-            <span>{{ reclamationPercentage | number: '1.0-2' }}%</span>
-          </h2>
-          <div class="sub-metric">
-            Projets terminés <span class="f-right">{{ projectsCompleted.length }}</span>
+    <div class="col-md-6 col-xl-3" *ngIf="stats">
+      <div class="neu-card client-neu">
+        <div class="neu-content">
+          <div class="neu-icon">
+            <i class="bx bx-user-circle"></i>
           </div>
+          <div class="neu-data">
+            <div class="neu-value">{{ stats.totalClients }}</div>
+            <div class="neu-label">Clients</div>
+            <div class="neu-sub">
+              <span class="online-dot"></span>
+              {{ stats.connectedClients }} en ligne
+            </div>
+          </div>
+        </div>
+        <div class="neu-trend">
+          <i class="bx bx-trending-up"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employés -->
+    <div class="col-md-6 col-xl-3" *ngIf="stats">
+      <div class="neu-card employee-neu">
+        <div class="neu-content">
+          <div class="neu-icon">
+            <i class="bx bx-briefcase"></i>
+          </div>
+          <div class="neu-data">
+            <div class="neu-value">{{ stats.totalEmployees }}</div>
+            <div class="neu-label">Employés</div>
+            <div class="neu-sub">
+              <span class="online-dot"></span>
+              {{ stats.connectedEmployees }} en ligne
+            </div>
+          </div>
+        </div>
+        <div class="neu-trend">
+          <i class="bx bx-trending-up"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Réclamations -->
+    <div class="col-md-6 col-xl-3">
+      <div class="neu-card reclamation-neu" [class.exceeded]="reclamationPercentage > setting?.reclamationTarget">
+        <div class="neu-content">
+          <div class="neu-icon">
+            <i class="bx" [class.bx-error]="reclamationPercentage > setting?.reclamationTarget" 
+                         [class.bx-check-shield]="reclamationPercentage <= setting?.reclamationTarget"></i>
+          </div>
+          <div class="neu-data">
+            <div class="neu-value">{{ reclamationPercentage | number: '1.0-1' }}%</div>
+            <div class="neu-label">Réclamations</div>
+            <div class="neu-sub">
+              {{ projectsCompleted.length }} projets
+            </div>
+          </div>
+        </div>
+        <div class="neu-indicator" [class.exceeded]="reclamationPercentage > setting?.reclamationTarget">
+          <div class="indicator-dot"></div>
         </div>
       </div>
     </div>
 
     <!-- Satisfaction -->
     <div class="col-md-6 col-xl-3">
-      <div class="card bg-c-yellow">
-        <div class="card-block">
-          <h6 class="m-b-20">Satisfaction</h6>
-          <h2 class="text-right">
-            <span>{{ avgTotal | number:'1.2-2' }}</span>
-          </h2>
-          <div class="sub-metric">
-            Avis <span class="f-right">{{ avisList.length }}</span>
+      <div class="neu-card satisfaction-neu">
+        <div class="neu-content">
+          <div class="neu-icon">
+            <i class="bx bx-heart"></i>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section combinée pour Commandes -->
-    <div class="col-12 col-xl-6">
-      <div class="card combined-card">
-        <div class="card-block">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="m-0">Statistiques des Commandes</h6>
-            <i class="bx bxs-shopping-bags"></i>
-          </div>
-          
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="metric-card card-orders h-100">
-                <div class="card-block">
-                  <h6>Commandes</h6>
-                  <h2>{{ getStatValue('Commandes') }}</h2>
-                  <div class="progress mt-2">
-                    <div class="progress-bar bg-info" [style.width.%]="getOrderProgress()"></div>
-                  </div>
-                </div>
+          <div class="neu-data">
+            <div class="neu-value">{{ avgTotal | number:'1.1-1' }}</div>
+            <div class="neu-label">Satisfaction</div>
+            <div class="neu-rating">
+              <div class="stars">
+                <i class="bx bxs-star" *ngFor="let star of [1,2,3,4,5]"
+                   [class.active]="star <= (avgTotal / 20)"></i>
               </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="metric-card card-cancelled h-100">
-                <div class="card-block">
-                  <h6>Annulées</h6>
-                  <h2>{{ getStatValue('Commandes annulées') }}</h2>
-                  <div class="sub-metric">
-                    Taux: {{ getCancellationRate() | number:'1.1-1' }}%
-                  </div>
-                </div>
-              </div>
+              <span class="rating-count">{{ avisList.length }} avis</span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Section combinée pour Projets -->
+    <!-- Section Commandes -->
     <div class="col-12 col-xl-6">
-      <div class="card combined-card">
-        <div class="card-block">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="m-0">Statistiques des Projets</h6>
+      <div class="neu-combined orders-neu">
+        <div class="combined-header">
+          <div class="header-title">
+            <i class="bx bxs-cart"></i>
+            <h3>Performance des Commandes</h3>
+          </div>
+          <div class="header-stats">
+            <div class="stat-pill" [class.positive]="getOrderProgress() > 75">
+              {{ getOrderProgress() | number:'1.0-0' }}% de réussite
+            </div>
+          </div>
+        </div>
+
+        <div class="combined-body">
+          <div class="metric-row">
+            <div class="metric-col">
+              <div class="metric-card">
+                <div class="metric-header">
+                  <i class="bx bx-cart-alt"></i>
+                  <span class="metric-title">Total</span>
+                </div>
+                <div class="metric-value">{{ getStatValue('Commandes') }}</div>
+                <div class="metric-progress">
+                  <div class="neu-progress">
+                    <div class="progress-fill" [style.width.%]="100"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="metric-col">
+              <div class="metric-card success">
+                <div class="metric-header">
+                  <i class="bx bx-check-circle"></i>
+                  <span class="metric-title">Réussies</span>
+                </div>
+                <div class="metric-value">{{ getStatValue('Commandes') - getStatValue('Commandes annulées') }}</div>
+                <div class="metric-progress">
+                  <div class="neu-progress">
+                    <div class="progress-fill success" [style.width.%]="getOrderProgress()"></div>
+                  </div>
+                  <span class="progress-text">{{ getOrderProgress() | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="metric-col">
+              <div class="metric-card danger">
+                <div class="metric-header">
+                  <i class="bx bx-x-circle"></i>
+                  <span class="metric-title">Annulées</span>
+                </div>
+                <div class="metric-value">{{ getStatValue('Commandes annulées') }}</div>
+                <div class="metric-progress">
+                  <div class="neu-progress">
+                    <div class="progress-fill danger" [style.width.%]="getCancellationRate()"></div>
+                  </div>
+                  <span class="progress-text">{{ getCancellationRate() | number:'1.1-1' }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Projets -->
+    <div class="col-12 col-xl-6">
+      <div class="neu-combined projects-neu">
+        <div class="combined-header">
+          <div class="header-title">
             <i class="bx bxs-briefcase"></i>
+            <h3>État des Projets</h3>
           </div>
-          
-          <div class="row g-3">
-            <div class="col-md-4">
-              <div class="metric-card card-projects h-100">
-                <div class="card-block">
-                  <h6>En cours</h6>
-                  <h2>{{ getStatValue('Projets') }}</h2>
+          <div class="header-stats">
+            <div class="stat-pill" [class.warning]="getDelayedPercentage() > 10" 
+                                 [class.success]="getDelayedPercentage() <= 10">
+              {{ getDelayedPercentage() <= 10 ? 'Dans les temps' : 'Attention retard' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="combined-body">
+          <div class="project-stats">
+            <div class="project-metric">
+              <div class="metric-visual">
+                <div class="neu-circle active">
+                  <span class="circle-value">{{ getStatValue('Projets') }}</span>
                 </div>
               </div>
-            </div>
-            
-            <div class="col-md-4">
-              <div class="metric-card card-completed h-100">
-                <div class="card-block">
-                  <h6>Terminés</h6>
-                  <h2>{{ getStatValue('Projets terminés') }}</h2>
-                </div>
+              <div class="metric-info">
+                <div class="metric-label">En Cours</div>
+                <div class="metric-desc">Projets actifs</div>
               </div>
             </div>
-            
-            <div class="col-md-4">
-              <div class="metric-card card-delayed h-100">
-                <div class="card-block">
-                  <h6>Retards</h6>
-                  <h2>{{ getStatValue('Projet retards') }}</h2>
-                  <div class="sub-metric">
-                    {{ getDelayedPercentage() | number:'1.1-1' }}% des projets
-                  </div>
+
+            <div class="project-metric">
+              <div class="metric-visual">
+                <div class="neu-circle completed">
+                  <span class="circle-value">{{ getStatValue('Projets terminés') }}</span>
                 </div>
+              </div>
+              <div class="metric-info">
+                <div class="metric-label">Terminés</div>
+                <div class="metric-desc">Livraisons réussies</div>
+              </div>
+            </div>
+
+            <div class="project-metric">
+              <div class="metric-visual">
+                <div class="neu-circle delayed">
+                  <span class="circle-value">{{ getStatValue('Projet retards') }}</span>
+                </div>
+              </div>
+              <div class="metric-info">
+                <div class="metric-label">Retards</div>
+                <div class="metric-desc">{{ getDelayedPercentage() | number:'1.1-1' }}% des projets</div>
               </div>
             </div>
           </div>
