@@ -54,9 +54,9 @@
 // Styles de base
 :host {
   display: block;
-  padding: 1.5rem;
+  //padding: 1.5rem;
   background: var(--neu-bg);
-  min-height: 100vh;
+//  min-height: 100vh;
   font-family: 'Inter', sans-serif;
 }
 
@@ -71,7 +71,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 2rem;
+// margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--neu-border);
 
@@ -252,7 +252,7 @@
     
     i {
       font-size: 1.75rem;
-      color: white;
+     // color: white;
     }
   }
   
@@ -361,7 +361,8 @@
 .neu-combined {
   @include neu-card-base;
   @include neu-shadow;
-  padding: 1.5rem;
+  padding: 0.5rem;
+  padding-bottom: 1.5rem;
   height: 100%;
   
   &:hover {
@@ -412,17 +413,17 @@
         
         &.positive, &.success {
           background: var(--success);
-          color: white;
+         // color: white;
         }
         
         &.warning {
           background: var(--warning);
-          color: white;
+         // color: white;
         }
         
         &.danger {
           background: var(--danger);
-          color: white;
+        //  color: white;
         }
       }
     }

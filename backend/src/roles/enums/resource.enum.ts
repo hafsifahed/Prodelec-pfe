@@ -1,24 +1,26 @@
 export enum Resource {
-  // Core
   USERS = 'users',
   ROLES = 'roles',
   PARTNERS = 'partners',
   SETTINGS = 'settings',
-  
-  // Business Modules
   PRODUCTS = 'products',
+  PROJECT = 'project',
   ORDERS = 'orders',
+  CAHIER_DES_CHARGES = 'cahier_des_charges',
+  CDC_FILES = 'cdc_files',
+  DEVIS = 'devis',
   INVENTORY = 'inventory',
   QUALITY = 'quality',
   PRODUCTION = 'production',
-  DESIGN='conception',
-  PROJECT='project',
   LOGISTICS = 'logistics',
   HR = 'hr',
   FINANCE = 'finance',
-  METHOD ='method',
-  
-  // System
+  METHOD = 'method',
   AUDIT_LOGS = 'audit_logs',
-  SESSIONS = 'sessions'
+  SESSIONS = 'sessions',
+    RECLAMATIONS = 'reclamation',
+  NOTIFICATIONS = 'notification',
+  WORKFLOW_DISCUSSIONS = 'workflow_discussions',
+  WORKFLOW_MESSAGES = 'workflow_messages',
+  EMAIL='email',
 }

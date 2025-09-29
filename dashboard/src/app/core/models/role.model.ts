@@ -18,6 +18,9 @@ export enum Resource {
   PRODUCTS = 'products',
   PROJECT = 'project',
   ORDERS = 'orders',
+  CAHIER_DES_CHARGES = 'cahier_des_charges',
+  CDC_FILES = 'cdc_files',
+  DEVIS = 'devis',
   INVENTORY = 'inventory',
   QUALITY = 'quality',
   PRODUCTION = 'production',
@@ -26,7 +29,12 @@ export enum Resource {
   FINANCE = 'finance',
   METHOD = 'method',
   AUDIT_LOGS = 'audit_logs',
-  SESSIONS = 'sessions'
+  SESSIONS = 'sessions',
+    RECLAMATIONS = 'reclamation',
+  NOTIFICATIONS = 'notification',
+  EMAIL='email',
+  WORKFLOW_DISCUSSIONS = 'workflow_discussions',
+  WORKFLOW_MESSAGES = 'workflow_messages',
 }
 
 export enum RoleName {
