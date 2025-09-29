@@ -1,5 +1,6 @@
+// cards-section.component.ts
 import { Component, OnInit } from '@angular/core';
-import { StatisticsService, GlobalStats } from 'src/app/core/services/statistics.service';
+import { StatisticsService, GlobalStats, PeriodStats } from 'src/app/core/services/statistics.service';
 import { AvisService } from 'src/app/core/services/avis.service';
 import { ProjectService } from 'src/app/core/services/projectService/project.service';
 import { SettingService } from 'src/app/core/services/setting.service';
@@ -10,26 +11,43 @@ import { SettingService } from 'src/app/core/services/setting.service';
   styleUrls: ['./cards-section.component.scss']
 })
 export class CardsSectionComponent implements OnInit {
-  stats = {
-    totalEmployees: 0,
-    connectedEmployees: 0,
-    totalClients: 0,
-    connectedClients: 0,
+  // Filtres de période
+  periods = [
+    { value: 'today', label: 'Aujourd\'hui', icon: 'bx bx-calendar-day' },
+    { value: 'week', label: 'Cette semaine', icon: 'bx bx-calendar-week' },
+    { value: 'month', label: 'Ce mois', icon: 'bx bx-calendar' },
+    { value: 'year', label: 'Cette année', icon: 'bx bx-calendar-star' }
+  ];
+  selectedPeriod: string = 'month';
+  
+  // Données statistiques
+  stats: GlobalStats = {
+    totalOrders: 0,
+    cancelledOrders: 0,
+    totalProjects: 0,
+    completedProjects: 0,
+    lateProjects: 0,
+    averageAvis: 0,
+    reclamationRatio: 0,
+    totalAvis: 0,
+    newOrders: 0,
+    newProjects: 0,
+    sessions: {
+      totalEmployees: 0,
+      connectedEmployees: 0,
+      totalClients: 0,
+      connectedClients: 0
+    }
   };
 
-  statData = [
-    { icon: 'bx bx-copy-alt', title: 'Commandes', value: '0' },
-    { icon: 'bx bx-copy-alt', title: 'Projets', value: '0' },
-    { icon: 'bx bx-error-circle', title: 'Commandes annulées', value: '0' },
-    { icon: 'bx bx-check-circle', title: 'Projets terminés', value: '0' },
-    { icon: 'bx bx-error-circle', title: 'Projet retards', value: '0' },
-  ];
-
-  reclamationPercentage = 0;
+  comparativeStats?: PeriodStats;
+  
+  // Configuration
   setting: any;
-  projectsCompleted: any[] = [];
-  avisList: any[] = [];
-  avgTotal = 0;
+  
+  // États
+  isLoading = true;
+  hasComparativeData = false;
 
   constructor(
     private statsSrv: StatisticsService,
@@ -39,60 +57,106 @@ export class CardsSectionComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
+    // Charger la configuration
     this.settingService.getSettings().subscribe((res: any) => {
       this.setting = res;
     });
 
-    this.statsSrv.getGlobalStats().subscribe({
-      next: (g: GlobalStats) => {
-        this.statData[0].value = g.totalOrders.toString();
-        this.statData[1].value = g.totalProjects.toString();
-        this.statData[2].value = g.cancelledOrders.toString();
-        this.statData[3].value = g.completedProjects.toString();
-        this.statData[4].value = g.lateProjects.toString();
-        this.stats = g.sessions;
-        this.reclamationPercentage = +g.reclamationRatio.toFixed(2);
-      },
-      error: err => console.error('[Dashboard] getGlobalStats KO', err),
-    });
-
-    await this.loadAvis();
-    await this.loadProjectsCompleted();
+    // Charger les données initiales
+    await this.loadStats();
   }
 
-  private async loadAvis() {
-    this.avisList = await this.avisSrv.getAllAvis().toPromise();
-    this.avgTotal = this.avisList.length
-      ? +(this.avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / this.avisList.length).toFixed(2)
-      : 0;
+  // Charger les statistiques
+  private async loadStats() {
+    this.isLoading = true;
+    
+    try {
+      const [globalStats, comparativeStats] = await Promise.all([
+        this.statsSrv.getGlobalStats(this.selectedPeriod).toPromise(),
+        this.statsSrv.getComparativeStats(this.selectedPeriod).toPromise()
+      ]);
+
+      if (globalStats) {
+        this.stats = globalStats;
+      }
+      
+      if (comparativeStats) {
+        this.comparativeStats = comparativeStats;
+        this.hasComparativeData = !!comparativeStats.comparison;
+      }
+      
+    } catch (error) {
+      console.error('Error loading statistics', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  private async loadProjectsCompleted() {
-    const projects = await this.projectSrv.getAllProjects().toPromise();
-    this.projectsCompleted = projects.filter(p => p.progress === 100);
+  // Changer la période
+  onPeriodChange(period: string) {
+    this.selectedPeriod = period;
+    this.loadStats();
   }
 
-  // Nouvelles méthodes pour les cartes combinées
-  getStatValue(title: string): number {
-    const stat = this.statData.find(s => s.title === title);
-    return stat ? +stat.value : 0;
-  }
-
+  // Méthodes utilitaires pour les calculs
   getOrderProgress(): number {
-    const total = this.getStatValue('Commandes');
-    const cancelled = this.getStatValue('Commandes annulées');
+    const total = this.stats.totalOrders;
+    const cancelled = this.stats.cancelledOrders;
     return total > 0 ? ((total - cancelled) / total) * 100 : 0;
   }
 
   getCancellationRate(): number {
-    const total = this.getStatValue('Commandes');
-    const cancelled = this.getStatValue('Commandes annulées');
+    const total = this.stats.totalOrders;
+    const cancelled = this.stats.cancelledOrders;
     return total > 0 ? (cancelled / total) * 100 : 0;
   }
 
   getDelayedPercentage(): number {
-    const total = this.getStatValue('Projets terminés') + this.getStatValue('Projets');
-    const delayed = this.getStatValue('Projet retards');
+    const total = this.stats.completedProjects + this.stats.totalProjects;
+    const delayed = this.stats.lateProjects;
     return total > 0 ? (delayed / total) * 100 : 0;
+  }
+
+  // Méthodes pour les indicateurs de tendance
+  getTrendIcon(trend: 'up' | 'down' | 'stable'): string {
+    switch (trend) {
+      case 'up': return 'bx bx-up-arrow-alt text-success';
+      case 'down': return 'bx bx-down-arrow-alt text-danger';
+      default: return 'bx bx-minus text-warning';
+    }
+  }
+
+  getTrendColor(trend: 'up' | 'down' | 'stable'): string {
+    switch (trend) {
+      case 'up': return 'success';
+      case 'down': return 'danger';
+      default: return 'warning';
+    }
+  }
+
+  // Méthode utilitaire pour obtenir le libellé de la période
+  getPeriodLabel(period: string): string {
+    const periodMap: { [key: string]: string } = {
+      'today': 'Aujourd\'hui',
+      'week': 'Cette semaine',
+      'month': 'Ce mois',
+      'year': 'Cette année'
+    };
+    return periodMap[period] || period;
+  }
+
+  // Propriété pour l'heure actuelle
+  get now(): Date {
+    return new Date();
+  }
+
+  // Formatage des nombres
+  formatNumber(value: number): string {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toString();
   }
 }

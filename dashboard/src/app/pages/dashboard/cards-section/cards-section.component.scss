@@ -1,3 +1,4 @@
+// cards-section.component.scss
 // Variables Neumorphic
 :root {
   // Light theme - Neumorphic
@@ -26,8 +27,6 @@
   --neu-text-secondary: #cbd5e0;
   --neu-text-muted: #718096;
   --neu-border: #2d3748;
-    --neu-shadow-space: #5e92ec;
-
 }
 
 // Mixins Neumorphic
@@ -38,12 +37,6 @@
 }
 
 @mixin neu-shadow-inset {
-  box-shadow: 
-    inset 4px 4px 8px var(--neu-shadow-dark),
-    inset -4px -4px 8px var(--neu-shadow-light);
-}
-
-@mixin neu-shadow-pressed {
   box-shadow: 
     inset 4px 4px 8px var(--neu-shadow-dark),
     inset -4px -4px 8px var(--neu-shadow-light);
@@ -63,13 +56,156 @@
   display: block;
   padding: 1.5rem;
   background: var(--neu-bg);
- // min-height: 100vh;
+  min-height: 100vh;
   font-family: 'Inter', sans-serif;
 }
 
 .dashboard-cards {
   .row {
-   // margin: 0 -0.75rem;
+    margin: 0 -0.75rem;
+  }
+}
+
+// En-tête du dashboard
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--neu-border);
+
+  .header-title {
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--neu-text-primary);
+      margin: 0;
+    }
+    
+    p {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.9rem;
+    }
+  }
+
+  .period-filters {
+    .btn-group {
+      border-radius: 12px;
+      @include neu-shadow;
+      
+      .period-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: var(--neu-bg);
+        color: var(--neu-text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        
+        i {
+          margin-right: 0.5rem;
+          font-size: 1rem;
+        }
+        
+        &:hover {
+          color: var(--neu-text-primary);
+          background: var(--neu-bg);
+        }
+        
+        &.active {
+          color: var(--primary);
+          background: var(--neu-bg);
+          @include neu-shadow-inset;
+        }
+        
+        &:first-child {
+          border-radius: 12px 0 0 12px;
+        }
+        
+        &:last-child {
+          border-radius: 0 12px 12px 0;
+        }
+      }
+    }
+  }
+}
+
+// Indicateurs de performance
+.performance-indicators {
+  margin-bottom: 2rem;
+  
+  .indicator-card {
+    @include neu-shadow;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--neu-bg);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .indicator-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      i {
+        font-size: 1.5rem;
+      //  color: white;
+      }
+    }
+    
+    .indicator-content {
+      .indicator-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+      
+      .indicator-label {
+        font-size: 0.8rem;
+        color: var(--neu-text-secondary);
+        
+        i {
+          margin-right: 0.25rem;
+        }
+      }
+    }
+  }
+  
+  .period-info {
+    display: flex;
+    gap: 2rem;
+    
+    .info-item {
+      .label {
+        font-size: 0.875rem;
+        color: var(--neu-text-secondary);
+        margin-right: 0.5rem;
+      }
+      
+      .value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--neu-text-primary);
+      }
+    }
+  }
+}
+
+// Loading state
+.loading-section {
+  text-align: center;
+  padding: 3rem;
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
   }
 }
 
@@ -77,7 +213,7 @@
 .neu-card {
   @include neu-card-base;
   @include neu-shadow;
-  padding: 0.5rem;
+  padding: 1.5rem;
   height: 100%;
   
   &:hover {
@@ -88,6 +224,10 @@
   &.client-neu .neu-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
   &.employee-neu .neu-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
   &.satisfaction-neu .neu-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  &.success-neu .neu-icon { background: linear-gradient(135deg, #10b981, #047857); }
+  &.new-orders-neu .neu-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  &.new-projects-neu .neu-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  &.completed-projects-neu .neu-icon { background: linear-gradient(135deg, #10b981, #047857); }
   
   &.reclamation-neu {
     .neu-icon { background: linear-gradient(135deg, #10b981, #047857); }
@@ -182,7 +322,6 @@
     
     i {
       font-size: 1rem;
-      color: var(--success);
     }
   }
   
@@ -222,7 +361,7 @@
 .neu-combined {
   @include neu-card-base;
   @include neu-shadow;
-//  padding: 1.5rem;
+  padding: 1.5rem;
   height: 100%;
   
   &:hover {
@@ -271,24 +410,19 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         
-        &.positive {
-        //  background: var(--success);
-          color: var(--success);
-        }
-        
-        &.success {
+        &.positive, &.success {
           background: var(--success);
-          color: var(--success);
+          color: white;
         }
         
         &.warning {
           background: var(--warning);
-          color:var(--warning);
+          color: white;
         }
         
         &.danger {
           background: var(--danger);
-          color:var(--danger);
+          color: white;
         }
       }
     }
@@ -479,6 +613,35 @@
     padding: 1rem;
   }
   
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    
+    .period-filters {
+      .btn-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        
+        .period-btn {
+          border-radius: 0 !important;
+          
+          &:nth-child(1) { border-radius: 12px 0 0 0 !important; }
+          &:nth-child(2) { border-radius: 0 12px 0 0 !important; }
+          &:nth-child(3) { border-radius: 0 0 0 12px !important; }
+          &:nth-child(4) { border-radius: 0 0 12px 0 !important; }
+        }
+      }
+    }
+  }
+  
+  .performance-indicators {
+    .period-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+  
   .neu-card {
     padding: 1.25rem;
     
@@ -530,31 +693,5 @@
   
   .neu-progress {
     @include neu-shadow-inset;
-  }
-}
-
-// Effets de profondeur supplémentaires
-.neu-card::before,
-.neu-combined::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgb(252, 2, 2) 50%, 
-    transparent 100%);
-  z-index: 1;
-}
-
-.dark-theme {
-  .neu-card::before,
-  .neu-combined::before {
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      rgba(255,255,255,0.1) 50%, 
-      transparent 100%);
   }
 }

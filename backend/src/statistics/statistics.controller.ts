@@ -4,43 +4,55 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '../users/entities/users.entity';
 import { SearchDto } from './dto/search.dto';
-import { GlobalStats, StatisticsService } from './statistics.service';
+import { GlobalStats, PeriodStats, StatisticsService } from './statistics.service';
 
 @Controller('statistics')
 @UseGuards(JwtAuthGuard)
 export class StatisticsController {
-  constructor(private readonly statsService: StatisticsService,
-  ) {}
+  constructor(private readonly statsService: StatisticsService) {}
 
   @Get('global')
-getGlobal(@CurrentUser() user: User): Promise<GlobalStats> {
-  const roleName = user.role.name.toUpperCase();
-  const isClientRole = roleName.startsWith('CLIENT');
+  getGlobal(
+    @Query('period') period: string = 'month',
+    @CurrentUser() user: User
+  ): Promise<GlobalStats> {
+    const roleName = user.role.name.toUpperCase();
+    const isClientRole = roleName.startsWith('CLIENT');
 
-  if (isClientRole) {
-    // Statistiques filtrées pour l'utilisateur client
-    return this.statsService.getGlobalStatsUser(user.id);
-  } else {
-    // Statistiques globales pour admin ou autres rôles
-    return this.statsService.getGlobalStats();
+    if (isClientRole) {
+      return this.statsService.getGlobalStats(period, user.id);
+    } else {
+      return this.statsService.getGlobalStats(period);
+    }
   }
-}
 
-@Get('search')
-async search(@Query() query: SearchDto, @CurrentUser() user: User) {
-  const keyword = query.keyword?.trim() || '';
-  console.log('Mot-clé reçu:', keyword);
+  @Get('comparative')
+  getComparativeStats(
+    @Query('period') period: string = 'month',
+    @CurrentUser() user: User
+  ): Promise<PeriodStats> {
+    const roleName = user.role.name.toUpperCase();
+    const isClientRole = roleName.startsWith('CLIENT');
 
-  const roleName = user.role.name.toUpperCase();
-  const isClientRole = roleName.startsWith('CLIENT');
-
-  if (isClientRole) {
-    // Recherche limitée à l'utilisateur client
-    return this.statsService.searchAllUser(keyword, user.id);
-  } else {
-    // Recherche globale pour admin ou autres rôles
-    return this.statsService.searchAll(keyword);
+    if (isClientRole) {
+      return this.statsService.getComparativeStats(period, user.id);
+    } else {
+      return this.statsService.getComparativeStats(period);
+    }
   }
-}
 
+  @Get('search')
+  async search(@Query() query: SearchDto, @CurrentUser() user: User) {
+    const keyword = query.keyword?.trim() || '';
+    console.log('Mot-clé reçu:', keyword);
+
+    const roleName = user.role.name.toUpperCase();
+    const isClientRole = roleName.startsWith('CLIENT');
+
+    if (isClientRole) {
+      return this.statsService.searchAllUser(keyword, user.id);
+    } else {
+      return this.statsService.searchAll(keyword);
+    }
+  }
 }

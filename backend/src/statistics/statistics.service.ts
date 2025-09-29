@@ -1,7 +1,7 @@
 // src/statistics/statistics.service.ts
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Avis } from '../avis/entities/avis.entity';
 import { Devis } from '../devis/entities/devi.entity';
 import { Order } from '../order/entities/order.entity';
@@ -14,14 +14,14 @@ import { User } from '../users/entities/users.entity';
 export interface GlobalStats {
   totalOrders: number;
   cancelledOrders: number;
-
   totalProjects: number;
   completedProjects: number;
   lateProjects: number;
-
   averageAvis: number;
-  reclamationRatio: number;          // % réclamations / projets
-
+  reclamationRatio: number;
+  totalAvis: number;
+  newOrders?: number;
+  newProjects?: number;
   sessions?: {
     totalEmployees: number;
     connectedEmployees: number;
@@ -30,189 +30,257 @@ export interface GlobalStats {
   };
 }
 
+export interface PeriodStats {
+  period: string;
+  data: GlobalStats;
+  comparison?: {
+    previousPeriod: string;
+    change: number;
+    trend: 'up' | 'down' | 'stable';
+  };
+}
+
 @Injectable()
 export class StatisticsService {
+  private readonly logger = new Logger(StatisticsService.name);
+
   constructor(
-    @InjectRepository(Order)        private orderRepo: Repository<Order>,
-    @InjectRepository(Project)      private projectRepo: Repository<Project>,
-    @InjectRepository(Reclamation)  private reclamRepo: Repository<Reclamation>,
-    @InjectRepository(Avis)         private avisRepo: Repository<Avis>,
-    @InjectRepository(UserSession)  private sessionRepo: Repository<UserSession>,
-    @InjectRepository(User)         private userRepo: Repository<User>,
-    @InjectRepository(Partner)      private readonly partnerRepo: Repository<Partner>,
-    @InjectRepository(Devis)        private readonly devisRepo: Repository<Devis>,
+    @InjectRepository(Order) private orderRepo: Repository<Order>,
+    @InjectRepository(Project) private projectRepo: Repository<Project>,
+    @InjectRepository(Reclamation) private reclamRepo: Repository<Reclamation>,
+    @InjectRepository(Avis) private avisRepo: Repository<Avis>,
+    @InjectRepository(UserSession) private sessionRepo: Repository<UserSession>,
+    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(Partner) private readonly partnerRepo: Repository<Partner>,
+    @InjectRepository(Devis) private readonly devisRepo: Repository<Devis>,
   ) {}
 
-  /** Statistiques agrégées pour le tableau de bord */
-  async getGlobalStats(): Promise<GlobalStats> {
+  // Méthode pour obtenir les dates selon la période
+  private getDateRange(period: string): { start: Date; end: Date } {
+    const end = new Date();
+    const start = new Date();
+    
+    switch (period) {
+      case 'today':
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'week':
+        start.setDate(end.getDate() - 7);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'month':
+        start.setMonth(end.getMonth() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'year':
+        start.setFullYear(end.getFullYear() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      default: // 'month' par défaut
+        start.setMonth(end.getMonth() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+    }
+    
+    return { start, end };
+  }
+
+  // Méthode principale avec support des périodes
+  async getGlobalStats(period: string = 'month', userId?: number): Promise<GlobalStats> {
+    const { start, end } = this.getDateRange(period);
+    const isClientRole = userId !== undefined;
+
+    // Construire les conditions de filtre
+    const baseWhere = { createdAt: Between(start, end) };
+    const userWhere = { ...baseWhere, user: { id: userId } };
 
     /* ---------- Commandes ---------- */
     const [totalOrders, cancelledOrders] = await Promise.all([
-      this.orderRepo.count(),
-      this.orderRepo.count({ where: { annuler: true } }),
+      isClientRole 
+        ? this.orderRepo.count({ where: userWhere })
+        : this.orderRepo.count({ where: baseWhere }),
+      
+      isClientRole
+        ? this.orderRepo.count({ where: { ...userWhere, annuler: true } })
+        : this.orderRepo.count({ where: { ...baseWhere, annuler: true } }),
     ]);
 
     /* ---------- Projets ---------- */
-    const projects       = await this.projectRepo.find();
-    const totalProjects  = projects.length;
+    const projectsQuery = isClientRole
+      ? this.projectRepo.createQueryBuilder('project')
+          .leftJoin('project.order', 'order')
+          .where('order.userId = :userId', { userId })
+          .andWhere('project.createdAt BETWEEN :start AND :end', { start, end })
+      : this.projectRepo.createQueryBuilder('project')
+          .where('project.createdAt BETWEEN :start AND :end', { start, end });
+
+    const projects = await projectsQuery.getMany();
+    const totalProjects = projects.length;
     const completedProjects = projects.filter(p => p.progress === 100).length;
-    const lateProjects      = projects.filter(p =>
+    const lateProjects = projects.filter(p => 
       !!p.dlp && p.progress !== 100 && new Date(p.dlp) < new Date()
     ).length;
 
     /* ---------- Avis ---------- */
-    const avisList   = await this.avisRepo.find();
-    const averageAvis = avisList.length
-      ? avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / avisList.length
+    const avisQuery = isClientRole
+      ? this.avisRepo.createQueryBuilder('avis')
+          .leftJoin('avis.user', 'user')
+          .where('user.id = :userId', { userId })
+          .andWhere('avis.createdAt BETWEEN :start AND :end', { start, end })
+      : this.avisRepo.createQueryBuilder('avis')
+          .where('avis.createdAt BETWEEN :start AND :end', { start, end });
+
+    const avisList = await avisQuery.getMany();
+    const totalAvis = avisList.length;
+    const averageAvis = totalAvis
+      ? +(avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / totalAvis).toFixed(2)
       : 0;
 
     /* ---------- Réclamations / ratio ---------- */
-    const totalReclam = await this.reclamRepo.count();
+    const totalReclam = isClientRole
+      ? await this.reclamRepo.createQueryBuilder('reclam')
+          .leftJoin('reclam.user', 'user')
+          .where('user.id = :userId', { userId })
+          .andWhere('reclam.dateDeCreation BETWEEN :start AND :end', { start, end })
+          .getCount()
+      : await this.reclamRepo.count({ 
+          where: { dateDeCreation: Between(start, end) } 
+        });
+
     const reclamationRatio = totalProjects
       ? +(totalReclam / totalProjects * 100).toFixed(2)
       : 0;
 
-    /* ---------- Sessions ---------- */
-    // employés = rôle qui ne commence pas par "CLIENT"
-    const clientPattern = '%client%';
-    const [ totalEmployees, totalClients ] = await Promise.all([
-      this.userRepo.createQueryBuilder('u')
-        .innerJoin('u.role', 'r')
-        .where('LOWER(r.name) NOT LIKE :clientPattern', { clientPattern })
-        .getCount(),
-      this.userRepo.createQueryBuilder('u')
-        .innerJoin('u.role', 'r')
-        .where('LOWER(r.name) LIKE :clientPattern', { clientPattern })
-        .getCount(),
-    ]);
+    /* ---------- Sessions (uniquement pour admin) ---------- */
+    let sessions = undefined;
+    if (!isClientRole) {
+      const clientPattern = '%client%';
+      const [totalEmployees, totalClients, connectedEmployees, connectedClients] = await Promise.all([
+        this.userRepo.createQueryBuilder('u')
+          .innerJoin('u.role', 'r')
+          .where('LOWER(r.name) NOT LIKE :clientPattern', { clientPattern })
+          .getCount(),
+        this.userRepo.createQueryBuilder('u')
+          .innerJoin('u.role', 'r')
+          .where('LOWER(r.name) LIKE :clientPattern', { clientPattern })
+          .getCount(),
+        this.sessionRepo.createQueryBuilder('s')
+          .innerJoin('s.user', 'u')
+          .innerJoin('u.role', 'r')
+          .where('LOWER(r.name) NOT LIKE :clientPattern', { clientPattern })
+          .andWhere('s.sessionEnd IS NULL')
+          .getCount(),
+        this.sessionRepo.createQueryBuilder('s')
+          .innerJoin('s.user', 'u')
+          .innerJoin('u.role', 'r')
+          .where('LOWER(r.name) LIKE :clientPattern', { clientPattern })
+          .andWhere('s.sessionEnd IS NULL')
+          .getCount(),
+      ]);
 
-    const [ connectedEmployees, connectedClients ] = await Promise.all([
-      this.sessionRepo.createQueryBuilder('s')
-        .innerJoin('s.user', 'u')
-        .innerJoin('u.role', 'r')
-        .where('LOWER(r.name) NOT LIKE :clientPattern', { clientPattern })
-        .andWhere('s.sessionEnd IS NULL')
-        .getCount(),
-      this.sessionRepo.createQueryBuilder('s')
-        .innerJoin('s.user', 'u')
-        .innerJoin('u.role', 'r')
-        .where('LOWER(r.name) LIKE :clientPattern', { clientPattern })
-        .andWhere('s.sessionEnd IS NULL')
-        .getCount(),
-    ]);
+      sessions = {
+        totalEmployees,
+        connectedEmployees,
+        totalClients,
+        connectedClients,
+      };
+    }
+
+    // Nouvelles commandes et projets pour la période
+    const newOrders = totalOrders;
+    const newProjects = totalProjects;
 
     /* ---------- Retour ---------- */
     return {
       totalOrders,
       cancelledOrders,
-
       totalProjects,
       completedProjects,
       lateProjects,
-
-      averageAvis: +averageAvis.toFixed(2),
+      averageAvis,
       reclamationRatio,
+      totalAvis,
+      newOrders,
+      newProjects,
+      sessions,
+    };
+  }
 
-      sessions: {
-        totalEmployees,
-        connectedEmployees,
-        totalClients,
-        connectedClients,
+  // Méthode pour obtenir les statistiques comparatives
+  async getComparativeStats(period: string = 'month', userId?: number): Promise<PeriodStats> {
+    const currentStats = await this.getGlobalStats(period, userId);
+    
+    // Obtenir les stats de la période précédente pour comparaison
+    let previousPeriod = 'month';
+    switch (period) {
+      case 'today':
+        previousPeriod = 'yesterday';
+        break;
+      case 'week':
+        previousPeriod = 'last-week';
+        break;
+      case 'month':
+        previousPeriod = 'last-month';
+        break;
+      case 'year':
+        previousPeriod = 'last-year';
+        break;
+    }
+
+    const previousStats = await this.getGlobalStats(previousPeriod, userId);
+    
+    // Calculer le changement pour les commandes
+    const change = previousStats.totalOrders > 0 
+      ? +(((currentStats.totalOrders - previousStats.totalOrders) / previousStats.totalOrders) * 100).toFixed(1)
+      : currentStats.totalOrders > 0 ? 100 : 0;
+
+    const trend: 'up' | 'down' | 'stable' = 
+      change > 5 ? 'up' : change < -5 ? 'down' : 'stable';
+
+    return {
+      period,
+      data: currentStats,
+      comparison: {
+        previousPeriod,
+        change: Math.abs(change),
+        trend,
       },
     };
   }
 
-  /*-----------------search------------*/
+  // Les autres méthodes existantes
   async searchAll(keyword: string) {
-      console.log('Recherche avec keyword:', keyword); // Ajouté pour debug
+    console.log('Recherche avec keyword:', keyword);
 
-  if (!keyword) {
-    console.log("errrr")
-    return { projects: [], devis: [], partners: [] };
-  }
-    const partners = await this.partnerRepo.createQueryBuilder('partner')
-    .where('LOWER(partner.name) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .orWhere('LOWER(partner.address) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .take(10)
-    .getMany();
-
-  const projects = await this.projectRepo.createQueryBuilder('project')
-    .where('LOWER(project.refClient) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .orWhere('LOWER(project.methodeComment) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .take(10)
-    .getMany();
-
-  const devis = await this.devisRepo.createQueryBuilder('devis')
-    .where('LOWER(devis.numdevis) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .orWhere('LOWER(devis.projet) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
-    .take(10)
-    .getMany();
-
-  console.log(projects);
-  console.log(partners);
-  console.log(devis);
-
-  return { projects, devis, partners };
-}
-
-
-
- /** Statistiques pour un utilisateur donné (sans sessions ni partenaire) */
-  async getGlobalStatsUser(userId: number): Promise<GlobalStats> {
-    if (!userId) {
-      throw new ForbiddenException('User ID is required');
+    if (!keyword) {
+      return { projects: [], devis: [], partners: [] };
     }
 
-    /* ---------- Commandes ---------- */
-    const [totalOrders, cancelledOrders] = await Promise.all([
-      this.orderRepo.count({ where: { user: { id: userId } } }),
-      this.orderRepo.count({ where: { annuler: true, user: { id: userId } } }),
-    ]);
+    const partners = await this.partnerRepo.createQueryBuilder('partner')
+      .where('LOWER(partner.name) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .orWhere('LOWER(partner.address) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .take(10)
+      .getMany();
 
-    /* ---------- Projets ---------- */
     const projects = await this.projectRepo.createQueryBuilder('project')
-      .leftJoin('project.order', 'order')
-      .where('order.userId = :userId', { userId })
+      .where('LOWER(project.refClient) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .orWhere('LOWER(project.methodeComment) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .take(10)
       .getMany();
 
-    const totalProjects = projects.length;
-    const completedProjects = projects.filter(p => p.progress === 100).length;
-    const lateProjects = projects.filter(p =>
-      !!p.dlp && p.progress !== 100 && new Date(p.dlp) < new Date()
-    ).length;
-
-    /* ---------- Avis ---------- */
-    const avisList = await this.avisRepo.createQueryBuilder('avis')
-      .leftJoin('avis.user', 'user')
-      .where('user.id = :userId', { userId })
+    const devis = await this.devisRepo.createQueryBuilder('devis')
+      .where('LOWER(devis.numdevis) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .orWhere('LOWER(devis.projet) LIKE LOWER(:keyword)', { keyword: `%${keyword}%` })
+      .take(10)
       .getMany();
 
-    const averageAvis = avisList.length
-      ? avisList.reduce((s, a) => s + (a.avg ?? 0), 0) / avisList.length
-      : 0;
-
-    /* ---------- Réclamations / ratio ---------- */
-    const totalReclam = await this.reclamRepo.createQueryBuilder('reclam')
-      .leftJoin('reclam.user', 'user')
-      .where('user.id = :userId', { userId })
-      .getCount();
-
-    const reclamationRatio = totalProjects
-      ? +(totalReclam / totalProjects * 100).toFixed(2)
-      : 0;
-
-    return {
-      totalOrders,
-      cancelledOrders,
-      totalProjects,
-      completedProjects,
-      lateProjects,
-      averageAvis: +averageAvis.toFixed(2),
-      reclamationRatio,
-    };
+    return { projects, devis, partners };
   }
 
-   /** Recherche projets et devis liés à un utilisateur (sans partenaire) */
   async searchAllUser(keyword: string, userId: number) {
     if (!keyword || !keyword.trim()) {
       return { projects: [], devis: [], partners: [] };
@@ -244,5 +312,4 @@ export class StatisticsService {
 
     return { projects, devis, partners };
   }
-
 }
