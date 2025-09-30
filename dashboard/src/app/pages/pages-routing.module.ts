@@ -111,7 +111,7 @@ const routes: Routes = [
 
   // === AVIS ===
   { path: "avis", component: AvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "list-avis", component: ListAvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { path: "list-avis", component: ListAvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === CAHIER DES CHARGES ===
   { path: "cdc", component: CDCListAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },

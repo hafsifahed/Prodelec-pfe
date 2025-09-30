@@ -39,12 +39,11 @@ export class AvisComponent implements OnInit {
 
 
   options = [
-    { label: 'inacceptable (▼)', value: '1' },
-    { label: 'Faible (►)', value: '2' },
-    { label: 'satisfaction correcte (▲▲)', value: '3' },
-    { label: 'Strong Satisfaction (▲▲▲)', value: '4' },
-    
-  ];
+  { label: 'Très insatisfait (😠)', value: '1', icon: '😠' },
+  { label: 'Insatisfait (😕)', value: '2', icon: '😕' },
+  { label: 'Satisfait (😊)', value: '3', icon: '😊' },
+  { label: 'Très satisfait (😍)', value: '4', icon: '😍' }
+];
 
   attributes = [
     { key: 'conformiteExigences', label: 'Conformités à vos exigences' },
