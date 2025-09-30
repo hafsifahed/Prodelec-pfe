@@ -56,7 +56,7 @@ export class StatisticsService {
   ) {}
 
   // Méthode pour obtenir les dates selon la période
-  private getDateRange(period: string): { start: Date; end: Date } {
+  private getDateRange(period: string, specificYear?: number): { start: Date; end: Date } {
     const end = new Date();
     const start = new Date();
     
@@ -76,11 +76,20 @@ export class StatisticsService {
         end.setHours(23, 59, 59, 999);
         break;
       case 'year':
-        start.setFullYear(end.getFullYear() - 1);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
+        if (specificYear) {
+          // Utiliser l'année spécifique
+          start.setFullYear(specificYear, 0, 1);
+          start.setHours(0, 0, 0, 0);
+          end.setFullYear(specificYear, 11, 31);
+          end.setHours(23, 59, 59, 999);
+        } else {
+          // Année courante par défaut
+          start.setFullYear(end.getFullYear() - 1);
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+        }
         break;
-      default: // 'month' par défaut
+      default:
         start.setMonth(end.getMonth() - 1);
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
@@ -90,8 +99,8 @@ export class StatisticsService {
   }
 
   // Méthode principale avec support des périodes
-  async getGlobalStats(period: string = 'month', userId?: number): Promise<GlobalStats> {
-    const { start, end } = this.getDateRange(period);
+  async getGlobalStats(period: string = 'month', userId?: number, specificYear?: number): Promise<GlobalStats> {
+    const { start, end } = this.getDateRange(period, specificYear);
     const isClientRole = userId !== undefined;
 
     // Construire les conditions de filtre
@@ -211,11 +220,13 @@ export class StatisticsService {
   }
 
   // Méthode pour obtenir les statistiques comparatives
-  async getComparativeStats(period: string = 'month', userId?: number): Promise<PeriodStats> {
-    const currentStats = await this.getGlobalStats(period, userId);
+  async getComparativeStats(period: string = 'month', userId?: number, specificYear?: number): Promise<PeriodStats> {
+    const currentStats = await this.getGlobalStats(period, userId, specificYear);
     
     // Obtenir les stats de la période précédente pour comparaison
     let previousPeriod = 'month';
+    let previousYear = specificYear ? specificYear - 1 : undefined;
+    
     switch (period) {
       case 'today':
         previousPeriod = 'yesterday';
@@ -228,10 +239,11 @@ export class StatisticsService {
         break;
       case 'year':
         previousPeriod = 'last-year';
+        previousYear = specificYear ? specificYear - 1 : new Date().getFullYear() - 1;
         break;
     }
 
-    const previousStats = await this.getGlobalStats(previousPeriod, userId);
+    const previousStats = await this.getGlobalStats(previousPeriod, userId, previousYear);
     
     // Calculer le changement pour les commandes
     const change = previousStats.totalOrders > 0 
@@ -311,5 +323,53 @@ export class StatisticsService {
     const partners = [];
 
     return { projects, devis, partners };
+  }
+
+   async getAvailableYears(): Promise<number[]> {
+    try {
+      // Récupérer les années distinctes de toutes les tables principales
+      const [orderYears, projectYears, avisYears, reclamationYears] = await Promise.all([
+        this.orderRepo
+          .createQueryBuilder('order')
+          .select('DISTINCT YEAR(order.createdAt)', 'year')
+          .orderBy('year', 'DESC')
+          .getRawMany(),
+        
+        this.projectRepo
+          .createQueryBuilder('project')
+          .select('DISTINCT YEAR(project.createdAt)', 'year')
+          .orderBy('year', 'DESC')
+          .getRawMany(),
+        
+        this.avisRepo
+          .createQueryBuilder('avis')
+          .select('DISTINCT YEAR(avis.createdAt)', 'year')
+          .orderBy('year', 'DESC')
+          .getRawMany(),
+        
+        this.reclamRepo
+          .createQueryBuilder('reclamation')
+          .select('DISTINCT YEAR(reclamation.dateDeCreation)', 'year')
+          .orderBy('year', 'DESC')
+          .getRawMany()
+      ]);
+
+      // Fusionner toutes les années et supprimer les doublons
+      const allYears = [
+        ...orderYears.map(item => parseInt(item.year)),
+        ...projectYears.map(item => parseInt(item.year)),
+        ...avisYears.map(item => parseInt(item.year)),
+        ...reclamationYears.map(item => parseInt(item.year))
+      ];
+
+      // Retourner les années uniques triées par ordre décroissant
+      return [...new Set(allYears)]
+        .filter(year => !isNaN(year) && year > 2000) // Filtre pour valider les années
+        .sort((a, b) => b - a);
+        
+    } catch (error) {
+      this.logger.error('Error fetching available years', error);
+      return [];
+    }
   }
 }

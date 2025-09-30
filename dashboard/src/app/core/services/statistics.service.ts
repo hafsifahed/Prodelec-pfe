@@ -50,15 +50,26 @@ export class StatisticsService {
 
   constructor(private http: HttpClient) {}
 
-  // Méthode principale avec support des périodes
-  getGlobalStats(period: string = 'month'): Observable<GlobalStats> {
-    const params = new HttpParams().set('period', period);
-    return this.http.get<GlobalStats>(`${this.baseUrl}/global`, { params });
+   getAvailableYears(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.baseUrl}/years`);
   }
 
+
+
+   getGlobalStats(period: string, year?: number): Observable<GlobalStats> {
+    let params = new HttpParams().set('period', period);
+    if (year) {
+      params = params.set('year', year.toString());
+    }
+    return this.http.get<GlobalStats>(`${this.baseUrl}/global`, { params });
+  }
   // Statistiques comparatives
-  getComparativeStats(period: string = 'month'): Observable<PeriodStats> {
-    const params = new HttpParams().set('period', period);
+
+   getComparativeStats(period: string, year?: number): Observable<PeriodStats> {
+    let params = new HttpParams().set('period', period);
+    if (year) {
+      params = params.set('year', year.toString());
+    }
     return this.http.get<PeriodStats>(`${this.baseUrl}/comparative`, { params });
   }
 

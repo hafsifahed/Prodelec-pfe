@@ -11,35 +11,43 @@ import { GlobalStats, PeriodStats, StatisticsService } from './statistics.servic
 export class StatisticsController {
   constructor(private readonly statsService: StatisticsService) {}
 
-  @Get('global')
+@Get('global')
   getGlobal(
     @Query('period') period: string = 'month',
-    @CurrentUser() user: User
+        @CurrentUser() user: User,
+    @Query('year') year?: number
   ): Promise<GlobalStats> {
     const roleName = user.role.name.toUpperCase();
     const isClientRole = roleName.startsWith('CLIENT');
 
     if (isClientRole) {
-      return this.statsService.getGlobalStats(period, user.id);
+      return this.statsService.getGlobalStats(period, user.id, year);
     } else {
-      return this.statsService.getGlobalStats(period);
+      return this.statsService.getGlobalStats(period, undefined, year);
     }
   }
 
-  @Get('comparative')
+ @Get('comparative')
   getComparativeStats(
     @Query('period') period: string = 'month',
-    @CurrentUser() user: User
+        @CurrentUser() user: User,
+    @Query('year') year?: number,
   ): Promise<PeriodStats> {
     const roleName = user.role.name.toUpperCase();
     const isClientRole = roleName.startsWith('CLIENT');
 
     if (isClientRole) {
-      return this.statsService.getComparativeStats(period, user.id);
+      return this.statsService.getComparativeStats(period, user.id, year);
     } else {
-      return this.statsService.getComparativeStats(period);
+      return this.statsService.getComparativeStats(period, undefined, year);
     }
   }
+
+  @Get('years')
+  getAvailableYears(): Promise<number[]> {
+    return this.statsService.getAvailableYears();
+  }
+
 
   @Get('search')
   async search(@Query() query: SearchDto, @CurrentUser() user: User) {

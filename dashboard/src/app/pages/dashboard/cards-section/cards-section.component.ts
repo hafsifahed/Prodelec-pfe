@@ -18,7 +18,10 @@ export class CardsSectionComponent implements OnInit {
     { value: 'month', label: 'Ce mois', icon: 'bx bx-calendar' },
     { value: 'year', label: 'Cette année', icon: 'bx bx-calendar-star' }
   ];
+
   selectedPeriod: string = 'month';
+   availableYears: number[] = [];
+  selectedYear?: number;
   
   // Données statistiques
   stats: GlobalStats = {
@@ -62,6 +65,7 @@ export class CardsSectionComponent implements OnInit {
       this.setting = res;
     });
 
+        await this.loadAvailableYears();
     // Charger les données initiales
     await this.loadStats();
   }
@@ -72,8 +76,8 @@ export class CardsSectionComponent implements OnInit {
     
     try {
       const [globalStats, comparativeStats] = await Promise.all([
-        this.statsSrv.getGlobalStats(this.selectedPeriod).toPromise(),
-        this.statsSrv.getComparativeStats(this.selectedPeriod).toPromise()
+        this.statsSrv.getGlobalStats(this.selectedPeriod, this.selectedYear).toPromise(),
+        this.statsSrv.getComparativeStats(this.selectedPeriod, this.selectedYear).toPromise()
       ]);
 
       if (globalStats) {
@@ -92,9 +96,30 @@ export class CardsSectionComponent implements OnInit {
     }
   }
 
+    private async loadAvailableYears() {
+    try {
+      this.availableYears = await this.statsSrv.getAvailableYears().toPromise() || [];
+      // Sélectionner l'année en cours par défaut si disponible
+      const currentYear = new Date().getFullYear();
+      if (this.availableYears.length > 0 && !this.availableYears.includes(currentYear)) {
+        this.selectedYear = this.availableYears[0];
+      } else {
+        this.selectedYear = currentYear;
+      }
+    } catch (error) {
+      console.error('Error loading available years', error);
+    }
+  }
+
+  
   // Changer la période
   onPeriodChange(period: string) {
     this.selectedPeriod = period;
+    this.loadStats();
+    this.selectedYear = null;
+  }
+  onYearChange(year: number) {
+    this.selectedYear = year;
     this.loadStats();
   }
 
@@ -140,7 +165,7 @@ export class CardsSectionComponent implements OnInit {
       'today': 'Aujourd\'hui',
       'week': 'Cette semaine',
       'month': 'Ce mois',
-      'year': 'Cette année'
+      'year': this.selectedYear ? `Année ${this.selectedYear}` : 'Cette année'
     };
     return periodMap[period] || period;
   }
@@ -159,4 +184,6 @@ export class CardsSectionComponent implements OnInit {
     }
     return value.toString();
   }
+
+  
 }
