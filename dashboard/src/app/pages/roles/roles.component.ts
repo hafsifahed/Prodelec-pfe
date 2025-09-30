@@ -263,27 +263,35 @@ export class RolesComponent implements OnInit {
   }
 
   submitEditRole(): void {
-    if (this.editRoleForm.invalid) return;
+  if (this.editRoleForm.invalid) return;
 
-    const updatedRole = this.buildRoleFromForm(this.editRoleForm.value);
+  const formValue = this.editRoleForm.value;
+  const updatedRole = this.buildRoleFromForm(formValue);
 
-    this.isLoading = true;
-    this.errorMessage = null;
+  // ✅ Only send name and permissions — NOT id
+  const payload = {
+    name: updatedRole.name,
+    permissions: updatedRole.permissions
+  };
 
-    this.rolesService.update(updatedRole.id!, updatedRole).pipe(
-      finalize(() => this.isLoading = false)
-    ).subscribe(
-      () => {
-        Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
-        this.modalRef?.hide();
-        this.loadRoles();
-      },
-      error => {
-        this.errorMessage = 'Erreur lors de la modification du rôle';
-        Swal.fire('Erreur', this.errorMessage, 'error');
-      }
-    );
-  }
+  this.isLoading = true;
+  this.errorMessage = null;
+
+  this.rolesService.update(updatedRole.id!, payload).pipe(
+    finalize(() => this.isLoading = false)
+  ).subscribe(
+    () => {
+      Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
+      this.modalRef?.hide();
+      this.loadRoles();
+    },
+    error => {
+      console.error('Update error:', error); // 🔍 Log full error
+      this.errorMessage = 'Erreur lors de la modification du rôle';
+      Swal.fire('Erreur', this.errorMessage, 'error');
+    }
+  );
+}
 
   confirmDelete(): void {
     if (this.rejectId === null) return;

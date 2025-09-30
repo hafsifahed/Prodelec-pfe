@@ -88,78 +88,78 @@ const routes: Routes = [
   { path: "edit-profile", component: EditProfileComponent },
 
   // === USERS ===
-  { path: "add-user", component: AddUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-user/:id", component: EditUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-user", component: ListUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "add-user", component: AddUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "edit-user/:id", component: EditUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "list-user", component: ListUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === WORKERS ===
-  { path: "add-worker", component: AddWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-worker/:id", component: EditWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-worker", component: ListWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "add-worker", component: AddWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "edit-worker/:id", component: EditWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "list-worker", component: ListWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === PARTNERS ===
-  { path: "add-partner", component: AddPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.CREATE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-partner/:id", component: EditPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.UPDATE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-partner", component: ListPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "add-partner", component: AddPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "edit-partner/:id", component: EditPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "list-partner", component: ListPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === SESSIONS ===
-  { path: "list-worker-session", component: ListSessionWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "list-user-session", component: ListSessionUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
+  { path: "list-worker-session", component: ListSessionWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "list-user-session", component: ListSessionUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
 
   // === NOTIFICATIONS ===
-  { path: "list-notifications", component: ListNotificationsComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.NOTIFICATIONS, actions: [Action.READ] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { path: "list-notifications", component: ListNotificationsComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.NOTIFICATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
 
   // === AVIS ===
-  { path: "avis", component: AvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE] }], allowedRoles: ['CLIENT'] } },
-  { path: "list-avis", component: ListAvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.READ] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { path: "avis", component: AvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "list-avis", component: ListAvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
 
   // === CAHIER DES CHARGES ===
-  { path: "cdc", component: CDCListAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "cdcUser", component: CDCListUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "cdcUser/cdcAdd", component: AddCdCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.CREATE] }], allowedRoles: ['CLIENT'] } },
-  { path: "cdc/cdcArchive", component: CDCListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "cdcUser/cdcArchive", component: CDCUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
+  { path: "cdc", component: CDCListAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "cdcUser", component: CDCListUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "cdcUser/cdcAdd", component: AddCdCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "cdc/cdcArchive", component: CDCListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "cdcUser/cdcArchive", component: CDCUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
 
   // === DEVIS ===
-  { path: "devis", component: DevisAdminlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "devisUser", component: DevisUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "devis/devisArchive", component: DevisListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "devisUser/devisArchive", component: DevisUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
+  { path: "devis", component: DevisAdminlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "devisUser", component: DevisUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "devis/devisArchive", component: DevisListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "devisUser/devisArchive", component: DevisUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
 
   // === RECLAMATIONS ===
-  { path: "reclamation", component: ReclamationAdminListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "reclamationUser", component: ReclamationListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.CREATE, Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "reclamation/reclamationArchive", component: ReclamationArchiveListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "reclamationUser/reclamationArchive", component: ReclamationArchiveUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
+  { path: "reclamation", component: ReclamationAdminListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "reclamationUser", component: ReclamationListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.CREATE, Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "reclamation/reclamationArchive", component: ReclamationArchiveListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "reclamationUser/reclamationArchive", component: ReclamationArchiveUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
 
   // === ORDERS ===
-  { path: "addorder", component: AddOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.CREATE] }], allowedRoles: ['CLIENT'] } },
-  { path: "listorder", component: ListOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "listorderclient", component: ListOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveorderadmin", component: ArchiveOrderAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "archiveorderclient", component: ArchiveOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveorderadminclient", component: ArchiveOrderAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { path: "addorder", component: AddOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "listorder", component: ListOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "listorderclient", component: ListOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "archiveorderadmin", component: ArchiveOrderAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "archiveorderclient", component: ArchiveOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "archiveorderadminclient", component: ArchiveOrderAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
 
   // === PROJECTS ===
-  { path: "listproject", component: ListProjectComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "listproject/:id", component: ProjetDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "listprojectclient", component: ListProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveprojectadmin", component: ArchiveProjectAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "archiveprojectclient", component: ArchiveProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveprojectadminclient", component: ArchiveProjectAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['CLIENT','WORKER'] } },
-  { path: "listprojetclientadmin", component: ListProjetUserAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "listproject", component: ListProjectComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "listproject/:id", component: ProjetDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "listprojectclient", component: ListProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "archiveprojectadmin", component: ArchiveProjectAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "archiveprojectclient", component: ArchiveProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "archiveprojectadminclient", component: ArchiveProjectAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { path: "listprojetclientadmin", component: ListProjetUserAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === ROLES / SETTINGS ===
-  { path: "roles", component: RolesComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ROLES, actions: [Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "setting", component: SettingComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "roles", component: RolesComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ROLES, actions: [Action.MANAGE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "setting", component: SettingComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === DETAILS ===
-  { path: "user/:id", component: UserDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
-  { path: "partner/:id", component: PartnerDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "user/:id", component: UserDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "partner/:id", component: PartnerDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === CALENDAR ===
-  { path: "calendrier", component: ProjectCalendarComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['CLIENT'] } },
-  { path: "calendrierGlobal", component: ProjectCalendarAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ] }], allowedRoles: ['WORKER'] } },
+  { path: "calendrier", component: ProjectCalendarComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { path: "calendrierGlobal", component: ProjectCalendarAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === BULK EMAIL ===
   { path: "bulk-email", component: BulkEmailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.EMAIL, actions: [Action.CREATE, Action.MANAGE] }], allowedRoles: ['WORKER'] } },
