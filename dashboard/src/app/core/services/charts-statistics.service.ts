@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface ChartsFilters {
   userId?: number;
@@ -13,7 +14,8 @@ export interface ChartsFilters {
   providedIn: 'root'
 })
 export class ChartsStatisticsService {
-  private apiUrl = 'http://localhost:3000/charts-statistics';
+    private apiUrl = `${environment.baseUrl}/charts-statistics`; // Ajustez selon votre config
+  
 
   constructor(private http: HttpClient) {}
 
