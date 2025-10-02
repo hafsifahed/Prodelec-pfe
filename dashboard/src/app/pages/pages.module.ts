@@ -118,6 +118,7 @@ import { ProjectAddModalComponent } from './projectfo/modals/project-add-modal/p
 import { ProjectEditModalComponent } from './projectfo/modals/project-edit-modal/project-edit-modal.component';
 import { ProjectPhaseDetailsModalComponent } from './projectfo/modals/project-phase-details-modal/project-phase-details-modal.component';
 import { BulkEmailComponent } from './bulk-email/bulk-email.component';
+import { QuillModule } from 'ngx-quill';
 
 
 @NgModule({
@@ -242,6 +243,8 @@ ImageCropperModule,
     CommonModule,
     FormsModule,
     NgxDropzoneModule,
+    QuillModule.forRoot()
+
 
     
   ],

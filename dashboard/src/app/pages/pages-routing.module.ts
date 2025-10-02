@@ -150,7 +150,7 @@ const routes: Routes = [
   { path: "listprojetclientadmin", component: ListProjetUserAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === ROLES / SETTINGS ===
-  { path: "roles", component: RolesComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ROLES, actions: [Action.MANAGE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "roles", component: RolesComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.MANAGE] }], allowedRoles: ['WORKER'] } },
   { path: "setting", component: SettingComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === DETAILS ===
@@ -162,7 +162,7 @@ const routes: Routes = [
   { path: "calendrierGlobal", component: ProjectCalendarAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 
   // === BULK EMAIL ===
-  { path: "bulk-email", component: BulkEmailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.EMAIL, actions: [Action.CREATE, Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { path: "bulk-email", component: BulkEmailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE, Action.MANAGE] }], allowedRoles: ['WORKER'] } },
 ];
 
 @NgModule({

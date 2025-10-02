@@ -16,18 +16,18 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Parsing JSON et URL-encoded (Nest le fait par défaut, mais c'est ok de le préciser)
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // Parsing JSON et URL-encoded avec limite augmentée pour les emails HTML
+  app.use(express.json({ limit: '10mb' })); // Augmenter la limite à 10MB
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Validation globale avec whitelist pour retirer les propriétés non définies dans les DTOs
   app.useGlobalPipes(
-  new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  })
-);
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    })
+  );
 
   // Servir les images statiques partenaires
   app.use(

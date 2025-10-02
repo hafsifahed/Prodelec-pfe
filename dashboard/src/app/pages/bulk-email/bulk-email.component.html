@@ -48,18 +48,25 @@
       </div>
     </div>
     
-    <div class="form-group">
+     <div class="form-group">
       <label for="message">Message:</label>
-      <textarea 
-        id="message" 
-        formControlName="message" 
-        class="form-control" 
-        rows="6"
+      <quill-editor
+        id="message"
+        formControlName="message"
+        [modules]="quillConfig"
+        [styles]="{'min-height': '200px'}"
         placeholder="Votre message ici..."
+        (onContentChanged)="onContentChanged($event)"
         [class.invalid]="emailForm.get('message')?.invalid && emailForm.get('message')?.touched"
-      ></textarea>
+      ></quill-editor>
       <div class="char-count" *ngIf="emailForm.get('message')?.value">
         {{ emailForm.get('message')?.value?.length }} caractères
+      </div>
+      <div class="error-message" *ngIf="emailForm.get('message')?.invalid && emailForm.get('message')?.touched">
+        <div *ngIf="emailForm.get('message')?.errors?.['required']">Le message est requis</div>
+        <div *ngIf="emailForm.get('message')?.errors?.['minlength']">
+          Le message doit contenir au moins 10 caractères
+        </div>
       </div>
     </div>
     
