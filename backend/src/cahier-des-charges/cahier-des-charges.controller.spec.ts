@@ -116,9 +116,20 @@ describe('CahierDesChargesController', () => {
     expect(mockService.refuseCahierDesCharges).toBeCalledWith(id, commentaire);
   });
 
-  it('archiver should archive CDC', async () => {
+  it('archiver should archive CDC user role CLIENT calls archiverU', async () => {
     const id = 1;
-    const result = await controller.archiver(id);
+    const user = { id: 1, role: { name: 'CLIENT_USER' } } as any;
+    mockService.archiverU.mockResolvedValue({ id, archiveU: true });
+    const result = await controller.archiver(id, user);
+    expect(result).toEqual({ id, archiveU: true });
+    expect(mockService.archiverU).toBeCalledWith(id);
+  });
+
+  it('archiver should archive CDC user role other calls archiver', async () => {
+    const id = 1;
+    const user = { id: 1, role: { name: 'ADMIN' } } as any;
+    mockService.archiver.mockResolvedValue({ id, archive: true });
+    const result = await controller.archiver(id, user);
     expect(result).toEqual({ id, archive: true });
     expect(mockService.archiver).toBeCalledWith(id);
   });
@@ -132,7 +143,9 @@ describe('CahierDesChargesController', () => {
 
   it('archiverU should archive CDC user flag', async () => {
     const id = 1;
-    const result = await controller.archiverU(id);
+    const user = { id: 1, role: { name: 'CLIENT_USER' } } as any;
+    mockService.archiverU.mockResolvedValue({ id, archiveU: true });
+    const result = await controller.archiverU(id, user);
     expect(result).toEqual({ id, archiveU: true });
     expect(mockService.archiverU).toBeCalledWith(id);
   });
@@ -157,6 +170,24 @@ describe('CahierDesChargesController', () => {
     const result = await controller.markAsIncomplete(id, commentaire);
     expect(result).toEqual({ id, commentaire, etat: 'ACompleter' });
     expect(mockService.markAsIncomplete).toBeCalledWith(id, commentaire);
+  });
+
+  it('sendEmail should send emails to recipients', async () => {
+    const emailRequest = {
+      to: ['recipient1@example.com', 'recipient2@example.com'],
+      subject: 'Test Subject',
+      text: '<p>Test Email</p>',
+    };
+    await controller.sendEmail(emailRequest);
+    expect(mockMailerService.sendMail).toHaveBeenCalledTimes(emailRequest.to.length);
+    emailRequest.to.forEach((recipient, index) => {
+      expect(mockMailerService.sendMail).toHaveBeenNthCalledWith(index + 1, {
+        to: recipient,
+        from: 'hafsifahed98@gmail.com',
+        subject: emailRequest.subject,
+        html: emailRequest.text,
+      });
+    });
   });
 
 });

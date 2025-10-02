@@ -4,6 +4,7 @@ import { WorkflowDiscussion, WorkflowPhase } from './entities/workflow-discussio
 import { WorkflowDiscussionController } from './workflow-discussion.controller';
 import { WorkflowDiscussionService } from './workflow-discussion.service';
 
+
 describe('WorkflowDiscussionController', () => {
   let controller: WorkflowDiscussionController;
   let service: WorkflowDiscussionService;
@@ -13,6 +14,7 @@ describe('WorkflowDiscussionController', () => {
     getDiscussionsByUser: jest.fn(),
     getFullDiscussion: jest.fn(),
     getDiscussion: jest.fn(),
+    markMessagesAsRead: jest.fn(),
     addMessage: jest.fn(),
     transitionPhase: jest.fn(),
   };
@@ -32,6 +34,10 @@ describe('WorkflowDiscussionController', () => {
     service = module.get<WorkflowDiscussionService>(WorkflowDiscussionService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
@@ -41,8 +47,9 @@ describe('WorkflowDiscussionController', () => {
       const result = { discussions: [], total: 0 };
       mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
 
-      await expect(controller.getAllDiscussions(1, 20)).resolves.toEqual(result);
-      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20);
+      const user = { id: 1 } as User;
+      await expect(controller.getAllDiscussions(1, 20, user)).resolves.toEqual(result);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id);
     });
   });
 
@@ -83,19 +90,30 @@ describe('WorkflowDiscussionController', () => {
   });
 
   describe('getDiscussion', () => {
-    it('should return discussion by id', async () => {
+    it('should return discussion by id with user id', async () => {
       const discussion = {} as WorkflowDiscussion;
       mockWorkflowDiscussionService.getDiscussion.mockResolvedValue(discussion);
 
-      await expect(controller.getDiscussion(1)).resolves.toEqual(discussion);
-      expect(service.getDiscussion).toHaveBeenCalledWith(1);
+      const user = { id: 1 } as User;
+      await expect(controller.getDiscussion(1, user)).resolves.toEqual(discussion);
+      expect(service.getDiscussion).toHaveBeenCalledWith(1, user.id);
+    });
+  });
+
+  describe('markAsRead', () => {
+    it('should mark messages as read', async () => {
+      mockWorkflowDiscussionService.markMessagesAsRead.mockResolvedValue(undefined);
+
+      const user = { id: 1 } as User;
+      await expect(controller.markAsRead(1, user)).resolves.toEqual({ success: true });
+      expect(service.markMessagesAsRead).toHaveBeenCalledWith(1, user.id);
     });
   });
 
   describe('addMessage', () => {
     it('should add message to discussion', async () => {
       const user = { id: 1 } as User;
-      const dto = { content: 'message content' };
+      const dto = { content: 'message content' } as any;
       const message = { id: 1, content: 'message content' };
       mockWorkflowDiscussionService.addMessage.mockResolvedValue(message);
 
@@ -106,7 +124,7 @@ describe('WorkflowDiscussionController', () => {
 
   describe('transitionPhase', () => {
     it('should transition discussion phase', async () => {
-      const dto = { targetPhase: WorkflowPhase.DEVIS, targetEntityId: 1 };
+      const dto = { targetPhase: WorkflowPhase.DEVIS, targetEntityId: 1 } ;
       const discussion = {} as WorkflowDiscussion;
       mockWorkflowDiscussionService.transitionPhase.mockResolvedValue(discussion);
 

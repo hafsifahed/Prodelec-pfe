@@ -95,7 +95,6 @@ describe('RolesController', () => {
       const dto: UpdateRoleDto = {
         name: 'Updated Role',
         permissions: [{ resource: Resource.ROLES, actions: [Action.MANAGE] }],
-        isSystemRole: false,
       };
       const updatedRole: Role = {
         id: 1,

@@ -9,7 +9,8 @@ describe('StatisticsController', () => {
 
   const mockStatisticsService = {
     getGlobalStats: jest.fn(),
-    getGlobalStatsUser: jest.fn(),
+    getComparativeStats: jest.fn(),
+    getAvailableYears: jest.fn(),
     searchAll: jest.fn(),
     searchAllUser: jest.fn(),
   };
@@ -36,8 +37,10 @@ describe('StatisticsController', () => {
   });
 
   describe('getGlobal', () => {
-    it('should call getGlobalStatsUser if user role starts with CLIENT', async () => {
+    it('should call getGlobalStats with user id if role starts with CLIENT', async () => {
       const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
+      const period = 'month';
+      const year = 2025;
       const mockStats: GlobalStats = {
         totalOrders: 5,
         cancelledOrders: 1,
@@ -45,31 +48,33 @@ describe('StatisticsController', () => {
         completedProjects: 2,
         lateProjects: 1,
         averageAvis: 4.5,
+        totalAvis:4,
         reclamationRatio: 33.33,
       };
-      mockStatisticsService.getGlobalStatsUser.mockResolvedValue(mockStats);
+      mockStatisticsService.getGlobalStats.mockResolvedValue(mockStats);
 
-      await expect(controller.getGlobal(user)).resolves.toEqual(mockStats);
-      expect(mockStatisticsService.getGlobalStatsUser).toHaveBeenCalledWith(user.id);
-      expect(mockStatisticsService.getGlobalStats).not.toHaveBeenCalled();
+      await expect(controller.getGlobal(period, user, year)).resolves.toEqual(mockStats);
+      expect(mockStatisticsService.getGlobalStats).toHaveBeenCalledWith(period, user.id, year);
     });
 
-    it('should call getGlobalStats if user role does not start with CLIENT', async () => {
+    it('should call getGlobalStats with undefined user id if role does not start with CLIENT', async () => {
       const user = { id: 1, role: { name: 'ADMIN' } } as User;
+      const period = 'month';
+      const year = 2025;
       const mockStats: GlobalStats = {
         totalOrders: 10,
         cancelledOrders: 2,
         totalProjects: 5,
         completedProjects: 4,
         lateProjects: 1,
+        totalAvis:4,
         averageAvis: 4.7,
         reclamationRatio: 40,
       };
       mockStatisticsService.getGlobalStats.mockResolvedValue(mockStats);
 
-      await expect(controller.getGlobal(user)).resolves.toEqual(mockStats);
-      expect(mockStatisticsService.getGlobalStats).toHaveBeenCalled();
-      expect(mockStatisticsService.getGlobalStatsUser).not.toHaveBeenCalled();
+      await expect(controller.getGlobal(period, user, year)).resolves.toEqual(mockStats);
+      expect(mockStatisticsService.getGlobalStats).toHaveBeenCalledWith(period, undefined, year);
     });
   });
 
@@ -82,7 +87,7 @@ describe('StatisticsController', () => {
       mockStatisticsService.searchAllUser.mockResolvedValue(mockResult);
 
       await expect(controller.search(query, user)).resolves.toEqual(mockResult);
-      expect(mockStatisticsService.searchAllUser).toHaveBeenCalledWith(keyword, user.id);
+      expect(mockStatisticsService.searchAllUser).toHaveBeenCalledWith(keyword.trim(), user.id);
       expect(mockStatisticsService.searchAll).not.toHaveBeenCalled();
     });
 
@@ -94,7 +99,7 @@ describe('StatisticsController', () => {
       mockStatisticsService.searchAll.mockResolvedValue(mockResult);
 
       await expect(controller.search(query, user)).resolves.toEqual(mockResult);
-      expect(mockStatisticsService.searchAll).toHaveBeenCalledWith(keyword);
+      expect(mockStatisticsService.searchAll).toHaveBeenCalledWith(keyword.trim());
       expect(mockStatisticsService.searchAllUser).not.toHaveBeenCalled();
     });
   });

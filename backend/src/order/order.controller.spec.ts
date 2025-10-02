@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { User } from '../users/entities/users.entity';
 import { Order } from './entities/order.entity';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
@@ -23,10 +24,7 @@ describe('OrderController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrderController],
       providers: [
-        {
-          provide: OrderService,
-          useValue: mockOrderService,
-        },
+        { provide: OrderService, useValue: mockOrderService },
       ],
     }).compile();
 
@@ -218,8 +216,9 @@ describe('OrderController', () => {
   });
 
   describe('archivera', () => {
-    it('should archive order a and return it', async () => {
+    it('should archive order a if user role is ADMIN and return it', async () => {
       const id = 1;
+      const user = { id: 1, role: { name: 'ADMIN' } } as User;
       const order: Order = {
         idOrder: id,
         orderName: 'Order 1',
@@ -237,14 +236,13 @@ describe('OrderController', () => {
 
       mockOrderService.archivera.mockResolvedValue(order);
 
-      await expect(controller.archivera(id)).resolves.toEqual(order);
+      await expect(controller.archivera(id, user)).resolves.toEqual(order);
       expect(mockOrderService.archivera).toHaveBeenCalledWith(id);
     });
-  });
 
-  describe('archiverc', () => {
-    it('should archive order c and return it', async () => {
+    it('should archive order c if user role is CLIENT and return it', async () => {
       const id = 1;
+      const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
       const order: Order = {
         idOrder: id,
         orderName: 'Order 1',
@@ -262,8 +260,58 @@ describe('OrderController', () => {
 
       mockOrderService.archiverc.mockResolvedValue(order);
 
-      await expect(controller.archiverc(id)).resolves.toEqual(order);
+      await expect(controller.archivera(id, user)).resolves.toEqual(order);
       expect(mockOrderService.archiverc).toHaveBeenCalledWith(id);
+    });
+  });
+
+  describe('archiverc', () => {
+    it('should archive order c if user role is CLIENT and return it', async () => {
+      const id = 1;
+      const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
+      const order: Order = {
+        idOrder: id,
+        orderName: 'Order 1',
+        attachementName: '',
+        annuler: false,
+        archivera: false,
+        archiverc: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: {} as any,
+        projects: [] as any,
+        devis: null,
+        discussion: null,
+      };
+
+      mockOrderService.archiverc.mockResolvedValue(order);
+
+      await expect(controller.archiverc(id, user)).resolves.toEqual(order);
+      expect(mockOrderService.archiverc).toHaveBeenCalledWith(id);
+    });
+
+    it('should archive order a if user role is ADMIN and return it', async () => {
+      const id = 1;
+      const user = { id: 1, role: { name: 'ADMIN' } } as User;
+      const order: Order = {
+        idOrder: id,
+        orderName: 'Order 1',
+        attachementName: '',
+        annuler: false,
+        archivera: true,
+        archiverc: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: {} as any,
+        projects: [] as any,
+        devis: null,
+        discussion: null,
+      };
+
+      mockOrderService.archivera.mockResolvedValue(order);
+
+      await expect(controller.archiverc(id, user)).resolves.toEqual(order);
+      expect(mockOrderService.archivera).toHaveBeenCalledWith(id);
     });
   });
 });
