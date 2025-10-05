@@ -45,10 +45,49 @@
 @mixin neu-card-base {
   background: var(--neu-bg);
   border-radius: 20px;
-  border: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  
+  // Effet LED seulement sur le bord supérieur
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      #ff0000,
+      #ff3333,
+      #ff0000,
+      transparent
+    );
+    border-radius: 3px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    animation: led-scan 2s ease-in-out infinite;
+    z-index: 2;
+  }
+  
+  // Ombre néomorphique standard
+  box-shadow: 
+    5px 5px 10px rgba(0, 0, 0, 0.2),
+    -5px -5px 10px rgba(255, 255, 255, 0.1),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.1);
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes led-scan {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.1);
+  }
 }
 
 // Styles de base
@@ -441,6 +480,7 @@
           padding: 1rem;
           border-radius: 16px;
           background: var(--neu-bg);
+          border-top: #007bff solid 1px;
           
           &.success {
             border-left: 4px solid var(--success);
@@ -526,6 +566,8 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
+        border-radius: 16px;
+        border-top: #007bff solid 1px;
         
         .metric-visual {
           margin-bottom: 0.75rem;

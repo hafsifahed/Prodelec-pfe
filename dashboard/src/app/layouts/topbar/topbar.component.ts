@@ -354,4 +354,29 @@ logout() {
    return this.usersService.getUserImageUrl(user)
   }
 
+  handleNotificationClick(notification: NotificationModels): void {
+  // Marquer comme lu
+  this.markAsRead(notification);
+  
+  // Navigation basée sur le type de notification
+  if (notification.payload) {
+    const payload = notification.payload;
+    
+    if (payload.projectId) {
+      // Redirection vers le projet
+      this.router.navigate(['/listproject', payload.projectId]);
+    } else if (payload.cdcId) {
+      // Redirection vers les cahiers des charges
+      this.router.navigate(['/cdcUser']);
+    } else if (payload.devisId) {
+      // Ouvrir le modal devis
+      this.router.navigate(['/devis'], { 
+        queryParams: { openDevisModal: payload.devisId } 
+      });
+    } else if (notification.title?.includes('réclamation')) {
+      // Redirection vers les réclamations
+      this.router.navigate(['/reclamationUser']);
+    }
+  }
+}
 }

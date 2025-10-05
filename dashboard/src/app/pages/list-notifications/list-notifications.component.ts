@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NotificationService } from '../../core/services/notification.service';
 import { NotificationModels } from '../../core/models/notification.models';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-notifications',
@@ -28,6 +29,7 @@ export class ListNotificationsComponent implements OnInit {
   constructor(
     private notificationService: NotificationService,
     private userStateService: UserStateService,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -133,9 +135,36 @@ export class ListNotificationsComponent implements OnInit {
   }
 
   handleNotificationClick(notification: NotificationModels): void {
-    if (!notification.read) {
-      this.markNotificationAsRead(notification.id);
-    }
-    // Ajoutez ici la logique pour naviguer vers la page concernée par la notification
+  if (!notification.read) {
+    this.markNotificationAsRead(notification.id);
   }
+  
+  // Navigation basée sur le type de notification
+  this.navigateToNotificationTarget(notification);
+}
+
+navigateToNotificationTarget(notification: NotificationModels): void {
+  if (notification.payload) {
+    const payload = notification.payload;
+    
+    if (payload.projectId) {
+      // Redirection vers le projet
+      this.router.navigate(['/listproject', payload.projectId]);
+    } else if (payload.cdcId) {
+      // Redirection vers les cahiers des charges
+      this.router.navigate(['/cdcUser']);
+    } else if (payload.devisId) {
+      // Ouvrir le modal devis
+      this.router.navigate(['/devis'], { 
+        queryParams: { openDevisModal: payload.devisId } 
+      });
+    } else if (notification.title?.includes('réclamation')) {
+      // Redirection vers les réclamations
+      this.router.navigate(['/reclamationUser']);
+    } else {
+      // Par défaut, rester sur la page des notifications
+      console.log('Notification sans action de navigation spécifique:', notification);
+    }
+  }
+}
 }

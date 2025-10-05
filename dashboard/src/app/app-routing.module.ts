@@ -23,12 +23,12 @@ const routes: Routes = [
         path: 'workflow-discussions',
         loadChildren: () => import('./pages/workflow-discussion/workflow-discussion.module')
           .then(m => m.WorkflowDiscussionModule),
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard],title:"Workflow Discussions | Prodelec NA"
       }
   ,
   { path: '', loadChildren: () => import('./extrapages/extrapages.module').then(m => m.ExtrapagesModule) },
   { path: 'home', component: CyptolandingComponent },
-  { path: 'signin', component: SignInComponent,canActivate:[NoAuthGuard] },
+  { path: 'signin', component: SignInComponent,canActivate:[NoAuthGuard],title:"Prodelec NA" },
 
   { path: '**', component: Page404Component },
 ];

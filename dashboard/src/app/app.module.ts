@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
@@ -35,6 +35,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { ImgFallbackDirective } from './core/helpers/img-fallback.directive';
 import { QuillModule } from 'ngx-quill';
+import { TitleService } from './core/services/title.service';
 
 
 export function createTranslateLoader(http: HttpClient): any {
@@ -78,6 +79,8 @@ export function createTranslateLoader(http: HttpClient): any {
   providers: [
       DatePipe,
     AuthService,
+    Title,
+    TitleService,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
    // { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },

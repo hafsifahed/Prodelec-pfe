@@ -77,6 +77,10 @@
     <h6 class="mb-0">{{notification.title}}</h6>
     <div class="d-flex align-items-center gap-2">
       <small class="text-muted">{{notification.createdAt | date:'short'}}</small>
+      <!-- Indicateur d'action -->
+      <i class="fas fa-external-link-alt text-muted" 
+         *ngIf="notification.payload" 
+         title="Cliquer pour ouvrir"></i>
       <button *ngIf="user?.role.name === 'ADMIN' || user?.role.name === 'SUBADMIN'"
               class="btn btn-sm btn-link text-danger p-0"
               (click)="deleteNotification(notification.id); $event.stopPropagation()"
@@ -86,7 +90,6 @@
     </div>
   </div>
   
-  <!-- Modification ici pour mieux afficher le message -->
   <div *ngIf="notification.message" class="mb-2">
     <p class="mb-1 text-break notification-message">
       {{notification.message}}

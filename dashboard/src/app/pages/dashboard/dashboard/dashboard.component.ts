@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/core/models/auth.models';
+import { TitleService } from 'src/app/core/services/title.service';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
@@ -16,7 +17,9 @@ export class DashboardComponent implements OnInit {
   user: User | null = null;
   roleName: string | null = null;
 
-  constructor(private userStateService: UserStateService) {}
+  constructor(private userStateService: UserStateService,
+    private titleService: TitleService
+  ) {}
 
   ngOnInit(): void {
   this.userStateService.user$.subscribe(user => {

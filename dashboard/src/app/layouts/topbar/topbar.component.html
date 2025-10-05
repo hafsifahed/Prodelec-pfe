@@ -162,7 +162,7 @@
         </button>
       </div>
 
-      <!-- Notifications Dropdown -->
+<!-- Notifications Dropdown -->
 <div class="dropdown d-inline-block" dropdown>
   <button type="button" class="btn header-item noti-icon" id="page-header-notifications-dropdown"
           dropdownToggle aria-haspopup="true" aria-expanded="false">
@@ -176,15 +176,14 @@
         <div class="col">
           <h6 class="m-0">{{ 'HEADER.NOTIFICATIONS.TITLE' | translate }}</h6>
         </div>
-        <div class="col-auto">
-          <!-- Lien "Voir tout" optionnel -->
-          <!-- <a href="#" class="small text-decoration-none">{{ 'HEADER.NOTIFICATIONS.VIEW_ALL' | translate }}</a> -->
-        </div>
       </div>
     </div>
     <ngx-simplebar style="position: relative; height: 230px;">
-      <a href="#" class="text-reset notification-item" *ngFor="let notification of notifications" (click)="markAsRead(notification); $event.preventDefault();" tabindex="0">
-        <div class="d-flex" [ngStyle]="{ 'background-color': notification.read ? 'transparent' : 'transparent' }">
+      <a href="javascript:void(0);" class="text-reset notification-item" 
+         *ngFor="let notification of notifications" 
+         (click)="handleNotificationClick(notification)" 
+         tabindex="0">
+        <div class="d-flex" [ngStyle]="{ 'background-color': notification.read ? 'transparent' : 'rgba(0, 123, 255, 0.1)' }">
           <div class="avatar-xs me-3">
             <span class="avatar-title rounded-circle font-size-16"
                   [ngStyle]="{ 'background-color': getNotificationColor(notification.title) }">
@@ -202,12 +201,12 @@
       </a>
       <div *ngIf="notifications.length === 0" class="text-center p-3 text-muted">
         Pas De Notification
-       <!-- {{ 'HEADER.NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}-->
       </div>
     </ngx-simplebar>
     <div class="p-2 border-top d-grid">
-      <!-- Bouton charger plus optionnel -->
-       <a class="btn btn-sm btn-link font-size-14 text-center" (click)="  navigateToListNotifications()">{{ 'HEADER.NOTIFICATIONS.LOAD_MORE' | translate }}</a>
+      <a class="btn btn-sm btn-link font-size-14 text-center" (click)="navigateToListNotifications()">
+        {{ 'HEADER.NOTIFICATIONS.LOAD_MORE' | translate }}
+      </a>
     </div>
   </div>
 </div>

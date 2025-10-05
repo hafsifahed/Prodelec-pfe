@@ -9,4 +9,5 @@ export class NotificationModels {
     workerId: number;
     createdAt: string;
     updatedAt: string;
+    payload!: any;
 }

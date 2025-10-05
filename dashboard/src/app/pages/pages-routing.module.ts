@@ -81,88 +81,528 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { Action, Resource } from '../core/models/role.model';
 
 const routes: Routes = [
-  { path: "", redirectTo: "dashboard", pathMatch: 'full' },
-  { path: "dashboard", component: DashboardComponent },
+  { 
+    path: "", 
+    redirectTo: "dashboard", 
+    pathMatch: 'full',
+    data: { title: 'Tableau de bord | Prodelec NA' }
+  },
+  { 
+    path: "dashboard", 
+    component: DashboardComponent,
+    data: { title: 'Tableau de bord | Prodelec NA' }
+  },
 
-  { path: "profile", component: ProfileComponent },
-  { path: "edit-profile", component: EditProfileComponent },
+  { 
+    path: "profile", 
+    component: ProfileComponent,
+    data: { title: 'Profil | Prodelec NA' }
+  },
+  { 
+    path: "edit-profile", 
+    component: EditProfileComponent,
+    data: { title: 'Modifier le profil | Prodelec NA' }
+  },
 
   // === USERS ===
-  { path: "add-user", component: AddUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-user/:id", component: EditUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-user", component: ListUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "add-user", 
+    component: AddUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Ajouter un utilisateur | Prodelec NA'
+    } 
+  },
+  { 
+    path: "edit-user/:id", 
+    component: EditUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Modifier un utilisateur | Prodelec NA'
+    } 
+  },
+  { 
+    path: "list-user", 
+    component: ListUsersComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des utilisateurs | Prodelec NA'
+    } 
+  },
 
   // === WORKERS ===
-  { path: "add-worker", component: AddWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-worker/:id", component: EditWorkerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-worker", component: ListWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "add-worker", 
+    component: AddWorkerComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Ajouter un travailleur | Prodelec NA'
+    } 
+  },
+  { 
+    path: "edit-worker/:id", 
+    component: EditWorkerComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.UPDATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Modifier un travailleur | Prodelec NA'
+    } 
+  },
+  { 
+    path: "list-worker", 
+    component: ListWorkersComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des travailleurs | Prodelec NA'
+    } 
+  },
 
   // === PARTNERS ===
-  { path: "add-partner", component: AddPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "edit-partner/:id", component: EditPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.UPDATE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-partner", component: ListPartnerComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "add-partner", 
+    component: AddPartnerComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PARTNERS, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Ajouter un partenaire | Prodelec NA'
+    } 
+  },
+  { 
+    path: "edit-partner/:id", 
+    component: EditPartnerComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PARTNERS, actions: [Action.UPDATE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Modifier un partenaire | Prodelec NA'
+    } 
+  },
+  { 
+    path: "list-partner", 
+    component: ListPartnerComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des partenaires | Prodelec NA'
+    } 
+  },
 
   // === SESSIONS ===
-  { path: "list-worker-session", component: ListSessionWorkersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "list-user-session", component: ListSessionUsersComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { 
+    path: "list-worker-session", 
+    component: ListSessionWorkersComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Sessions des travailleurs | Prodelec NA'
+    } 
+  },
+  { 
+    path: "list-user-session", 
+    component: ListSessionUsersComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Sessions des utilisateurs | Prodelec NA'
+    } 
+  },
 
   // === NOTIFICATIONS ===
-  { path: "list-notifications", component: ListNotificationsComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.NOTIFICATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { 
+    path: "list-notifications", 
+    component: ListNotificationsComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.NOTIFICATIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT','WORKER'],
+      title: 'Notifications | Prodelec NA'
+    } 
+  },
 
   // === AVIS ===
-  { path: "avis", component: AvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "list-avis", component: ListAvisComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "avis", 
+    component: AvisComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Donner un avis | Prodelec NA'
+    } 
+  },
+  { 
+    path: "list-avis", 
+    component: ListAvisComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.QUALITY, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des avis | Prodelec NA'
+    } 
+  },
 
   // === CAHIER DES CHARGES ===
-  { path: "cdc", component: CDCListAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "cdcUser", component: CDCListUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "cdcUser/cdcAdd", component: AddCdCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "cdc/cdcArchive", component: CDCListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "cdcUser/cdcArchive", component: CDCUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { 
+    path: "cdc", 
+    component: CDCListAdminComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Cahiers des charges | Prodelec NA'
+    } 
+  },
+  { 
+    path: "cdcUser", 
+    component: CDCListUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes cahiers des charges | Prodelec NA'
+    } 
+  },
+  { 
+    path: "cdcUser/cdcAdd", 
+    component: AddCdCComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Ajouter un cahier des charges | Prodelec NA'
+    } 
+  },
+  { 
+    path: "cdc/cdcArchive", 
+    component: CDCListArchiveComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Cahiers des charges archivés | Prodelec NA'
+    } 
+  },
+  { 
+    path: "cdcUser/cdcArchive", 
+    component: CDCUserlistArchiveComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes cahiers archivés | Prodelec NA'
+    } 
+  },
 
   // === DEVIS ===
-  { path: "devis", component: DevisAdminlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "devisUser", component: DevisUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "devis/devisArchive", component: DevisListArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "devisUser/devisArchive", component: DevisUserlistArchiveComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { 
+    path: "devis", 
+    component: DevisAdminlistComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Devis | Prodelec NA'
+    } 
+  },
+  { 
+    path: "devisUser", 
+    component: DevisUserlistComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes devis | Prodelec NA'
+    } 
+  },
+  { 
+    path: "devis/devisArchive", 
+    component: DevisListArchiveComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Devis archivés | Prodelec NA'
+    } 
+  },
+  { 
+    path: "devisUser/devisArchive", 
+    component: DevisUserlistArchiveComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.DEVIS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes devis archivés | Prodelec NA'
+    } 
+  },
 
   // === RECLAMATIONS ===
-  { path: "reclamation", component: ReclamationAdminListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "reclamationUser", component: ReclamationListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.CREATE, Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "reclamation/reclamationArchive", component: ReclamationArchiveListComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "reclamationUser/reclamationArchive", component: ReclamationArchiveUserlistComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
+  { 
+    path: "reclamation", 
+    component: ReclamationAdminListComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Réclamations | Prodelec NA'
+    } 
+  },
+  { 
+    path: "reclamationUser", 
+    component: ReclamationListComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.CREATE, Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes réclamations | Prodelec NA'
+    } 
+  },
+  { 
+    path: "reclamation/reclamationArchive", 
+    component: ReclamationArchiveListComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Réclamations archivées | Prodelec NA'
+    } 
+  },
+  { 
+    path: "reclamationUser/reclamationArchive", 
+    component: ReclamationArchiveUserlistComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.RECLAMATIONS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes réclamations archivées | Prodelec NA'
+    } 
+  },
 
   // === ORDERS ===
-  { path: "addorder", component: AddOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.CREATE,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "listorder", component: ListOrderComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "listorderclient", component: ListOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveorderadmin", component: ArchiveOrderAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "archiveorderclient", component: ArchiveOrderUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveorderadminclient", component: ArchiveOrderAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
+  { 
+    path: "addorder", 
+    component: AddOrderComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.CREATE,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Créer une commande | Prodelec NA'
+    } 
+  },
+  { 
+    path: "listorder", 
+    component: ListOrderComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des commandes | Prodelec NA'
+    } 
+  },
+  { 
+    path: "listorderclient", 
+    component: ListOrderUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes commandes | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveorderadmin", 
+    component: ArchiveOrderAdminComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Commandes archivées | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveorderclient", 
+    component: ArchiveOrderUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes commandes archivées | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveorderadminclient", 
+    component: ArchiveOrderAdminCComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.ORDERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT','WORKER'],
+      title: 'Commandes archivées | Prodelec NA'
+    } 
+  },
 
   // === PROJECTS ===
-  { path: "listproject", component: ListProjectComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "listproject/:id", component: ProjetDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "listprojectclient", component: ListProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveprojectadmin", component: ArchiveProjectAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "archiveprojectclient", component: ArchiveProjectUserComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "archiveprojectadminclient", component: ArchiveProjectAdminCComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT','WORKER'] } },
-  { path: "listprojetclientadmin", component: ListProjetUserAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "listproject", 
+    component: ListProjectComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Liste des projets | Prodelec NA'
+    } 
+  },
+  { 
+    path: "listproject/:id", 
+    component: ProjetDetailComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Détail du projet | Prodelec NA'
+    } 
+  },
+  { 
+    path: "listprojectclient", 
+    component: ListProjectUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes projets | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveprojectadmin", 
+    component: ArchiveProjectAdminComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Projets archivés | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveprojectclient", 
+    component: ArchiveProjectUserComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Mes projets archivés | Prodelec NA'
+    } 
+  },
+  { 
+    path: "archiveprojectadminclient", 
+    component: ArchiveProjectAdminCComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT','WORKER'],
+      title: 'Projets archivés | Prodelec NA'
+    } 
+  },
+  { 
+    path: "listprojetclientadmin", 
+    component: ListProjetUserAdminComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Projets clients | Prodelec NA'
+    } 
+  },
 
   // === ROLES / SETTINGS ===
-  { path: "roles", component: RolesComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "setting", component: SettingComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "roles", 
+    component: RolesComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.QUALITY, actions: [Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Rôles et permissions | Prodelec NA'
+    } 
+  },
+  { 
+    path: "setting", 
+    component: SettingComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Paramètres | Prodelec NA'
+    } 
+  },
 
   // === DETAILS ===
-  { path: "user/:id", component: UserDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
-  { path: "partner/:id", component: PartnerDetailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "user/:id", 
+    component: UserDetailComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Détail utilisateur | Prodelec NA'
+    } 
+  },
+  { 
+    path: "partner/:id", 
+    component: PartnerDetailComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PARTNERS, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Détail partenaire | Prodelec NA'
+    } 
+  },
 
   // === CALENDAR ===
-  { path: "calendrier", component: ProjectCalendarComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['CLIENT'] } },
-  { path: "calendrierGlobal", component: ProjectCalendarAdminComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "calendrier", 
+    component: ProjectCalendarComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['CLIENT'],
+      title: 'Calendrier des projets | Prodelec NA'
+    } 
+  },
+  { 
+    path: "calendrierGlobal", 
+    component: ProjectCalendarAdminComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Calendrier global | Prodelec NA'
+    } 
+  },
 
   // === BULK EMAIL ===
-  { path: "bulk-email", component: BulkEmailComponent, canActivate: [PermissionGuard, RoleGuard], data: { permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE, Action.MANAGE] }], allowedRoles: ['WORKER'] } },
+  { 
+    path: "bulk-email", 
+    component: BulkEmailComponent, 
+    canActivate: [PermissionGuard, RoleGuard], 
+    data: { 
+      permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE, Action.MANAGE] }], 
+      allowedRoles: ['WORKER'],
+      title: 'Email en masse | Prodelec NA'
+    } 
+  },
 ];
 
 @NgModule({
