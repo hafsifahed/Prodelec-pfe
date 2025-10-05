@@ -119,6 +119,7 @@ this.getListNotifications();
         if (!this.notificationsSubscription) {
           this.notificationsSubscription = this.webSocketService.notifications$.subscribe(notifs => {
             this.notifications = notifs;
+            console.log("Notifications :",this.notifications);
             this.unreadCount = notifs.filter(n => !n.read).length;
           });
         }

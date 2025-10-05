@@ -18,4 +18,5 @@ export interface MenuItem {
   isLayout?: boolean;
   rolePermissions?: MenuItemRolePermissions[];
   accessOnly?: 'CLIENT' | 'WORKER';
+  external?: boolean;
 }

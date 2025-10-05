@@ -7,7 +7,7 @@ export const MENU: MenuItem[] = [
   // ===== Tableau de bord =====
   { id: 1, label: 'MENUITEMS.MENU.TEXT', isTitle: true },
   { id: 2, label: 'Tableau de bord', icon: 'bx-home-circle', link: purl + '/dashboard' },
-  { id: 3, label: 'Discussions', icon: 'bx-message-dots', link: purl + '/workflow-discussions' },
+  { id: 3, label: 'Discussions', icon: 'bx-message-dots', link: purl + '/workflow-discussions',external: true  },
 
   // ===== Gestion des utilisateurs =====
   {

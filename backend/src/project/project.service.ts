@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { Order } from '../order/entities/order.entity';
+import { Role } from '../roles/enums/roles.enum';
 import { User } from '../users/entities/users.entity';
 import { WorkflowPhase } from '../workflow-discussion/entities/workflow-discussion.entity';
 import { WorkflowDiscussionService } from '../workflow-discussion/workflow-discussion.service';
@@ -16,150 +17,211 @@ import { Project } from './entities/project.entity';
 @Injectable()
 export class ProjectService {
   constructor(
-    @InjectRepository(Project)  private projectRepo: Repository<Project>,
-    @InjectRepository(Order)    private orderRepo  : Repository<Order>,
-    @InjectRepository(User)     private userRepo   : Repository<User>,
+    @InjectRepository(Project) private projectRepo: Repository<Project>,
+    @InjectRepository(Order) private orderRepo: Repository<Order>,
+    @InjectRepository(User) private userRepo: Repository<User>,
     private readonly notifSrv: NotificationsService,
-        private readonly workflowDiscussionService: WorkflowDiscussionService
+    private readonly workflowDiscussionService: WorkflowDiscussionService,
   ) {}
 
   /* ------------------------------------------------------------------------
    * CRÉATION
    * --------------------------------------------------------------------- */
   async addProject(
-  dto: CreateProjectDto,
-  idOrder: number,
-  conceptionResp?: string,
-  methodeResp?: string,
-  productionResp?: string,
-  finalControlResp?: string,
-  deliveryResp?: string,
-): Promise<Project> {
+    dto: CreateProjectDto,
+    idOrder: number,
+    conceptionResp?: string,
+    methodeResp?: string,
+    productionResp?: string,
+    finalControlResp?: string,
+    deliveryResp?: string,
+  ): Promise<Project> {
+    const order = await this.orderRepo.findOne({ where: { idOrder } });
+    if (!order) throw new NotFoundException('Order not found');
 
-  const order = await this.orderRepo.findOne({ where: { idOrder } });
-  if (!order) throw new NotFoundException('Order not found');
+    const project = this.projectRepo.create(dto);
 
-  const project = this.projectRepo.create(dto); // remplit l’entité
+    project.order = order;
+    project.conceptionResponsible   = conceptionResp   ? await this.workerByUsername(conceptionResp)   : null;
+    project.methodeResponsible      = methodeResp      ? await this.workerByUsername(methodeResp)      : null;
+    project.productionResponsible   = productionResp   ? await this.workerByUsername(productionResp)   : null;
+    project.finalControlResponsible = finalControlResp ? await this.workerByUsername(finalControlResp) : null;
+    project.deliveryResponsible     = deliveryResp     ? await this.workerByUsername(deliveryResp)     : null;
 
-  project.order                   = order;
-  project.conceptionResponsible   = conceptionResp   ? await this.workerByUsername(conceptionResp)   : null;
-  project.methodeResponsible      = methodeResp      ? await this.workerByUsername(methodeResp)      : null;
-  project.productionResponsible   = productionResp   ? await this.workerByUsername(productionResp)   : null;
-  project.finalControlResponsible = finalControlResp ? await this.workerByUsername(finalControlResp) : null;
-  project.deliveryResponsible     = deliveryResp     ? await this.workerByUsername(deliveryResp)     : null;
+    // Flags d’existence des phases
+    project.conceptionExist   = dto.conceptionExist   ?? false;
+    project.methodeExist      = dto.methodeExist      ?? false;
+    project.productionExist   = dto.productionExist   ?? false;
+    project.finalControlExist = dto.finalControlExist ?? false;
+    project.deliveryExist     = dto.deliveryExist     ?? false;
 
+    const saved = await this.projectRepo.save(project);
 
-  project.conceptionExist = dto.conceptionExist ?? false;
-  project.methodeExist = dto.methodeExist ?? false;
-  project.productionExist = dto.productionExist ?? false;
-  project.finalControlExist = dto.finalControlExist ?? false;
-  project.deliveryExist = dto.deliveryExist ?? false;
+    // 🔔 Notifier les responsables déjà affectés
+    await this.notifyResponsibles(
+      saved,
+      'Nouveau projet créé',
+      `Le projet #${saved.idproject} vous est assigné.`,
+    );
 
+    // 🔔 Notifier les responsables globaux si une phase existe mais non affectée
+    await this.notifyGlobalResponsables(saved);
 
-  const saved = await this.projectRepo.save(project);
-  await this.notifyResponsibles(
-    saved,
-    'Nouveau projet créé',
-    `Le projet #${saved.idproject} vous est assigné.`,
-  );
-
-  // Lier à la discussion existante
+    // Lier à la discussion existante
     if (order.devis) {
       const discussion = await this.workflowDiscussionService.getDiscussionByDevis(order.devis.id);
       await this.workflowDiscussionService.transitionPhase(
         discussion.cdc.id,
         {
           targetPhase: WorkflowPhase.PROJECT,
-          targetEntityId: saved.idproject
-        }
+          targetEntityId: saved.idproject,
+        },
       );
     }
-  return saved;
-}
-
+    return saved;
+  }
 
   /* ------------------------------------------------------------------------
    * MISE-À-JOUR
    * --------------------------------------------------------------------- */
   async updateProject(
-  projectId: number,
-  dto: Partial<Project>,
-  conceptionResp?: string,
-  methodeResp?: string,
-  productionResp?: string,
-  finalControlResp?: string,
-  deliveryResp?: string,
-): Promise<Project> {
-  const proj = await this.projectRepo.findOne({ where: { idproject: projectId }, relations: [
-    'conceptionResponsible',
-    'methodeResponsible',
-    'productionResponsible',
-    'finalControlResponsible',
-    'deliveryResponsible',
-  ] });
-  if (!proj) throw new NotFoundException('Project not found');
+    projectId: number,
+    dto: Partial<Project>,
+    conceptionResp?: string,
+    methodeResp?: string,
+    productionResp?: string,
+    finalControlResp?: string,
+    deliveryResp?: string,
+  ): Promise<Project> {
+    const proj = await this.projectRepo.findOne({
+      where: { idproject: projectId },
+      relations: [
+        'conceptionResponsible',
+        'methodeResponsible',
+        'productionResponsible',
+        'finalControlResponsible',
+        'deliveryResponsible',
+      ],
+    });
+    if (!proj) throw new NotFoundException('Project not found');
 
-  // Sauvegarder les responsables actuels
-  const oldResponsables = [
-    proj.conceptionResponsible?.id,
-    proj.methodeResponsible?.id,
-    proj.productionResponsible?.id,
-    proj.finalControlResponsible?.id,
-    proj.deliveryResponsible?.id,
-  ].filter(id => id != null);
+    // Sauvegarder les responsables actuels
+    const oldResponsables = [
+      proj.conceptionResponsible?.id,
+      proj.methodeResponsible?.id,
+      proj.productionResponsible?.id,
+      proj.finalControlResponsible?.id,
+      proj.deliveryResponsible?.id,
+    ].filter(id => id != null);
 
-  Object.assign(proj, dto);
+    // Mise à jour des champs
+    Object.assign(proj, dto);
 
-  proj.conceptionResponsible   = await this.workerByUsername(conceptionResp);
-  proj.methodeResponsible      = await this.workerByUsername(methodeResp);
-  proj.productionResponsible   = await this.workerByUsername(productionResp);
-  proj.finalControlResponsible = await this.workerByUsername(finalControlResp);
-  proj.deliveryResponsible     = await this.workerByUsername(deliveryResp);
+    // Mise à jour des responsables directs
+    proj.conceptionResponsible   = await this.workerByUsername(conceptionResp);
+    proj.methodeResponsible      = await this.workerByUsername(methodeResp);
+    proj.productionResponsible   = await this.workerByUsername(productionResp);
+    proj.finalControlResponsible = await this.workerByUsername(finalControlResp);
+    proj.deliveryResponsible     = await this.workerByUsername(deliveryResp);
 
-  const saved = await this.projectRepo.save(proj);
+    const saved = await this.projectRepo.save(proj);
 
-  // Nouveaux responsables après mise à jour
-  const newResponsables = [
-    saved.conceptionResponsible?.id,
-    saved.methodeResponsible?.id,
-    saved.productionResponsible?.id,
-    saved.finalControlResponsible?.id,
-    saved.deliveryResponsible?.id,
-  ].filter(id => id != null);
+    // Nouveaux responsables après update
+    const newResponsables = [
+      saved.conceptionResponsible?.id,
+      saved.methodeResponsible?.id,
+      saved.productionResponsible?.id,
+      saved.finalControlResponsible?.id,
+      saved.deliveryResponsible?.id,
+    ].filter(id => id != null);
 
-  // Trouver les responsables ajoutés (présents dans new mais pas dans old)
-  const addedResponsablesIds = newResponsables.filter(id => !oldResponsables.includes(id));
+    // Trouver les responsables ajoutés
+    const addedResponsablesIds = newResponsables.filter(id => !oldResponsables.includes(id));
+    const addedResponsables = [];
+    for (const id of addedResponsablesIds) {
+      const user = await this.userRepo.findOne({ where: { id } });
+      if (user) addedResponsables.push(user);
+    }
 
-  // Récupérer les entités User des nouveaux responsables
-  const addedResponsables = [];
-  for (const id of addedResponsablesIds) {
-    const user = await this.userRepo.findOne({ where: { id } });
-    if (user) addedResponsables.push(user);
+    // 🔔 Notif aux nouveaux responsables ajoutés
+    for (const user of addedResponsables) {
+      await this.notifSrv.createAndSendNotification(
+        user,
+        'Nouveau projet assigné',
+        `Vous avez été ajouté comme responsable du projet #${saved.idproject}`,
+        { projectId: saved.idproject },
+      );
+    }
+
+    // 🔔 Notif aux responsables globaux si phase existe mais non affectée
+    await this.notifyGlobalResponsables(saved);
+
+    return saved;
   }
 
-  // Envoyer notification uniquement aux nouveaux responsables
-  for (const user of addedResponsables) {
-    await this.notifSrv.createAndSendNotification(user, 'Nouveau projet assigné', `Vous avez été ajouté comme responsable du projet #${saved.idproject}`, { projectId: saved.idproject });
+  /* ------------------------------------------------------------------------
+   * NOTIFICATIONS
+   * --------------------------------------------------------------------- */
+  private async notifyResponsibles(project: Project, title: string, message: string): Promise<void> {
+    const responsables = [
+      project.conceptionResponsible,
+      project.methodeResponsible,
+      project.productionResponsible,
+      project.finalControlResponsible,
+      project.deliveryResponsible,
+    ].filter(user => user != null);
+
+    for (const user of responsables) {
+      await this.notifSrv.createAndSendNotification(user, title, message, { projectId: project.idproject });
+    }
   }
 
-  return saved;
-}
+  private async notifyGlobalResponsables(project: Project): Promise<void> {
+    const phaseMapping: {
+      existField: keyof Project;
+      respField: keyof Project;
+      role: Role;
+      label: string;
+    }[] = [
+      { existField: 'conceptionExist',   respField: 'conceptionResponsible',   role: Role.RESPONSABLE_CONCEPTION,   label: 'Conception' },
+      { existField: 'methodeExist',      respField: 'methodeResponsible',      role: Role.RESPONSABLE_METHODE,      label: 'Méthode' },
+      { existField: 'productionExist',   respField: 'productionResponsible',   role: Role.RESPONSABLE_PRODUCTION,   label: 'Production' },
+      { existField: 'finalControlExist', respField: 'finalControlResponsible', role: Role.RESPONSABLE_QUALITE,      label: 'Contrôle Final' },
+      { existField: 'deliveryExist',     respField: 'deliveryResponsible',     role: Role.RESPONSABLE_LOGISTIQUE,   label: 'Livraison' },
+    ];
 
+    for (const phase of phaseMapping) {
+      const exists = project[phase.existField] as boolean;
+      const assigned = project[phase.respField] as User | null;
 
-// Méthode utilitaire pour notifier tous les responsables
-private async notifyResponsibles(project: Project, title: string, message: string): Promise<void> {
-  const responsables = [
-    project.conceptionResponsible,
-    project.methodeResponsible,
-    project.productionResponsible,
-    project.finalControlResponsible,
-    project.deliveryResponsible,
-  ].filter(user => user != null);
-
-  for (const user of responsables) {
-    await this.notifSrv.createAndSendNotification(user, title, message, { projectId: project.idproject });
+      if (exists && !assigned) {
+        const responsables = await this.getResponsablesByRole(phase.role);
+        for (const resp of responsables) {
+          await this.notifSrv.createAndSendNotification(
+            resp,
+            `Affectation requise - ${phase.label}`,
+            `Le projet #${project.idproject} nécessite une affectation en ${phase.label}.`,
+            { projectId: project.idproject },
+          );
+        }
+      }
+    }
   }
-}
+
+  private async getResponsablesByRole(roleName: Role): Promise<User[]> {
+    return this.userRepo.find({
+      where: { role: { name: roleName } },
+      relations: ['role'],
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+   * OUTILS
+   * --------------------------------------------------------------------- */
+  private async workerByUsername(username?: string): Promise<User | null> {
+    if (!username) return null;
+    return this.userRepo.findOne({ where: { username }, relations: ['role'] });
+  }
   /* ------------------------------------------------------------------------
    * REQUÊTES DE BASE (using QueryBuilder for clarity and consistency)
    * --------------------------------------------------------------------- */
@@ -318,10 +380,6 @@ async computeGlobalProgress(id: number) {
   /* ------------------------------------------------------------------------
    * OUTILS PRIVÉS
    * --------------------------------------------------------------------- */
-  private async workerByUsername(username?: string): Promise<User | null> {
-    if (!username) return null;
-    return this.userRepo.findOne({ where: { username: username } });
-  }
 
   async getByPartner(partnerId: number) {
   return this.projectRepo

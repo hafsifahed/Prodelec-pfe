@@ -14,8 +14,8 @@
             </span>
           </a>
 
-          <!-- Élément sans sous-menu -->
-          <a *ngIf="!hasItems(item)" 
+          <!-- Élément sans sous-menu (interne Angular) -->
+          <a *ngIf="!hasItems(item) && !item.external" 
              [routerLink]="item.link" 
              class="side-nav-link-ref" 
              routerLinkActive="active">
@@ -26,14 +26,40 @@
             </span>
           </a>
 
+          <!-- Élément sans sous-menu (externe -> nouvel onglet) -->
+          <a *ngIf="!hasItems(item) && item.external" 
+             [href]="item.link" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             class="side-nav-link-ref">
+            <i class="bx {{ item.icon }}" *ngIf="item.icon"></i>
+            <span>{{ item.label | translate }}</span>
+            <span class="badge rounded-pill bg-{{item.badge?.variant}} float-end" *ngIf="item.badge">
+              {{item.badge?.text | translate}}
+            </span>
+          </a>
+
           <!-- Sous-menus -->
           <ul *ngIf="hasItems(item)" class="sub-menu" aria-expanded="false">
             <li *ngFor="let subitem of item.subItems">
-              <!-- Sous-élément sans enfants -->
-              <a *ngIf="!hasItems(subitem)" 
+              
+              <!-- Sous-élément sans enfants (interne Angular) -->
+              <a *ngIf="!hasItems(subitem) && !subitem.external" 
                  [routerLink]="subitem.link" 
                  class="side-nav-link-ref" 
                  routerLinkActive="active">
+                {{ subitem.label | translate }}
+                <span class="badge rounded-pill bg-{{subitem.badge?.variant}} float-end" *ngIf="subitem.badge">
+                  {{subitem.badge?.text | translate}}
+                </span>
+              </a>
+
+              <!-- Sous-élément sans enfants (externe -> nouvel onglet) -->
+              <a *ngIf="!hasItems(subitem) && subitem.external" 
+                 [href]="subitem.link" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 class="side-nav-link-ref">
                 {{ subitem.label | translate }}
                 <span class="badge rounded-pill bg-{{subitem.badge?.variant}} float-end" *ngIf="subitem.badge">
                   {{subitem.badge?.text | translate}}
@@ -50,9 +76,21 @@
               <!-- Sous-sous-menus -->
               <ul *ngIf="hasItems(subitem)" class="sub-menu mm-collapse" aria-expanded="false">
                 <li *ngFor="let subSubitem of subitem.subItems">
-                  <a [routerLink]="subSubitem.link" 
+
+                  <!-- Sous-sous (interne Angular) -->
+                  <a *ngIf="!subSubitem.external"
+                     [routerLink]="subSubitem.link" 
                      class="side-nav-link-ref"
                      routerLinkActive="active">
+                    {{ subSubitem.label | translate }}
+                  </a>
+
+                  <!-- Sous-sous (externe -> nouvel onglet) -->
+                  <a *ngIf="subSubitem.external"
+                     [href]="subSubitem.link" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     class="side-nav-link-ref">
                     {{ subSubitem.label | translate }}
                   </a>
                 </li>
