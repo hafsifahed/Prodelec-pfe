@@ -216,21 +216,112 @@ async downloadFile(
 
   // ------------------ EMAIL ----------------------
   @Post('send')
-  async sendEmail(@Body() emailRequest: EmailRequestDto) {
-    if (!emailRequest.to || !Array.isArray(emailRequest.to)) {
-      throw new BadRequestException('Le champ "to" doit être un tableau d\'emails');
-    }
-
-    for (const recipient of emailRequest.to) {
-      await this.mailerService.sendMail({
-        to: recipient,
-        from: 'hafsifahed98@gmail.com',
-        subject: emailRequest.subject,
-        html: emailRequest.text,
-      });
-    }
-    return { message: 'Emails envoyés' };
+async sendEmail(@Body() emailRequest: EmailRequestDto) {
+  if (!emailRequest.to || !Array.isArray(emailRequest.to)) {
+    throw new BadRequestException('Le champ "to" doit être un tableau d\'emails');
   }
+
+  // Construire le template HTML complet
+  const htmlTemplate = this.buildEmailTemplate(emailRequest.subject, emailRequest.text);
+
+  for (const recipient of emailRequest.to) {
+    await this.mailerService.sendMail({
+      to: recipient,
+      from: 'hafsifahed98@gmail.com',
+      subject: emailRequest.subject,
+      html: htmlTemplate,
+    });
+  }
+  return { message: 'Emails envoyés' };
+}
+
+private buildEmailTemplate(subject: string, message: string, senderName?: string): string {
+  const currentYear = new Date().getFullYear();
+  const senderInfo = senderName ? `<p><strong>Expéditeur:</strong> ${senderName}</p>` : '';
+
+  return `
+  <!DOCTYPE html>
+  <html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${subject}</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+      }
+      .header {
+        text-align: center;
+        border-bottom: 3px solid #2c5aa0;
+        padding-bottom: 20px;
+        margin-bottom: 25px;
+      }
+      .header img {
+        height: 60px;
+        margin-bottom: 15px;
+      }
+      .content {
+        padding: 0 10px;
+        line-height: 1.6;
+      }
+      .content h1 {
+        color: #2c5aa0;
+        margin-top: 0;
+        font-size: 24px;
+      }
+      .footer {
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+        padding-top: 25px;
+        margin-top: 25px;
+        border-top: 1px solid #e0e0e0;
+      }
+      .message-content {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #2c5aa0;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="https://www.prodelecna.com/wp-content/uploads/2021/12/logo-PRODELEC.png" alt="Logo Prodelec">
+      </div>
+      <div class="content">
+        <h1>${subject}</h1>
+        ${senderInfo}
+        <div class="message-content">
+          ${message}
+        </div>
+      </div>
+      <div class="footer">
+        <p><strong>Prodelec NA</strong> &copy; ${currentYear}</p>
+        <p style="font-size: 12px; color: #888;">
+          Cet email a été envoyé via le système de messagerie Prodelec
+        </p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
+}
   
 
    @Delete('file/:fileId')

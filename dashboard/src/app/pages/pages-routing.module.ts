@@ -272,7 +272,6 @@ const routes: Routes = [
     component: CDCListUserComponent, 
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
-      permissions: [{ resource: Resource.CAHIER_DES_CHARGES, actions: [Action.READ,Action.MANAGE] }], 
       allowedRoles: ['CLIENT'],
       title: 'Mes cahiers des charges | Prodelec NA'
     } 

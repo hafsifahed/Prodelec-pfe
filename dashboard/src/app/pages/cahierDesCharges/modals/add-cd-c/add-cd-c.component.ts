@@ -9,6 +9,7 @@ import { NotificationService } from 'src/app/core/services/notification.service'
 import { EmailService } from 'src/app/core/services/email.service';
 import { User } from 'src/app/core/models/auth.models';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import { SettingService } from 'src/app/core/services/setting.service'; // Ajout du service settings
 
 @Component({
   selector: 'app-add-cd-c',
@@ -21,13 +22,15 @@ export class AddCdCComponent implements OnInit {
   selectedFiles: File[] = [];
   user: User | null = null;
   fileInputTouched = false;
+  settings: any; // Pour stocker les paramètres
 
   constructor(
     private cdcService: CdcServiceService,
     private notificationsService: NotificationService,
     private cdcComp: CDCListUserComponent,
     private emailService: EmailService,
-    private userStateService: UserStateService
+    private userStateService: UserStateService,
+    private settingService: SettingService // Injection du service settings
   ) {
     this.addForm = new FormGroup({
       titre: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -39,6 +42,21 @@ export class AddCdCComponent implements OnInit {
     this.userStateService.user$.subscribe(user => {
       this.user = user;
     });
+    this.loadSettings(); // Charger les paramètres
+  }
+
+  loadSettings(): void {
+    this.settingService.getSettings().subscribe(
+      (settings) => {
+        this.settings = settings;
+        console.log('Settings loaded:', settings);
+      },
+      (error) => {
+        console.error('Error loading settings:', error);
+        // Fallback vers les emails par défaut en cas d'erreur
+        this.settings = { cahierDesChargesEmails: ['hafsifahed98@gmail.com', 'hafsifahed019@gmail.com'] };
+      }
+    );
   }
 
   onFilesSelected(event: Event): void {
@@ -82,50 +100,92 @@ export class AddCdCComponent implements OnInit {
   }
 
   private submitCdc(uploadedFileNames: string[]): void {
-  if (!this.user) {
-    Swal.fire('Erreur', 'Utilisateur non connecté', 'error');
-    return;
+    if (!this.user) {
+      Swal.fire('Erreur', 'Utilisateur non connecté', 'error');
+      return;
+    }
+
+    const payload: Partial<CahierDesCharges> & { fileNames?: string[] } = {
+      titre: this.addForm.value.titre,
+      description: this.addForm.value.description || '',
+      commentaire: '',
+      archive: false,
+      archiveU: false,
+      etat: EtatCahier.EnAttente,
+      user: this.user,
+      fileNames: uploadedFileNames
+    };
+
+    this.cdcService.addCdc(payload).subscribe({
+      next: (response) => {
+        Swal.fire('Succès', 'Cahier des charges ajouté avec succès.', 'success');
+        
+        // Envoyer l'email après l'ajout réussi
+        this.sendCdcEmail(response, uploadedFileNames);
+        
+        this.addForm.reset();
+        this.selectedFiles = [];
+        this.fileInputTouched = false;
+        this.modalRef?.hide();
+        this.cdcComp.ngOnInit();
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'ajout', error);
+        const msg = 
+          error.error?.message || 
+          error.message || 
+          'Erreur lors de l\'ajout du cahier des charges';
+        Swal.fire('Erreur', msg, 'error');
+      }
+    });
   }
 
-  const payload: Partial<CahierDesCharges> & { fileNames?: string[] } = {
-    titre: this.addForm.value.titre,
-    description: this.addForm.value.description || '',
-    commentaire: '',
-    archive: false,
-    archiveU: false,
-    etat: EtatCahier.EnAttente,
-    user: this.user,  // objet partiel user avec id
-    fileNames: uploadedFileNames  // tableau des noms de fichiers
-  };
+  // Méthode pour envoyer l'email de cahier des charges
+  sendCdcEmail(cdc: CahierDesCharges, fileNames: string[]): void {
+    const emailData = {
+      titre: cdc.titre,
+      description: cdc.description,
+      email: this.user?.email,
+      partenaire: this.user?.partner?.name,
+      client: this.user?.username,
+      dateCreation: new Date().toLocaleDateString('fr-FR'),
+      fichiers: fileNames.length > 0 ? fileNames.join(', ') : 'Aucun fichier joint',
+      etat: cdc.etat
+    };
 
-  this.cdcService.addCdc(payload).subscribe({
-    next: () => {
-      Swal.fire('Succès', 'Cahier des charges ajouté avec succès.', 'success');
-      this.addForm.reset();
-      this.selectedFiles = [];
-      this.fileInputTouched = false;
-      this.modalRef?.hide();
-      this.cdcComp.ngOnInit();
-    },
-    error: (error) => {
-      console.error('Erreur lors de l\'ajout', error);
-      const msg = 
-        error.error?.message || 
-        error.message || 
-        'Erreur lors de l\'ajout du cahier des charges';
-      Swal.fire('Erreur', msg, 'error');
-    }
-  });
-}
+    // Utiliser les emails des settings ou une liste par défaut
+    const recipientEmails = this.settings?.cahierDesChargesEmails || ['hafsifahed98@gmail.com', 'hafsifahed019@gmail.com'];
+    
+    this.sendmail(recipientEmails, 'Nouveau Cahier des Charges', emailData);
+  }
 
+  // Méthode d'envoi d'email
+  sendmail(to: string[], subject: string, data: any): void {
+    const emailText = `
+<div>
+  <h2>Nouveau Cahier des Charges</h2>
+  <p><strong>Titre:</strong> ${data.titre}</p>
+  <p><strong>Description:</strong> ${data.description}</p>
+  <p><strong>Email du client:</strong> ${data.email}</p>
+  <p><strong>Partenaire:</strong> ${data.partenaire}</p>
+  <p><strong>Client:</strong> ${data.client}</p>
+  <p><strong>Date de création:</strong> ${data.dateCreation}</p>
+  <p><strong>Fichiers joints:</strong> ${data.fichiers}</p>
+  <p><strong>État:</strong> ${data.etat}</p>
+</div>`;
+    
+    this.emailService.sendEmail(to, subject, emailText).subscribe(
+      (response) => {
+        console.log('Email de cahier des charges envoyé avec succès:', response);
+      },
+      (error) => {
+        console.error('Erreur envoi email de cahier des charges:', error);
+      }
+    );
+  }
 
   isDescriptionEmpty(): boolean {
     const desc = this.addForm.get('description')?.value;
     return !desc || desc.trim() === '';
-  }
-
-  // Optionnel : méthode d’envoi d’email à garder ou adapter
-  sendmail(to: string[], subject: string, cdc: CahierDesCharges): void {
-    // votre code d’email ici
   }
 }
