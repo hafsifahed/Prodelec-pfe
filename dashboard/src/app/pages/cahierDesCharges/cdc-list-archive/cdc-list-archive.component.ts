@@ -1,7 +1,9 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 import { CahierDesCharges } from 'src/app/core/models/CahierDesCharges/cahier-des-charges';
+import { Action, Resource } from 'src/app/core/models/role.model';
 import { CdcServiceService } from 'src/app/core/services/cdcService/cdc-service.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,13 +21,17 @@ export class CDCListArchiveComponent implements OnInit {
   itemsPerPage: number = 5; // Items per page
   selectedYear: string = 'All'; // Default to 'All' to show all years
   isAscending: boolean = true;
+        Resource = Resource;
+    Action = Action;
   p: number = 1; // Current page number
 
   @ViewChild('deleteModal', { static: false }) deleteModal?: ModalDirective;
   @ViewChild('restoreModal', { static: false }) restoreModal?: ModalDirective;
   @ViewChild('detailsModal') detailsModal?: TemplateRef<any>;
 
-  constructor(private cdcService: CdcServiceService, private modalService: BsModalService) {}
+  constructor(private cdcService: CdcServiceService, 
+        public userState: UserStateService,
+    private modalService: BsModalService) {}
 
   ngOnInit(): void {
     this.loadArchivedCahiers();  // Appel explicite de la méthode de chargement

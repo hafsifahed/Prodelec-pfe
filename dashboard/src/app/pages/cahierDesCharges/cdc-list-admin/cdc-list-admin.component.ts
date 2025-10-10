@@ -11,6 +11,8 @@ import { RefuseCdcModalComponent } from '../modals/refuse-cdc-modal/refuse-cdc-m
 import { IncompleteCdcModalComponent } from '../modals/incomplete-cdc-modal/incomplete-cdc-modal.component';
 import { DetailsCdcAdminModalComponent } from '../modals/details-cdc-admin-modal/details-cdc-admin-modal.component';
 import { AddDevisModalComponent } from '../modals/add-devis-modal/add-devis-modal.component';
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-cdc-list-admin',
@@ -39,11 +41,15 @@ export class CDCListAdminComponent {
 
   searchSubject = new Subject<string>();
   numdevis: string = '';
+      Resource = Resource;
+    Action = Action;
 
   constructor(
     private cdcService: CdcServiceService,
     private devisService: DevisService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    public userState: UserStateService
+
   ) {}
 
   ngOnInit(): void {

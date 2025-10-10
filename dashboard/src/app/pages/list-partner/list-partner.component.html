@@ -63,7 +63,7 @@
             </div>
 
             <!-- Add Partner Button -->
-            <button class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAddPartner()">
+            <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.CREATE, Action.MANAGE])"   class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAddPartner()">
               <i class="fas fa-plus"></i> <span class="d-none d-md-inline">Ajouter</span>
             </button>
           </div>
@@ -144,22 +144,27 @@
                 </td>
                 <td class="pe-4">
                   <div class="d-flex justify-content-end gap-2">
-                    <button class="btn btn-sm btn-outline-primary" (click)="editPartner(partner)" title="Modifier">
+                    <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.UPDATE, Action.MANAGE])"
+                    class="btn btn-sm btn-outline-primary" (click)="editPartner(partner)" title="Modifier">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button *ngIf="partner.partnerStatus !== 'inactive'" 
-                            class="btn btn-sm btn-outline-warning" 
-                            (click)="inactivatePartner(partner)" 
-                            title="Desactiver">
-                      <i class="fas fa-ban"></i>
-                    </button>
-                    <button *ngIf="partner.partnerStatus === 'inactive'" 
-                            class="btn btn-sm btn-outline-success" 
-                            (click)="activatePartner(partner)" 
-                            title="Activer">
-                      <i class="fas fa-check"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="deletePartner(partner.id)" title="Supprimer">
+        class="btn btn-sm btn-outline-warning" 
+        (click)="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.UPDATE,Action.MANAGE]) ? inactivatePartner(partner) : null" 
+        title="Désactiver">
+  <i class="fas fa-ban"></i>
+</button>
+
+<button *ngIf="partner.partnerStatus === 'inactive'" 
+        class="btn btn-sm btn-outline-success" 
+        (click)="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.UPDATE,Action.MANAGE]) ? activatePartner(partner) : null" 
+        title="Activer">
+  <i class="fas fa-check"></i>
+</button>
+
+                    <button 
+                    *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.DELETE, Action.MANAGE])"
+                    class="btn btn-sm btn-outline-danger" (click)="deletePartner(partner.id)" title="Supprimer">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </div>
@@ -250,20 +255,25 @@
 
           <!-- Actions -->
           <div class="mt-auto d-flex flex-wrap gap-2">
-            <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editPartner(partner)">
+            <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.UPDATE, Action.MANAGE])"
+            class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editPartner(partner)">
               <i class="fas fa-edit me-1"></i> Modifier
             </button>
-            <button *ngIf="partner.partnerStatus !== 'inactive'" 
-                    class="btn btn-sm btn-outline-warning flex-grow-1" 
-                    (click)="inactivatePartner(partner)">
-              <i class="fas fa-ban me-1"></i> Desactiver
-            </button>
-            <button *ngIf="partner.partnerStatus === 'inactive'" 
-                    class="btn btn-sm btn-outline-success flex-grow-1" 
-                    (click)="activatePartner(partner)">
-              <i class="fas fa-check me-1"></i> Activer
-            </button>
-            <button class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deletePartner(partner.id)">
+           <button *ngIf="partner.partnerStatus !== 'inactive' && userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.MANAGE])" 
+        class="btn btn-sm btn-outline-warning flex-grow-1" 
+        (click)="inactivatePartner(partner)" 
+        title="Désactiver">
+  <i class="fas fa-ban me-1"></i> Desactiver
+</button>
+
+<button *ngIf="partner.partnerStatus === 'inactive' && userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.MANAGE])" 
+        class="btn btn-sm btn-outline-success flex-grow-1" 
+        (click)="activatePartner(partner)">
+  <i class="fas fa-check me-1"></i> Activer
+</button>
+
+            <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.PARTNERS, [Action.DELETE, Action.MANAGE])"
+            class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deletePartner(partner.id)">
               <i class="fas fa-trash-alt me-1"></i> Supprimer
             </button>
           </div>

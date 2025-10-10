@@ -22,7 +22,9 @@
         />
       </div>
       <div class="d-flex justify-content-end col-sm-12 col-md-4">
-        <button type="button" class="btn btn-success" routerLink="cdcArchive">Voir l'archive</button>
+        <button 
+         *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.CAHIER_DES_CHARGES, [Action.MANAGE, Action.READ, Action.UPDATE])" 
+        type="button" class="btn btn-success" routerLink="cdcArchive">Voir l'archive</button>
       </div>
     </div>
   </div>
@@ -93,12 +95,14 @@
               </span>
             </td>
             <td>
-              <button type="button" class="btn detail-custom" (click)="openDetailsModal(cahier.id!)" title="Détails">
+              <button 
+              *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.CAHIER_DES_CHARGES, [Action.READ, Action.UPDATE, Action.MANAGE])"
+              type="button" class="btn detail-custom" (click)="openDetailsModal(cahier.id!)" title="Détails">
                 <i class="bx bxs-detail" style="font-size: medium;"></i>
               </button>
             </td>
             <td>
-              <ng-container *ngIf="cahier.etat !== 'Accepté' && cahier.etat !== 'Refusé'">
+                <ng-container *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.CAHIER_DES_CHARGES, [Action.MANAGE, Action.UPDATE]) && (cahier.etat !== 'Accepté' && cahier.etat !== 'Refusé')">
                 <button type="button" class="btn accept-btn" title="Accepter" (click)="openPieceJointeModal(cahier.id!)">
                   <i class="mdi mdi-check-outline"></i>
                 </button>
@@ -115,7 +119,9 @@
                   <i class="mdi mdi-file-upload-outline"></i> Ajouter un devis
                 </button>-->
               </ng-container>
-              <ng-container *ngIf="cahier.etat === 'Accepté' || cahier.etat === 'Refusé'">
+              <ng-container *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.CAHIER_DES_CHARGES, [Action.MANAGE, Action.UPDATE]) && (cahier.etat === 'Accepté' || cahier.etat === 'Refusé')">
+
+
                 <button type="button" class="btn detail-custom" (click)="openDeleteModal(cahier.id!)" title="Archiver">
                   <i class="mdi mdi-archive"></i>
                 </button>

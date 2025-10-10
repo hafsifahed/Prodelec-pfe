@@ -5,6 +5,8 @@ import Swal, { SweetAlertResult } from 'sweetalert2';
 import {UserSessionService} from "../../core/services/user-session.service";
 import {WorkersService} from "../../core/services/workers.service";
 import {UsersService} from "../../core/services/users.service";
+import { UserStateService } from 'src/app/core/services/user-state.service';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-list-session-users',
@@ -18,7 +20,8 @@ export class ListSessionUsersComponent implements OnInit {
   user: any;
   userType: string | null = '';
   title = 'Sessions';
-
+Resource = Resource;
+Action = Action;
   breadcrumbItems = [
     { label: 'Accueil', active: false },
     { label: 'Sessions', active: true }
@@ -29,6 +32,7 @@ export class ListSessionUsersComponent implements OnInit {
 
   constructor(private userSessionService: UserSessionService,
               private usersService: UsersService,
+              public userState: UserStateService,
               private workersService: WorkersService) { }
 
   ngOnInit(): void {

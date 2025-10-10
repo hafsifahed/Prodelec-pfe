@@ -124,21 +124,26 @@
                 <td>
                   <div class="status-toggle" 
                        [class.active]="worker.accountStatus === 'active'" 
-                       (click)="toggleWorkerStatus(worker)">
+                      (click)="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE]) ? toggleWorkerStatus(worker) : null">
                     <span class="toggle-text">
                       {{ worker.accountStatus === 'active' ? 'Actif' : 'Inactif' }}
                     </span>
                   </div>
                 </td>
                 <td class="pe-4">
-                  <div class="d-flex justify-content-end gap-2" *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'">
-                    <button class="btn btn-sm btn-outline-primary" (click)="editWorker(worker)" title="Modifier">
+                  <div class="d-flex justify-content-end gap-2" >
+                    <button  *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.MANAGE,Action.UPDATE])"
+                    class="btn btn-sm btn-outline-primary" (click)="editWorker(worker)" title="Modifier">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-warning" (click)="editWorkerPassword(worker)" title="Réinitialiser mot de passe">
+                    <button  *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.MANAGE])"
+                    class="btn btn-sm btn-outline-warning" (click)="editWorkerPassword(worker)" title="Réinitialiser mot de passe">
                       <i class="fas fa-key"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="deleteWorker(worker)" title="Supprimer">
+                    <button
+                    *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.DELETE, Action.MANAGE])"
+                    
+                     class="btn btn-sm btn-outline-danger" (click)="deleteWorker(worker)" title="Supprimer">
                       <i class="fas fa-trash-alt"></i>
                     </button>
                   </div>
@@ -193,22 +198,28 @@
 
           <!-- Status -->
           <div class="mb-3">
-            <div class="status-toggle mx-auto" 
-                 [class.active]="worker.accountStatus === 'active'" 
-                 (click)="toggleWorkerStatus(worker)">
-              <span class="toggle-text">{{ worker.accountStatus === 'active' ? 'Actif' : 'Inactif' }}</span>
-            </div>
-          </div>
+  <div class="status-toggle mx-auto" 
+       [class.active]="worker.accountStatus === 'active'" 
+       (click)="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE]) ? toggleWorkerStatus(worker) : null">
+    <span class="toggle-text">{{ worker.accountStatus === 'active' ? 'Actif' : 'Inactif' }}</span>
+  </div>
+</div>
+
 
           <!-- Actions -->
-          <div class="mt-auto d-flex flex-wrap gap-2" *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'">
-            <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editWorker(worker)">
+          <div class="mt-auto d-flex flex-wrap gap-2">
+            <button 
+            *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.UPDATE, Action.MANAGE])"
+            class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editWorker(worker)">
               <i class="fas fa-edit me-1"></i> Modifier
             </button>
-            <button class="btn btn-sm btn-outline-warning flex-grow-1" (click)="editWorkerPassword(worker)">
+            <button 
+            *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.MANAGE])"
+            class="btn btn-sm btn-outline-warning flex-grow-1" (click)="editWorkerPassword(worker)">
               <i class="fas fa-key me-1"></i> MDP
             </button>
-            <button class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deleteWorker(worker)">
+            <button  *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.DELETE, Action.MANAGE])" 
+            class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deleteWorker(worker)">
               <i class="fas fa-trash-alt me-1"></i> Supprimer
             </button>
           </div>
@@ -238,7 +249,7 @@
     </div>
     <h5 class="text-muted">Aucun employé trouvé</h5>
     <p class="text-muted mb-4">Commencez par ajouter un nouvel employé</p>
-    <button *ngIf="loggedInUserRole === 'ADMIN' || loggedInUserRole === 'SUBADMIN'" 
+    <button  *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USER, [Action.CREATE, Action.MANAGE])"
             class="btn btn-primary" 
             (click)="navigateToAddWorker()">
       <i class="fas fa-user-plus me-2"></i>Ajouter un employé

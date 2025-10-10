@@ -24,7 +24,7 @@
           <i class="mdi mdi-calendar-range"></i> Filtrer par date
         </button>
         
-        <button class="btn btn-success me-3" routerLink="/archiveprojectadmin">Voir l'archive</button>
+        <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE, Action.READ, Action.UPDATE])" class="btn btn-success me-3" routerLink="/archiveprojectadmin">Voir l'archive</button>
         <!-- Boutons de mode d'affichage -->
         <div class="btn-group" role="group" aria-label="Mode d'affichage">
           <button type="button" class="btn btn-outline-primary" [class.active]="displayMode === 'table'" (click)="setDisplayMode('table')">
@@ -125,7 +125,7 @@
       </div>
     </div>
     <input 
-      *ngIf="(userr?.id && project.conceptionResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      *ngIf="userStateService.isWorker() && (userr?.id && project.conceptionResponsible?.id === userr?.id) "
       aria-label="Progression conception"
       type="range" min="0" max="100" [value]="project.conceptionprogress"
       (input)="updateConceptionProgress(project, $event)" class="slider" />
@@ -159,7 +159,7 @@
       </div>
     </div>
     <input 
-      *ngIf="(userr?.id && project.methodeResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      *ngIf="userStateService.isWorker() && (userr?.id && project.methodeResponsible?.id === userr?.id) "
       aria-label="Progression méthode"
       type="range" min="0" max="100" [value]="project.methodeprogress"
       (input)="updatemProgress(project, $event)" class="slider" />
@@ -194,7 +194,7 @@
       </div>
     </div>
     <input
-      *ngIf="(userr?.id && project.productionResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      *ngIf="userStateService.isWorker() && (userr?.id && project.productionResponsible?.id === userr?.id) "
       aria-label="Progression production"
       type="range" min="0" max="100" [value]="project.productionprogress"
       (input)="updatepProgress(project, $event)" class="slider" />
@@ -230,7 +230,7 @@
       </div>
     </div>
     <input
-      *ngIf="(userr?.id && project.finalControlResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      *ngIf="userStateService.isWorker() && (userr?.id && project.finalControlResponsible?.id === userr?.id)"
       aria-label="Progression contrôle final"
       type="range" min="0" max="100" [value]="project.fcprogress"
       (input)="updatefcProgress(project, $event)" class="slider" />
@@ -265,7 +265,7 @@
       </div>
     </div>
     <input
-      *ngIf="(userr?.id && project.finalControlResponsible?.id === userr?.id) || userr?.role?.name === 'SUBADMIN'"
+      *ngIf="userStateService.isWorker() && (userr?.id && project.finalControlResponsible?.id === userr?.id)"
       aria-label="Progression livraison"
       type="range" min="0" max="100" [value]="project.deliveryprogress"
       (input)="updatedProgress(project, $event)" class="slider" />
@@ -307,8 +307,8 @@
                 (click)="archive(project.idproject)">
                 <i class="mdi mdi-archive font-size-18"></i>
               </a>
-               <a [routerLink]="['/listproject', project.idproject]">Voir détails</a>
-              <button type="button" class="btn btn-success btn-rounded mb-2 me-2" (click)="openAddModal(project)"><i
+               <a *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE,Action.CREATE ,Action.READ, Action.UPDATE])" [routerLink]="['/listproject', project.idproject]">Voir détails</a>
+              <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE,Action.CREATE])" type="button" class="btn btn-success btn-rounded mb-2 me-2" (click)="openAddModal(project)"><i
                   class="mdi mdi-plus mr-1"></i>
                 Dupliquer </button>
             </div>
@@ -330,17 +330,17 @@
     <i class="mdi mdi-cog"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end" *dropdownMenu>
-    <li *ngIf="hasEditPermission(project)">
+    <li *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.UPDATE])">
       <a class="dropdown-item" href="javascript:void(0);" (click)="editModal(project.idproject); $event.stopPropagation()">
         <i  class="mdi mdi-pencil text-success me-2"></i>Modifier
       </a>
     </li>
-    <li >
+    <li *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.DELETE])" >
       <a class="dropdown-item" href="javascript:void(0);" (click)="delete(project.idproject); $event.stopPropagation()">
         <i class="mdi mdi-delete text-danger me-2"></i>Supprimer
       </a>
     </li>
-    <li >
+    <li *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.CREATE])" >
       <a class="dropdown-item" href="javascript:void(0);" (click)="addModal(project); $event.stopPropagation()">
         <i class="mdi mdi-content-copy text-info me-2"></i>Dupliquer
       </a>
@@ -411,7 +411,7 @@
               <div class="progress-bar" role="progressbar" 
                   [style.width]="project.conceptionprogress + '%'"></div>
             </div>
-            <input *ngIf="(userr && project.conceptionResponsible && project.conceptionResponsible.id === userr.id) || userr.role?.name === 'SUBADMIN'"
+            <input *ngIf="userStateService.isWorker() && (userr && project.conceptionResponsible && project.conceptionResponsible.id === userr.id)"
                   type="range" min="0" max="100" 
                   [value]="project.conceptionprogress"
                   (input)="updateConceptionProgress(project, $event)"
@@ -425,7 +425,7 @@
               <div>
                 <span *ngIf="project.methodeprogress > 0" class="badge rounded-pill ms-2" 
                       [ngClass]="project.methodeStatus ? 'bg-success' : 'bg-danger'">
-                  {{ project.methodeStatus ? 'Terminé' : 'En cours' }}
+                  {{ project.methodeStatus ? 'Terminé' : 'En  cours' }}
                 </span>
                 <span class="badge bg-warning rounded-pill ms-2" 
                       *ngIf="isDateOverdue1(project.endMethode, project.realendMethode)">
@@ -437,7 +437,7 @@
               <div class="progress-bar" role="progressbar" 
                   [style.width]="project.methodeprogress + '%'"></div>
             </div>
-            <input *ngIf="(userr && project.methodeResponsible && userr.id === project.methodeResponsible.id) || userr.role?.name === 'SUBADMIN'"
+            <input *ngIf="userStateService.isWorker() && (userr && project.methodeResponsible && userr.id === project.methodeResponsible.id)"
                   type="range" min="0" max="100" 
                   [value]="project.methodeprogress"
                   (input)="updatemProgress(project, $event)"
@@ -463,7 +463,7 @@
               <div class="progress-bar" role="progressbar" 
                   [style.width]="project.productionprogress + '%'"></div>
             </div>
-            <input *ngIf="(userr && project.productionResponsible && userr.id === project.productionResponsible.id) || userr.role?.name === 'SUBADMIN'"
+            <input *ngIf="userStateService.isWorker() && (userr && project.productionResponsible && userr.id === project.productionResponsible.id)"
                   type="range" min="0" max="100" 
                   [value]="project.productionprogress"
                   (input)="updatepProgress(project, $event)"
@@ -489,7 +489,7 @@
               <div class="progress-bar" role="progressbar" 
                   [style.width]="project.fcprogress + '%'"></div>
             </div>
-            <input *ngIf="(userr && project.finalControlResponsible && userr.id === project.finalControlResponsible.id) || userr.role?.name === 'SUBADMIN'"
+            <input *ngIf="userStateService.isWorker() && (userr && project.finalControlResponsible && userr.id === project.finalControlResponsible.id)"
                   type="range" min="0" max="100" 
                   [value]="project.fcprogress"
                   (input)="updatefcProgress(project, $event)"
@@ -515,7 +515,7 @@
               <div class="progress-bar" role="progressbar" 
                   [style.width]="project.deliveryprogress + '%'"></div>
             </div>
-            <input *ngIf="(userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id) || userr.role?.name === 'SUBADMIN'"
+            <input *ngIf="userStateService.isWorker() && (userr && project.deliveryResponsible && userr.id === project.deliveryResponsible.id)"
                   type="range" min="0" max="100" 
                   [value]="project.deliveryprogress"
                   (input)="updatedProgress(project, $event)"
@@ -540,12 +540,12 @@
       <!-- Card Footer - Actions -->
       <div class="card-footer bg-light py-3 border-0">
         <div class="d-flex justify-content-between align-items-center">
-          <div class="btn-group">
+          <div class="btn-group" *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.UPDATE,Action.READ,Action.CREATE ])">
             <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/listproject', project.idproject]">
               <i class="mdi mdi-information-outline me-1"></i>Détails
             </a>
             
-            <button *ngIf="project.progress==100" class="btn btn-sm btn-outline-primary" (click)="archive(project.idproject)">
+            <button *ngIf="project.progress==100 && userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE ])" class="btn btn-sm btn-outline-primary" (click)="archive(project.idproject)">
               <i class="mdi mdi-archive me-1"></i>
             </button>
           </div>

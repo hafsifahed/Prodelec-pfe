@@ -3,6 +3,8 @@ import Swal from 'sweetalert2';
 import { Router } from "@angular/router";
 import { User } from 'src/app/core/models/auth.models'; // Assure-toi que c'est le bon chemin pour ton modèle User
 import { UsersService } from 'src/app/core/services/user.service'; // Utilise UsersService
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-list-workers',
@@ -18,6 +20,8 @@ export class ListWorkersComponent implements OnInit {
   p: number = 1; // Current page number
   itemsPerPage: number = 8; // Number of items per page
 
+        Resource = Resource;
+    Action = Action;
   title = 'Employés'; // Ajouté pour le breadcrumb si tu en utilises un
 
   breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
@@ -29,7 +33,8 @@ displayMode: 'table' | 'grid' = 'grid';
 
   constructor(
     private usersService: UsersService, // Utilise UsersService
-    private router: Router
+    private router: Router,
+        public userState: UserStateService
   ) {}
 
   ngOnInit(): void {

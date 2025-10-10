@@ -96,13 +96,14 @@
               </td>
               <td class="pe-4">
                 <div class="d-flex justify-content-end">
-                  <button *ngIf="!userSession.sessionEnd"
-                          class="btn btn-sm btn-outline-danger"
-                          (click)="endSession(userSession.id)"
-                          title="Terminer la session">
-                    <i class="fas fa-power-off"></i>
-                    <span class="d-none d-md-inline ms-1">Terminer</span>
-                  </button>
+                  <button *ngIf="!userSession.sessionEnd && userState.isWorker() && userState.hasAnyPermission(Resource.SESSIONS, [Action.MANAGE])" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="endSession(userSession.id)"
+        title="Terminer la session">
+  <i class="fas fa-power-off"></i>
+  <span class="d-none d-md-inline ms-1">Terminer</span>
+</button>
+
                   <span *ngIf="userSession.sessionEnd" class="text-muted small">Aucune action</span>
                 </div>
               </td>

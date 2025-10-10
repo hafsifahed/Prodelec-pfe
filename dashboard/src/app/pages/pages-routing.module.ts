@@ -79,6 +79,7 @@ import { BulkEmailComponent } from './bulk-email/bulk-email.component';
 import { PermissionGuard } from '../core/guards/permission.guard';
 import { RoleGuard } from '../core/guards/role.guard';
 import { Action, Resource } from '../core/models/role.model';
+import { AvisGuard } from '../core/guards/avis.guard';
 
 const routes: Routes = [
   { 
@@ -201,7 +202,7 @@ const routes: Routes = [
   },
 
   // === SESSIONS ===
-  { 
+ /* { 
     path: "list-worker-session", 
     component: ListSessionWorkersComponent, 
     canActivate: [PermissionGuard, RoleGuard], 
@@ -210,14 +211,14 @@ const routes: Routes = [
       allowedRoles: ['WORKER'],
       title: 'Sessions des travailleurs | Prodelec NA'
     } 
-  },
+  },*/
   { 
     path: "list-user-session", 
     component: ListSessionUsersComponent, 
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
       permissions: [{ resource: Resource.SESSIONS, actions: [Action.READ,Action.MANAGE] }], 
-      allowedRoles: ['CLIENT'],
+      allowedRoles: ['WORKER'],
       title: 'Sessions des utilisateurs | Prodelec NA'
     } 
   },
@@ -238,7 +239,7 @@ const routes: Routes = [
   { 
     path: "avis", 
     component: AvisComponent, 
-    canActivate: [PermissionGuard, RoleGuard], 
+    canActivate: [PermissionGuard, RoleGuard, AvisGuard], 
     data: { 
       permissions: [{ resource: Resource.QUALITY, actions: [Action.CREATE,Action.MANAGE] }], 
       allowedRoles: ['CLIENT'],
@@ -576,7 +577,6 @@ const routes: Routes = [
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
       permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
-      allowedRoles: ['CLIENT'],
       title: 'Calendrier des projets | Prodelec NA'
     } 
   },
@@ -585,7 +585,7 @@ const routes: Routes = [
     component: ProjectCalendarAdminComponent, 
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
-      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
+      permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE,Action.CREATE,,Action.UPDATE] }], 
       allowedRoles: ['WORKER'],
       title: 'Calendrier global | Prodelec NA'
     } 

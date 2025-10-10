@@ -4,6 +4,8 @@ import { PartnersService } from '../../core/services/partners.service';
 import { Router } from '@angular/router';
 import Swal, { SweetAlertResult } from 'sweetalert2';
 import { UserModel } from 'src/app/core/models/user.models';
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-list-partner',
@@ -20,6 +22,8 @@ export class ListPartnerComponent implements OnInit {
   userType: string | null = '';
   usersp: UserModel[] = [];
     title = 'Partenaires';
+    Resource = Resource;
+    Action = Action;
 
   breadcrumbItems = [
     { label: 'Accueil', active: false },
@@ -31,6 +35,7 @@ export class ListPartnerComponent implements OnInit {
   constructor(
     private partnersService: PartnersService,
     private router: Router,
+            public userState: UserStateService
   ) {}
 
   ngOnInit(): void {

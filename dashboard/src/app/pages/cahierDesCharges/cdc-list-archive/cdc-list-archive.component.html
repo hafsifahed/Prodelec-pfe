@@ -39,7 +39,9 @@
             <button class="btn detail-custom" (click)="openDetailsModal(cahier.id)">
               <i class="bx bxs-detail" style="font-size: medium;"></i>
             </button>
-            <button class="btn" (click)="openRestoreModal(cahier.id, restoreModal)">
+            <button 
+             *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.CAHIER_DES_CHARGES, [Action.UPDATE, Action.MANAGE])"
+            class="btn" (click)="openRestoreModal(cahier.id, restoreModal)">
               <i class="fas fa-trash-restore"></i>
             </button>
           </td>

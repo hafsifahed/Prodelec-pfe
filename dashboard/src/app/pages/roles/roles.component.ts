@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { RolesService } from 'src/app/core/services/roles.service';
 import Swal from 'sweetalert2';
 import { finalize } from 'rxjs/operators';
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 export interface Role {
   id?: number;
@@ -23,6 +25,8 @@ export class RolesComponent implements OnInit {
   modalRef?: BsModalRef;
   rejectId: number | null = null;
   isLoading = false;
+  Resource = Resource;
+    Action = Action;
 
   title = 'Gestion des Rôles';
 
@@ -82,7 +86,8 @@ export class RolesComponent implements OnInit {
   constructor(
     private rolesService: RolesService,
     private modalService: BsModalService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+            public userState: UserStateService
   ) {
     this.addRoleForm = this.fb.group({
       type: ['employee', Validators.required],

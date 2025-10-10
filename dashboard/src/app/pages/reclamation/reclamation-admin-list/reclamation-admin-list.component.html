@@ -39,7 +39,7 @@
   <div class="col-sm-12 col-md-3 mb-3">
     <input type="text" id="searchFilter" class="form-control" [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Rechercher par projet ou client">
   </div>
-  <div class=" col-sm-12 col-md-3 mb-3 d-flex justify-content-end">
+  <div class=" col-sm-12 col-md-3 mb-3 d-flex justify-content-end" *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.RECLAMATIONS, [Action.MANAGE , Action.UPDATE])">
     <button class="btn btn-success" routerLink="reclamationArchive">Voir l'archive</button>
   </div>
 </div>
@@ -84,18 +84,18 @@
           </span>
         </td>
         <td>
-          <button class="btn detail-custom " title="Details"
+          <button class="btn detail-custom " title="Details" *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.RECLAMATIONS, [Action.MANAGE , Action.UPDATE, Action.READ])"
           (click)="openDetailsModal(reclamation.id_reclamation)"><i class="bx bxs-detail" style="font-size: medium;"></i></button>
 
         </td>
         <td>
           <div *ngIf="reclamation.status === 'En cours'">
-            <button type="button" class="btn detail-custom " title="Repondre"
+            <button type="button" class="btn detail-custom " title="Repondre" *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.RECLAMATIONS, [Action.MANAGE , Action.UPDATE, Action.READ])"
                     (click)="openCommentModal(reclamation.id_reclamation, commentModal)"><i class='bx bx-reply' style="font-size: medium;"></i></button>
                   </div>
           <div *ngIf="reclamation.status === 'Traité'">
             
-              <button class="btn detail-custom">
+              <button class="btn detail-custom" *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.RECLAMATIONS, [Action.MANAGE])">
         <i class="mdi mdi-archive" (click)="openDeleteModal(reclamation.id_reclamation, deleteModal)"></i>
             </button>
                 

@@ -8,6 +8,7 @@ import { HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { User } from 'src/app/core/models/auth.models';
 import { UserStateService } from 'src/app/core/services/user-state.service';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-list-order',
@@ -29,14 +30,15 @@ export class ListOrderComponent implements OnInit {
   p: number = 1;
   itemsPerPage: number = 5;
   user: User | null = null;
-
+Resource = Resource;
+Action = Action;
   selectedOrder: Order | null = null;
 
   @ViewChild('editOrderModal') editOrderModal?: ModalDirective;
   @ViewChild('addProjectModal') addProjectModal?: ModalDirective;
 
   constructor(
-    private userStateService: UserStateService,
+    public userStateService: UserStateService,
     private router: Router,
     private orderservice: OrderServiceService,
   ) {}

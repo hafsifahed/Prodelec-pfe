@@ -65,21 +65,25 @@
               </span>
             </td>
             <td>
-              <button class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(devis.id)">
+              <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.DEVIS, [Action.CREATE,Action.READ,Action.UPDATE, Action.MANAGE])"
+              class="btn btn-outline-primary btn-sm" (click)="openDetailsModal(devis.id)">
                 <i class="bx bxs-detail me-1"></i> Détails
               </button>
             </td>
             <td class="text-end">
               <div class="d-flex justify-content-end">
                 <ng-container *ngIf="devis.etat === EtatDevis.Negociation">
-                  <button class="btn btn-success btn-sm me-2" title="Accepter" (click)="accepterDevis(devis.id)">
+                  <button  *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.DEVIS, [Action.CREATE,Action.UPDATE, Action.MANAGE])"
+                  class="btn btn-success btn-sm me-2" title="Accepter" (click)="accepterDevis(devis.id)">
                     <i class="mdi mdi-check"></i>
                   </button>
-                  <button class="btn btn-danger btn-sm me-2" title="Refuser" (click)="preparerRefus(devis.id)">
+                  <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.DEVIS, [Action.CREATE,Action.UPDATE, Action.MANAGE])"
+                  class="btn btn-danger btn-sm me-2" title="Refuser" (click)="preparerRefus(devis.id)">
                     <i class="mdi mdi-close"></i>
                   </button>
                 </ng-container>
-                <button class="btn btn-outline-secondary btn-sm" (click)="openDeleteModal(devis.id)" title="Archiver">
+                <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.DEVIS, [Action.CREATE,Action.UPDATE, Action.MANAGE])"
+                class="btn btn-outline-secondary btn-sm" (click)="openDeleteModal(devis.id)" title="Archiver">
                   <i class="mdi mdi-archive"></i>
                 </button>
               </div>

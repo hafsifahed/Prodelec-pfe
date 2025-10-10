@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { DeleteCdcModalComponent } from '../modals/delete-cdc-modal/delete-cdc-modal.component';
 import { DetailsCdcModalComponent } from '../modals/details-cdc-modal/details-cdc-modal.component';
 import { UploadFileModalComponent } from '../modals/upload-file-modal/upload-file-modal.component';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 @Component({
   selector: 'app-cdc-list-user',
@@ -26,6 +27,8 @@ export class CDCListUserComponent {
   p = 1;
   itemsPerPage = 5;
   isAscending = true;
+        Resource = Resource;
+    Action = Action;
 
   user: User | null = null;
 

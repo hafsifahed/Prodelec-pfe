@@ -1,8 +1,10 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
 import { Reclamation } from 'src/app/core/models/reclamation';
+import { Action, Resource } from 'src/app/core/models/role.model';
 import { EmailService } from 'src/app/core/services/email.service';
 import { ReclamationService } from 'src/app/core/services/Reclamation/reclamation.service';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -24,9 +26,12 @@ export class ReclamationAdminListComponent {
   selectedType: string = 'All';
   searchQuery: string = '';
   isAscending : boolean = true ;
+  Resource = Resource;
+Action = Action;
   constructor(
     private reclamationService: ReclamationService,
     private modalService: BsModalService,
+    public userState: UserStateService,
     private emailService: EmailService
   ) {}
 

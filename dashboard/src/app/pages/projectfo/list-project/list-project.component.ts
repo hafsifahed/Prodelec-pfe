@@ -19,6 +19,7 @@ import { ProjectEditModalComponent } from '../modals/project-edit-modal/project-
 import { ProjectPhaseDetailsModalComponent } from '../modals/project-phase-details-modal/project-phase-details-modal.component';
 import { WorkflowPhase } from '../../workflow-discussion/models/workflow-phase.model';
 import { CookieService } from 'ngx-cookie-service';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 // Définir la locale française
 defineLocale('fr', frLocale);
@@ -55,6 +56,8 @@ export class ListProjectComponent implements OnInit, OnDestroy {
   bsConfig: Partial<BsDaterangepickerConfig>;
   bsValue: Date[] = [];
   dateRangeModalRef?: BsModalRef;
+  Resource = Resource;
+Action = Action;
 
   breadcrumbItems = [ // Ajouté pour le breadcrumb si tu en utilises un
     { label: 'Accueil', active: false },
@@ -88,7 +91,7 @@ export class ListProjectComponent implements OnInit, OnDestroy {
 
   
   constructor(private workersService: WorkersService,
-        private userStateService: UserStateService,
+        public userStateService: UserStateService,
           private cookieService: CookieService,
     private router: Router, 
     private orderservice: OrderServiceService, 

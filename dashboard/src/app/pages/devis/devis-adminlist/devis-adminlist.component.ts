@@ -11,6 +11,8 @@ import { ArchiveDevisAdminModalComponent } from '../modals/archive-devis-admin-m
 import { DetailsDevisAdminModalComponent } from '../modals/details-devis-admin-modal/details-devis-admin-modal.component';
 import { RefuseDevisAdminModalComponent } from '../modals/refuse-devis-admin-modal/refuse-devis-admin-modal.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-devis-adminlist',
@@ -41,12 +43,15 @@ export class DevisAdminlistComponent implements OnInit {
   
   searchSubject = new Subject<string>();
   commentaireRefus: string = '';
+  Resource = Resource;
+Action = Action;
 
   constructor(
     private devisService: DevisService,
     private modalService: BsModalService,
     private route: ActivatedRoute,
     private router: Router,
+    public userState: UserStateService,
     private http: HttpClient
   ) {}
 

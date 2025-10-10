@@ -4,6 +4,8 @@ import { AvisService } from "../../core/services/avis.service";
 import { jsPDF } from 'jspdf';
 import {DatePipe} from "@angular/common";
 import {UsersService} from "../../core/services/users.service";
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
     selector: 'app-list-avis',
@@ -20,9 +22,11 @@ export class ListAvisComponent implements OnInit {
     user: any;
     userType: string | null = '';
     errorMessage: string;
-
+      Resource = Resource;
+Action = Action;
     constructor(private avisService: AvisService,
                 private usersService: UsersService,
+                private userState: UserStateService,
                 private datePipe: DatePipe) { }
 
     ngOnInit() {
