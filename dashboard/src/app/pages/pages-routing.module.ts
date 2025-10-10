@@ -80,6 +80,7 @@ import { PermissionGuard } from '../core/guards/permission.guard';
 import { RoleGuard } from '../core/guards/role.guard';
 import { Action, Resource } from '../core/models/role.model';
 import { AvisGuard } from '../core/guards/avis.guard';
+import { ClientAdminGuard } from '../core/guards/clientadmin.guard';
 
 const routes: Routes = [
   { 
@@ -518,10 +519,10 @@ const routes: Routes = [
   { 
     path: "listprojetclientadmin", 
     component: ListProjetUserAdminComponent, 
-    canActivate: [PermissionGuard, RoleGuard], 
+    canActivate: [PermissionGuard, RoleGuard,ClientAdminGuard], 
     data: { 
       permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
-      allowedRoles: ['WORKER'],
+      allowedRoles: ['CLIENT'],
       title: 'Projets clients | Prodelec NA'
     } 
   },

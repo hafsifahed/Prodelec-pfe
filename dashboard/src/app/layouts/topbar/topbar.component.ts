@@ -21,6 +21,7 @@ import { UserStateService } from 'src/app/core/services/user-state.service';
 import Swal from 'sweetalert2';
 import { SearchResults, StatisticsService } from 'src/app/core/services/statistics.service';
 import { User } from 'src/app/core/models/auth.models';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 
 @Component({
@@ -48,7 +49,8 @@ export class TopbarComponent implements OnInit {
   results: SearchResults | null = null;
   loading = false;
     error: string | null = null;
-
+Resource = Resource;
+Action = Action;
 
   constructor(
       @Inject(DOCUMENT) private document: any,
@@ -65,7 +67,7 @@ export class TopbarComponent implements OnInit {
       private webSocketService: WebsocketService,
       private notificationService :NotificationService,
       private notificationrService :NotificationrService,
-      private userStateService: UserStateService,
+      public userStateService: UserStateService,
       private statisticsService: StatisticsService, // ou autre service qui fera la recherche
 
 
@@ -359,23 +361,38 @@ logout() {
   this.markAsRead(notification);
 
   // Navigation based on notification type
-  if (notification.payload) {
+   if (notification.payload) {
     const payload = notification.payload;
-
-    if (payload.projectId) {
-      // Redirect to project
-      this.router.navigate(['/listproject', payload.projectId]);
+    
+  if (payload.projectId) {
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/listproject', payload.projectId]);
+      } else {
+        this.router.navigate(['/listprojectclient', payload.projectId]);
+      }
     } else if (payload.cdcId) {
-      // Redirect to CDC with queryParams properly set
-      this.router.navigate(['/cdc'], { queryParams: { id: payload.cdcId } });
+      // Si utilisateur est worker, rediriger vers /cdc sinon /cdcUser
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/cdc'], { queryParams: { id: payload.cdcId } });
+      } else {
+        this.router.navigate(['/cdcUser'], { queryParams: { id: payload.cdcId } });
+      }
     } else if (payload.devisId) {
-      // Open devis modal with queryParams
-      this.router.navigate(['/devis'], {
-        queryParams: { openDevisModal: payload.devisId }
-      });
-    } else if (notification.title?.includes('réclamation')) {
-      // Redirect to reclamations
-      this.router.navigate(['/reclamation']);
+        if (this.userStateService.isWorker()) {
+          this.router.navigate(['/devis'], { queryParams: { openDevisModal: payload.devisId } });
+        } else {
+          this.router.navigate(['/devisUser'], { queryParams: { openDevisModal: payload.devisId } });
+        }
+    } else if (notification.title?.toLowerCase().includes('réclamation')) {
+      // Rediriger selon rôle
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/reclamation']);
+      } else {
+        this.router.navigate(['/reclamationUser']);
+      }
+    } else {
+      // Par défaut, rester sur la page des notifications
+      console.log('Notification sans action de navigation spécifique:', notification);
     }
   }
 }

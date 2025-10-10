@@ -9,6 +9,7 @@ import { ArchiveDevisModalComponent } from '../modals/archive-devis-modal/archiv
 import { RefuseDevisModalComponent } from '../modals/refuse-devis-modal/refuse-devis-modal.component';
 import { DetailsDevisModalComponent } from '../modals/details-devis-modal/details-devis-modal.component';
 import { NegociationDevisModalComponent } from '../modals/negociation-devis-modal/negociation-devis-modal.component';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-devis-userlist',
@@ -31,13 +32,30 @@ export class DevisUserlistComponent {
   constructor(
     private devisService: DevisService,
     private modalService: BsModalService,
-    private userStateService: UserStateService
+    private userStateService: UserStateService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void { 
     this.userStateService.user$.subscribe(user => {
       this.user = user;
       this.loadDevis(user);
+    });
+     this.route.queryParams.subscribe(params => {
+      const devisId = params['openDevisModal'];
+      if (devisId) {
+        // Ouvrir le modal après un court délai pour permettre le rendu de la page
+        setTimeout(() => this.openDetailsModal(devisId), 100);
+
+        // Nettoyer le paramètre d'URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { openDevisModal: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
+      }
     });
   }
   

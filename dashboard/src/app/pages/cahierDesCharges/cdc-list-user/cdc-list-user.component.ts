@@ -11,6 +11,7 @@ import { DeleteCdcModalComponent } from '../modals/delete-cdc-modal/delete-cdc-m
 import { DetailsCdcModalComponent } from '../modals/details-cdc-modal/details-cdc-modal.component';
 import { UploadFileModalComponent } from '../modals/upload-file-modal/upload-file-modal.component';
 import { Action, Resource } from 'src/app/core/models/role.model';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-cdc-list-user',
@@ -39,6 +40,8 @@ export class CDCListUserComponent {
     private cdcService: CdcServiceService,
     private modalService: BsModalService,
     private userStateService: UserStateService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +49,20 @@ export class CDCListUserComponent {
       this.user = user;
       if (user) {
         this.loadCDC(user);
+      }
+    });
+     this.route.queryParams.subscribe(params => {
+      const cdcId = params['id'];
+      if (cdcId) {
+        setTimeout(() => this.openDetailsModal(cdcId), 100);
+
+        // Nettoyer le paramètre de l'URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { id: null },
+          queryParamsHandling: 'merge',
+          replaceUrl: true
+        });
       }
     });
   }

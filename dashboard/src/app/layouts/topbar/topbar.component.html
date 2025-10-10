@@ -32,7 +32,7 @@
       <!-- Search Bar (Mobile Only) -->
        <div class="dropdown d-inline-block" dropdown>
   <!-- Bouton icône recherche -->
-  <button
+  <button *ngIf="userStateService.isWorker()"
     type="button"
     class="btn header-item noti-icon"
     id="page-header-search-dropdown"
@@ -45,12 +45,11 @@
   </button>
 
   <!-- Dropdown menu -->
-  <div
-    class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-    *dropdownMenu
-    aria-labelledby="page-header-search-dropdown"
-    (click)="$event.stopPropagation()"
-  >
+<div *ngIf="userStateService.isWorker()"
+     class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+     aria-labelledby="page-header-search-dropdown"
+     (click)="$event.stopPropagation()">
+  <div *dropdownMenu>
     <form class="p-3" (submit)="$event.preventDefault()">
       <div class="m-0">
         <!-- Input -->
@@ -77,7 +76,7 @@
         <div *ngIf="error" class="text-danger mt-2">{{ error }}</div>
 
         <!-- Projets -->
-        <div *ngIf="results?.projects?.length > 0" class="mt-3">
+        <div *ngIf="results?.projects?.length > 0 && userStateService.hasAnyPermission(Resource.PROJECT, [Action.READ, Action.MANAGE, Action.UPDATE, Action.CREATE,Action.DELETE])" class="mt-3">
           <h6>Projets</h6>
           <ul class="list-group">
             <li
@@ -92,7 +91,7 @@
         </div>
 
         <!-- Devis -->
-        <div *ngIf="results?.devis?.length > 0" class="mt-3">
+        <div *ngIf="results?.devis?.length > 0 && userStateService.hasAnyPermission(Resource.DEVIS, [Action.READ, Action.MANAGE, Action.UPDATE, Action.CREATE,Action.DELETE])" class="mt-3">
           <h6>Devis</h6>
           <ul class="list-group">
             <li
@@ -107,7 +106,7 @@
         </div>
 
         <!-- Partenaires -->
-        <div *ngIf="results?.partners?.length > 0" class="mt-3">
+        <div *ngIf="results?.partners?.length > 0 && userStateService.hasAnyPermission(Resource.PARTENAIRES, [Action.READ, Action.MANAGE, Action.UPDATE, Action.CREATE,Action.DELETE])" class="mt-3">
           <h6>Partenaires</h6>
           <ul class="list-group">
             <li
@@ -134,6 +133,8 @@
       </div>
     </form>
   </div>
+</div>
+
 </div>
 
 
