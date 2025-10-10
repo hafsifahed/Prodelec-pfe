@@ -13,6 +13,7 @@ import { DetailsCdcAdminModalComponent } from '../modals/details-cdc-admin-modal
 import { AddDevisModalComponent } from '../modals/add-devis-modal/add-devis-modal.component';
 import { UserStateService } from 'src/app/core/services/user-state.service';
 import { Action, Resource } from 'src/app/core/models/role.model';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-cdc-list-admin',
@@ -43,19 +44,38 @@ export class CDCListAdminComponent {
   numdevis: string = '';
       Resource = Resource;
     Action = Action;
+  idCdc: number | null = null;
 
   constructor(
     private cdcService: CdcServiceService,
     private devisService: DevisService,
     private modalService: BsModalService,
-    public userState: UserStateService
+    public userState: UserStateService,
+    private route: ActivatedRoute,
+        private router: Router,
 
   ) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
+  this.route.queryParams.subscribe(params => {
+    this.idCdc = params['id'] ? Number(params['id']) : null;
+    if (this.idCdc) {
+      this.openDetailsModal(this.idCdc);
+
+      // Nettoyer le paramètre 'id' de l'URL après usage
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { id: null }, // mettre à null pour supprimer le paramètre
+        queryParamsHandling: 'merge', // fusionner avec les autres params
+        replaceUrl: true // remplacer l'URL sans créer une entrée dans l'historique
+      });
+    }
     this.loadCahiersDesCharges();
     this.setupSearch();
-  }
+  });
+}
+
+
 
   setupSearch(): void {
     this.searchSubject.pipe(

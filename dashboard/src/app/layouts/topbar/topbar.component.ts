@@ -355,28 +355,29 @@ logout() {
   }
 
   handleNotificationClick(notification: NotificationModels): void {
-  // Marquer comme lu
+  // Mark as read
   this.markAsRead(notification);
-  
-  // Navigation basée sur le type de notification
+
+  // Navigation based on notification type
   if (notification.payload) {
     const payload = notification.payload;
-    
+
     if (payload.projectId) {
-      // Redirection vers le projet
+      // Redirect to project
       this.router.navigate(['/listproject', payload.projectId]);
     } else if (payload.cdcId) {
-      // Redirection vers les cahiers des charges
-      this.router.navigate(['/cdcUser']);
+      // Redirect to CDC with queryParams properly set
+      this.router.navigate(['/cdc'], { queryParams: { id: payload.cdcId } });
     } else if (payload.devisId) {
-      // Ouvrir le modal devis
-      this.router.navigate(['/devis'], { 
-        queryParams: { openDevisModal: payload.devisId } 
+      // Open devis modal with queryParams
+      this.router.navigate(['/devis'], {
+        queryParams: { openDevisModal: payload.devisId }
       });
     } else if (notification.title?.includes('réclamation')) {
-      // Redirection vers les réclamations
-      this.router.navigate(['/reclamationUser']);
+      // Redirect to reclamations
+      this.router.navigate(['/reclamation']);
     }
   }
 }
+
 }

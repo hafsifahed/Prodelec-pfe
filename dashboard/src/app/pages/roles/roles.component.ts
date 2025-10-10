@@ -299,7 +299,7 @@ export class RolesComponent implements OnInit {
   private buildRoleFromForm(formValue: any): any {
     let roleName = formValue.name;
     if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
-      roleName = 'CLIENT ' + roleName;
+      roleName = 'CLIENT' + roleName;
     }
 
     // CORRECTION : Filtrer et valider les permissions avant envoi

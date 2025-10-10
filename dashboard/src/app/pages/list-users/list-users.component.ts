@@ -3,6 +3,8 @@ import Swal from 'sweetalert2';
 import { Router } from "@angular/router";
 import { AccountStatus, User } from 'src/app/core/models/auth.models';
 import { UsersService } from 'src/app/core/services/user.service';
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-list-users',
@@ -18,6 +20,8 @@ export class ListUsersComponent implements OnInit {
 displayMode: 'table' | 'grid' = 'grid';
 
   title = 'Utilisateurs';
+  Resource = Resource;
+Action = Action;
 
   breadcrumbItems = [
     { label: 'Accueil', active: false },
@@ -25,7 +29,8 @@ displayMode: 'table' | 'grid' = 'grid';
   ];
   constructor(
     private usersService: UsersService,
-    private router: Router
+    private router: Router,
+    public userState: UserStateService
   ) {}
 
   ngOnInit(): void {

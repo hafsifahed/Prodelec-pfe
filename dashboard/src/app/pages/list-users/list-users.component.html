@@ -61,7 +61,8 @@
             </div>
 
             <!-- Add User Button -->
-            <button class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAddUser()">
+            <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE , Action.CREATE])"
+            class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAddUser()">
               <i class="fas fa-user-plus"></i> <span class="d-none d-md-inline">Ajouter</span>
             </button>
           </div>
@@ -89,7 +90,7 @@
               <th>Rôle</th>
               <th>Partenaire</th>
               <th>Statut</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="text-end pe-4" *ngIf="userState.isWorker() ">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -122,23 +123,29 @@
               </td>
               <td>{{ user.partner?.name || '-' }}</td>
               <td>
-                <div class="status-toggle" 
-                     [class.active]="user.accountStatus === 'active'" 
-                     (click)="toggleUserStatus(user)">
-                  <span class="toggle-text">
-                    {{ user.accountStatus === 'active' ? 'Actif' : 'Inactif' }}
-                  </span>
-                </div>
-              </td>
-              <td class="pe-4">
+  <div class="status-toggle" 
+       [class.active]="user.accountStatus === 'active'" 
+       (click)="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE]) ? toggleUserStatus(user) : null"
+       [class.disabled]="!(userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE]))"
+       style="cursor: pointer;">
+    <span class="toggle-text">
+      {{ user.accountStatus === 'active' ? 'Actif' : 'Inactif' }}
+    </span>
+  </div>
+</td>
+
+              <td class="pe-4" *ngIf="userState.isWorker() ">
                 <div class="d-flex justify-content-end gap-2">
-                  <button class="btn btn-sm btn-outline-primary" (click)="editUser(user)" title="Modifier">
+                  <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE , Action.UPDATE])"
+                   class="btn btn-sm btn-outline-primary" (click)="editUser(user)" title="Modifier">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteUser(user)" title="Supprimer">
+                  <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE , Action.DELETE])"
+                   class="btn btn-sm btn-outline-danger" (click)="deleteUser(user)" title="Supprimer">
                     <i class="fas fa-trash-alt"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-warning" (click)="editUserPassword(user)" title="Réinitialiser mot de passe">
+                  <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE])"
+                  class="btn btn-sm btn-outline-warning" (click)="editUserPassword(user)" title="Réinitialiser mot de passe">
                     <i class="fas fa-key"></i>
                   </button>
                 </div>
@@ -198,20 +205,23 @@
         <div class="mb-3">
           <div class="status-toggle mx-auto" 
                [class.active]="user.accountStatus === 'active'" 
-               (click)="toggleUserStatus(user)">
+                      (click)="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE]) ? toggleUserStatus(user) : null">
             <span class="toggle-text">{{ user.accountStatus === 'active' ? 'Actif' : 'Inactif' }}</span>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="mt-auto d-flex flex-wrap gap-2">
-          <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editUser(user)">
+          <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE , Action.UPDATE])"
+          class="btn btn-sm btn-outline-primary flex-grow-1" (click)="editUser(user)">
             <i class="fas fa-edit me-1"></i> Modifier
           </button>
-          <button class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deleteUser(user)">
+          <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE , Action.DELETE])"
+          class="btn btn-sm btn-outline-danger flex-grow-1" (click)="deleteUser(user)">
             <i class="fas fa-trash-alt me-1"></i> Supprimer
           </button>
-          <button class="btn btn-sm btn-outline-warning flex-grow-1" (click)="editUserPassword(user)">
+          <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.USERS, [Action.MANAGE])"
+          class="btn btn-sm btn-outline-warning flex-grow-1" (click)="editUserPassword(user)">
             <i class="fas fa-key me-1"></i> MDP
           </button>
         </div>

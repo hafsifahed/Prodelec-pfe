@@ -14,6 +14,7 @@ import { defineLocale, frLocale } from 'ngx-bootstrap/chronos';
 import { ProjectPhaseDetailsModalComponent } from '../projectfo/modals/project-phase-details-modal/project-phase-details-modal.component';
 import { ProjectEditModalComponent } from '../projectfo/modals/project-edit-modal/project-edit-modal.component';
 import { ProjectAddModalComponent } from '../projectfo/modals/project-add-modal/project-add-modal.component';
+import { Action, Resource } from 'src/app/core/models/role.model';
 
 defineLocale('fr', frLocale);
 @Component({
@@ -34,6 +35,8 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
   listr:any[]=[];
   project1:any;
   project2:Project;
+  Resource = Resource;
+Action = Action;
 
           // Pour modal Ajout
     showConceptionAdd = false;
@@ -66,7 +69,7 @@ export class ProjetDetailComponent implements OnInit,OnDestroy {
     private modalService: BsModalService,
     private projectservice: ProjectService,
     private orderservice: OrderServiceService,
-    private userStateService: UserStateService
+    public userStateService: UserStateService
     
   ) {}
 

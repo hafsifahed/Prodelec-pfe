@@ -462,18 +462,22 @@
                         </div>
 
                         <!-- Actions -->
-                        <h5 class="section-title"><i class="fas fa-cogs me-2"></i>Actions</h5>
+                        <h5 *ngIf="userStateService.isWorker()" class="section-title"><i class="fas fa-cogs me-2"></i>Actions</h5>
                         <div class="d-flex flex-wrap gap-3 mt-3">
-                            <button class="btn btn-primary btn-action" (click)="openEditModal(project)">
+                            <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.UPDATE])"
+                             class="btn btn-primary btn-action" (click)="openEditModal(project)">
                                 <i class="fas fa-edit me-1"></i> Modifier
                             </button>
-                            <button class="btn btn-danger btn-action" (click)="delete(project?.idproject)">
+                            <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.DELETE])"
+                            class="btn btn-danger btn-action" (click)="delete(project?.idproject)">
                                 <i class="fas fa-trash-alt me-1"></i> Supprimer
                             </button>
-                            <button class="btn btn-warning btn-action" (click)="archive(project?.idproject)">
+                            <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE])"
+                            class="btn btn-warning btn-action" (click)="archive(project?.idproject)">
                                 <i class="fas fa-archive me-1"></i> Archiver
                             </button>
-                            <button class="btn btn-success btn-action" (click)="openAddModal(project)">
+                            <button *ngIf="userStateService.isWorker() && userStateService.hasAnyPermission(Resource.PROJECT, [Action.MANAGE , Action.CREATE])"
+                            class="btn btn-success btn-action" (click)="openAddModal(project)">
                                 <i class="fas fa-copy me-1"></i> Dupliquer
                             </button>
                         </div>

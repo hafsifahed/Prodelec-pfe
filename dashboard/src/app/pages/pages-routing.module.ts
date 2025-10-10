@@ -132,7 +132,7 @@ const routes: Routes = [
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
       permissions: [{ resource: Resource.USERS, actions: [Action.READ,Action.MANAGE] }], 
-      allowedRoles: ['WORKER'],
+      //allowedRoles: ['WORKER'],
       title: 'Liste des utilisateurs | Prodelec NA'
     } 
   },
@@ -471,7 +471,7 @@ const routes: Routes = [
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
       permissions: [{ resource: Resource.PROJECT, actions: [Action.READ,Action.MANAGE] }], 
-      allowedRoles: ['WORKER'],
+     // allowedRoles: ['WORKER'],
       title: 'Détail du projet | Prodelec NA'
     } 
   },

@@ -147,20 +147,32 @@ navigateToNotificationTarget(notification: NotificationModels): void {
   if (notification.payload) {
     const payload = notification.payload;
     
-    if (payload.projectId) {
-      // Redirection vers le projet
-      this.router.navigate(['/listproject', payload.projectId]);
+  if (payload.projectId) {
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/listproject', payload.projectId]);
+      } else {
+        this.router.navigate(['/listprojectclient', payload.projectId]);
+      }
     } else if (payload.cdcId) {
-      // Redirection vers les cahiers des charges
-      this.router.navigate(['/cdcUser']);
+      // Si utilisateur est worker, rediriger vers /cdc sinon /cdcUser
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/cdc'], { queryParams: { id: payload.cdcId } });
+      } else {
+        this.router.navigate(['/cdcUser'], { queryParams: { id: payload.cdcId } });
+      }
     } else if (payload.devisId) {
-      // Ouvrir le modal devis
-      this.router.navigate(['/devis'], { 
-        queryParams: { openDevisModal: payload.devisId } 
-      });
-    } else if (notification.title?.includes('réclamation')) {
-      // Redirection vers les réclamations
-      this.router.navigate(['/reclamationUser']);
+        if (this.userStateService.isWorker()) {
+          this.router.navigate(['/devis'], { queryParams: { openDevisModal: payload.devisId } });
+        } else {
+          this.router.navigate(['/devisUser'], { queryParams: { openDevisModal: payload.devisId } });
+        }
+    } else if (notification.title?.toLowerCase().includes('réclamation')) {
+      // Rediriger selon rôle
+      if (this.userStateService.isWorker()) {
+        this.router.navigate(['/reclamation']);
+      } else {
+        this.router.navigate(['/reclamationUser']);
+      }
     } else {
       // Par défaut, rester sur la page des notifications
       console.log('Notification sans action de navigation spécifique:', notification);
