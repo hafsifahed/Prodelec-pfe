@@ -126,7 +126,7 @@
     </div>
     
     <div class="form-actions">
-      <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.AUDIT_LOGS, [Action.READ,Action.MANAGE,Action.CREATE])"
+      <button *ngIf="userState.isWorker() && userState.hasAnyPermission(Resource.EMAIL, [Action.READ,Action.MANAGE,Action.CREATE])"
         type="submit" 
         class="btn btn-primary"
         [disabled]="!emailForm.valid || selectedRecipients.length === 0 || isSending">

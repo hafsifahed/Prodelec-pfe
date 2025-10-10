@@ -8,6 +8,9 @@
       {"resource": "products", "actions": ["manage"]},
       {"resource": "project", "actions": ["manage"]},
       {"resource": "orders", "actions": ["manage"]},
+      {"resource": "cahier_des_charges", "actions": ["manage"]},
+      {"resource": "cdc_files", "actions": ["manage"]},
+      {"resource": "devis", "actions": ["manage"]},
       {"resource": "inventory", "actions": ["manage"]},
       {"resource": "quality", "actions": ["manage"]},
       {"resource": "production", "actions": ["manage"]},
@@ -16,47 +19,61 @@
       {"resource": "finance", "actions": ["manage"]},
       {"resource": "method", "actions": ["manage"]},
       {"resource": "audit_logs", "actions": ["manage"]},
-      {"resource": "sessions", "actions": ["manage"]}
+      {"resource": "sessions", "actions": ["manage"]},
+      {"resource": "reclamation", "actions": ["manage"]},
+      {"resource": "notification", "actions": ["manage"]},
+      {"resource": "email", "actions": ["manage"]}
     ],
     
     "SUBADMIN": [
       {"resource": "users", "actions": ["read", "create", "update"]},
       {"resource": "products", "actions": ["read", "create", "update"]},
-      {"resource": "orders", "actions": ["read", "export"]}
+      {"resource": "orders", "actions": ["read", "export"]},
+      {"resource": "cahier_des_charges", "actions": ["read"]},
+      {"resource": "devis", "actions": ["read"]},
+      {"resource": "reclamation", "actions": ["read"]}
     ],
     
     "PROCESS_QUALITY": [
       {"resource": "quality", "actions": ["manage"]},
-      {"resource": "products", "actions": ["read", "update"]}
+      {"resource": "products", "actions": ["read", "update"]},
+      {"resource": "reclamation", "actions": ["read", "update"]},
+      {"resource": "audit_logs", "actions": ["read"]}
     ],
     
     "PROCESS_DESIGN": [
       {"resource": "products", "actions": ["manage"]},
-      {"resource": "production", "actions": ["read"]}
+      {"resource": "production", "actions": ["read"]},
+      {"resource": "cahier_des_charges", "actions": ["read", "update"]},
+      {"resource": "devis", "actions": ["read", "update"]}
     ],
     
     "PROCESS_METHOD": [
       {"resource": "method", "actions": ["manage"]},
       {"resource": "production", "actions": ["read", "update"]},
-      {"resource": "products", "actions": ["read"]}
+      {"resource": "products", "actions": ["read"]},
+      {"resource": "cahier_des_charges", "actions": ["read", "update"]}
     ],
     
     "PROCESS_PRODUCTION": [
       {"resource": "production", "actions": ["manage"]},
       {"resource": "inventory", "actions": ["read", "update"]},
-      {"resource": "logistics", "actions": ["read"]}
+      {"resource": "logistics", "actions": ["read"]},
+      {"resource": "products", "actions": ["read", "update"]}
     ],
     
     "PROCESS_LOGISTICS": [
       {"resource": "logistics", "actions": ["manage"]},
       {"resource": "orders", "actions": ["create", "read", "update"]},
-      {"resource": "inventory", "actions": ["read"]}
+      {"resource": "inventory", "actions": ["read"]},
+      {"resource": "devis", "actions": ["read", "update"]}
     ],
     
     "PROCESS_DAF": [
       {"resource": "finance", "actions": ["manage"]},
       {"resource": "orders", "actions": ["read", "export"]},
-      {"resource": "settings", "actions": ["read"]}
+      {"resource": "settings", "actions": ["read"]},
+      {"resource": "devis", "actions": ["read", "export"]}
     ],
     
     "PROCESS_RH": [
@@ -65,21 +82,12 @@
       {"resource": "sessions", "actions": ["read"]}
     ],
     
-    "CLIENT_ADMIN": [
-      {"resource": "users", "actions": ["create", "read", "update"]},
-      {"resource": "products", "actions": ["read"]},
-      {"resource": "orders", "actions": ["manage"]}
-    ],
-    
-    "CLIENT_USER": [
-      {"resource": "products", "actions": ["read"]},
-      {"resource": "orders", "actions": ["create", "read"]}
-    ],
-    
     "RESPONSABLE_CONCEPTION": [
       {"resource": "products", "actions": ["manage"]},
-            {"resource": "orders", "actions": ["manage"]},
-      {"resource": "project", "actions": ["manage"]}
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "cahier_des_charges", "actions": ["manage"]},
+      {"resource": "devis", "actions": ["manage"]}
     ],
     
     "RESPONSABLE_QUALITE": [
@@ -87,15 +95,18 @@
       {"resource": "audit_logs", "actions": ["read"]},
       {"resource": "products", "actions": ["manage"]},
       {"resource": "orders", "actions": ["manage"]},
-      {"resource": "project", "actions": ["manage"]}
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "reclamation", "actions": ["manage"]},
+      {"resource": "cahier_des_charges", "actions": ["read"]}
     ],
     
     "RESPONSABLE_METHODE": [
       {"resource": "method", "actions": ["manage"]},
       {"resource": "production", "actions": ["read"]},
       {"resource": "products", "actions": ["manage"]},
-            {"resource": "orders", "actions": ["manage"]},
-      {"resource": "project", "actions": ["manage"]}
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "cahier_des_charges", "actions": ["manage"]}
     ],
     
     "RESPONSABLE_PRODUCTION": [
@@ -110,7 +121,8 @@
       {"resource": "logistics", "actions": ["manage"]},
       {"resource": "orders", "actions": ["manage"]},
       {"resource": "products", "actions": ["manage"]},
-      {"resource": "project", "actions": ["manage"]}
+      {"resource": "project", "actions": ["manage"]},
+      {"resource": "devis", "actions": ["manage"]}
     ],
     
     "RESPONSABLE_INDUSTRIALISATION": [
@@ -121,7 +133,33 @@
       {"resource": "production", "actions": ["read"]},
       {"resource": "logistics", "actions": ["read"]},
       {"resource": "users", "actions": ["read"]},
-      {"resource": "roles", "actions": ["read"]}
+      {"resource": "roles", "actions": ["read"]},
+      {"resource": "cahier_des_charges", "actions": ["manage"]},
+      {"resource": "devis", "actions": ["manage"]},
+      {"resource": "reclamation", "actions": ["read"]}
+    ],
+    
+    "CLIENTADMIN": [
+      {"resource": "users", "actions": ["create", "read", "update"]},
+      {"resource": "products", "actions": ["read"]},
+      {"resource": "orders", "actions": ["manage"]},
+      {"resource": "cahier_des_charges", "actions": ["manage"]},
+      {"resource": "devis", "actions": ["manage"]},
+      {"resource": "reclamation", "actions": ["manage"]},
+      {"resource": "notification", "actions": ["read"]},
+      {"resource": "project", "actions": ["read"]},
+      {"resource": "quality", "actions": ["create"]}
+    ],
+    
+    "CLIENTUSER": [
+      {"resource": "products", "actions": ["read"]},
+      {"resource": "orders", "actions": ["create", "read"]},
+      {"resource": "cahier_des_charges", "actions": ["create", "read"]},
+      {"resource": "devis", "actions": ["create", "read"]},
+      {"resource": "reclamation", "actions": ["create", "read"]},
+      {"resource": "notification", "actions": ["read"]},
+      {"resource": "project", "actions": ["read"]},
+      {"resource": "quality", "actions": ["create"]}
     ]
   }
 }

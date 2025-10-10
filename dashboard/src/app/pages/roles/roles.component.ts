@@ -41,9 +41,12 @@ export class RolesComponent implements OnInit {
     { value: 'partners', label: 'Partenaires' },
     { value: 'settings', label: 'Paramètres' },
     { value: 'products', label: 'Produits' },
-    { value: 'orders', label: 'Commandes' },
-    { value: 'inventory', label: 'Stock' },
     { value: 'project', label: 'Projet' },
+    { value: 'orders', label: 'Commandes' },
+    { value: 'cahier_des_charges', label: 'Cahier des charges' },
+    { value: 'cdc_files', label: 'Fichiers CDC' },
+    { value: 'devis', label: 'Devis' },
+    { value: 'inventory', label: 'Stock' },
     { value: 'quality', label: 'Qualité' },
     { value: 'production', label: 'Production' },
     { value: 'logistics', label: 'Logistique' },
@@ -51,7 +54,12 @@ export class RolesComponent implements OnInit {
     { value: 'finance', label: 'Finance' },
     { value: 'method', label: 'Méthode' },
     { value: 'audit_logs', label: "Logs d'audit" },
-    { value: 'sessions', label: 'Sessions' }
+    { value: 'sessions', label: 'Sessions' },
+    { value: 'reclamation', label: 'Réclamations' },
+    { value: 'notification', label: 'Notifications' },
+    { value: 'workflow_discussions', label: 'Discussions workflow' },
+    { value: 'workflow_messages', label: 'Messages workflow' },
+    { value: 'email', label: 'Email' }
   ];
 
   readonly actions = [
@@ -79,6 +87,7 @@ export class RolesComponent implements OnInit {
     this.addRoleForm = this.fb.group({
       type: ['employee', Validators.required],
       name: ['', Validators.required],
+      copyFromRoleId: [null],
       permissions: this.fb.array([])
     });
 
@@ -100,13 +109,13 @@ export class RolesComponent implements OnInit {
 
     this.rolesService.findAll().pipe(
       finalize(() => this.isLoading = false)
-    ).subscribe(
-      data => this.roles = data,
-      error => {
+    ).subscribe({
+      next: (data) => this.roles = data,
+      error: (error) => {
         console.error('Erreur lors du chargement des rôles', error);
-        this.errorMessage = 'Erreur lors du chargement des rôles. Veuillez réessayer.';
+        this.errorMessage = error.message || 'Erreur lors du chargement des rôles. Veuillez réessayer.';
       }
-    );
+    });
   }
 
   get addPermissions(): FormArray {
@@ -170,19 +179,80 @@ export class RolesComponent implements OnInit {
     actionsControl?.setValue(actions);
   }
 
+  // CORRECTION : Méthode améliorée pour copier les permissions
+  copyPermissionsFromRole(): void {
+    const roleId = this.addRoleForm.get('copyFromRoleId')?.value;
+    
+    if (!roleId) {
+      Swal.fire('Info', 'Veuillez sélectionner un rôle à copier.', 'info');
+      return;
+    }
+
+    const roleToCopy = this.roles.find(role => role.id === Number(roleId));
+    
+    if (!roleToCopy) {
+      Swal.fire('Erreur', 'Rôle non trouvé.', 'error');
+      return;
+    }
+
+    // CORRECTION : Vider le FormArray correctement
+    this.clearPermissions('add');
+
+    // CORRECTION : Copier les permissions avec validation des ressources
+    if (roleToCopy.permissions && roleToCopy.permissions.length > 0) {
+      roleToCopy.permissions.forEach(permission => {
+        // Vérifier que la ressource existe dans notre liste
+        const validResource = this.resources.find(r => r.value === permission.resource);
+        if (validResource) {
+          const group = this.fb.group({
+            resource: [permission.resource, Validators.required],
+            actions: [permission.actions || []]
+          });
+          this.addPermissions.push(group);
+        } else {
+          console.warn(`Ressource non valide ignorée: ${permission.resource}`);
+        }
+      });
+      
+      Swal.fire('Succès', `Permissions copiées depuis le rôle "${roleToCopy.name}"`, 'success');
+    } else {
+      Swal.fire('Info', `Le rôle "${roleToCopy.name}" n'a aucune permission à copier.`, 'info');
+    }
+  }
+
+  // NOUVELLE MÉTHODE : Vider les permissions proprement
+  clearPermissions(type: 'add' | 'edit'): void {
+    const permArray = type === 'add' ? this.addPermissions : this.editPermissions;
+    while (permArray.length !== 0) {
+      permArray.removeAt(0);
+    }
+  }
+
+  onCopyRoleChange(): void {
+    const roleId = this.addRoleForm.get('copyFromRoleId')?.value;
+    
+    if (roleId) {
+      setTimeout(() => {
+        this.copyPermissionsFromRole();
+      });
+    }
+  }
+
   openAddModal(template: TemplateRef<any>): void {
     this.addRoleForm.reset({
       type: 'employee',
-      name: ''
+      name: '',
+      copyFromRoleId: null
     });
-    this.addPermissions.clear();
+    
+    this.clearPermissions('add');
     this.addPermission('add');
     this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
   }
 
   openEditModal(role: Role, template: TemplateRef<any>): void {
     this.editRoleForm.reset();
-    this.editPermissions.clear();
+    this.clearPermissions('edit');
 
     const isClient = role.name.toUpperCase().startsWith('CLIENT');
     const type = isClient ? 'client' : 'employee';
@@ -194,12 +264,18 @@ export class RolesComponent implements OnInit {
       name
     });
 
-    role.permissions.forEach(p => {
-      this.editPermissions.push(this.fb.group({
-        resource: [p.resource, Validators.required],
-        actions: [p.actions]
-      }));
-    });
+    if (role.permissions && role.permissions.length > 0) {
+      role.permissions.forEach(p => {
+        // Validation des ressources lors du chargement pour l'édition
+        const validResource = this.resources.find(r => r.value === p.resource);
+        if (validResource) {
+          this.editPermissions.push(this.fb.group({
+            resource: [p.resource, Validators.required],
+            actions: [p.actions || []]
+          }));
+        }
+      });
+    }
 
     this.modalRef = this.modalService.show(template, { class: 'modal-lg' });
   }
@@ -214,84 +290,131 @@ export class RolesComponent implements OnInit {
     this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
-  private buildRoleFromForm(formValue: any): Role {
+  // CORRECTION : Méthode refaite pour valider les données avant envoi
+  private buildRoleFromForm(formValue: any): any {
     let roleName = formValue.name;
     if (formValue.type === 'client' && !roleName.toUpperCase().startsWith('CLIENT')) {
-      roleName = 'CLIENT' + roleName;
+      roleName = 'CLIENT ' + roleName;
     }
 
-    const permissionsMap = new Map<string, Set<string>>();
-    formValue.permissions.forEach((p: any) => {
-      if (!permissionsMap.has(p.resource)) {
-        permissionsMap.set(p.resource, new Set());
-      }
-      p.actions.forEach((action: string) => permissionsMap.get(p.resource)!.add(action));
+    // CORRECTION : Filtrer et valider les permissions avant envoi
+    const permissions = formValue.permissions
+      .map((p: any) => ({
+        resource: p.resource,
+        actions: p.actions || []
+      }))
+      .filter((p: any) => {
+        // Filtrer seulement les permissions avec des ressources valides
+        const isValid = this.resources.some(r => r.value === p.resource);
+        if (!isValid) {
+          console.warn(`Permission avec ressource invalide ignorée: ${p.resource}`);
+        }
+        return isValid;
+      });
+
+    const roleData: any = {
+      name: roleName,
+      permissions: permissions
+    };
+
+    if (formValue.id) {
+      roleData.id = formValue.id;
+    }
+
+    console.log('Rôle construit pour envoi:', roleData);
+    return roleData;
+  }
+
+  // CORRECTION : Méthode pour valider le formulaire avant soumission
+  validateFormBeforeSubmit(): boolean {
+    // Vérifier que toutes les permissions ont des ressources valides
+    const invalidPermissions = this.addPermissions.controls.filter(control => {
+      const resource = control.get('resource')?.value;
+      return !this.resources.some(r => r.value === resource);
     });
 
-    const permissions = Array.from(permissionsMap.entries()).map(([resource, actionsSet]) => ({
-      resource,
-      actions: Array.from(actionsSet)
-    }));
+    if (invalidPermissions.length > 0) {
+      Swal.fire('Erreur', 'Certaines permissions ont des ressources invalides. Veuillez les corriger.', 'error');
+      return false;
+    }
 
-    return {
-      id: formValue.id,
-      name: roleName,
-      permissions
-    };
+    return true;
   }
 
   submitAddRole(): void {
-    if (this.addRoleForm.invalid) return;
+    if (this.addRoleForm.invalid) {
+      Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error');
+      return;
+    }
+
+    // CORRECTION : Validation supplémentaire des ressources
+    if (!this.validateFormBeforeSubmit()) {
+      return;
+    }
 
     const newRole = this.buildRoleFromForm(this.addRoleForm.value);
+    console.log('Données envoyées au serveur:', JSON.stringify(newRole, null, 2));
 
     this.errorMessage = null;
     this.isLoading = true;
+    
     this.rolesService.create(newRole).pipe(
       finalize(() => this.isLoading = false)
-    ).subscribe(
-      () => {
+    ).subscribe({
+      next: (response) => {
+        console.log('Réponse du serveur:', response);
         Swal.fire('Succès', 'Rôle ajouté avec succès', 'success');
         this.modalRef?.hide();
         this.loadRoles();
       },
-      error => {
-        this.errorMessage = 'Erreur lors de l\'ajout du rôle';
+      error: (error) => {
+        console.error('Erreur détaillée ajout rôle:', error);
+        this.errorMessage = error.message || 'Erreur lors de l\'ajout du rôle';
         Swal.fire('Erreur', this.errorMessage, 'error');
       }
-    );
+    });
   }
 
   submitEditRole(): void {
-  if (this.editRoleForm.invalid) return;
-
-  const formValue = this.editRoleForm.value;
-  const updatedRole = this.buildRoleFromForm(formValue);
-
-  // ✅ Only send name and permissions — NOT id
-  const payload = {
-    name: updatedRole.name,
-    permissions: updatedRole.permissions
-  };
-
-  this.isLoading = true;
-  this.errorMessage = null;
-
-  this.rolesService.update(updatedRole.id!, payload).pipe(
-    finalize(() => this.isLoading = false)
-  ).subscribe(
-    () => {
-      Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
-      this.modalRef?.hide();
-      this.loadRoles();
-    },
-    error => {
-      console.error('Update error:', error); // 🔍 Log full error
-      this.errorMessage = 'Erreur lors de la modification du rôle';
-      Swal.fire('Erreur', this.errorMessage, 'error');
+    if (this.editRoleForm.invalid) {
+      Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires.', 'error');
+      return;
     }
-  );
-}
+
+    // CORRECTION : Validation supplémentaire des ressources
+    if (!this.validateFormBeforeSubmit()) {
+      return;
+    }
+
+    const formValue = this.editRoleForm.value;
+    const updatedRole = this.buildRoleFromForm(formValue);
+
+    const payload = {
+      name: updatedRole.name,
+      permissions: updatedRole.permissions
+    };
+
+    console.log('Données d\'édition envoyées:', JSON.stringify(payload, null, 2));
+
+    this.isLoading = true;
+    this.errorMessage = null;
+
+    this.rolesService.update(updatedRole.id, payload).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: (response) => {
+        console.log('Réponse édition:', response);
+        Swal.fire('Succès', 'Rôle modifié avec succès', 'success');
+        this.modalRef?.hide();
+        this.loadRoles();
+      },
+      error: (error) => {
+        console.error('Erreur détaillée édition rôle:', error);
+        this.errorMessage = error.message || 'Erreur lors de la modification du rôle';
+        Swal.fire('Erreur', this.errorMessage, 'error');
+      }
+    });
+  }
 
   confirmDelete(): void {
     if (this.rejectId === null) return;
@@ -301,16 +424,17 @@ export class RolesComponent implements OnInit {
 
     this.rolesService.remove(this.rejectId).pipe(
       finalize(() => this.isLoading = false)
-    ).subscribe(
-      () => {
+    ).subscribe({
+      next: () => {
         Swal.fire('Supprimé', 'Rôle supprimé avec succès', 'success');
         this.modalRef?.hide();
         this.loadRoles();
       },
-      error => {
-        this.errorMessage = 'Erreur lors de la suppression du rôle';
+      error: (error) => {
+        console.error('Erreur suppression:', error);
+        this.errorMessage = error.message || 'Erreur lors de la suppression du rôle';
         Swal.fire('Erreur', this.errorMessage, 'error');
       }
-    );
+    });
   }
 }

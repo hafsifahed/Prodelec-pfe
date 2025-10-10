@@ -24,3 +24,4 @@ export enum Resource {
   WORKFLOW_MESSAGES = 'workflow_messages',
   EMAIL='email',
 }
+
