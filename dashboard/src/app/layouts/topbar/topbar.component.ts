@@ -370,6 +370,12 @@ logout() {
       } else {
         this.router.navigate(['/listprojectclient', payload.projectId]);
       }
+       } else if (payload.devisId) {
+        if (this.userStateService.isWorker()) {
+          this.router.navigate(['/devis'], { queryParams: { openDevisModal: payload.devisId } });
+        } else {
+          this.router.navigate(['/devisUser'], { queryParams: { openDevisModal: payload.devisId } });
+        }
     } else if (payload.cdcId) {
       // Si utilisateur est worker, rediriger vers /cdc sinon /cdcUser
       if (this.userStateService.isWorker()) {
@@ -377,12 +383,7 @@ logout() {
       } else {
         this.router.navigate(['/cdcUser'], { queryParams: { id: payload.cdcId } });
       }
-    } else if (payload.devisId) {
-        if (this.userStateService.isWorker()) {
-          this.router.navigate(['/devis'], { queryParams: { openDevisModal: payload.devisId } });
-        } else {
-          this.router.navigate(['/devisUser'], { queryParams: { openDevisModal: payload.devisId } });
-        }
+   
     } else if (notification.title?.toLowerCase().includes('réclamation')) {
       // Rediriger selon rôle
       if (this.userStateService.isWorker()) {

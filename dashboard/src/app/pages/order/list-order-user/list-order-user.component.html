@@ -35,7 +35,7 @@
           <th class="align-middle">Client</th>
           <th class="align-middle">État de commande</th>
           <th class="align-middle">Télécharger</th>
-          <th class="align-middle">Aperçu</th>
+        <!--  <th class="align-middle">Aperçu</th> -->
           <th class="align-middle">Date de création <i class="mdi" (click)="sortByDate()" style="cursor:pointer;"
               [ngClass]="{ 'mdi-arrow-up': isAscending, 'mdi-arrow-down': !isAscending }"></i></th>
           <th class="align-middle">Date de dernière mise à jour</th>
@@ -59,10 +59,10 @@
             <a (click)="onDownloadFile(data.attachementName, data.orderName, data.user)" class="list-group-item"
               style="cursor:pointer;"><i class="bx bx-download"></i></a>
           </td>
-          <td>
+         <!-- <td>
             <a [routerLink]="['/file', data.attachementName, data.idOrder]" class="list-group-item" style="cursor:pointer;"><i
                 class="dripicons-preview"></i></a>
-          </td>
+          </td>-->
           <td>{{ data.createdAt | date:'short' }}</td>
           <td>{{ data.updatedAt | date:'short' }}</td>
           <td>

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { UsersService } from 'src/app/core/services/user.service';
 import { SettingService, Setting } from 'src/app/core/services/setting.service';
 import { User } from 'src/app/core/models/auth.models';
+import { Action, Resource } from 'src/app/core/models/role.model';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-setting',
@@ -10,11 +12,14 @@ import { User } from 'src/app/core/models/auth.models';
 })
 export class SettingComponent implements OnInit {
   user: User | null = null;
-  settings: Setting | null = null; // Ajouté pour gérer paramètres globaux
+  settings: Setting | null = null;
   loading = false;
   error = '';
   title = 'Paramètres Utilisateur';
   activeTab: string = 'account';
+
+  Resource = Resource; // permet d'utiliser Resource dans le template
+  Action = Action;     // permet d'utiliser Action dans le template
 
   breadcrumbItems = [
     { label: 'Accueil', active: false },
@@ -24,13 +29,14 @@ export class SettingComponent implements OnInit {
   tabs = [
     { id: 'account', label: 'Compte', icon: 'person' },
     { id: 'security', label: 'Sécurité', icon: 'shield-lock' },
-    { id: 'notifications', label: 'Notifications', icon: 'bell' },
-    { id: 'reclamations', label: 'Réclamations', icon: 'exclamation-circle' }
+   // { id: 'notifications', label: 'Notifications', icon: 'bell' },
+    { id: 'parameters', label: 'Parameters', icon: 'exclamation-circle' }
   ];
 
   constructor(
     private settingService: SettingService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    public userState: UserStateService
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +49,7 @@ export class SettingComponent implements OnInit {
     this.error = '';
   }
 
-  loadUserProfile() {
+  loadUserProfile(): void {
     this.loading = true;
     this.usersService.getProfile().subscribe({
       next: (user) => {
@@ -58,7 +64,7 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  loadSettings() {
+  loadSettings(): void {
     this.settingService.getSettings().subscribe({
       next: (settings) => {
         this.settings = settings;
@@ -70,7 +76,7 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  handleUserUpdate(updatedUser: Partial<User>) {
+  handleUserUpdate(updatedUser: Partial<User>): void {
     if (!this.user?.id) return;
 
     this.loading = true;
@@ -87,7 +93,7 @@ export class SettingComponent implements OnInit {
     });
   }
 
-  handleSettingsUpdate(updatedSettings: Partial<Setting>) {
+  handleSettingsUpdate(updatedSettings: Partial<Setting>): void {
     if (!this.settings?.id) return;
 
     this.loading = true;
@@ -102,5 +108,14 @@ export class SettingComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // ✅ Fonction pour afficher les onglets selon le rôle / permissions
+  canShowTab(tabId: string): boolean {
+    if (tabId === 'notifications' || tabId === 'parameters') {
+      return this.userState.isWorker() &&
+        this.userState.hasAnyPermission(Resource.SETTINGS, [Action.MANAGE]);
+    }
+    return true;
   }
 }

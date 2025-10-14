@@ -94,15 +94,21 @@ async getAllOrders(): Promise<Order[]> {
     await this.orderRepo.delete(idOrder);
   }
 
-  async getOrdersByUser(idUser: number): Promise<Order[]> {
-  const exists = await this.userRepo.findOne({ where: { id: idUser } });
-  if (!exists) throw new NotFoundException(`User not found with id: ${idUser}`);
+async getOrdersByUser(idUser: number): Promise<Order[]> {
+  const user = await this.userRepo.findOne({ where: { id: idUser } });
+  if (!user) throw new NotFoundException(`User not found with id: ${idUser}`);
 
-  return this.orderRepo.find({
-    where: { user: { id: idUser } },
-    relations: ['user'],
-  });
+  return this.orderRepo
+    .createQueryBuilder('order')
+    .leftJoinAndSelect('order.user', 'user')
+    .leftJoinAndSelect('user.partner', 'partner')
+    .leftJoinAndSelect('order.devis', 'devis')
+    .where('user.id = :idUser', { idUser })
+    .orderBy('order.annuler', 'ASC') // Les commandes non annulées d’abord
+    .addOrderBy('order.createdAt', 'DESC') // Puis les plus récentes
+    .getMany();
 }
+
 
   async changeStatus(idOrder: number): Promise<Order> {
     const order = await this.getOrderById(idOrder);

@@ -1,9 +1,5 @@
 <app-page-title [title]="title" [breadcrumbItems]="breadcrumbItems"></app-page-title>
 
- <!-- <div *ngIf="loading" class="alert alert-info mb-3 d-flex align-items-center gap-2">
-  <span class="spinner-border spinner-border-sm"></span> Chargement en cours...
-</div>-->
-
 <div *ngIf="error" class="alert alert-danger mb-3">{{ error }}</div>
 
 <div *ngIf="user && settings" class="card shadow-sm border-0">
@@ -12,6 +8,7 @@
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item" *ngFor="let tab of tabs">
         <button 
+          *ngIf="canShowTab(tab.id)"
           type="button"
           class="nav-link"
           [class.active]="activeTab === tab.id"
@@ -25,30 +22,31 @@
 
   <!-- Contenu des onglets -->
   <div class="card-body p-4">
-    <!-- Onglet Compte -->
+
+    <!-- Compte -->
     <app-account-settings 
       *ngIf="activeTab === 'account'" 
       [settings]="user"
       (settingsUpdate)="handleUserUpdate($event)">
     </app-account-settings>
 
-    <!-- Onglet Sécurité -->
+    <!-- Sécurité -->
     <app-security-settings 
       *ngIf="activeTab === 'security'" 
       [settings]="user"
       (settingsUpdate)="handleUserUpdate($event)">
     </app-security-settings>
 
-    <!-- Onglet Notifications -->
+    <!-- Notifications 
     <app-notification-settings 
-      *ngIf="activeTab === 'notifications'" 
+      *ngIf="activeTab === 'notifications' && canShowTab('notifications')" 
       [settings]="user"
       (settingsUpdate)="handleUserUpdate($event)">
-    </app-notification-settings>
+    </app-notification-settings>-->
 
-    <!-- Onglet Réclamations -->
+    <!-- Réclamations -->
     <app-reclamation-settings 
-      *ngIf="activeTab === 'reclamations'" 
+      *ngIf="activeTab === 'reclamations' && canShowTab('reclamations')" 
       [settings]="settings"
       (settingsUpdate)="handleSettingsUpdate($event)">
     </app-reclamation-settings>

@@ -46,7 +46,7 @@ export class CahierDesChargesService {
     if (dto.fileNames && dto.fileNames.length > 0) {
       for (const filename of dto.fileNames) {
         const chemin = this.getFilePath(user.username, filename);
-        await this.cdcFileService.createFile(filename, chemin, savedCdc.id);
+        await this.cdcFileService.createFile(filename, filename, savedCdc.id);
       }
     }
 
@@ -68,7 +68,7 @@ export class CahierDesChargesService {
 
   async addFileToCdc(cdcId: number, filename: string, username: string) {
     const chemin = this.getFilePath(username, filename);
-    return this.cdcFileService.createFile(filename, chemin, cdcId);
+    return this.cdcFileService.createFile(filename, filename, cdcId);
   }
 
   async removeFile(fileId: number): Promise<void> {
