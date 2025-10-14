@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../devis/entities/devi.entity';
 import { Order } from '../order/entities/order.entity';
@@ -192,104 +192,123 @@ async markMessagesAsRead(discussionId: number, userId: number): Promise<void> {
   }
 
 async getAllDiscussions(
-  page = 1,
-  limit = 20,
-      currentUserId?: number // Ajouter ce paramètre optionnel
-): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
-  // QueryBuilder pour charger discussions + relations usuelles
-  const qb = this.discussionRepo
-    .createQueryBuilder('discussion')
-    .leftJoinAndSelect('discussion.cdc', 'cdc')
-    .leftJoinAndSelect('discussion.devis', 'devis')
-    .leftJoinAndSelect('discussion.orders', 'orders')
-    .leftJoinAndSelect('discussion.projects', 'projects')
-
-    // Jointure conditionnelle sur dernier message par discussion
-    .leftJoinAndSelect(
-      'discussion.messages',
-      'lastMessage',
-      `lastMessage.id = (
+    page = 1,
+    limit = 20,
+    currentUserId?: number,
+    search?: string
+  ): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
+    const qb = this.discussionRepo
+      .createQueryBuilder('discussion')
+      .leftJoinAndSelect('discussion.cdc', 'cdc')
+      .leftJoinAndSelect('discussion.devis', 'devis')
+      .leftJoinAndSelect('discussion.orders', 'orders')
+      .leftJoinAndSelect('discussion.projects', 'projects')
+      .leftJoinAndSelect(
+        'discussion.messages',
+        'lastMessage',
+        `lastMessage.id = (
         SELECT MAX(sub.id)
         FROM workflow_messages sub
         WHERE sub.discussionId = discussion.id
-      )`,
-    )
-    .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+      )`
+      )
+      .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+      .orderBy('discussion.updateddAt', 'DESC')
+      .addOrderBy('lastMessage.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    .orderBy('discussion.updateddAt', 'DESC')
-    .addOrderBy('lastMessage.createdAt', 'DESC')
-    .skip((page - 1) * limit)
-    .take(limit);
+    // CORRECTION : Utiliser LOWER() et LIKE au lieu de ILIKE pour MySQL
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim().toLowerCase()}%`;
+      qb.andWhere(
+        new Brackets(qbWhere => {
+          qbWhere
+            .where('LOWER(cdc.titre) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(devis.numdevis) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(orders.orderName) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(projects.refClient) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(lastMessage.content) LIKE LOWER(:searchTerm)', { searchTerm });
+        })
+      );
+    }
 
-  const [discussions, total] = await qb.getManyAndCount();
+    const [discussions, total] = await qb.getManyAndCount();
+    const formatted = discussions.map(d => this.formatForSidebar(d, currentUserId));
 
-  // Formater chaque discussion avec la méthode private
-      const formatted = discussions.map(d => this.formatForSidebar(d, currentUserId));
+    return {
+      discussions: formatted,
+      total,
+    };
+  }
 
+  async getDiscussionsByUser(
+    userId: number,
+    page = 1,
+    limit = 20,
+    search?: string
+  ): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
+    const qb = this.discussionRepo.createQueryBuilder('discussion');
 
-  return {
-    discussions: formatted,
-    total,
-  };
-}
-
-
-async getDiscussionsByUser(
-  userId: number,
-  page = 1,
-  limit = 20,
-): Promise<{ discussions: WorkflowDiscussionSidebar[]; total: number }> {
-  const qb = this.discussionRepo.createQueryBuilder('discussion');
-
-  qb
-    .leftJoinAndSelect('discussion.cdc', 'cdc')
-    .leftJoin('cdc.user', 'cdcUser')
-    .leftJoinAndSelect('discussion.devis', 'devis')
-    .leftJoin('devis.user', 'devisUser')
-    .leftJoinAndSelect('discussion.orders', 'orders')
-    .leftJoin('orders.user', 'ordersUser')
-    .leftJoinAndSelect('discussion.projects', 'projects')
-    .leftJoin('projects.order', 'projectOrder')
-    .leftJoin('projectOrder.user', 'projectOrderUser')
-
-    .leftJoinAndSelect(
-      'discussion.messages',
-      'lastMessage',
-      `lastMessage.id = (
+    qb
+      .leftJoinAndSelect('discussion.cdc', 'cdc')
+      .leftJoin('cdc.user', 'cdcUser')
+      .leftJoinAndSelect('discussion.devis', 'devis')
+      .leftJoin('devis.user', 'devisUser')
+      .leftJoinAndSelect('discussion.orders', 'orders')
+      .leftJoin('orders.user', 'ordersUser')
+      .leftJoinAndSelect('discussion.projects', 'projects')
+      .leftJoin('projects.order', 'projectOrder')
+      .leftJoin('projectOrder.user', 'projectOrderUser')
+      .leftJoinAndSelect(
+        'discussion.messages',
+        'lastMessage',
+        `lastMessage.id = (
         SELECT MAX(sub.id)
         FROM workflow_messages sub
         WHERE sub.discussionId = discussion.id
-      )`,
-    )
-    .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+      )`
+      )
+      .leftJoinAndSelect('lastMessage.author', 'messageAuthor')
+      .where(new Brackets(qbWhere => {
+        qbWhere
+          .where('cdcUser.id = :userId', { userId })
+          .orWhere('devisUser.id = :userId', { userId })
+          .orWhere('ordersUser.id = :userId', { userId })
+          .orWhere('projectOrderUser.id = :userId', { userId });
+      }))
+      .orderBy('discussion.updateddAt', 'DESC')
+      .addOrderBy('lastMessage.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    .where('cdcUser.id = :userId', { userId })
-    .orWhere('devisUser.id = :userId', { userId })
-    .orWhere('ordersUser.id = :userId', { userId })
-    .orWhere('projectOrderUser.id = :userId', { userId })
+    // CORRECTION : Utiliser LOWER() et LIKE au lieu de ILIKE pour MySQL
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim().toLowerCase()}%`;
+      qb.andWhere(
+        new Brackets(qbWhere => {
+          qbWhere
+            .where('LOWER(cdc.titre) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(devis.numdevis) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(orders.orderName) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(projects.refClient) LIKE LOWER(:searchTerm)', { searchTerm })
+            .orWhere('LOWER(lastMessage.content) LIKE LOWER(:searchTerm)', { searchTerm });
+        })
+      );
+    }
 
-    .orderBy('discussion.updateddAt', 'DESC')
-    .addOrderBy('lastMessage.createdAt', 'DESC')
-    .skip((page - 1) * limit)
-    .take(limit);
+    const [discussions, total] = await qb.getManyAndCount();
 
-  const [discussions, total] = await qb.getManyAndCount();
+    return {
+      discussions: discussions.map(d => this.formatForSidebar(d, userId)),
+      total,
+    };
+  }
 
-  return {
-          discussions: discussions.map(d => this.formatForSidebar(d, userId)),
-    total,
-  };
-}
-
-
-
-
-
-private formatForSidebar(discussion: WorkflowDiscussion, currentUserId?: number): WorkflowDiscussionSidebar {
+  private formatForSidebar(discussion: WorkflowDiscussion, currentUserId?: number): WorkflowDiscussionSidebar {
     const unreadCount = discussion.messages?.filter(
       msg => !msg.read && msg.author.id !== currentUserId
     ).length || 0;
-    console.log('unreadCount', unreadCount);
 
     return {
       id: discussion.id,
@@ -320,9 +339,9 @@ private formatForSidebar(discussion: WorkflowDiscussion, currentUserId?: number)
           lastName: discussion.messages[0].author.lastName
         },
         createdAt: discussion.messages[0].createdAt,
-        read: discussion.messages[0].read // Ajouter l'état de lecture
+        read: discussion.messages[0].read
       } : null,
-      unreadCount // Ajouter le compteur
+      unreadCount
     };
   }
 

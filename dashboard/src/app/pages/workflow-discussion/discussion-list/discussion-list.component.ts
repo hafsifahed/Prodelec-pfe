@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, HostListener } from '@angular/core';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { WorkflowDiscussionSidebar } from '../models/workflow-discussion-sidebar.model';
 import { User } from 'src/app/core/models/auth.models';
 import { WorkflowDiscussionService } from '../services/workflow-discussion.service';
@@ -25,6 +25,10 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
   totalItems = 0;
   hasMore = true;
 
+  // Recherche
+  searchTerm = '';
+  private searchSubject = new Subject<string>();
+
   private subscriptions = new Subscription();
 
   constructor(
@@ -39,7 +43,7 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
         if (user) {
           this.loadDiscussions();
 
-          // 🔄 Auto-refresh every 10 seconds
+          // Auto-refresh every 10 seconds
           this.subscriptions.add(
             interval(10000).subscribe(() => {
               this.refreshDiscussions();
@@ -48,6 +52,35 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    // Configuration de la recherche avec debounce
+    this.subscriptions.add(
+      this.searchSubject.pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      ).subscribe(searchTerm => {
+        this.onSearch(searchTerm);
+      })
+    );
+  }
+
+  // Gestion de la recherche
+  onSearchChange(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.searchSubject.next(searchTerm);
+  }
+
+  onSearch(searchTerm: string): void {
+    this.currentPage = 1;
+    this.hasMore = true;
+    this.loadDiscussions();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.hasMore = true;
+    this.loadDiscussions();
   }
 
   // Charger les discussions initiales
@@ -55,18 +88,17 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
     this.currentPage = 1;
-    this.hasMore = true;
 
     this.subscriptions.add(
       this.discussionService.getDiscussionsByUser(
         this.currentPage,
-        this.itemsPerPage
+        this.itemsPerPage,
+        this.searchTerm
       ).subscribe({
         next: (response) => {
           this.discussions = response.discussions;
           this.totalItems = response.total;
           this.isLoading = false;
-          // Calculer s'il y a plus de données à charger
           this.hasMore = (this.currentPage * this.itemsPerPage) < this.totalItems;
         },
         error: (err) => {
@@ -83,7 +115,8 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.discussionService.getDiscussionsByUser(
         1,
-        this.currentPage * this.itemsPerPage
+        this.currentPage * this.itemsPerPage,
+        this.searchTerm
       ).subscribe({
         next: (response) => {
           this.discussions = response.discussions;
@@ -107,15 +140,14 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.discussionService.getDiscussionsByUser(
         nextPage,
-        this.itemsPerPage
+        this.itemsPerPage,
+        this.searchTerm
       ).subscribe({
         next: (response) => {
-          // Ajouter les nouvelles discussions à la liste existante
           this.discussions = [...this.discussions, ...response.discussions];
           this.totalItems = response.total;
           this.currentPage = nextPage;
           this.isLoadingMore = false;
-          // Vérifier s'il y a encore plus de données
           this.hasMore = (this.currentPage * this.itemsPerPage) < this.totalItems;
         },
         error: (err) => {
@@ -149,7 +181,6 @@ export class DiscussionListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Les autres méthodes restent inchangées...
   getDiscussionTitle(discussion: WorkflowDiscussionSidebar): string {
     if (!discussion.cdc) return 'Untitled Discussion';
 

@@ -3,18 +3,42 @@
     <h2>Discussions</h2>
     <div class="search-box">
       <i class="bx bx-search" style="font-size: 1.2rem;"></i>
-      <input type="text" placeholder="Search...">
+      <input 
+        type="text" 
+        placeholder="Search discussions..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange($event.target.value)"
+        (keyup.enter)="onSearch(searchTerm)"
+      >
+      <button 
+        *ngIf="searchTerm" 
+        class="clear-search" 
+        (click)="clearSearch()"
+        title="Clear search"
+      >
+        <i class="bx bx-x"></i>
+      </button>
     </div>
   </div>
 
   <div class="list-content" (scroll)="onScroll($event)">
+    <!-- Indicateur de recherche -->
+    <div class="search-info" *ngIf="searchTerm && !isLoading">
+      <p *ngIf="discussions.length > 0">
+        Found {{totalItems}} discussion(s) for "{{searchTerm}}"
+      </p>
+      <p *ngIf="discussions.length === 0 && !error">
+        No discussions found for "{{searchTerm}}"
+      </p>
+    </div>
+
     <div class="error-state" *ngIf="error">
       <i class="fas fa-exclamation-triangle"></i>
       <p>Failed to load discussions.</p>
       <button (click)="loadDiscussions()">Retry</button>
     </div>
     
-    <div class="empty-list" *ngIf="!isLoading && !error && discussions.length === 0">
+    <div class="empty-list" *ngIf="!isLoading && !error && discussions.length === 0 && !searchTerm">
       <i class="fas fa-inbox"></i>
       <p>No discussions found.</p>
     </div>
@@ -58,12 +82,13 @@
 
     <!-- Indicateur de chargement -->
     <div class="load-more-indicator" *ngIf="isLoadingMore">
-      <i class="fas fa-spinner fa-spin"></i> Chargement des discussions...
+      <i class="fas fa-spinner fa-spin"></i> Loading more discussions...
     </div>
 
     <!-- Message quand tout est chargé -->
     <div class="no-more-results" *ngIf="!hasMore && discussions.length > 0">
-      <p>Toutes vos discussions ont été chargées</p>
+      <p *ngIf="searchTerm">All search results have been loaded</p>
+      <p *ngIf="!searchTerm">All your discussions have been loaded</p>
     </div>
   </div>
 </div>

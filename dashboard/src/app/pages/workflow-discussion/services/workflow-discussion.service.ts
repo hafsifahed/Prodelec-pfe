@@ -21,7 +21,7 @@ export class WorkflowDiscussionService {
     });
   }
 
-   getFullDiscussion(discussionId: number): Observable<WorkflowDiscussion> {
+  getFullDiscussion(discussionId: number): Observable<WorkflowDiscussion> {
     return this.http.get<WorkflowDiscussion>(`${this.apiUrl}/${discussionId}/full`, {
       headers: this.getAuthHeaders()
     }).pipe(
@@ -36,7 +36,6 @@ export class WorkflowDiscussionService {
     return this.http.get<WorkflowDiscussion>(`${this.apiUrl}/${discussionId}`, {
       headers: this.getAuthHeaders()
     }).pipe(
-      // Marquer comme lu automatiquement quand on récupère la discussion
       tap(() => this.markAsRead(discussionId).subscribe()),
       catchError(error => {
         console.error('Error loading discussion', error);
@@ -50,10 +49,15 @@ export class WorkflowDiscussionService {
       headers: this.getAuthHeaders()
     });
   }
-    getAllDiscussions(page = 1, limit = 20): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
-    const params = new HttpParams()
+
+  getAllDiscussions(page = 1, limit = 20, searchTerm?: string): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
+
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('search', searchTerm.trim());
+    }
 
     return this.http.get<{discussions: WorkflowDiscussionSidebar[], total: number}>(this.apiUrl, {
       headers: this.getAuthHeaders(),
@@ -61,12 +65,14 @@ export class WorkflowDiscussionService {
     });
   }
 
-
-
-  getDiscussionsByUser( page = 1, limit = 20): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
-    const params = new HttpParams()
+  getDiscussionsByUser(page = 1, limit = 20, searchTerm?: string): Observable<{discussions: WorkflowDiscussionSidebar[], total: number}> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
+
+    if (searchTerm && searchTerm.trim()) {
+      params = params.set('search', searchTerm.trim());
+    }
 
     return this.http.get<{discussions: WorkflowDiscussionSidebar[], total: number}>(
       `${this.apiUrl}/my-discussions`,
@@ -89,11 +95,11 @@ export class WorkflowDiscussionService {
       { headers: this.getAuthHeaders() }
     );
   }
-getDiscussionsForSidebar(page = 1, limit = 20): Observable<WorkflowDiscussionSidebar[]> {
-  return this.http.get<WorkflowDiscussionSidebar[]>(
-    `${this.apiUrl}/all?page=${page}&limit=${limit}`,
-    { headers: this.getAuthHeaders() }
-  );
-}
-  
+
+  getDiscussionsForSidebar(page = 1, limit = 20): Observable<WorkflowDiscussionSidebar[]> {
+    return this.http.get<WorkflowDiscussionSidebar[]>(
+      `${this.apiUrl}/all?page=${page}&limit=${limit}`,
+      { headers: this.getAuthHeaders() }
+    );
+  }
 }

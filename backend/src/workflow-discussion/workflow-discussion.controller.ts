@@ -25,30 +25,30 @@ export class WorkflowDiscussionController {
   constructor(private readonly service: WorkflowDiscussionService) {}
 
   @Get()
- async getAllDiscussions(
+  async getAllDiscussions(
+        @CurrentUser() user: User,
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
-        @CurrentUser() user: User // Ajouter l'utilisateur courant
+    @Query('search') search?: string,
   ) {
-    return this.service.getAllDiscussions(page, limit, user.id);
+    return this.service.getAllDiscussions(page, limit, user.id, search);
   }
 
-@Get('my-discussions')
-async getDiscussionsByUser(
-  @CurrentUser() user: User,
-  @Query('page', new ParseIntPipe({ optional: true })) page = 1,
-  @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
-) {
-  if (user.role?.name?.toUpperCase().includes('CLIENT')) {
-    // Si rôle contient CLIENT → filtrer par user
-    return this.service.getDiscussionsByUser(user.id, page, limit);
-  } else {
-    // Sinon, retourner toutes les discussions (avec pagination)
-    return this.service.getAllDiscussions(page, limit);
+  @Get('my-discussions')
+  async getDiscussionsByUser(
+    @CurrentUser() user: User,
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
+    @Query('search') search?: string
+  ) {
+    if (user.role?.name?.toUpperCase().includes('CLIENT')) {
+      return this.service.getDiscussionsByUser(user.id, page, limit, search);
+    } else {
+      return this.service.getAllDiscussions(page, limit, user.id, search);
+    }
   }
-}
 
- @Get(':id/full')
+  @Get(':id/full')
   async getFullDiscussion(@Param('id') id: number): Promise<WorkflowDiscussion> {
     return this.service.getFullDiscussion(id);
   }
@@ -56,7 +56,7 @@ async getDiscussionsByUser(
   @Get(':id')
   async getDiscussion(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User // Ajouter l'utilisateur courant
+    @CurrentUser() user: User
   ): Promise<WorkflowDiscussion> {
     return this.service.getDiscussion(id, user.id);
   }
