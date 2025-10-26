@@ -1,213 +1,272 @@
-<div class="global-filters mb-4">
-  <div class="row g-3 align-items-end">
-    <!-- Filtre utilisateur visible seulement pour CLIENTADMIN -->
-    <div class="col-md-6" *ngIf="roleName === 'CLIENTADMIN'">
-      <label class="form-label">Utilisateur</label>
-      <select class="form-select" (change)="onUserChange($event)" [value]="selectedUser || ''">
-        <option value="">Tous les utilisateurs</option>
-        <option *ngFor="let u of filteredUsers" [value]="u.id" [selected]="u.id === selectedUser">
-          {{ u.username }}
-        </option>
-      </select>
+<div class="charts-section">
+  <!-- Header avec bouton d'export -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Tableau de Bord Statistiques</h2>
+      <p class="text-muted mb-0">Vue d'ensemble de vos performances et métriques</p>
     </div>
-    
-    <div class="col-md-6">
-      <label class="form-label">Année</label>
-      <select class="form-select" (change)="onYearChange($event)" [value]="selectedYear || ''">
-        <option value="">Toutes les années</option>
-        <option *ngFor="let y of years" [value]="y" [selected]="y === selectedYear">
-          {{ y }}
-        </option>
-      </select>
+   <!--<button class="btn btn-success export-btn" 
+            (click)="exportToPdf()" 
+            [disabled]="isExporting || isLoading">
+      <i class="bx bx-download" *ngIf="!isExporting"></i>
+      <i class="bx bx-loader bx-spin" *ngIf="isExporting"></i>
+      {{ isExporting ? 'Génération PDF...' : 'Exporter PDF' }}
+    </button>--> 
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <!-- Filtre utilisateur visible seulement pour CLIENTADMIN -->
+      <div class="filter-item" *ngIf="roleName === 'CLIENTADMIN'">
+        <label for="userSelect" class="form-label">Utilisateur:</label>
+        <select 
+          id="userSelect" 
+          class="form-select" 
+          [value]="selectedUser"
+          (change)="onUserChange($event)">
+          <option [value]="null">Tous les utilisateurs</option>
+          <option *ngFor="let u of filteredUsers" [value]="u.id">
+            {{ u.username }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <label for="yearSelect" class="form-label">Année:</label>
+        <select 
+          id="yearSelect" 
+          class="form-select" 
+          [value]="selectedYear"
+          (change)="onYearChange($event)">
+          <option [value]="null">Toutes les années</option>
+          <option *ngFor="let y of years" [value]="y">
+            {{ y }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <br>
+        <button class="btn btn-outline-secondary" (click)="resetFilters()">
+          <i class="bx bx-reset"></i> Réinitialiser
+        </button>
+      </div>
     </div>
-    
-    <div class="col-md-12 text-end mt-2">
-      <button class="btn btn-secondary btn-sm" (click)="resetFilters()">
-        <i class="bx bx-reset"></i> Réinitialiser
+
+    <div class="export-section">
+      
+      <button class="btn btn-success export-btn" 
+              (click)="exportToPdf()" 
+              [disabled]="isExporting || isLoading">
+        <i class="bx bx-download" *ngIf="!isExporting"></i>
+        <i class="bx bx-loader bx-spin" *ngIf="isExporting"></i>
+        {{ isExporting ? 'Génération PDF...' : 'Exporter PDF' }}
       </button>
     </div>
   </div>
-</div>
 
-<!-- Loading State -->
-<div *ngIf="isLoading" class="text-center py-5">
-  <div class="spinner-border text-primary" role="status">
-    <span class="visually-hidden">Chargement...</span>
-  </div>
-  <p class="mt-2 text-muted">Chargement des statistiques...</p>
-</div>
-
-<!-- Charts Section -->
-<div *ngIf="!isLoading" class="row g-4 mt-1">
-  <!-- Réclamations -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Réclamations</h4>
-        <div class="chart-container" *ngIf="hasReclamationData && chartOptionsReclamations; else noReclamation">
-          <apx-chart 
-            [series]="chartOptionsReclamations.series"
-            [chart]="chartOptionsReclamations.chart"
-            [labels]="chartOptionsReclamations.labels"
-            [legend]="chartOptionsReclamations.legend"
-            [colors]="chartOptionsReclamations.colors"
-            [responsive]="chartOptionsReclamations.responsive"
-            [dataLabels]="chartOptionsReclamations.dataLabels"
-            [plotOptions]="chartOptionsReclamations.plotOptions">
-          </apx-chart>
-        </div>
-        <ng-template #noReclamation>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucune réclamation trouvée pour cette sélection</p>
-          </div>
-        </ng-template>
-      </div>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
     </div>
+    <p class="mt-2 text-muted">Chargement des graphiques...</p>
   </div>
 
-  <!-- Cahier des charges -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Cahier des charges</h4>
-        <div class="chart-container" *ngIf="hasCdcData && chartOptionsCahiersDesCharges; else noCdc">
-          <apx-chart 
-            [series]="chartOptionsCahiersDesCharges.series"
-            [chart]="chartOptionsCahiersDesCharges.chart"
-            [labels]="chartOptionsCahiersDesCharges.labels"
-            [legend]="chartOptionsCahiersDesCharges.legend"
-            [colors]="chartOptionsCahiersDesCharges.colors"
-            [responsive]="chartOptionsCahiersDesCharges.responsive"
-            [dataLabels]="chartOptionsCahiersDesCharges.dataLabels"
-            [plotOptions]="chartOptionsCahiersDesCharges.plotOptions">
-          </apx-chart>
-        </div>
-        <ng-template #noCdc>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucun cahier des charges trouvé pour cette sélection</p>
+  <!-- Graphiques -->
+  <div *ngIf="!isLoading" class="charts-container">
+    <div class="row g-4">
+      
+      <!-- Réclamations -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Réclamations</h3>
+            <div class="chart-badge" [class.no-data]="!hasReclamationData">
+              {{ hasReclamationData ? 'Données disponibles' : 'Aucune donnée' }}
+            </div>
           </div>
-        </ng-template>
-      </div>
-    </div>
-  </div>
-
-  <!-- Devis -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Devis</h4>
-        <div class="chart-container" *ngIf="hasDevisData && chartOptionsDevis; else noDevis">
-          <apx-chart 
-            [series]="chartOptionsDevis.series"
-            [chart]="chartOptionsDevis.chart"
-            [labels]="chartOptionsDevis.labels"
-            [legend]="chartOptionsDevis.legend"
-            [colors]="chartOptionsDevis.colors"
-            [responsive]="chartOptionsDevis.responsive"
-            [dataLabels]="chartOptionsDevis.dataLabels"
-            [plotOptions]="chartOptionsDevis.plotOptions">
-          </apx-chart>
-        </div>
-        <ng-template #noDevis>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucun devis trouvé pour cette sélection</p>
-          </div>
-        </ng-template>
-      </div>
-    </div>
-  </div>
-
-  <!-- Projets -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Projets</h4>
-        <div class="chart-container" *ngIf="hasProjectData && chartOptionsProjects; else noProject">
-          <apx-chart 
-            [series]="chartOptionsProjects.series"
-            [chart]="chartOptionsProjects.chart"
-            [labels]="chartOptionsProjects.labels"
-            [legend]="chartOptionsProjects.legend"
-            [colors]="chartOptionsProjects.colors"
-            [responsive]="chartOptionsProjects.responsive"
-            [dataLabels]="chartOptionsProjects.dataLabels"
-            [plotOptions]="chartOptionsProjects.plotOptions">
-          </apx-chart>
-        </div>
-        <ng-template #noProject>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucun projet trouvé pour cette sélection</p>
-          </div>
-        </ng-template>
-      </div>
-    </div>
-  </div>
-
-  <!-- Avis -->
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-4">Avis</h4>
-        <div class="chart-container" *ngIf="hasAvisData && chartOptionsAvis; else noAvis">
-          <apx-chart 
-            [series]="chartOptionsAvis.series"
-            [chart]="chartOptionsAvis.chart"
-            [labels]="chartOptionsAvis.labels"
-            [legend]="chartOptionsAvis.legend"
-            [colors]="chartOptionsAvis.colors"
-            [responsive]="chartOptionsAvis.responsive"
-            [dataLabels]="chartOptionsAvis.dataLabels"
-            [plotOptions]="chartOptionsAvis.plotOptions">
-          </apx-chart>
-
-          <div class="avg-display mt-4 text-center" *ngIf="filteredAvis.length > 0">
-            <p class="mb-0">
-              <strong>{{ avgTotal | number:'1.0-2' }}%</strong> 
-              moyenne de satisfaction sur {{ filteredAvis.length }} avis.
-            </p>
-          </div>
-        </div>
-        <ng-template #noAvis>
-          <div class="text-center py-4 text-muted">
-            <i class="bx bx-info-circle" style="font-size: 2rem;"></i>
-            <p class="mt-2 mb-0">Aucun avis trouvé pour cette sélection</p>
-          </div>
-        </ng-template>
-
-        <div class="card mt-4 border-0 shadow-sm" *ngIf="hasAvisData && filteredAvis.length > 0">
-          <div class="card-body">
-            <h5 class="card-title d-flex align-items-center">
-              <i class="bx bx-detail me-2"></i> Détail des avis
-            </h5>
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Utilisateur</th>
-                    <th>Partenaire</th>
-                    <th class="text-end">Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let a of filteredAvis">
-                    <td>{{ a.user?.username || '-' }}</td>
-                    <td>{{ a.user?.partner?.name || '-' }}</td>
-                    <td class="text-end">
-                      <span class="badge bg-primary bg-opacity-10 text-primary">
-                        {{ a.avg ?? 0 | number:'1.0-2' }}%
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="chart-body">
+            <div *ngIf="hasReclamationData && chartOptionsReclamations" class="chart-wrapper">
+              <apx-chart
+                [series]="chartOptionsReclamations.series"
+                [chart]="chartOptionsReclamations.chart"
+                [labels]="chartOptionsReclamations.labels"
+                [responsive]="chartOptionsReclamations.responsive"
+                [legend]="chartOptionsReclamations.legend"
+                [colors]="chartOptionsReclamations.colors"
+                [dataLabels]="chartOptionsReclamations.dataLabels"
+                [plotOptions]="chartOptionsReclamations.plotOptions">
+              </apx-chart>
+            </div>
+            <div *ngIf="!hasReclamationData" class="no-data-placeholder">
+              <i class="bx bx-pie-chart-alt"></i>
+              <p>Aucune donnée de réclamation disponible</p>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Cahiers des Charges -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Cahiers des Charges</h3>
+            <div class="chart-badge" [class.no-data]="!hasCdcData">
+              {{ hasCdcData ? 'Données disponibles' : 'Aucune donnée' }}
+            </div>
+          </div>
+          <div class="chart-body">
+            <div *ngIf="hasCdcData && chartOptionsCahiersDesCharges" class="chart-wrapper">
+              <apx-chart
+                [series]="chartOptionsCahiersDesCharges.series"
+                [chart]="chartOptionsCahiersDesCharges.chart"
+                [labels]="chartOptionsCahiersDesCharges.labels"
+                [responsive]="chartOptionsCahiersDesCharges.responsive"
+                [legend]="chartOptionsCahiersDesCharges.legend"
+                [colors]="chartOptionsCahiersDesCharges.colors"
+                [dataLabels]="chartOptionsCahiersDesCharges.dataLabels"
+                [plotOptions]="chartOptionsCahiersDesCharges.plotOptions">
+              </apx-chart>
+            </div>
+            <div *ngIf="!hasCdcData" class="no-data-placeholder">
+              <i class="bx bx-file"></i>
+              <p>Aucun cahier des charges disponible</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Devis -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Devis</h3>
+            <div class="chart-badge" [class.no-data]="!hasDevisData">
+              {{ hasDevisData ? 'Données disponibles' : 'Aucune donnée' }}
+            </div>
+          </div>
+          <div class="chart-body">
+            <div *ngIf="hasDevisData && chartOptionsDevis" class="chart-wrapper">
+              <apx-chart
+                [series]="chartOptionsDevis.series"
+                [chart]="chartOptionsDevis.chart"
+                [labels]="chartOptionsDevis.labels"
+                [responsive]="chartOptionsDevis.responsive"
+                [legend]="chartOptionsDevis.legend"
+                [colors]="chartOptionsDevis.colors"
+                [dataLabels]="chartOptionsDevis.dataLabels"
+                [plotOptions]="chartOptionsDevis.plotOptions">
+              </apx-chart>
+            </div>
+            <div *ngIf="!hasDevisData" class="no-data-placeholder">
+              <i class="bx bx-receipt"></i>
+              <p>Aucun devis disponible</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projets -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Projets</h3>
+            <div class="chart-badge" [class.no-data]="!hasProjectData">
+              {{ hasProjectData ? 'Données disponibles' : 'Aucune donnée' }}
+            </div>
+          </div>
+          <div class="chart-body">
+            <div *ngIf="hasProjectData && chartOptionsProjects" class="chart-wrapper">
+              <apx-chart
+                [series]="chartOptionsProjects.series"
+                [chart]="chartOptionsProjects.chart"
+                [labels]="chartOptionsProjects.labels"
+                [responsive]="chartOptionsProjects.responsive"
+                [legend]="chartOptionsProjects.legend"
+                [colors]="chartOptionsProjects.colors"
+                [dataLabels]="chartOptionsProjects.dataLabels"
+                [plotOptions]="chartOptionsProjects.plotOptions">
+              </apx-chart>
+            </div>
+            <div *ngIf="!hasProjectData" class="no-data-placeholder">
+              <i class="bx bx-briefcase"></i>
+              <p>Aucun projet disponible</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avis Clients -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Avis Clients</h3>
+            <div class="chart-badge" [class.no-data]="!hasAvisData">
+              {{ hasAvisData ? 'Données disponibles' : 'Aucune donnée' }}
+            </div>
+          </div>
+          <div class="chart-body">
+            <div *ngIf="hasAvisData && chartOptionsAvis" class="chart-wrapper">
+              <apx-chart
+                [series]="chartOptionsAvis.series"
+                [chart]="chartOptionsAvis.chart"
+                [labels]="chartOptionsAvis.labels"
+                [responsive]="chartOptionsAvis.responsive"
+                [legend]="chartOptionsAvis.legend"
+                [colors]="chartOptionsAvis.colors"
+                [dataLabels]="chartOptionsAvis.dataLabels"
+                [plotOptions]="chartOptionsAvis.plotOptions">
+              </apx-chart>
+              <div class="avis-summary">
+                <div class="average-rating">
+                  <strong>Moyenne: {{ avgTotal | number:'1.0-2' }}%</strong>
+                </div>
+                <div class="total-avis">
+                  Total: {{ filteredAvis.length }} avis
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!hasAvisData" class="no-data-placeholder">
+              <i class="bx bx-star"></i>
+              <p>Aucun avis disponible</p>
+            </div>
+
+            <!-- Détail des avis 
+            <div class="avis-details mt-4" *ngIf="hasAvisData && filteredAvis.length > 0">
+              <div class="details-header">
+                <h5 class="d-flex align-items-center">
+                  <i class="bx bx-detail me-2"></i> Détail des avis
+                </h5>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>Utilisateur</th>
+                      <th>Partenaire</th>
+                      <th class="text-end">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let a of filteredAvis">
+                      <td>{{ a.user?.username || '-' }}</td>
+                      <td>{{ a.user?.partner?.name || '-' }}</td>
+                      <td class="text-end">
+                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                          {{ a.avg ?? 0 | number:'1.0-2' }}%
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>-->
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

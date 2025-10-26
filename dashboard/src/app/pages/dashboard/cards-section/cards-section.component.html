@@ -21,6 +21,11 @@
           {{ period.label }}
         </button>
       </div>
+      <div class="export-actions">
+  <button class="btn btn-success" (click)="exportToPdf()" [disabled]="isLoading">
+    <i class="bx bx-download"></i> Exporter PDF
+  </button>
+</div>
 
       <!-- Sélecteur d'année (visible seulement pour la période "year") -->
       <div class="year-selector" *ngIf="selectedPeriod === 'year' && availableYears.length > 0">

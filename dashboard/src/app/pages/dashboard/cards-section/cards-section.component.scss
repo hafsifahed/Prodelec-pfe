@@ -118,7 +118,6 @@
     h2 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: var(--neu-text-primary);
       margin: 0;
     }
     
@@ -830,4 +829,28 @@
       gap: 0.5rem;
     }
   }
+}
+
+.export-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.period-filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
