@@ -3,21 +3,43 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 
 <div class="dashboard-container">
-  <!--<app-page-title
-    [title]="'Tableau de bord'"
-    [breadcrumbItems]="breadcrumbItems">
-  </app-page-title>-->
-
+  <!-- Avis toujours visible -->
   <app-user-avis-check></app-user-avis-check>
 
-  <app-cards-section></app-cards-section>
+  <!-- Navigation par onglets -->
+  <!-- Navigation moderne -->
+<div class="modern-nav mb-4">
+  <ul class="nav nav-tabs card-header-tabs">
+    <li class="nav-item" *ngFor="let tab of tabs">
+      <button 
+        type="button"
+        class="nav-link"
+        [class.active]="activeTab === tab.id"
+        (click)="setActiveTab(tab.id)">
+        <i class="bi bi-{{tab.icon}} me-2"></i>
+        {{ tab.label }}
+      </button>
+    </li>
+  </ul>
+</div>
 
-  <!-- Affiche ChartsUseradminSection si CLIENTADMIN, sinon ChartsSection -->
-  <ng-container *ngIf="isClientRole(); else normalCharts">
-  <app-charts-useradmin-section></app-charts-useradmin-section>
-</ng-container>
+  <!-- Contenu des onglets -->
+  <div class="tab-content">
+    <!-- Onglet Vue Générale -->
+    <div *ngIf="activeTab === 'cards'" class="tab-pane fade show active">
+      <app-cards-section></app-cards-section>
+    </div>
 
-<ng-template #normalCharts>
-  <app-charts-section></app-charts-section>
-</ng-template>
+    <!-- Onglet Statistiques -->
+    <div *ngIf="activeTab === 'charts'" class="tab-pane fade show active">
+      <!-- Affiche ChartsUseradminSection si CLIENTADMIN, sinon ChartsSection -->
+      <ng-container *ngIf="isClientRole(); else normalCharts">
+        <app-charts-useradmin-section></app-charts-useradmin-section>
+      </ng-container>
+
+      <ng-template #normalCharts>
+        <app-charts-section></app-charts-section>
+      </ng-template>
+    </div>
+  </div>
 </div>

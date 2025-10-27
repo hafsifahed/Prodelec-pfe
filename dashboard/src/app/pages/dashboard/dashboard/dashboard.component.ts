@@ -16,22 +16,32 @@ export class DashboardComponent implements OnInit {
 
   user: User | null = null;
   roleName: string | null = null;
+  activeTab: string = 'cards'; // Onglet actif par défaut
 
-  constructor(private userStateService: UserStateService,
+  // Configuration des onglets
+  tabs = [
+    { id: 'cards', label: 'Vue Générale', icon: 'grid' },
+    { id: 'charts', label: 'Statistiques', icon: 'bar-chart' }
+  ];
+
+  constructor(
+    private userStateService: UserStateService,
     private titleService: TitleService
   ) {}
 
   ngOnInit(): void {
-  this.userStateService.user$.subscribe(user => {
-    this.user = user;
-    this.roleName = user?.role?.name ?? null;
-    console.log('Role détecté:', this.roleName); // Ajoute ce log
-  });
-}
+    this.userStateService.user$.subscribe(user => {
+      this.user = user;
+      this.roleName = user?.role?.name ?? null;
+      console.log('Role détecté:', this.roleName);
+    });
+  }
 
-isClientRole(): boolean {
-  return this.roleName?.toUpperCase().startsWith('CLIENT') ?? false;
-}
+  isClientRole(): boolean {
+    return this.roleName?.toUpperCase().startsWith('CLIENT') ?? false;
+  }
 
-
+  setActiveTab(tabId: string): void {
+    this.activeTab = tabId;
+  }
 }

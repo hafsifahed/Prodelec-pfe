@@ -4,7 +4,6 @@ import { WorkflowDiscussion, WorkflowPhase } from './entities/workflow-discussio
 import { WorkflowDiscussionController } from './workflow-discussion.controller';
 import { WorkflowDiscussionService } from './workflow-discussion.service';
 
-
 describe('WorkflowDiscussionController', () => {
   let controller: WorkflowDiscussionController;
   let service: WorkflowDiscussionService;
@@ -48,8 +47,17 @@ describe('WorkflowDiscussionController', () => {
       mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
 
       const user = { id: 1 } as User;
-      await expect(controller.getAllDiscussions(1, 20, user)).resolves.toEqual(result);
-      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id);
+      await expect(controller.getAllDiscussions(user, 1, 20)).resolves.toEqual(result);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id, undefined);
+    });
+
+    it('should return paginated discussions with search', async () => {
+      const result = { discussions: [], total: 0 };
+      mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
+
+      const user = { id: 1 } as User;
+      await expect(controller.getAllDiscussions(user, 1, 20, 'test')).resolves.toEqual(result);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id, 'test');
     });
   });
 
@@ -64,7 +72,7 @@ describe('WorkflowDiscussionController', () => {
       mockWorkflowDiscussionService.getDiscussionsByUser.mockResolvedValue(result);
 
       await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
-      expect(service.getDiscussionsByUser).toHaveBeenCalledWith(user.id, 1, 20);
+      expect(service.getDiscussionsByUser).toHaveBeenCalledWith(user.id, 1, 20, undefined);
       expect(service.getAllDiscussions).not.toHaveBeenCalled();
     });
 
@@ -74,8 +82,26 @@ describe('WorkflowDiscussionController', () => {
       mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
 
       await expect(controller.getDiscussionsByUser(user, 1, 20)).resolves.toEqual(result);
-      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id, undefined);
       expect(service.getDiscussionsByUser).not.toHaveBeenCalled();
+    });
+
+    it('should handle search parameter for CLIENT role', async () => {
+      const user = { id: 1, role: { name: 'CLIENT_USER' } } as User;
+      const result = { discussions: [], total: 0 };
+      mockWorkflowDiscussionService.getDiscussionsByUser.mockResolvedValue(result);
+
+      await expect(controller.getDiscussionsByUser(user, 1, 20, 'project')).resolves.toEqual(result);
+      expect(service.getDiscussionsByUser).toHaveBeenCalledWith(user.id, 1, 20, 'project');
+    });
+
+    it('should handle search parameter for non-CLIENT role', async () => {
+      const user = { id: 1, role: { name: 'ADMIN' } } as User;
+      const result = { discussions: [], total: 0 };
+      mockWorkflowDiscussionService.getAllDiscussions.mockResolvedValue(result);
+
+      await expect(controller.getDiscussionsByUser(user, 1, 20, 'project')).resolves.toEqual(result);
+      expect(service.getAllDiscussions).toHaveBeenCalledWith(1, 20, user.id, 'project');
     });
   });
 
@@ -124,7 +150,7 @@ describe('WorkflowDiscussionController', () => {
 
   describe('transitionPhase', () => {
     it('should transition discussion phase', async () => {
-      const dto = { targetPhase: WorkflowPhase.DEVIS, targetEntityId: 1 } ;
+      const dto = { targetPhase: WorkflowPhase.DEVIS, targetEntityId: 1 };
       const discussion = {} as WorkflowDiscussion;
       mockWorkflowDiscussionService.transitionPhase.mockResolvedValue(discussion);
 

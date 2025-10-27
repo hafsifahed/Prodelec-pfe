@@ -8,6 +8,7 @@ import { CahierDesChargesService } from './cahier-des-charges.service';
 describe('CahierDesChargesController', () => {
   let controller: CahierDesChargesController;
   let service: CahierDesChargesService;
+  let mailerService: MailerService;
 
   // Mock static BASE_DIRECTORY property
   beforeAll(() => {
@@ -18,7 +19,10 @@ describe('CahierDesChargesController', () => {
     );
   });
 
-  const mockMailerService = { sendMail: jest.fn() };
+  const mockMailerService = { 
+    sendMail: jest.fn().mockResolvedValue(true) 
+  };
+
   const mockUsersService = {
     findOneById: jest.fn(id => Promise.resolve({ id, username: 'testuser' })),
   };
@@ -39,6 +43,7 @@ describe('CahierDesChargesController', () => {
     addFileToCdc: jest.fn((cdcId, filename, username) => Promise.resolve({ cdcId, filename, username })),
     removeFile: jest.fn(fileId => Promise.resolve()),
     markAsIncomplete: jest.fn((id, commentaire) => Promise.resolve({ id, commentaire, etat: 'ACompleter' })),
+    getArchiveByUserRole: jest.fn(user => Promise.resolve([])),
   };
 
   beforeEach(async () => {
@@ -53,6 +58,11 @@ describe('CahierDesChargesController', () => {
 
     controller = module.get<CahierDesChargesController>(CahierDesChargesController);
     service = module.get<CahierDesChargesService>(CahierDesChargesService);
+    mailerService = module.get<MailerService>(MailerService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -172,22 +182,56 @@ describe('CahierDesChargesController', () => {
     expect(mockService.markAsIncomplete).toBeCalledWith(id, commentaire);
   });
 
-  it('sendEmail should send emails to recipients', async () => {
-    const emailRequest = {
-      to: ['recipient1@example.com', 'recipient2@example.com'],
-      subject: 'Test Subject',
-      text: '<p>Test Email</p>',
-    };
-    await controller.sendEmail(emailRequest);
-    expect(mockMailerService.sendMail).toHaveBeenCalledTimes(emailRequest.to.length);
-    emailRequest.to.forEach((recipient, index) => {
-      expect(mockMailerService.sendMail).toHaveBeenNthCalledWith(index + 1, {
-        to: recipient,
+  describe('sendEmail', () => {
+    it('should send emails to recipients with formatted HTML template', async () => {
+      const emailRequest = {
+        to: ['recipient1@example.com', 'recipient2@example.com'],
+        subject: 'Test Subject',
+        text: '<p>Test Email</p>',
+      };
+
+      await controller.sendEmail(emailRequest);
+
+      expect(mockMailerService.sendMail).toHaveBeenCalledTimes(emailRequest.to.length);
+      
+      // Check first call
+      expect(mockMailerService.sendMail).toHaveBeenNthCalledWith(1, {
+        to: 'recipient1@example.com',
         from: 'hafsifahed98@gmail.com',
-        subject: emailRequest.subject,
-        html: emailRequest.text,
+        subject: 'Test Subject',
+        html: expect.stringContaining('Test Email'),
       });
+
+      // Check second call  
+      expect(mockMailerService.sendMail).toHaveBeenNthCalledWith(2, {
+        to: 'recipient2@example.com',
+        from: 'hafsifahed98@gmail.com',
+        subject: 'Test Subject',
+        html: expect.stringContaining('Test Email'),
+      });
+    });
+
+    it('should throw BadRequestException if to field is invalid', async () => {
+      const emailRequest = {
+        to: null,
+        subject: 'Test Subject',
+        text: '<p>Test Email</p>',
+      };
+
+      await expect(controller.sendEmail(emailRequest as any)).rejects.toThrow('Le champ "to" doit être un tableau d\'emails');
     });
   });
 
+  describe('getArchiveForCurrentUser', () => {
+    it('should return archive for current user', async () => {
+      const user = { id: 1 } as any;
+      const expectedResult = [{ id: 1, archived: true }];
+      mockService.getArchiveByUserRole.mockResolvedValue(expectedResult);
+
+      const result = await controller.getArchiveForCurrentUser(user);
+
+      expect(result).toEqual(expectedResult);
+      expect(mockService.getArchiveByUserRole).toHaveBeenCalledWith(user);
+    });
+  });
 });

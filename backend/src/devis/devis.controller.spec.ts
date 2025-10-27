@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '../users/entities/users.entity';
 import { DevisController } from './devis.controller';
@@ -23,6 +24,7 @@ describe('DevisController', () => {
     deleteDevis: jest.fn(),
     startNegociation: jest.fn(),
     updatePieceJointe: jest.fn(),
+    getArchiveByUserRole: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -68,29 +70,83 @@ describe('DevisController', () => {
     });
   });
 
- /* describe('saveDevis', () => {
-    it('should save and return devis', async () => {
-      const cdcId = 1;
-      const body = { pieceJointe: 'file.pdf', numdevis: 'D004' };
-      const savedDevis = { id: 4, ...body } as Devis;
-      mockDevisService.saveDevis.mockResolvedValue(savedDevis);
-      await expect(controller.saveDevis(cdcId, body)).resolves.toEqual(savedDevis);
-      expect(mockDevisService.saveDevis).toHaveBeenCalledWith(cdcId, body.pieceJointe, body.numdevis);
+  describe('getDevisById', () => {
+    it('should return a devis by id', async () => {
+      const devis: Devis = { id: 1, numdevis: 'D001', projet: 'Project1' } as Devis;
+      mockDevisService.getDevisById.mockResolvedValue(devis);
+      await expect(controller.getDevisById(1)).resolves.toEqual(devis);
+      expect(mockDevisService.getDevisById).toHaveBeenCalledWith(1);
     });
 
-    it('should throw BadRequestException if pieceJointe is missing', async () => {
-      const cdcId = 1;
-      const body = { numdevis: 'D005' };
-      await expect(controller.saveDevis(cdcId, body as any)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw BadRequestException if numdevis is missing', async () => {
-      const cdcId = 1;
-      const body = { pieceJointe: 'file.pdf' };
-      await expect(controller.saveDevis(cdcId, body as any)).rejects.toThrow(BadRequestException);
+    it('should throw NotFoundException when devis not found', async () => {
+      mockDevisService.getDevisById.mockRejectedValue(new NotFoundException());
+      await expect(controller.getDevisById(999)).rejects.toThrow(NotFoundException);
     });
   });
-*/
+
+
+
+  describe('acceptDevis', () => {
+    it('should accept a devis', async () => {
+      const devis: Devis = { id: 1, numdevis: 'D001', etat: 'Accepté' } as Devis;
+      mockDevisService.acceptDevis.mockResolvedValue(devis);
+      await expect(controller.acceptDevis(1)).resolves.toEqual(devis);
+      expect(mockDevisService.acceptDevis).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('refuseDevis', () => {
+    it('should refuse a devis with commentaire', async () => {
+      const devis: Devis = { id: 1, numdevis: 'D001', etat: 'Refusé', commentaire: 'Test comment' } as Devis;
+      const body = { commentaire: 'Test comment' };
+      
+      mockDevisService.refuseDevis.mockResolvedValue(devis);
+      await expect(controller.refuseDevis(1, body)).resolves.toEqual(devis);
+      expect(mockDevisService.refuseDevis).toHaveBeenCalledWith(1, body.commentaire);
+    });
+
+  });
+
+
+
+  describe('restorer', () => {
+    it('should restore a devis', async () => {
+      const devis: Devis = { id: 1, archive: false } as Devis;
+      mockDevisService.restorer.mockResolvedValue(devis);
+      await expect(controller.restorer(1)).resolves.toEqual(devis);
+      expect(mockDevisService.restorer).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('archiverU', () => {
+    it('should call archiverU for client user', async () => {
+      const user = { id: 1, role: { name: 'CLIENT' } } as User;
+      const devis: Devis = { id: 1, archiveU: true } as Devis;
+      
+      mockDevisService.archiverU.mockResolvedValue(devis);
+      await expect(controller.archiverU(1, user)).resolves.toEqual(devis);
+      expect(mockDevisService.archiverU).toHaveBeenCalledWith(1);
+    });
+
+    it('should call archiver for non-client user', async () => {
+      const user = { id: 1, role: { name: 'ADMIN' } } as User;
+      const devis: Devis = { id: 1, archive: true } as Devis;
+      
+      mockDevisService.archiver.mockResolvedValue(devis);
+      await expect(controller.archiverU(1, user)).resolves.toEqual(devis);
+      expect(mockDevisService.archiver).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('restorerU', () => {
+    it('should restore user archive for devis', async () => {
+      const devis: Devis = { id: 1, archiveU: false } as Devis;
+      mockDevisService.restorerU.mockResolvedValue(devis);
+      await expect(controller.restorerU(1)).resolves.toEqual(devis);
+      expect(mockDevisService.restorerU).toHaveBeenCalledWith(1);
+    });
+  });
+
   describe('deleteDevis', () => {
     it('should call deleteDevis', async () => {
       const id = 1;
@@ -100,5 +156,36 @@ describe('DevisController', () => {
     });
   });
 
-  // Add tests for other controller methods as needed
+  describe('startNegociation', () => {
+    it('should start negotiation with commentaire', async () => {
+      const devis: Devis = { id: 1, etat: 'Négociation', commentaire: 'Test comment' } as Devis;
+      const body = { commentaire: 'Test comment' };
+      
+      mockDevisService.startNegociation.mockResolvedValue(devis);
+      await expect(controller.startNegociation(1, body)).resolves.toEqual(devis);
+      expect(mockDevisService.startNegociation).toHaveBeenCalledWith(1, body.commentaire);
+    });
+
+    it('should start negotiation without commentaire', async () => {
+      const devis: Devis = { id: 1, etat: 'Négociation', commentaire: '' } as Devis;
+      const body = {};
+      
+      mockDevisService.startNegociation.mockResolvedValue(devis);
+      await expect(controller.startNegociation(1, body)).resolves.toEqual(devis);
+      expect(mockDevisService.startNegociation).toHaveBeenCalledWith(1, '');
+    });
+  });
+
+
+
+  describe('getArchiveForCurrentUser', () => {
+    it('should return archived devis for current user', async () => {
+      const user = { id: 1 } as User;
+      const devisList: Devis[] = [{ id: 1, numdevis: 'D001', archive: true } as Devis];
+      
+      mockDevisService.getArchiveByUserRole.mockResolvedValue(devisList);
+      await expect(controller.getArchiveForCurrentUser(user)).resolves.toEqual(devisList);
+      expect(mockDevisService.getArchiveByUserRole).toHaveBeenCalledWith(user);
+    });
+  });
 });
