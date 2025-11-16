@@ -27,6 +27,13 @@ export interface GlobalStats {
     totalClients: number;
     connectedClients: number;
   };
+  aiAnalysis?: {
+    summary: string;
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    overallScore: number;
+  };
 }
 
 export interface PeriodStats {
@@ -56,10 +63,13 @@ export class StatisticsService {
 
 
 
-   getGlobalStats(period: string, year?: number): Observable<GlobalStats> {
+   getGlobalStats(period: string, year?: number,includeAi?: boolean): Observable<GlobalStats> {
     let params = new HttpParams().set('period', period);
     if (year) {
       params = params.set('year', year.toString());
+    }
+    if (includeAi) {
+      params = params.set('includeAi', 'true');
     }
     return this.http.get<GlobalStats>(`${this.baseUrl}/global`, { params });
   }

@@ -32,6 +32,8 @@ getChartsStatistics(filters: any): Observable<any> {
   if (filters.userId) params = params.set('userId', filters.userId.toString());
   if (filters.partnerId) params = params.set('partnerId', filters.partnerId.toString());
   if (filters.year) params = params.set('year', filters.year.toString());
+  if (filters.includeAi) params = params.set('includeAi', filters.includeAi.toString());
+
   
   return this.http.get(`${this.apiUrl}`, { params });
 }

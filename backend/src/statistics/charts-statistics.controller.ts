@@ -16,15 +16,30 @@ export class ChartsStatisticsController {
     @Query() filters: ChartsFilterDto,
     @CurrentUser() user: User,
   ) {
-    // Vous pouvez ajouter une logique de filtrage par rôle ici si nécessaire
+    const roleName = user.role.name.toUpperCase();
+    const isClientRole = roleName.startsWith('CLIENT');
+
+    // Pour les clients, on filtre automatiquement par leur ID
+    if (isClientRole) {
+      filters.userId = user.id;
+    }
+
     return this.chartsStatsService.getChartsStatistics(filters);
   }
 
   @Get('filters')
-async getFilterOptions(
-  @Query('partnerId') partnerId?: number,
-  @CurrentUser() user?: User
-) {
-  return this.chartsStatsService.getFilterOptions(partnerId);
-}
+  async getFilterOptions(
+    @Query('partnerId') partnerId?: number,
+    @CurrentUser() user?: User
+  ) {
+    const roleName = user.role.name.toUpperCase();
+    const isClientRole = roleName.startsWith('CLIENT');
+
+    // Les clients ne peuvent voir que leurs propres données
+    if (isClientRole) {
+      return this.chartsStatsService.getFilterOptions(user.id);
+    }
+
+    return this.chartsStatsService.getFilterOptions(partnerId);
+  }
 }

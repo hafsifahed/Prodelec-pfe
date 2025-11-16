@@ -6,6 +6,12 @@ export interface ChartData {
   total: number;
 }
 
+export interface AvisDetail {
+  username: string;
+  partnerName: string;
+  score: number;
+}
+
 export interface ChartsStatistics {
   reclamations: ChartData;
   cahiersDesCharges: ChartData;
@@ -16,12 +22,12 @@ export interface ChartsStatistics {
     totalAvis: number;
     details: AvisDetail[];
   };
-}
-
-export interface AvisDetail {
-  username: string;
-  partnerName: string;
-  score: number;
+  aiAnalysis?: {
+    insights: string;
+    trends: string[];
+    recommendations: string[];
+    riskAreas: string[];
+  };
 }
 
 export interface UserFilter {

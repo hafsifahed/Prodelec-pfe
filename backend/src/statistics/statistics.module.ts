@@ -11,8 +11,10 @@ import { User } from '../users/entities/users.entity';
 import { CahierDesCharges } from '../cahier-des-charges/entities/cahier-des-charge.entity';
 import { Devis } from '../devis/entities/devi.entity';
 import { Partner } from '../partners/entities/partner.entity';
+import { AiAnalysisService } from './ai-analysis.service';
 import { ChartsStatisticsController } from './charts-statistics.controller';
 import { ChartsStatisticsService } from './charts-statistics.service';
+import { GeminiService } from './gemini.service';
 import { StatisticsController } from './statistics.controller';
 import { StatisticsService } from './statistics.service';
 
@@ -30,7 +32,11 @@ import { StatisticsService } from './statistics.service';
       CahierDesCharges
     ]),
   ],
-  providers: [StatisticsService,ChartsStatisticsService],
+  providers: [StatisticsService,ChartsStatisticsService,AiAnalysisService,GeminiService],
   controllers: [StatisticsController,ChartsStatisticsController],
+  exports: [
+    StatisticsService,
+    ChartsStatisticsService,
+  ],
 })
 export class StatisticsModule {}

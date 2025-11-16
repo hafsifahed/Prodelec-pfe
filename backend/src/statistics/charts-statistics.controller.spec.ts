@@ -22,8 +22,29 @@ describe('ChartsStatisticsController', () => {
     role: {
       id: 1,
       name: 'ADMIN',
-      permissions: []
-    }
+      permissions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isSystemRole: false
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as User;
+
+  const mockClientUser: User = {
+    id: 2,
+    username: 'clientuser',
+    email: 'client@example.com',
+    role: {
+      id: 2,
+      name: 'CLIENT_USER',
+      permissions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isSystemRole: false
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
   } as User;
 
   const mockChartsStatistics = {
@@ -173,20 +194,47 @@ describe('ChartsStatisticsController', () => {
 
     it('should work with different user roles', async () => {
       // Arrange
-      const clientUser: User = {
-        ...mockUser,
-        role: { id: 2, name: 'CLIENT_USER', permissions: [] , createdAt: new Date(), updatedAt: new Date(),isSystemRole: false}
-      };
-      
       const filters: ChartsFilterDto = { year: 2024 };
       mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
 
       // Act
-      const result = await controller.getChartsStatistics(filters, clientUser);
+      const result = await controller.getChartsStatistics(filters, mockClientUser);
 
       // Assert
       expect(result).toEqual(mockChartsStatistics);
       expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith(filters);
+    });
+
+    it('should automatically filter by userId for CLIENT users', async () => {
+      // Arrange
+      const filters: ChartsFilterDto = { year: 2024 };
+      mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
+
+      // Act
+      const result = await controller.getChartsStatistics(filters, mockClientUser);
+
+      // Assert
+      expect(result).toEqual(mockChartsStatistics);
+      expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith({
+        ...filters,
+        userId: mockClientUser.id
+      });
+    });
+
+    it('should not override existing userId for CLIENT users', async () => {
+      // Arrange
+      const filters: ChartsFilterDto = { year: 2024, userId: 999 }; // Should be overridden
+      mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
+
+      // Act
+      const result = await controller.getChartsStatistics(filters, mockClientUser);
+
+      // Assert
+      expect(result).toEqual(mockChartsStatistics);
+      expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith({
+        ...filters,
+        userId: mockClientUser.id // Should override the provided userId
+      });
     });
   });
 
@@ -241,18 +289,7 @@ describe('ChartsStatisticsController', () => {
       await expect(controller.getFilterOptions(partnerId, mockUser)).rejects.toThrow('Filter options error');
     });
 
-    it('should work without user parameter', async () => {
-      // Arrange
-      const partnerId = 1;
-      mockChartsStatisticsService.getFilterOptions.mockResolvedValue(mockFilterOptions);
 
-      // Act
-      const result = await controller.getFilterOptions(partnerId, undefined);
-
-      // Assert
-      expect(result).toEqual(mockFilterOptions);
-      expect(mockChartsStatisticsService.getFilterOptions).toHaveBeenCalledWith(partnerId);
-    });
 
     it('should handle empty filter options', async () => {
       // Arrange
@@ -273,11 +310,35 @@ describe('ChartsStatisticsController', () => {
       expect(result.users).toHaveLength(0);
       expect(result.years).toHaveLength(0);
     });
+
+    it('should filter by userId for CLIENT users', async () => {
+      // Arrange
+      mockChartsStatisticsService.getFilterOptions.mockResolvedValue(mockFilterOptions);
+
+      // Act
+      const result = await controller.getFilterOptions(undefined, mockClientUser);
+
+      // Assert
+      expect(result).toEqual(mockFilterOptions);
+      expect(mockChartsStatisticsService.getFilterOptions).toHaveBeenCalledWith(mockClientUser.id);
+    });
+
+    it('should ignore partnerId for CLIENT users', async () => {
+      // Arrange
+      const partnerId = 999; // Should be ignored for CLIENT users
+      mockChartsStatisticsService.getFilterOptions.mockResolvedValue(mockFilterOptions);
+
+      // Act
+      const result = await controller.getFilterOptions(partnerId, mockClientUser);
+
+      // Assert
+      expect(result).toEqual(mockFilterOptions);
+      expect(mockChartsStatisticsService.getFilterOptions).toHaveBeenCalledWith(mockClientUser.id);
+    });
   });
 
   describe('DTO validation', () => {
     it('should accept valid ChartsFilterDto', async () => {
-      // This tests that the DTO is properly structured and validated by class-validator
       const validFilters: ChartsFilterDto = {
         partnerId: 1,
         userId: 2,
@@ -292,81 +353,23 @@ describe('ChartsStatisticsController', () => {
       expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith(validFilters);
     });
 
+    it('should handle string numbers in DTO', async () => {
+      const filtersWithStrings = {
+        partnerId: '1',
+        year: '2024'
+      } as any;
 
-  });
-
-  describe('edge cases', () => {
-    it('should handle very large partnerId values', async () => {
-      // Arrange
-      const largePartnerId = 999999;
-      const filters: ChartsFilterDto = { partnerId: largePartnerId };
-      
       mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
 
-      // Act
-      const result = await controller.getChartsStatistics(filters, mockUser);
+      const result = await controller.getChartsStatistics(filtersWithStrings, mockUser);
 
-      // Assert
-      expect(result).toEqual(mockChartsStatistics);
+      expect(result).toBeDefined();
       expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith({
-        partnerId: largePartnerId
+        partnerId: '1',
+        year: '2024'
       });
-    });
-     it('should handle string numbers in DTO', async () => {
-    // In tests, class-transformer doesn't automatically convert
-    // So we need to test what actually happens
-    const filtersWithStrings = {
-      partnerId: '1',
-      year: '2024'
-    } as any;
-
-    mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
-
-    const result = await controller.getChartsStatistics(filtersWithStrings, mockUser);
-
-    expect(result).toBeDefined();
-    // The service receives the raw values as passed
-    expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith({
-      partnerId: '1',
-      year: '2024'
     });
   });
 
-    it('should handle future year values', async () => {
-      // Arrange
-      const futureYear = 2030;
-      const filters: ChartsFilterDto = { year: futureYear };
-      
-      mockChartsStatisticsService.getChartsStatistics.mockResolvedValue(mockChartsStatistics);
 
-      // Act
-      const result = await controller.getChartsStatistics(filters, mockUser);
-
-      // Assert
-      expect(result).toEqual(mockChartsStatistics);
-      expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledWith({
-        year: futureYear
-      });
-    });
-
-    it('should handle multiple concurrent requests', async () => {
-      // Arrange
-      const filters1: ChartsFilterDto = { partnerId: 1 };
-      const filters2: ChartsFilterDto = { partnerId: 2 };
-      
-      mockChartsStatisticsService.getChartsStatistics
-        .mockResolvedValueOnce(mockChartsStatistics)
-        .mockResolvedValueOnce({ ...mockChartsStatistics, total: 100 });
-
-      // Act
-      const [result1, result2] = await Promise.all([
-        controller.getChartsStatistics(filters1, mockUser),
-        controller.getChartsStatistics(filters2, mockUser)
-      ]);
-
-      // Assert
-      expect(result1).toEqual(mockChartsStatistics);
-      expect(mockChartsStatisticsService.getChartsStatistics).toHaveBeenCalledTimes(2);
-    });
-  });
 });

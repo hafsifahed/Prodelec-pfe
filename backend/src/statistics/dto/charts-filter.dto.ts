@@ -1,6 +1,6 @@
 // src/statistics/dto/charts-filter.dto.ts
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 export class ChartsFilterDto {
   @IsOptional()
@@ -17,4 +17,9 @@ export class ChartsFilterDto {
   @IsNumber()
   @Type(() => Number)
   year?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  includeAi?: boolean = false;
 }

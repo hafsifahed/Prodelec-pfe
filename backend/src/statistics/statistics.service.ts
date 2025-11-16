@@ -10,35 +10,8 @@ import { Project } from '../project/entities/project.entity';
 import { Reclamation } from '../reclamation/entities/reclamation.entity';
 import { UserSession } from '../user-session/entities/user-session.entity';
 import { User } from '../users/entities/users.entity';
-
-export interface GlobalStats {
-  totalOrders: number;
-  cancelledOrders: number;
-  totalProjects: number;
-  completedProjects: number;
-  lateProjects: number;
-  averageAvis: number;
-  reclamationRatio: number;
-  totalAvis: number;
-  newOrders?: number;
-  newProjects?: number;
-  sessions?: {
-    totalEmployees: number;
-    connectedEmployees: number;
-    totalClients: number;
-    connectedClients: number;
-  };
-}
-
-export interface PeriodStats {
-  period: string;
-  data: GlobalStats;
-  comparison?: {
-    previousPeriod: string;
-    change: number;
-    trend: 'up' | 'down' | 'stable';
-  };
-}
+import { AiAnalysisService } from './ai-analysis.service';
+import { GlobalStats, PeriodStats } from './dto/global-stats.interface';
 
 @Injectable()
 export class StatisticsService {
@@ -53,9 +26,9 @@ export class StatisticsService {
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Partner) private readonly partnerRepo: Repository<Partner>,
     @InjectRepository(Devis) private readonly devisRepo: Repository<Devis>,
+    private readonly aiAnalysisService: AiAnalysisService,
   ) {}
 
-  // Méthode pour obtenir les dates selon la période
   private getDateRange(period: string, specificYear?: number): { start: Date; end: Date } {
     const end = new Date();
     const start = new Date();
@@ -77,13 +50,11 @@ export class StatisticsService {
         break;
       case 'year':
         if (specificYear) {
-          // Utiliser l'année spécifique
           start.setFullYear(specificYear, 0, 1);
           start.setHours(0, 0, 0, 0);
           end.setFullYear(specificYear, 11, 31);
           end.setHours(23, 59, 59, 999);
         } else {
-          // Année courante par défaut
           start.setFullYear(end.getFullYear() - 1);
           start.setHours(0, 0, 0, 0);
           end.setHours(23, 59, 59, 999);
@@ -98,8 +69,12 @@ export class StatisticsService {
     return { start, end };
   }
 
-  // Méthode principale avec support des périodes
-  async getGlobalStats(period: string = 'month', userId?: number, specificYear?: number): Promise<GlobalStats> {
+  async getGlobalStats(
+    period: string = 'month', 
+    userId?: number, 
+    specificYear?: number,
+    includeAiAnalysis?: boolean 
+  ): Promise<GlobalStats> {
     const { start, end } = this.getDateRange(period, specificYear);
     const isClientRole = userId !== undefined;
 
@@ -203,8 +178,8 @@ export class StatisticsService {
     const newOrders = totalOrders;
     const newProjects = totalProjects;
 
-    /* ---------- Retour ---------- */
-    return {
+    /* ---------- Construction des stats ---------- */
+    const stats: GlobalStats = {
       totalOrders,
       cancelledOrders,
       totalProjects,
@@ -217,11 +192,23 @@ export class StatisticsService {
       newProjects,
       sessions,
     };
+
+    /* ---------- Analyse IA (uniquement pour admin et si demandé) ---------- */
+    console.log('includeAiAnalysis', includeAiAnalysis);
+    if (includeAiAnalysis ) {
+      console.log('Analyse IA');
+      return await this.aiAnalysisService.analyzeGlobalStats(stats, period);
+    }
+
+    return stats;
   }
 
-  // Méthode pour obtenir les statistiques comparatives
-  async getComparativeStats(period: string = 'month', userId?: number, specificYear?: number): Promise<PeriodStats> {
-    const currentStats = await this.getGlobalStats(period, userId, specificYear);
+  async getComparativeStats(
+    period: string = 'month', 
+    userId?: number, 
+    specificYear?: number
+  ): Promise<PeriodStats> {
+    const currentStats = await this.getGlobalStats(period, userId, specificYear, false);
     
     // Obtenir les stats de la période précédente pour comparaison
     let previousPeriod = 'month';
@@ -243,7 +230,7 @@ export class StatisticsService {
         break;
     }
 
-    const previousStats = await this.getGlobalStats(previousPeriod, userId, previousYear);
+    const previousStats = await this.getGlobalStats(previousPeriod, userId, previousYear, false);
     
     // Calculer le changement pour les commandes
     const change = previousStats.totalOrders > 0 
@@ -264,7 +251,6 @@ export class StatisticsService {
     };
   }
 
-  // Les autres méthodes existantes
   async searchAll(keyword: string) {
     console.log('Recherche avec keyword:', keyword);
 
@@ -325,7 +311,7 @@ export class StatisticsService {
     return { projects, devis, partners };
   }
 
-   async getAvailableYears(): Promise<number[]> {
+  async getAvailableYears(): Promise<number[]> {
     try {
       // Récupérer les années distinctes de toutes les tables principales
       const [orderYears, projectYears, avisYears, reclamationYears] = await Promise.all([
@@ -364,7 +350,7 @@ export class StatisticsService {
 
       // Retourner les années uniques triées par ordre décroissant
       return [...new Set(allYears)]
-        .filter(year => !isNaN(year) && year > 2000) // Filtre pour valider les années
+        .filter(year => !isNaN(year) && year > 2000)
         .sort((a, b) => b - a);
         
     } catch (error) {

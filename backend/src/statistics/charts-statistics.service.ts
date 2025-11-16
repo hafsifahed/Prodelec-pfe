@@ -9,6 +9,7 @@ import { Partner } from '../partners/entities/partner.entity';
 import { Project } from '../project/entities/project.entity';
 import { Reclamation } from '../reclamation/entities/reclamation.entity';
 import { User } from '../users/entities/users.entity';
+import { AiAnalysisService } from './ai-analysis.service';
 import { ChartsFilterDto } from './dto/charts-filter.dto';
 import { ChartData, ChartsStatistics, PartnerFilter, UserFilter } from './dto/charts-stats.interface';
 
@@ -29,6 +30,7 @@ export class ChartsStatisticsService {
     private readonly userRepo: Repository<User>,
     @InjectRepository(Partner)
     private readonly partnerRepo: Repository<Partner>,
+    private readonly aiAnalysisService: AiAnalysisService,
   ) {}
 
   async getChartsStatistics(filters: ChartsFilterDto): Promise<ChartsStatistics> {
@@ -40,24 +42,33 @@ export class ChartsStatisticsService {
       this.getAvisData(filters),
     ]);
 
-    return {
+    const charts = {
       reclamations,
       cahiersDesCharges,
       devis,
       projects,
       avis,
     };
+
+    const includeAiAnalysis = filters.includeAi !== false;
+    
+    if (includeAiAnalysis) {
+      console.log('Analyse IA des graphiques');
+            return await this.aiAnalysisService.analyzeChartsStatistics(charts);
+    }
+
+    return charts;
   }
 
   async getFilterOptions(partnerId?: number): Promise<{ users: UserFilter[]; partners: PartnerFilter[]; years: number[] }> {
-  const [users, partners, years] = await Promise.all([
-    this.getUsersForFilters(partnerId),
-    this.getPartnersForFilters(),
-    this.getAvailableYears(),
-  ]);
+    const [users, partners, years] = await Promise.all([
+      this.getUsersForFilters(partnerId),
+      this.getPartnersForFilters(),
+      this.getAvailableYears(),
+    ]);
 
-  return { users, partners, years };
-}
+    return { users, partners, years };
+  }
 
   private async getReclamationsData(filters: ChartsFilterDto): Promise<ChartData> {
     const query = this.buildBaseQuery(this.reclamationRepo, 'user', filters);
@@ -215,25 +226,25 @@ export class ChartsStatisticsService {
   }
 
   private async getUsersForFilters(partnerId?: number): Promise<UserFilter[]> {
-  const query = this.userRepo.createQueryBuilder('user')
-    .leftJoinAndSelect('user.partner', 'partner')
-    .leftJoinAndSelect('user.role', 'role') // Jointure avec la table des rôles
-    .select(['user.id', 'user.email', 'user.username', 'partner.id', 'partner.name'])
-    .where('role.name LIKE :rolePattern', { rolePattern: 'client%' }); // Filtre sur le nom du rôle
+    const query = this.userRepo.createQueryBuilder('user')
+      .leftJoinAndSelect('user.partner', 'partner')
+      .leftJoinAndSelect('user.role', 'role')
+      .select(['user.id', 'user.email', 'user.username', 'partner.id', 'partner.name'])
+      .where('role.name LIKE :rolePattern', { rolePattern: 'client%' });
 
-  if (partnerId) {
-    query.andWhere('partner.id = :partnerId', { partnerId });
+    if (partnerId) {
+      query.andWhere('partner.id = :partnerId', { partnerId });
+    }
+
+    const users = await query.getMany();
+
+    return users.map(user => ({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      partner: user.partner ? { id: user.partner.id, name: user.partner.name } : undefined,
+    }));
   }
-
-  const users = await query.getMany();
-
-  return users.map(user => ({
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    partner: user.partner ? { id: user.partner.id, name: user.partner.name } : undefined,
-  }));
-}
 
   private async getPartnersForFilters(): Promise<PartnerFilter[]> {
     const partners = await this.partnerRepo.find({

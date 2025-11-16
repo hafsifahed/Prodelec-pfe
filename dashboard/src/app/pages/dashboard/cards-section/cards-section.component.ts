@@ -88,6 +88,7 @@ export class CardsSectionComponent implements OnInit {
 
       if (globalStats) {
         this.stats = globalStats;
+        console.log(this.stats);
       }
       
       if (comparativeStats) {
@@ -192,47 +193,77 @@ export class CardsSectionComponent implements OnInit {
   }
 
    async exportToPdf(): Promise<void> {
-    this.isExporting = true;
-    
-    try {
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = 20;
+  this.isExporting = true;
 
-      // Add header
-      this.addPdfHeader(pdf, pageWidth, yPosition);
-      yPosition += 30;
-
-      // Add period information
-      yPosition = this.addPeriodInfo(pdf, pageWidth, yPosition);
-      yPosition += 15;
-
-      // Add key statistics
-      yPosition = this.addKeyStatistics(pdf, pageWidth, yPosition);
-      
-      // Add detailed statistics (check if we need a new page)
-      if (yPosition > pageHeight - 100) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-      
-      yPosition = this.addDetailedStatistics(pdf, pageWidth, yPosition);
-
-      // Add footer
-      this.addPdfFooter(pdf, pageWidth);
-
-      // Generate and download the PDF
-      const fileName = this.generateFileName();
-      pdf.save(fileName);
-
-    } catch (error) {
-      console.error('Error generating PDF', error);
-      // You might want to show a toast notification here
-    } finally {
-      this.isExporting = false;
+  try {
+    // Fetch fresh global stats with AI analysis before export
+    const freshStats = await this.statsSrv.getGlobalStats(this.selectedPeriod, this.selectedYear, true).toPromise();
+    if (freshStats) {
+      this.stats = freshStats;  // Update stats including AI analysis
     }
+
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPosition = 20;
+
+    // Add header etc...
+    this.addPdfHeader(pdf, pageWidth, yPosition);
+    yPosition += 30;
+
+    yPosition = this.addPeriodInfo(pdf, pageWidth, yPosition);
+    yPosition += 15;
+
+    yPosition = this.addKeyStatistics(pdf, pageWidth, yPosition);
+
+    if (yPosition > pageHeight - 100) {
+      pdf.addPage();
+      yPosition = 20;
+    }
+
+    yPosition = this.addDetailedStatistics(pdf, pageWidth, yPosition);
+
+    // Add AI analysis section if exists
+    if (this.stats.aiAnalysis) {
+      yPosition = this.addAiAnalysisSection(pdf, yPosition);
+    }
+
+    this.addPdfFooter(pdf, pageWidth);
+
+    const fileName = this.generateFileName();
+    pdf.save(fileName);
+
+  } catch (error) {
+    console.error('Error generating PDF', error);
+  } finally {
+    this.isExporting = false;
   }
+}
+
+// Optional: Add AI Analysis Section to the PDF
+private addAiAnalysisSection(pdf: jsPDF, yPosition: number): number {
+  pdf.setFontSize(14);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Analyse IA', 20, yPosition);
+  yPosition += 10;
+
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text(`Résumé: ${this.stats.aiAnalysis.summary}`, 20, yPosition);
+  yPosition += 8;
+
+  pdf.text(`Points forts: ${this.stats.aiAnalysis.strengths.join(', ')}`, 20, yPosition);
+  yPosition += 8;
+
+  pdf.text(`Points faibles: ${this.stats.aiAnalysis.weaknesses.join(', ')}`, 20, yPosition);
+  yPosition += 8;
+
+  pdf.text(`Recommandations: ${this.stats.aiAnalysis.recommendations.join(', ')}`, 20, yPosition);
+  yPosition += 15;
+
+  return yPosition;
+}
+
 
   /**
    * Add header to PDF

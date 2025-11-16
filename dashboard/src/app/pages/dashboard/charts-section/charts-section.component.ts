@@ -3,6 +3,7 @@ import { ApexOptions } from 'ng-apexcharts';
 import { ChartsStatisticsService } from 'src/app/core/services/charts-statistics.service';
 import { jsPDF } from 'jspdf';
 import { DatePipe } from '@angular/common';
+import { dA } from '@fullcalendar/core/internal-common';
 
 interface FilterOptions {
   users: any[];
@@ -71,7 +72,7 @@ export class ChartsSectionComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadFilterOptions();
-    await this.loadChartsData();
+    await this.loadChartsData(false);
   }
 
   private async loadFilterOptions(partnerId?: number) {
@@ -105,7 +106,7 @@ export class ChartsSectionComponent implements OnInit {
     }
   }
 
-  private async loadChartsData() {
+  private async loadChartsData(includeAi) {
     this.isLoading = true;
     
     try {
@@ -113,6 +114,7 @@ export class ChartsSectionComponent implements OnInit {
         userId: this.selectedUser || undefined,
         partnerId: this.selectedPartner || undefined,
         year: this.selectedYear || undefined,
+        includeAi: includeAi
       };
 
       const data = await this.chartsStatsService.getChartsStatistics(filters).toPromise();
@@ -127,6 +129,7 @@ export class ChartsSectionComponent implements OnInit {
       console.log('Devis:', data?.devis);
       console.log('Projets:', data?.projects);
       console.log('Avis:', data?.avis);
+      console.log(data);
       console.log('=== FIN DEBUG ===');
 
       // CORRECTION: Utiliser une vérification plus simple et plus fiable
@@ -305,7 +308,7 @@ export class ChartsSectionComponent implements OnInit {
   onUserChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.selectedUser = target.value ? +target.value : null;
-    this.loadChartsData();
+    this.loadChartsData(false);
   }
 
   onPartnerChange(event: Event) {
@@ -316,13 +319,13 @@ export class ChartsSectionComponent implements OnInit {
     this.selectedUser = null;
     
     this.filterUsersByPartner(partnerId);
-    this.loadChartsData();
+    this.loadChartsData(false);
   }
 
   onYearChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.selectedYear = target.value ? +target.value : null;
-    this.loadChartsData();
+    this.loadChartsData(false);
   }
 
   resetFilters() {
@@ -331,65 +334,142 @@ export class ChartsSectionComponent implements OnInit {
     this.selectedYear = null;
     
     this.filterUsersByPartner(null);
-    this.loadChartsData();
+    this.loadChartsData(false);
   }
 
   /**
    * Export charts and statistics to PDF
    */
   async exportChartsToPdf(): Promise<void> {
-    this.isExporting = true;
-    
-    try {
-      const pdf = new jsPDF('landscape');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = 20;
+  this.isExporting = true;
 
-      // Add header
-      this.addPdfHeader(pdf, pageWidth, yPosition);
-      yPosition += 25;
+  try {
+    // 1. Fetch fresh chart stats with AI analysis included before export
+    const filters = {
+      userId: this.selectedUser || undefined,
+      partnerId: this.selectedPartner || undefined,
+      year: this.selectedYear || undefined,
+      includeAi: true  // Ensure AI is included here
+    };
+    const freshData = await this.chartsStatsService.getChartsStatistics(filters).toPromise();
 
-      // Add filter information
-      yPosition = this.addFilterInfo(pdf, pageWidth, yPosition);
-      yPosition += 15;
+    if (freshData) {
+      this.chartsData = freshData;
+      console.log('Fresh chart data:', freshData);
 
-      // Add charts summary
-      yPosition = this.addChartsSummary(pdf, pageWidth, yPosition);
-      yPosition += 10;
-
-      // CORRECTION: Vérifier s'il y a des données avant d'ajouter les sections
-      if (this.hasAnyChartData()) {
-        yPosition = this.addChartsData(pdf, pageWidth, yPosition);
-      } else {
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text('Aucune donnée statistique disponible pour les filtres sélectionnés.', 20, yPosition);
-        yPosition += 20;
-      }
-
-      // Add avis details if available
-      if (this.hasAvisData && this.filteredAvis.length > 0) {
-        if (yPosition > pageHeight - 100) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-        yPosition = this.addAvisDetails(pdf, pageWidth, yPosition);
-      }
-
-      // Add footer
-      this.addPdfFooter(pdf, pageWidth);
-
-      // Generate and download the PDF
-      const fileName = this.generateChartsFileName();
-      pdf.save(fileName);
-
-    } catch (error) {
-      console.error('Error generating charts PDF', error);
-    } finally {
-      this.isExporting = false;
+      // Update chart states according to fresh data
+      this.updateAllChartsWithState(freshData);
     }
+
+    // 2. Proceed with PDF generation using the fresh data
+    const pdf = new jsPDF('landscape');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    let yPosition = 20;
+
+    this.addPdfHeader(pdf, pageWidth, yPosition);
+    yPosition += 25;
+    yPosition = this.addFilterInfo(pdf, pageWidth, yPosition);
+    yPosition += 15;
+    yPosition = this.addChartsSummary(pdf, pageWidth, yPosition);
+    yPosition += 10;
+
+    if (this.hasAnyChartData()) {
+      yPosition = this.addChartsData(pdf, pageWidth, yPosition);
+    } else {
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Aucune donnée statistique disponible pour les filtres sélectionnés.', 20, yPosition);
+      yPosition += 20;
+    }
+
+    if (this.hasAvisData && this.filteredAvis.length > 0) {
+      if (yPosition > pageHeight - 100) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+      yPosition = this.addAvisDetails(pdf, pageWidth, yPosition);
+    }
+    yPosition = this.addAiAnalysisSection(pdf, yPosition);
+
+
+    this.addPdfFooter(pdf, pageWidth);
+
+    const fileName = this.generateChartsFileName();
+    pdf.save(fileName);
+
+  } catch (error) {
+    console.error('Error generating charts PDF', error);
+  } finally {
+    this.isExporting = false;
   }
+}
+
+private addAiAnalysisSection(pdf: jsPDF, yPosition: number): number {
+  if (!this.chartsData.aiAnalysis) return yPosition;
+
+  const ai = this.chartsData.aiAnalysis;
+
+  pdf.setFontSize(14);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Analyse IA', 20, yPosition);
+  yPosition += 10;
+
+  pdf.setFontSize(11);
+  pdf.setFont('helvetica', 'normal');
+
+  // Insights - paragraph
+  pdf.text('Insights:', 20, yPosition);
+  yPosition += 8;
+  pdf.setFontSize(10);
+  pdf.text(ai.insights || 'Aucune insight disponible.', 25, yPosition);
+  yPosition += 15;
+
+  // Trends - bullet list
+  if (ai.trends && ai.trends.length > 0) {
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Tendances:', 20, yPosition);
+    yPosition += 8;
+
+    ai.trends.forEach((trend: string) => {
+      pdf.text(`• ${trend}`, 25, yPosition);
+      yPosition += 7;
+    });
+    yPosition += 10;
+  }
+
+  // Recommendations - bullet list
+  if (ai.recommendations && ai.recommendations.length > 0) {
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Recommandations:', 20, yPosition);
+    yPosition += 8;
+
+    ai.recommendations.forEach((rec: string) => {
+      pdf.text(`• ${rec}`, 25, yPosition);
+      yPosition += 7;
+    });
+    yPosition += 10;
+  }
+
+  // Risk Areas - bullet list
+  if (ai.riskAreas && ai.riskAreas.length > 0) {
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Zones de Risque:', 20, yPosition);
+    yPosition += 8;
+
+    ai.riskAreas.forEach((risk: string) => {
+      pdf.text(`• ${risk}`, 25, yPosition);
+      yPosition += 7;
+    });
+    yPosition += 10;
+  }
+
+  return yPosition;
+}
+
 
   /**
    * Vérifier s'il y a au moins un graphique avec des données
