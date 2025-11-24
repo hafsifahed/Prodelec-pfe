@@ -19,6 +19,7 @@ module.exports = {
     '!**/node_modules/**',  // Exclude dependencies
   ],
   coverageDirectory: '../coverage',
-  coverageReporters: ['text', 'lcov', 'json'],
+  coverageReporters: ['text', 'text-summary', 'lcov', 'json', 'html']
+
 };
 

@@ -115,7 +115,8 @@
                   <span class="badge" [ngClass]="{
                     'bg-primary': worker.role?.name === 'ADMIN',
                     'bg-success': worker.role?.name === 'SUBADMIN',
-                    'bg-info': worker.role?.name === 'USER'
+                    'bg-info': worker.role?.name !== 'ADMIN' && worker.role?.name !== 'SUBADMIN'
+
                   }">
                     {{ worker.role?.name || 'N/A' }}
                   </span>
@@ -185,7 +186,7 @@
               <span class="badge" [ngClass]="{
                 'bg-primary': worker.role?.name === 'ADMIN',
                 'bg-success': worker.role?.name === 'SUBADMIN',
-                'bg-info': worker.role?.name === 'USER'
+                'bg-info': worker.role?.name !== 'ADMIN' && worker.role?.name !== 'SUBADMIN'
               }">
                 {{ worker.role?.name || 'N/A' }}
               </span>

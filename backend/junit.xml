@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="237" failures="0" errors="0" time="58.3">
+  <testsuite name="PermissionsGuard" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:42" time="35.863" tests="12">
+    <testcase classname="PermissionsGuard when no permissions are required should return true if permissions array is empty" name="PermissionsGuard when no permissions are required should return true if permissions array is empty" time="0.078">
+    </testcase>
+    <testcase classname="PermissionsGuard when user is missing or has no role should throw ForbiddenException when user is missing" name="PermissionsGuard when user is missing or has no role should throw ForbiddenException when user is missing" time="0.086">
+    </testcase>
+    <testcase classname="PermissionsGuard when user is missing or has no role should throw ForbiddenException when user has no role" name="PermissionsGuard when user is missing or has no role should throw ForbiddenException when user has no role" time="0.031">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user has no permissions at all" name="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user has no permissions at all" time="0.01">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user lacks required resource" name="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user lacks required resource" time="0.01">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user lacks required action" name="PermissionsGuard when user has insufficient permissions should throw ForbiddenException when user lacks required action" time="0.014">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has insufficient permissions should throw ForbiddenException for multiple required permissions when one is missing" name="PermissionsGuard when user has insufficient permissions should throw ForbiddenException for multiple required permissions when one is missing" time="0.008">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has sufficient permissions should return true when user has exact required permission" name="PermissionsGuard when user has sufficient permissions should return true when user has exact required permission" time="0.008">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has sufficient permissions should return true when user has more actions than required" name="PermissionsGuard when user has sufficient permissions should return true when user has more actions than required" time="0.012">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has sufficient permissions should return true when user has at least one required action" name="PermissionsGuard when user has sufficient permissions should return true when user has at least one required action" time="0.008">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has sufficient permissions should return true for multiple required permissions" name="PermissionsGuard when user has sufficient permissions should return true for multiple required permissions" time="0.01">
+    </testcase>
+    <testcase classname="PermissionsGuard when user has sufficient permissions should log user permissions when debugging" name="PermissionsGuard when user has sufficient permissions should log user permissions when debugging" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="OrderController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:42" time="40.624" tests="12">
+    <testcase classname="OrderController should be defined" name="OrderController should be defined" time="0.09">
+    </testcase>
+    <testcase classname="OrderController addOrder should add an order and return it" name="OrderController addOrder should add an order and return it" time="0.022">
+    </testcase>
+    <testcase classname="OrderController updateOrder should update and return the order" name="OrderController updateOrder should update and return the order" time="0.017">
+    </testcase>
+    <testcase classname="OrderController getAllOrders should return all orders" name="OrderController getAllOrders should return all orders" time="0.019">
+    </testcase>
+    <testcase classname="OrderController getOrderById should return order by id" name="OrderController getOrderById should return order by id" time="0.011">
+    </testcase>
+    <testcase classname="OrderController deleteOrder should delete an order" name="OrderController deleteOrder should delete an order" time="0.015">
+    </testcase>
+    <testcase classname="OrderController getOrdersByUser should return orders for a user" name="OrderController getOrdersByUser should return orders for a user" time="0.008">
+    </testcase>
+    <testcase classname="OrderController changeStatus should change status of order and return it" name="OrderController changeStatus should change status of order and return it" time="0.009">
+    </testcase>
+    <testcase classname="OrderController archivera should archive order a if user role is ADMIN and return it" name="OrderController archivera should archive order a if user role is ADMIN and return it" time="0.014">
+    </testcase>
+    <testcase classname="OrderController archivera should archive order c if user role is CLIENT and return it" name="OrderController archivera should archive order c if user role is CLIENT and return it" time="0.016">
+    </testcase>
+    <testcase classname="OrderController archiverc should archive order c if user role is CLIENT and return it" name="OrderController archiverc should archive order c if user role is CLIENT and return it" time="0.009">
+    </testcase>
+    <testcase classname="OrderController archiverc should archive order a if user role is ADMIN and return it" name="OrderController archiverc should archive order a if user role is ADMIN and return it" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="WorkflowSocketGateway" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:42" time="41.707" tests="20">
+    <testcase classname="WorkflowSocketGateway should be defined" name="WorkflowSocketGateway should be defined" time="0.102">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should successfully connect client with valid token and discussionId" name="WorkflowSocketGateway handleConnection should successfully connect client with valid token and discussionId" time="0.105">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should use token from query if not in auth" name="WorkflowSocketGateway handleConnection should use token from query if not in auth" time="0.016">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should disconnect client when no token is provided" name="WorkflowSocketGateway handleConnection should disconnect client when no token is provided" time="0.024">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should disconnect client when no discussionId is provided" name="WorkflowSocketGateway handleConnection should disconnect client when no discussionId is provided" time="0.02">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should disconnect client when token verification fails" name="WorkflowSocketGateway handleConnection should disconnect client when token verification fails" time="0.011">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should disconnect client when user is not a participant" name="WorkflowSocketGateway handleConnection should disconnect client when user is not a participant" time="0.008">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleConnection should handle multiple clients in the same room" name="WorkflowSocketGateway handleConnection should handle multiple clients in the same room" time="0.014">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleDisconnect should remove client from room and delete room when empty" name="WorkflowSocketGateway handleDisconnect should remove client from room and delete room when empty" time="0.015">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleDisconnect should remove client but keep room when other clients exist" name="WorkflowSocketGateway handleDisconnect should remove client but keep room when other clients exist" time="0.014">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleDisconnect should handle disconnect for client not in any room" name="WorkflowSocketGateway handleDisconnect should handle disconnect for client not in any room" time="0.01">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleNewMessage should successfully handle new message and broadcast to room" name="WorkflowSocketGateway handleNewMessage should successfully handle new message and broadcast to room" time="0.089">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleNewMessage should send error to client when user is not authenticated" name="WorkflowSocketGateway handleNewMessage should send error to client when user is not authenticated" time="0.015">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleNewMessage should send error to client when message creation fails" name="WorkflowSocketGateway handleNewMessage should send error to client when message creation fails" time="0.007">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleNewMessage should handle empty message content" name="WorkflowSocketGateway handleNewMessage should handle empty message content" time="0.011">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleTyping should broadcast typing event to other clients in room" name="WorkflowSocketGateway handleTyping should broadcast typing event to other clients in room" time="0.005">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleTyping should not broadcast typing event when user is not authenticated" name="WorkflowSocketGateway handleTyping should not broadcast typing event when user is not authenticated" time="0.005">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway handleTyping should handle multiple typing events" name="WorkflowSocketGateway handleTyping should handle multiple typing events" time="0.011">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway room management should handle multiple rooms simultaneously" name="WorkflowSocketGateway room management should handle multiple rooms simultaneously" time="0.009">
+    </testcase>
+    <testcase classname="WorkflowSocketGateway room management should clean up rooms properly when all clients disconnect" name="WorkflowSocketGateway room management should clean up rooms properly when all clients disconnect" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="StatisticsController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:41" time="42.733" tests="13">
+    <testcase classname="StatisticsController should be defined" name="StatisticsController should be defined" time="0.129">
+    </testcase>
+    <testcase classname="StatisticsController getComparativeStats should call getComparativeStats with user id for CLIENT role" name="StatisticsController getComparativeStats should call getComparativeStats with user id for CLIENT role" time="0.036">
+    </testcase>
+    <testcase classname="StatisticsController getComparativeStats should call getComparativeStats with undefined user id for ADMIN role" name="StatisticsController getComparativeStats should call getComparativeStats with undefined user id for ADMIN role" time="0.012">
+    </testcase>
+    <testcase classname="StatisticsController getAvailableYears should return available years" name="StatisticsController getAvailableYears should return available years" time="0.036">
+    </testcase>
+    <testcase classname="StatisticsController getAvailableYears should handle empty years array" name="StatisticsController getAvailableYears should handle empty years array" time="0.011">
+    </testcase>
+    <testcase classname="StatisticsController search should call searchAllUser if user role starts with CLIENT" name="StatisticsController search should call searchAllUser if user role starts with CLIENT" time="0.072">
+    </testcase>
+    <testcase classname="StatisticsController search should call searchAll if user role does not start with CLIENT" name="StatisticsController search should call searchAll if user role does not start with CLIENT" time="0.014">
+    </testcase>
+    <testcase classname="StatisticsController search should handle empty keyword" name="StatisticsController search should handle empty keyword" time="0.009">
+    </testcase>
+    <testcase classname="StatisticsController search should handle keyword with whitespace" name="StatisticsController search should handle keyword with whitespace" time="0.015">
+    </testcase>
+    <testcase classname="StatisticsController getChartsStatistics should call getChartsStatistics with user id for CLIENT role" name="StatisticsController getChartsStatistics should call getChartsStatistics with user id for CLIENT role" time="0.021">
+    </testcase>
+    <testcase classname="StatisticsController getChartsStatistics should call getChartsStatistics without user id for ADMIN role" name="StatisticsController getChartsStatistics should call getChartsStatistics without user id for ADMIN role" time="0.009">
+    </testcase>
+    <testcase classname="StatisticsController getChartFilterOptions should call getFilterOptions with user id for CLIENT role" name="StatisticsController getChartFilterOptions should call getFilterOptions with user id for CLIENT role" time="0.019">
+    </testcase>
+    <testcase classname="StatisticsController getChartFilterOptions should call getFilterOptions with partnerId for ADMIN role" name="StatisticsController getChartFilterOptions should call getFilterOptions with partnerId for ADMIN role" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="ChartsStatisticsController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:42" time="43.593" tests="17">
+    <testcase classname="ChartsStatisticsController should be defined" name="ChartsStatisticsController should be defined" time="0.083">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should return charts statistics with filters" name="ChartsStatisticsController getChartsStatistics should return charts statistics with filters" time="0.014">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should return charts statistics with empty filters" name="ChartsStatisticsController getChartsStatistics should return charts statistics with empty filters" time="0.013">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should return charts statistics with partial filters" name="ChartsStatisticsController getChartsStatistics should return charts statistics with partial filters" time="0.01">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should handle service errors gracefully" name="ChartsStatisticsController getChartsStatistics should handle service errors gracefully" time="0.09">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should work with different user roles" name="ChartsStatisticsController getChartsStatistics should work with different user roles" time="0.007">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should automatically filter by userId for CLIENT users" name="ChartsStatisticsController getChartsStatistics should automatically filter by userId for CLIENT users" time="0.007">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getChartsStatistics should not override existing userId for CLIENT users" name="ChartsStatisticsController getChartsStatistics should not override existing userId for CLIENT users" time="0.01">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should return filter options with partnerId" name="ChartsStatisticsController getFilterOptions should return filter options with partnerId" time="0.011">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should return filter options without partnerId" name="ChartsStatisticsController getFilterOptions should return filter options without partnerId" time="0.009">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should return filter options with null partnerId" name="ChartsStatisticsController getFilterOptions should return filter options with null partnerId" time="0.015">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should handle service errors in filter options" name="ChartsStatisticsController getFilterOptions should handle service errors in filter options" time="0.006">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should handle empty filter options" name="ChartsStatisticsController getFilterOptions should handle empty filter options" time="0.054">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should filter by userId for CLIENT users" name="ChartsStatisticsController getFilterOptions should filter by userId for CLIENT users" time="0.014">
+    </testcase>
+    <testcase classname="ChartsStatisticsController getFilterOptions should ignore partnerId for CLIENT users" name="ChartsStatisticsController getFilterOptions should ignore partnerId for CLIENT users" time="0.005">
+    </testcase>
+    <testcase classname="ChartsStatisticsController DTO validation should accept valid ChartsFilterDto" name="ChartsStatisticsController DTO validation should accept valid ChartsFilterDto" time="0.005">
+    </testcase>
+    <testcase classname="ChartsStatisticsController DTO validation should handle string numbers in DTO" name="ChartsStatisticsController DTO validation should handle string numbers in DTO" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="DevisController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:18" time="8.901" tests="16">
+    <testcase classname="DevisController should be defined" name="DevisController should be defined" time="0.033">
+    </testcase>
+    <testcase classname="DevisController getAllDevis should return an array of devis" name="DevisController getAllDevis should return an array of devis" time="0.012">
+    </testcase>
+    <testcase classname="DevisController getDevisByUser should return devis for user" name="DevisController getDevisByUser should return devis for user" time="0.01">
+    </testcase>
+    <testcase classname="DevisController getAcceptedDevisForCurrentUser should return accepted devis for current user" name="DevisController getAcceptedDevisForCurrentUser should return accepted devis for current user" time="0.012">
+    </testcase>
+    <testcase classname="DevisController getDevisById should return a devis by id" name="DevisController getDevisById should return a devis by id" time="0.009">
+    </testcase>
+    <testcase classname="DevisController getDevisById should throw NotFoundException when devis not found" name="DevisController getDevisById should throw NotFoundException when devis not found" time="0.066">
+    </testcase>
+    <testcase classname="DevisController acceptDevis should accept a devis" name="DevisController acceptDevis should accept a devis" time="0.008">
+    </testcase>
+    <testcase classname="DevisController refuseDevis should refuse a devis with commentaire" name="DevisController refuseDevis should refuse a devis with commentaire" time="0.01">
+    </testcase>
+    <testcase classname="DevisController restorer should restore a devis" name="DevisController restorer should restore a devis" time="0.008">
+    </testcase>
+    <testcase classname="DevisController archiverU should call archiverU for client user" name="DevisController archiverU should call archiverU for client user" time="0.007">
+    </testcase>
+    <testcase classname="DevisController archiverU should call archiver for non-client user" name="DevisController archiverU should call archiver for non-client user" time="0.008">
+    </testcase>
+    <testcase classname="DevisController restorerU should restore user archive for devis" name="DevisController restorerU should restore user archive for devis" time="0.012">
+    </testcase>
+    <testcase classname="DevisController deleteDevis should call deleteDevis" name="DevisController deleteDevis should call deleteDevis" time="0.036">
+    </testcase>
+    <testcase classname="DevisController startNegociation should start negotiation with commentaire" name="DevisController startNegociation should start negotiation with commentaire" time="0.01">
+    </testcase>
+    <testcase classname="DevisController startNegociation should start negotiation without commentaire" name="DevisController startNegociation should start negotiation without commentaire" time="0.011">
+    </testcase>
+    <testcase classname="DevisController getArchiveForCurrentUser should return archived devis for current user" name="DevisController getArchiveForCurrentUser should return archived devis for current user" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="ReclamationController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:41" time="46.421" tests="19">
+    <testcase classname="ReclamationController should be defined" name="ReclamationController should be defined" time="0.18">
+    </testcase>
+    <testcase classname="ReclamationController create should create a reclamation" name="ReclamationController create should create a reclamation" time="0.014">
+    </testcase>
+    <testcase classname="ReclamationController create should handle service errors during creation" name="ReclamationController create should handle service errors during creation" time="0.097">
+    </testcase>
+    <testcase classname="ReclamationController update should update a reclamation" name="ReclamationController update should update a reclamation" time="0.011">
+    </testcase>
+    <testcase classname="ReclamationController update should handle invalid ID during update" name="ReclamationController update should handle invalid ID during update" time="0.012">
+    </testcase>
+    <testcase classname="ReclamationController findAll should return all reclamations" name="ReclamationController findAll should return all reclamations" time="0.029">
+    </testcase>
+    <testcase classname="ReclamationController findAll should return empty array when no reclamations exist" name="ReclamationController findAll should return empty array when no reclamations exist" time="0.029">
+    </testcase>
+    <testcase classname="ReclamationController findOne should return a reclamation by id" name="ReclamationController findOne should return a reclamation by id" time="0.011">
+    </testcase>
+    <testcase classname="ReclamationController findOne should throw NotFoundException for non-existent id" name="ReclamationController findOne should throw NotFoundException for non-existent id" time="0.016">
+    </testcase>
+    <testcase classname="ReclamationController findByUser should return reclamations for a user" name="ReclamationController findByUser should return reclamations for a user" time="0.011">
+    </testcase>
+    <testcase classname="ReclamationController findByUser should return empty array for user with no reclamations" name="ReclamationController findByUser should return empty array for user with no reclamations" time="0.012">
+    </testcase>
+    <testcase classname="ReclamationController remove should delete a reclamation" name="ReclamationController remove should delete a reclamation" time="0.006">
+    </testcase>
+    <testcase classname="ReclamationController remove should handle errors during deletion" name="ReclamationController remove should handle errors during deletion" time="0.013">
+    </testcase>
+    <testcase classname="ReclamationController processReclamation should process a reclamation" name="ReclamationController processReclamation should process a reclamation" time="0.008">
+    </testcase>
+    <testcase classname="ReclamationController processReclamation should handle processing errors" name="ReclamationController processReclamation should handle processing errors" time="0.008">
+    </testcase>
+    <testcase classname="ReclamationController edge cases should handle numeric string IDs correctly" name="ReclamationController edge cases should handle numeric string IDs correctly" time="0.01">
+    </testcase>
+    <testcase classname="ReclamationController edge cases should handle very long descriptions in create" name="ReclamationController edge cases should handle very long descriptions in create" time="0.01">
+    </testcase>
+    <testcase classname="ReclamationController edge cases should handle all reclamation types" name="ReclamationController edge cases should handle all reclamation types" time="0.013">
+    </testcase>
+    <testcase classname="ReclamationController edge cases should handle concurrent file operations" name="ReclamationController edge cases should handle concurrent file operations" time="0.126">
+    </testcase>
+  </testsuite>
+  <testsuite name="CahierDesChargesController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:01:41" time="46.61" tests="19">
+    <testcase classname="CahierDesChargesController should be defined" name="CahierDesChargesController should be defined" time="0.11">
+    </testcase>
+    <testcase classname="CahierDesChargesController findAll should return all CDCs" name="CahierDesChargesController findAll should return all CDCs" time="0.025">
+    </testcase>
+    <testcase classname="CahierDesChargesController findOne should return CDC by id" name="CahierDesChargesController findOne should return CDC by id" time="0.018">
+    </testcase>
+    <testcase classname="CahierDesChargesController create should create a CDC" name="CahierDesChargesController create should create a CDC" time="0.011">
+    </testcase>
+    <testcase classname="CahierDesChargesController update should update a CDC" name="CahierDesChargesController update should update a CDC" time="0.02">
+    </testcase>
+    <testcase classname="CahierDesChargesController delete should delete a CDC" name="CahierDesChargesController delete should delete a CDC" time="0.055">
+    </testcase>
+    <testcase classname="CahierDesChargesController findByUser should find CDCs by user" name="CahierDesChargesController findByUser should find CDCs by user" time="0.04">
+    </testcase>
+    <testcase classname="CahierDesChargesController accept should accept CDC" name="CahierDesChargesController accept should accept CDC" time="0.013">
+    </testcase>
+    <testcase classname="CahierDesChargesController refuse should refuse CDC" name="CahierDesChargesController refuse should refuse CDC" time="0.011">
+    </testcase>
+    <testcase classname="CahierDesChargesController archiver should archive CDC user role CLIENT calls archiverU" name="CahierDesChargesController archiver should archive CDC user role CLIENT calls archiverU" time="0.013">
+    </testcase>
+    <testcase classname="CahierDesChargesController archiver should archive CDC user role other calls archiver" name="CahierDesChargesController archiver should archive CDC user role other calls archiver" time="0.009">
+    </testcase>
+    <testcase classname="CahierDesChargesController restorer should restore CDC" name="CahierDesChargesController restorer should restore CDC" time="0.008">
+    </testcase>
+    <testcase classname="CahierDesChargesController archiverU should archive CDC user flag" name="CahierDesChargesController archiverU should archive CDC user flag" time="0.012">
+    </testcase>
+    <testcase classname="CahierDesChargesController restorerU should restore CDC user flag" name="CahierDesChargesController restorerU should restore CDC user flag" time="0.012">
+    </testcase>
+    <testcase classname="CahierDesChargesController deleteFile should delete file" name="CahierDesChargesController deleteFile should delete file" time="0.009">
+    </testcase>
+    <testcase classname="CahierDesChargesController markAsIncomplete should mark CDC incomplete" name="CahierDesChargesController markAsIncomplete should mark CDC incomplete" time="0.008">
+    </testcase>
+    <testcase classname="CahierDesChargesController sendEmail should send emails to recipients with formatted HTML template" name="CahierDesChargesController sendEmail should send emails to recipients with formatted HTML template" time="0.01">
+    </testcase>
+    <testcase classname="CahierDesChargesController sendEmail should throw BadRequestException if to field is invalid" name="CahierDesChargesController sendEmail should throw BadRequestException if to field is invalid" time="0.15">
+    </testcase>
+    <testcase classname="CahierDesChargesController getArchiveForCurrentUser should return archive for current user" name="CahierDesChargesController getArchiveForCurrentUser should return archive for current user" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="RolesController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:25" time="4.019" tests="6">
+    <testcase classname="RolesController should be defined" name="RolesController should be defined" time="0.03">
+    </testcase>
+    <testcase classname="RolesController create should call service.create and return the created Role" name="RolesController create should call service.create and return the created Role" time="0.012">
+    </testcase>
+    <testcase classname="RolesController findAll should return array of roles" name="RolesController findAll should return array of roles" time="0.008">
+    </testcase>
+    <testcase classname="RolesController findOne should return role by id" name="RolesController findOne should return role by id" time="0.01">
+    </testcase>
+    <testcase classname="RolesController update should update and return role" name="RolesController update should update and return role" time="0.057">
+    </testcase>
+    <testcase classname="RolesController remove should call service.remove" name="RolesController remove should call service.remove" time="0.023">
+    </testcase>
+  </testsuite>
+  <testsuite name="UsersController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:23" time="6.149" tests="5">
+    <testcase classname="UsersController should be defined" name="UsersController should be defined" time="0.091">
+    </testcase>
+    <testcase classname="UsersController create should create a user" name="UsersController create should create a user" time="0.048">
+    </testcase>
+    <testcase classname="UsersController findOneById should retrieve user by id" name="UsersController findOneById should retrieve user by id" time="0.007">
+    </testcase>
+    <testcase classname="UsersController updateUser should call updateUser on service" name="UsersController updateUser should call updateUser on service" time="0.007">
+    </testcase>
+    <testcase classname="UsersController deleteUser should call deleteUser on service" name="UsersController deleteUser should call deleteUser on service" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="PartnersController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:24" time="7.701" tests="9">
+    <testcase classname="PartnersController should be defined" name="PartnersController should be defined" time="0.029">
+    </testcase>
+    <testcase classname="PartnersController findAll should return an array of partners" name="PartnersController findAll should return an array of partners" time="0.018">
+    </testcase>
+    <testcase classname="PartnersController findOne should return a single partner by id" name="PartnersController findOne should return a single partner by id" time="0.022">
+    </testcase>
+    <testcase classname="PartnersController create should create and return a new partner" name="PartnersController create should create and return a new partner" time="0.01">
+    </testcase>
+    <testcase classname="PartnersController update should update and return a partner" name="PartnersController update should update and return a partner" time="0.019">
+    </testcase>
+    <testcase classname="PartnersController remove should remove partner by id" name="PartnersController remove should remove partner by id" time="0.008">
+    </testcase>
+    <testcase classname="PartnersController getUsersByPartnerId should return users associated with a partner" name="PartnersController getUsersByPartnerId should return users associated with a partner" time="0.011">
+    </testcase>
+    <testcase classname="PartnersController inactivatePartner should inactivate a partner and users" name="PartnersController inactivatePartner should inactivate a partner and users" time="0.01">
+    </testcase>
+    <testcase classname="PartnersController activatePartner should activate a partner and users" name="PartnersController activatePartner should activate a partner and users" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="ProjectController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:25" time="6.192" tests="5">
+    <testcase classname="ProjectController should be defined" name="ProjectController should be defined" time="0.035">
+    </testcase>
+    <testcase classname="ProjectController update should update a project" name="ProjectController update should update a project" time="0.013">
+    </testcase>
+    <testcase classname="ProjectController findAll should return all projects" name="ProjectController findAll should return all projects" time="0.008">
+    </testcase>
+    <testcase classname="ProjectController findOne should return project by id" name="ProjectController findOne should return project by id" time="0.01">
+    </testcase>
+    <testcase classname="ProjectController remove should remove project" name="ProjectController remove should remove project" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="SettingController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:29" time="3.669" tests="3">
+    <testcase classname="SettingController should be defined" name="SettingController should be defined" time="0.018">
+    </testcase>
+    <testcase classname="SettingController getAllSettings should return the setting" name="SettingController getAllSettings should return the setting" time="0.008">
+    </testcase>
+    <testcase classname="SettingController updateSetting should update and return the updated setting" name="SettingController updateSetting should update and return the updated setting" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:28" time="4.413" tests="4">
+    <testcase classname="AuthController should be defined" name="AuthController should be defined" time="0.072">
+    </testcase>
+    <testcase classname="AuthController login should call authService.login and return tokens" name="AuthController login should call authService.login and return tokens" time="0.014">
+    </testcase>
+    <testcase classname="AuthController refreshToken should call authService.refreshAccessToken and return new access token" name="AuthController refreshToken should call authService.refreshAccessToken and return new access token" time="0.008">
+    </testcase>
+    <testcase classname="AuthController logout should call authService.logout and confirm logout" name="AuthController logout should call authService.logout and confirm logout" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="WorkflowDiscussionController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:28" time="4.512" tests="12">
+    <testcase classname="WorkflowDiscussionController should be defined" name="WorkflowDiscussionController should be defined" time="0.03">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getAllDiscussions should return paginated discussions" name="WorkflowDiscussionController getAllDiscussions should return paginated discussions" time="0.048">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getAllDiscussions should return paginated discussions with search" name="WorkflowDiscussionController getAllDiscussions should return paginated discussions with search" time="0.008">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getDiscussionsByUser should call getDiscussionsByUser when role includes CLIENT" name="WorkflowDiscussionController getDiscussionsByUser should call getDiscussionsByUser when role includes CLIENT" time="0.013">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getDiscussionsByUser should call getAllDiscussions for other roles" name="WorkflowDiscussionController getDiscussionsByUser should call getAllDiscussions for other roles" time="0.013">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getDiscussionsByUser should handle search parameter for CLIENT role" name="WorkflowDiscussionController getDiscussionsByUser should handle search parameter for CLIENT role" time="0.02">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getDiscussionsByUser should handle search parameter for non-CLIENT role" name="WorkflowDiscussionController getDiscussionsByUser should handle search parameter for non-CLIENT role" time="0.007">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getFullDiscussion should return full discussion details" name="WorkflowDiscussionController getFullDiscussion should return full discussion details" time="0.006">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController getDiscussion should return discussion by id with user id" name="WorkflowDiscussionController getDiscussion should return discussion by id with user id" time="0.011">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController markAsRead should mark messages as read" name="WorkflowDiscussionController markAsRead should mark messages as read" time="0.012">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController addMessage should add message to discussion" name="WorkflowDiscussionController addMessage should add message to discussion" time="0.009">
+    </testcase>
+    <testcase classname="WorkflowDiscussionController transitionPhase should transition discussion phase" name="WorkflowDiscussionController transitionPhase should transition discussion phase" time="0.058">
+    </testcase>
+  </testsuite>
+  <testsuite name="AvisController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:27" time="6.212" tests="9">
+    <testcase classname="AvisController should be defined" name="AvisController should be defined" time="0.021">
+    </testcase>
+    <testcase classname="AvisController create should create and return an avis" name="AvisController create should create and return an avis" time="0.007">
+    </testcase>
+    <testcase classname="AvisController findAll should return an array of avis" name="AvisController findAll should return an array of avis" time="0.007">
+    </testcase>
+    <testcase classname="AvisController findOne should return a single avis" name="AvisController findOne should return a single avis" time="0.006">
+    </testcase>
+    <testcase classname="AvisController update should update and return the avis" name="AvisController update should update and return the avis" time="0.006">
+    </testcase>
+    <testcase classname="AvisController remove should remove the avis" name="AvisController remove should remove the avis" time="0.008">
+    </testcase>
+    <testcase classname="AvisController findByUser should return avis for a user" name="AvisController findByUser should return avis for a user" time="0.006">
+    </testcase>
+    <testcase classname="AvisController findByPartner should return avis for a partner" name="AvisController findByPartner should return avis for a partner" time="0.007">
+    </testcase>
+    <testcase classname="AvisController hasOldAvis should return boolean if user has old avis" name="AvisController hasOldAvis should return boolean if user has old avis" time="0.017">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotificationsController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:29" time="4.292" tests="13">
+    <testcase classname="NotificationsController should be defined" name="NotificationsController should be defined" time="0.025">
+    </testcase>
+    <testcase classname="NotificationsController markAsRead should mark notification as read and return success message" name="NotificationsController markAsRead should mark notification as read and return success message" time="0.009">
+    </testcase>
+    <testcase classname="NotificationsController markAsRead should handle errors when marking notification as read" name="NotificationsController markAsRead should handle errors when marking notification as read" time="0.044">
+    </testcase>
+    <testcase classname="NotificationsController getAll should return all notifications" name="NotificationsController getAll should return all notifications" time="0.007">
+    </testcase>
+    <testcase classname="NotificationsController getAll should return empty array when no notifications exist" name="NotificationsController getAll should return empty array when no notifications exist" time="0.005">
+    </testcase>
+    <testcase classname="NotificationsController delete should delete notification successfully" name="NotificationsController delete should delete notification successfully" time="0.005">
+    </testcase>
+    <testcase classname="NotificationsController delete should handle errors when deleting notification" name="NotificationsController delete should handle errors when deleting notification" time="0.007">
+    </testcase>
+    <testcase classname="NotificationsController getForCurrentUser should return notifications for current user" name="NotificationsController getForCurrentUser should return notifications for current user" time="0.024">
+    </testcase>
+    <testcase classname="NotificationsController getForCurrentUser should return empty array when user has no notifications" name="NotificationsController getForCurrentUser should return empty array when user has no notifications" time="0.007">
+    </testcase>
+    <testcase classname="NotificationsController getForCurrentUser should handle different user IDs" name="NotificationsController getForCurrentUser should handle different user IDs" time="0.009">
+    </testcase>
+    <testcase classname="NotificationsController edge cases should handle markAsRead with invalid ID" name="NotificationsController edge cases should handle markAsRead with invalid ID" time="0.013">
+    </testcase>
+    <testcase classname="NotificationsController edge cases should handle delete with non-existent ID" name="NotificationsController edge cases should handle delete with non-existent ID" time="0.007">
+    </testcase>
+    <testcase classname="NotificationsController edge cases should handle user with no role in getForCurrentUser" name="NotificationsController edge cases should handle user with no role in getForCurrentUser" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="JwtAuthGuard" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:33" time="1.704" tests="1">
+    <testcase classname="JwtAuthGuard reflector integration should call parent when public decorator is false" name="JwtAuthGuard reflector integration should call parent when public decorator is false" time="0.021">
+    </testcase>
+  </testsuite>
+  <testsuite name="AppController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:33" time="1.685" tests="1">
+    <testcase classname="AppController root should return &quot;Hello World!&quot;" name="AppController root should return &quot;Hello World!&quot;" time="0.04">
+    </testcase>
+  </testsuite>
+  <testsuite name="TasksService" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:32" time="3.434" tests="3">
+    <testcase classname="TasksService handleInvalidateOldDevis should invalidate old devis with custom expiration (3 months)" name="TasksService handleInvalidateOldDevis should invalidate old devis with custom expiration (3 months)" time="0.022">
+    </testcase>
+    <testcase classname="TasksService handleInvalidateOldDevis should use default 6 months if devisExpirationMonths is missing" name="TasksService handleInvalidateOldDevis should use default 6 months if devisExpirationMonths is missing" time="0.007">
+    </testcase>
+    <testcase classname="TasksService handleInvalidateOldDevis should log error if invalidateOldDevis throws" name="TasksService handleInvalidateOldDevis should log error if invalidateOldDevis throws" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserSessionController" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:33" time="2.872" tests="8">
+    <testcase classname="UserSessionController should be defined" name="UserSessionController should be defined" time="0.021">
+    </testcase>
+    <testcase classname="UserSessionController startSession should call service createSession and return result" name="UserSessionController startSession should call service createSession and return result" time="0.007">
+    </testcase>
+    <testcase classname="UserSessionController endSession should call service endSession and return success" name="UserSessionController endSession should call service endSession and return success" time="0.008">
+    </testcase>
+    <testcase classname="UserSessionController updateSession should call service updateSession and return updated session" name="UserSessionController updateSession should call service updateSession and return updated session" time="0.016">
+    </testcase>
+    <testcase classname="UserSessionController getAllSessions should return all sessions" name="UserSessionController getAllSessions should return all sessions" time="0.006">
+    </testcase>
+    <testcase classname="UserSessionController getSessionById should return a session by id" name="UserSessionController getSessionById should return a session by id" time="0.01">
+    </testcase>
+    <testcase classname="UserSessionController isSessionActive should return boolean active status" name="UserSessionController isSessionActive should return boolean active status" time="0.006">
+    </testcase>
+    <testcase classname="UserSessionController deleteSession should call service deleteSession and return result" name="UserSessionController deleteSession should call service deleteSession and return result" time="0.012">
+    </testcase>
+  </testsuite>
+  <testsuite name="SeedService" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:32" time="3.672" tests="11">
+    <testcase classname="SeedService onApplicationBootstrap should call all seeding methods" name="SeedService onApplicationBootstrap should call all seeding methods" time="0.034">
+    </testcase>
+    <testcase classname="SeedService seedRoles should create missing roles" name="SeedService seedRoles should create missing roles" time="0.018">
+    </testcase>
+    <testcase classname="SeedService seedRoles should skip roles that already exist" name="SeedService seedRoles should skip roles that already exist" time="0.012">
+    </testcase>
+    <testcase classname="SeedService seedAdminUser should create admin user if not exists" name="SeedService seedAdminUser should create admin user if not exists" time="0.013">
+    </testcase>
+    <testcase classname="SeedService seedAdminUser should do nothing if admin user exists" name="SeedService seedAdminUser should do nothing if admin user exists" time="0.01">
+    </testcase>
+    <testcase classname="SeedService seedAdminUser should throw if admin role missing" name="SeedService seedAdminUser should throw if admin role missing" time="0.057">
+    </testcase>
+    <testcase classname="SeedService seedProcessUsers should create process users if not exists" name="SeedService seedProcessUsers should create process users if not exists" time="0.012">
+    </testcase>
+    <testcase classname="SeedService seedProcessUsers should skip users if email already exists" name="SeedService seedProcessUsers should skip users if email already exists" time="0.01">
+    </testcase>
+    <testcase classname="SeedService seedProcessUsers should warn and skip if role not found" name="SeedService seedProcessUsers should warn and skip if role not found" time="0.015">
+    </testcase>
+    <testcase classname="SeedService seedDefaultSetting should create default setting if none exists" name="SeedService seedDefaultSetting should create default setting if none exists" time="0.009">
+    </testcase>
+    <testcase classname="SeedService seedDefaultSetting should not create if setting exists" name="SeedService seedDefaultSetting should not create if setting exists" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="RolesService" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:33" time="2.801" tests="8">
+    <testcase classname="RolesService create should create and save a role" name="RolesService create should create and save a role" time="0.019">
+    </testcase>
+    <testcase classname="RolesService findAll should return all roles" name="RolesService findAll should return all roles" time="0.009">
+    </testcase>
+    <testcase classname="RolesService findOne should return the role if found" name="RolesService findOne should return the role if found" time="0.006">
+    </testcase>
+    <testcase classname="RolesService findOne should throw NotFoundException if role not found" name="RolesService findOne should throw NotFoundException if role not found" time="0.028">
+    </testcase>
+    <testcase classname="RolesService update should update and save the role" name="RolesService update should update and save the role" time="0.007">
+    </testcase>
+    <testcase classname="RolesService remove should remove a role if not system role" name="RolesService remove should remove a role if not system role" time="0.006">
+    </testcase>
+    <testcase classname="RolesService remove should throw ConflictException if system role" name="RolesService remove should throw ConflictException if system role" time="0.005">
+    </testcase>
+    <testcase classname="RolesService remove should throw NotFoundException if role not found" name="RolesService remove should throw NotFoundException if role not found" time="0.014">
+    </testcase>
+  </testsuite>
+  <testsuite name="NotificationsGateway" errors="0" failures="0" skipped="0" timestamp="2025-11-22T20:02:33" time="3.691" tests="11">
+    <testcase classname="NotificationsGateway should be defined" name="NotificationsGateway should be defined" time="0.008">
+    </testcase>
+    <testcase classname="NotificationsGateway handleConnection should verify token and join room on success" name="NotificationsGateway handleConnection should verify token and join room on success" time="0.008">
+    </testcase>
+    <testcase classname="NotificationsGateway handleConnection should disconnect client when no token is provided" name="NotificationsGateway handleConnection should disconnect client when no token is provided" time="0.005">
+    </testcase>
+    <testcase classname="NotificationsGateway handleConnection should disconnect client when token verification fails" name="NotificationsGateway handleConnection should disconnect client when token verification fails" time="0.004">
+    </testcase>
+    <testcase classname="NotificationsGateway handleConnection should disconnect client when user is not found" name="NotificationsGateway handleConnection should disconnect client when user is not found" time="0.008">
+    </testcase>
+    <testcase classname="NotificationsGateway handleConnection should handle markAsRead event from client" name="NotificationsGateway handleConnection should handle markAsRead event from client" time="0.008">
+    </testcase>
+    <testcase classname="NotificationsGateway handleDisconnect should log client disconnection" name="NotificationsGateway handleDisconnect should log client disconnection" time="0.004">
+    </testcase>
+    <testcase classname="NotificationsGateway sendNotificationToUser should send notification to specific user" name="NotificationsGateway sendNotificationToUser should send notification to specific user" time="0.003">
+    </testcase>
+    <testcase classname="NotificationsGateway sendNotificationToUser should handle multiple user notifications" name="NotificationsGateway sendNotificationToUser should handle multiple user notifications" time="0.003">
+    </testcase>
+    <testcase classname="NotificationsGateway sendNotificationToAll should send notification to all connected clients" name="NotificationsGateway sendNotificationToAll should send notification to all connected clients" time="0.003">
+    </testcase>
+    <testcase classname="NotificationsGateway sendNotificationToAll should send notification without payload" name="NotificationsGateway sendNotificationToAll should send notification without payload" time="0.002">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -14,7 +14,7 @@
         <button class="back-button" *ngIf="isMobileView" (click)="closeDiscussionView()">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h3>{{ currentDiscussion?.cdc?.titre || 'Conversation' }}</h3>
+        <h3 style="color: white !important;">{{ currentDiscussion?.cdc?.titre || 'Conversation' }}</h3>
         <button class="details-toggle" (click)="toggleDetailsPanel()">
           <i class="bx bx-detail" style="font-size: 1.6rem;"></i>
         </button>

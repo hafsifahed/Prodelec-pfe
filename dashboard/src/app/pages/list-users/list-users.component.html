@@ -114,9 +114,9 @@
               <td>{{ user.username }}</td>
               <td>
                 <span class="badge" [ngClass]="{
-                  'bg-primary': user.role?.name === 'ADMIN',
-                  'bg-success': user.role?.name === 'SUBADMIN',
-                  'bg-info': user.role?.name === 'USER'
+                  'bg-primary': user.role?.name === 'CLIENTUSER',
+                  'bg-success': user.role?.name === 'CLIENTADMIN',
+                  'bg-info': user.role?.name !== 'ADMIN' && user.role?.name !== 'SUBADMIN'
                 }">
                   {{ user.role?.name || user.role }}
                 </span>
@@ -184,9 +184,9 @@
           <div class="detail-item mb-2">
             <i class="fas fa-user-tag me-2 text-muted"></i>
             <span class="badge" [ngClass]="{
-              'bg-primary': user.role?.name === 'ADMIN',
-              'bg-success': user.role?.name === 'SUBADMIN',
-              'bg-info': user.role?.name === 'USER'
+              'bg-primary': user.role?.name === 'CLIENTADMIN',
+                  'bg-success': user.role?.name === 'CLIENTUSER',
+                  'bg-info': user.role?.name !== 'CLIENTADMIN' && user.role?.name !== 'CLIENTUSER'
             }">
               {{ user.role?.name || user.role }}
             </span>
