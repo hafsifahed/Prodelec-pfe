@@ -84,6 +84,9 @@ export class ChartsUseradminSectionComponent implements OnInit {
     });
   }
 
+  isWorker(): boolean {
+  return !!this.user && !this.user.role?.name.toLowerCase().startsWith('client');
+}
   private async initData() {
     this.isLoading = true;
     

@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <div class="export-section">
+    <div class="export-section" *ngIf="isWorker()">
       <button class="btn btn-success export-btn" 
               (click)="exportChartsToPdf()" 
               [disabled]="isExporting || isLoading">

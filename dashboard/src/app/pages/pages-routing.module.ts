@@ -543,8 +543,8 @@ const routes: Routes = [
     component: SettingComponent, 
     canActivate: [PermissionGuard, RoleGuard], 
     data: { 
-      permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.MANAGE] }], 
-      allowedRoles: ['WORKER'],
+      permissions: [{ resource: Resource.SETTINGS, actions: [Action.MANAGE,Action.READ,Action.UPDATE] }], 
+      allowedRoles: ['CLIENT','WORKER'],
       title: 'Paramètres | Prodelec NA'
     } 
   },

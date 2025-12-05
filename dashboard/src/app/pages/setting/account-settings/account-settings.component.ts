@@ -52,6 +52,7 @@ export class AccountSettingsComponent {
       next: (updatedUser) => {
         this.settingsUpdate.emit(update);
         this.toastService.success('Modifications enregistrées');
+        
       },
       error: (err) => {
         this.toastService.error(err.error?.message || 'Erreur lors de la mise à jour');

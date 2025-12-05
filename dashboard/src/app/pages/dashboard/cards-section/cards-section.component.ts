@@ -6,6 +6,7 @@ import { ProjectService } from 'src/app/core/services/projectService/project.ser
 import { SettingService } from 'src/app/core/services/setting.service';
 import { DatePipe } from '@angular/common';
 import jsPDF from 'jspdf';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 @Component({
   selector: 'app-cards-section',
@@ -49,7 +50,8 @@ export class CardsSectionComponent implements OnInit {
   
   // Configuration
   setting: any;
-  
+    userr: any;
+
   // États
   isLoading = true;
   hasComparativeData = false;
@@ -60,6 +62,7 @@ export class CardsSectionComponent implements OnInit {
     private avisSrv: AvisService,
     private projectSrv: ProjectService,
     private settingService: SettingService,
+    private userStateService: UserStateService,
     private datePipe: DatePipe
   ) { }
 
@@ -68,12 +71,18 @@ export class CardsSectionComponent implements OnInit {
     this.settingService.getSettings().subscribe((res: any) => {
       this.setting = res;
     });
+         this.userStateService.user$.subscribe(user => {
+      this.userr = user;
+    });
 
     await this.loadAvailableYears();
     // Charger les données initiales
     await this.loadStats();
   }
 
+  isWorker(): boolean {
+  return !!this.userr && !this.userr.role?.name.toLowerCase().startsWith('client');
+}
   // Charger les statistiques
   private async loadStats() {
     this.isLoading = true;

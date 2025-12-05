@@ -3,6 +3,7 @@ import { ApexOptions } from 'ng-apexcharts';
 import { ChartsStatisticsService } from 'src/app/core/services/charts-statistics.service';
 import { jsPDF } from 'jspdf';
 import { DatePipe } from '@angular/common';
+import { UserStateService } from 'src/app/core/services/user-state.service';
 
 interface FilterOptions {
   users: any[];
@@ -37,6 +38,7 @@ export class ChartsSectionComponent implements OnInit {
   filteredUsers: UserFilter[] = [];
   partners: PartnerFilter[] = [];
   years: number[] = [];
+  userr: any;
 
   // Propriétés pour les données des charts
   chartOptionsReclamations: Partial<ApexOptions> | null = null;
@@ -66,14 +68,22 @@ export class ChartsSectionComponent implements OnInit {
 
   constructor(
     private chartsStatsService: ChartsStatisticsService,
+        private userStateService: UserStateService,
+
     private datePipe: DatePipe
   ) {}
 
   async ngOnInit() {
+         this.userStateService.user$.subscribe(user => {
+      this.userr = user;
+    });
     await this.loadFilterOptions();
     await this.loadChartsData(false);
   }
 
+  isWorker(): boolean {
+  return !!this.userr && !this.userr.role?.name.toLowerCase().startsWith('client');
+}
   private async loadFilterOptions(partnerId?: number) {
     try {
       const filterOptions = await this.chartsStatsService.getFilterOptions(partnerId).toPromise();

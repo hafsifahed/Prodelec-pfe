@@ -127,7 +127,7 @@ export class AvisComponent implements OnInit {
             this.sendAvisEmail(response);
             
             this.resetForm();
-            this.router.navigate(['/list-avis']);
+            this.router.navigate(['/dashboard']);
           },
           (error) => {
             console.error('Error submitting review', error);
